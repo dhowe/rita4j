@@ -1,5 +1,6 @@
 package rita;
 
+import java.util.Arrays;
 import java.util.Map;
 
 public class RiTa {
@@ -75,7 +76,7 @@ public class RiTa {
 //    caseSensitive = caseSensitive || false;
 //    input = caseSensitive ? input : titleCase(input);
 
-    return  ABBREVIATIONS.contains(input);
+    return Arrays.stream(ABBREVIATIONS).anyMatch(input::equals);
   }
 
   static Object isAdjective(String word, Map opts) {
@@ -99,7 +100,7 @@ public class RiTa {
   }
 
   static Object isQuestion(String sentence) { // remove?
-    return  QUESTIONS.contains(tokenize(sentence)[0].toLowerCase());
+    return Arrays.stream(QUESTIONS).anyMatch(tokenize(sentence)[0].toLowerCase()::equals);
   }
 
   static Object isRhyme(String word1, String word2) {

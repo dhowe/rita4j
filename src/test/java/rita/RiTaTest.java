@@ -9,6 +9,7 @@ import rita.RiTa;
 import static org.junit.Assert.*;
 
 public class RiTaTest {
+
     @Test public void testSomeLibraryMethod() {
         
     }

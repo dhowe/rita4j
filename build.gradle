@@ -26,6 +26,7 @@ dependencies {
 
     // Use JUnit test framework
     testImplementation 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
     
     // Project specific
     compile 'org.antlr:antlr-complete:3.5.2'
