@@ -29,9 +29,13 @@ public class RiTa {
   private static Lexicon _lexicon() {
     if (lexicon != null) {
       lts = new LetterToSound();
-      lexicon = new Lexicon("./rita_dict");
+      try {
+        lexicon = new Lexicon("./rita_dict");
+      } catch (Exception e) {
+        throw new RiTaException();
+      }
     }
-    return  lexicon;
+    return lexicon;
   }
 
   private static Analyzer _analyzer() {
