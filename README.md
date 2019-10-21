@@ -1,7 +1,7 @@
 # rita2
 Development of the RiTa library version 2.x
 
-# to build 
+## to build 
 1. install gradle
 1. clone this repo
 1. cd rita2
