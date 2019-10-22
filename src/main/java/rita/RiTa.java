@@ -123,7 +123,7 @@ public class RiTa {
     return  conjugator.pastParticiple(verb);
   }
 
-  public static Object phonemes(String text) {
+  public static String phonemes(String text) {
     return  _analyzer().analyze(text).get("phonemes");
   }
 
@@ -166,7 +166,7 @@ public class RiTa {
     return  parser.lexParseVisit(word, opts);
   }
 
-  public static Object stresses(String text) {
+  public static String stresses(String text) {
     return  _analyzer().analyze(text).get("stresses");
   }
 

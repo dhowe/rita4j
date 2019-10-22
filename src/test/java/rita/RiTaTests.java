@@ -10,7 +10,7 @@ import rita.*;
 import static org.junit.Assert.*;
 
 
-public class RiTaTest {
+public class RiTaTests {
 	
 	
 
