@@ -46,31 +46,31 @@ public class RiTa {
     return  analyzer;
   }
   
-  static Object analyze(String word, Map opts) {
+  public static Object analyze(String word, Map opts) {
     return  _analyzer().analyze(word, opts);
   }
 
-  static Object alliterations(String word, Map opts) {
+  public static Object alliterations(String word, Map opts) {
     return  _lexicon().alliterations(word, opts);
   }
 
-  static Object concordance(String word, Map opts) {
+  public static Object concordance(String word, Map opts) {
     return  concorder.concordance(word, opts);
   }
 
-  static Object conjugate(String word, Map opts) {
+  public static Object conjugate(String word, Map opts) {
     return  conjugator.conjugate(word, opts);
   }
 
-  static Object env(String word, Map opts) {
+  public static Object env(String word, Map opts) {
     return Util.isNode() ? NODE : JS;
   }
 
-  static Object hasWord(String word, Map opts) {
+  public static Object hasWord(String word, Map opts) {
     return  _lexicon().hasWord(word, opts);
   }
 
-  static Object isAbbreviation(String input, boolean caseSensitive) {
+  public static boolean isAbbreviation(String input, boolean caseSensitive) {
 
 //    let titleCase = function(input) {
 //      if (!input || !input.length) return input;
@@ -83,102 +83,102 @@ public class RiTa {
     return Arrays.stream(ABBREVIATIONS).anyMatch(input::equals);
   }
 
-  static Object isAdjective(String word, Map opts) {
+  public static boolean isAdjective(String word, Map opts) {
     return  tagger.isAdjective(word, opts);
   }
 
-  static Object isAdverb(String word) {
+  public static boolean isAdverb(String word) {
     return  tagger.isAdverb(word);
   }
 
-  static Object isAlliteration(String word1, String word2) {
+  public static boolean isAlliteration(String word1, String word2) {
     return  _lexicon().isAlliteration(word1, word2);
   }
 
-  static Object isNoun(String word) {
+  public static boolean isNoun(String word) {
     return  tagger.isNoun(word);
   }
 
-  static Object isPunctuation(String text) {
+  public static boolean isPunctuation(String text) {
     return text != null && text.length() > 0 && ONLY_PUNCT.matches(text);
   }
 
-  static Object isQuestion(String sentence) { // remove?
+  public static boolean isQuestion(String sentence) { // remove?
     return Arrays.stream(QUESTIONS).anyMatch(tokenize(sentence)[0].toLowerCase()::equals);
   }
 
-  static Object isRhyme(String word1, String word2) {
+  public static boolean isRhyme(String word1, String word2) {
     return  _lexicon().isRhyme(word1, word2);
   }
 
-  static Object isVerb(String word) {
+  public static boolean isVerb(String word) {
     return  tagger.isAdverb(word);
   }
 
-  static Object kwic(String word, Map opts) {
+  public static Object kwic(String word, Map opts) {
     return  concorder.kwic(word, opts);
   }
 
-  static Object pastParticiple(String verb) {
+  public static Object pastParticiple(String verb) {
     return  conjugator.pastParticiple(verb);
   }
 
-  static Object phonemes(String text) {
+  public static Object phonemes(String text) {
     return  _analyzer().analyze(text).get("phonemes");
   }
 
-  static Object posTags(String word, Map opts) {
+  public static Object posTags(String word, Map opts) {
     return null;
 //    (opts && opts.simple) ? public static final tagger.tagSimple(words)
 //      : (opts && opts.inline) ? public static final tagger.tagInline(words)
 //        : public static final tagger.tag(words);
   }
 
-  static Object pluralize(String word) {
+  public static Object pluralize(String word) {
     return  pluralizer.pluralize(word);
   }
 
-  static Object presentParticiple(String verb) {
+  public static Object presentParticiple(String verb) {
     return  conjugator.presentParticiple(verb);
   }
 
-  static Object random(String word, Map opts) {
+  public static Object random(String word, Map opts) {
     return RandGen.random(word, opts);
   }
 
-  static Object randomOrdering(int num) {
+  public static Object randomOrdering(int num) {
     return RandGen.randomOrdering(num);
   }
 
-  static Object randomSeed(int theSeed) {
+  public static Object randomSeed(int theSeed) {
     return RandGen.seed(theSeed);
   }
 
-  static Object randomWord(Map opts) {
+  public static Object randomWord(Map opts) {
     return  _lexicon().randomWord(opts);
   }
 
-  static Object rhymes(String word, Map opts) {
+  public static Object rhymes(String word, Map opts) {
     return  _lexicon().rhymes(word, opts);
   }
 
-  static Object evaluate(String word, Map opts) {
+  public static Object evaluate(String word, Map opts) {
     return  parser.lexParseVisit(word, opts);
   }
 
-  static Object stresses(String text) {
+  public static Object stresses(String text) {
     return  _analyzer().analyze(text).get("stresses");
   }
 
-  static Object syllables(String text) {
+  public static Object syllables(String text) {
     return  _analyzer().analyze(text).get("syllables");
   }
 
-  static Object similarBy(String word, Map opts) {
+  public static Object similarBy(String word, Map opts) {
     return  _lexicon().similarBy(word, opts);
   }
 
-  static Object singularize(String word) {
+  public static Object singularize(String word) {
     return  pluralizer.singularize(word);
   }
 
@@ -186,19 +186,19 @@ public class RiTa {
     return  tokenizer.sentences(text);
   }
 
-  static Object stem(String word) {
+  public static Object stem(String word) {
     return  stemmer.stem(word);
   }
 
-  static String[] tokenize(String text) {
+  public static String[] tokenize(String text) {
     return  tokenizer.tokenize(text);
   }
 
-  static Object untokenize(String[] words) {
+  public static Object untokenize(String[] words) {
     return  tokenizer.untokenize(words);
   }
 
-  static Object words(String word, Map opts) {
+  public static Object words(String word, Map opts) {
     return  _lexicon().words();
   }
   
