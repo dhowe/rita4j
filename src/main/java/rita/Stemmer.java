@@ -3,7 +3,7 @@ package rita;
 public class Stemmer
 {
 
-  public Object stem(String word)
+  public String stem(String word)
   {
     // TODO Auto-generated method stub
     return null;

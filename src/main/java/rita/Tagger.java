@@ -1,23 +1,40 @@
 package rita;
 
-import java.util.Map;
 
 public class Tagger
 {
 
-  public Object isAdjective(String word, Map opts)
+  public boolean isAdjective(String word)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  public boolean isAdverb(String word)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  public boolean isNoun(String word)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+  
+  public boolean isVerb(String word)
+  {
+    // TODO Auto-generated method stub
+    return false;
+  }
+
+  public String tagInline(String text, boolean useSimpleTags)
   {
     // TODO Auto-generated method stub
     return null;
   }
-
-  public Object isAdverb(String word)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
-  public Object isNoun(String word)
+  
+  public String[] tag(String text, boolean useSimpleTags)
   {
     // TODO Auto-generated method stub
     return null;
