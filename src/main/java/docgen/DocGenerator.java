@@ -83,7 +83,6 @@ public class DocGenerator extends PApplet
   }
 
   static String stringFrom(String fname) throws Exception {
-    System.out.println("DocGenerator.stringFrom("+fname+")");
     Stream<String> lines = Files.lines(Paths.get(fname));
     String result = lines.collect(Collectors.joining("\n"));
     lines.close();
@@ -107,18 +106,15 @@ public class DocGenerator extends PApplet
       pln("  DocFile : " + jsonFile);
       String result = stringFrom(jsonFile);
 
-      result = "{ \"success\": true, \"pagination\": "
-          + "{ \"current\": 1, \"max\": 1 }, \"refobj\": " + result + "}";
+      result = "{ \"success\": true, \"pagination\": { \"current\": 1, \"max\": 1 }, \"refobj\": " + result + "}";
 
       JSONObject raw = JSONObject.parse(result);
       JSONObject json = raw.getJSONObject("refobj");
-      System.out.println(json.keys());
-
+      
       String className = json.getString("class");
       pln("  Class : " + className);
+      
       JSONArray items = json.getJSONArray("fields");
-      System.out.println(items);
-
       numOfMethods = items.size();
       pln("  Fields(" + numOfMethods + ") : ");
 
@@ -131,19 +127,22 @@ public class DocGenerator extends PApplet
         JSONObject entry = items.getJSONObject(j);
 
         hidden[j] = false;
-        if (!entry.isNull("hidden"))
+        if (!entry.isNull("hidden")) {
           hidden[j] = entry.getBoolean("hidden");
+        }
 
         isVariable[j] = false;
-        if (!entry.isNull("variable"))
+        if (!entry.isNull("variable")) {
           isVariable[j] = entry.getBoolean("variable");
+        }
 
         methodName[j] = entry.getString("name");
         pln("    " + methodName[j]);
 
         example[j] = "";
-        if (!entry.isNull("example"))
+        if (!entry.isNull("example")) {
           example[j] = entry.getString("example");
+        }
 
         description[j] = entry.getString("description");
         syntax[j] = entry.getString("syntax");
@@ -153,6 +152,7 @@ public class DocGenerator extends PApplet
         parameter = new String[numOfparameters];
         parameterType = new String[numOfparameters];
         parameterDesc = new String[numOfparameters];
+        
         for (int k = 0; k < numOfparameters; k++)
         {
           JSONObject parametersJSONEntry = parametersJSON.getJSONObject(k);
@@ -167,11 +167,9 @@ public class DocGenerator extends PApplet
         returnDesc = new String[numOfReturns];
         for (int k = 0; k < numOfReturns; k++)
         {
-
           JSONObject returnsJSONEntry = returnsJSON.getJSONObject(k);
           returnType[k] = returnsJSONEntry.getString("type");
           returnDesc[k] = returnsJSONEntry.getString("desc");
-
         }
         related[j] = entry.getString("related");
         thePlatform[j] = entry.getString("platform");
