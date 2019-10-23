@@ -346,7 +346,7 @@ public class RiTa
   public static final String STRESSED = "1";
   public static final String UNSTRESSED = "0";
   public static final String VOWELS = "aeiou";
-  public static final String VERSION = "##version##";
+  public static final String VERSION = "2";
   public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
   public static final String[] FEATURES = { "TOKENS", "STRESSES", "PHONEMES", "SYLLABLES", "POS", "TEXT" };
   public static final String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have" };
