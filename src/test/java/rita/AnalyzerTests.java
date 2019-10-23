@@ -35,31 +35,29 @@ public class AnalyzerTests {
     	
     		    assertEquals(RiTa.analyze(""), hm);
 
-    		    String feats;
+    		    Map<String,String> feats;
     		    feats = RiTa.analyze("clothes");
-    		    assertEquals(feats.pos,"nns");
-    		    assertEquals(feats.tokens,"clothes");
-    		    assertEquals(feats.syllables,"k-l-ow-dh-z");
+    		    assertEquals(feats.get("pos"),"nns");
+    		    assertEquals(feats.get("tokens"),"clothes");
+    		    assertEquals(feats.get("syllables"),"k-l-ow-dh-z");
 
     		    feats = RiTa.analyze("the clothes");
-    		    assertEquals(feats.pos,"dt nns");
-    		    assertEquals(feats.tokens,"the clothes");
-    		    assertEquals(feats.syllables,"dh-ah k-l-ow-dh-z");
+    		    assertEquals(feats.get("pos"),"dt nns");
+    		    assertEquals(feats.get("tokens"),"the clothes");
+    		    assertEquals(feats.get("syllables"),"dh-ah k-l-ow-dh-z");
 
     		    feats = RiTa.analyze("chevrolet");
-    		    assertEquals(feats.tokens,"chevrolet");
-    		    assertEquals(feats.syllables,"sh-eh-v/r-ow/l-ey");
+    		    assertEquals(feats.get("tokens"),"chevrolet");
+    		    assertEquals(feats.get("syllables"),"sh-eh-v/r-ow/l-ey");
 
 
     		    //analyze(lts)
 
     		    feats = RiTa.analyze("cloze");
-    		    assertEquals(feats.pos,"nn");
-    		    assertEquals(feats.tokens,"cloze");
-    		    assertEquals(feats.syllables,"k-l-ow-z");
+    		    assertEquals(feats.get("pos"),"nn");
+    		    assertEquals(feats.get("tokens"),"cloze");
+    		    assertEquals(feats.get("syllables"),"k-l-ow-z");
 
-
-    		 
     }
 
 	@Test
@@ -99,8 +97,6 @@ public class AnalyzerTests {
  		    assertEquals(RiTa.stresses("women"), "1/0");
  		    assertEquals(RiTa.stresses("genuine"), "1/0/0");
  
-
- 		  
 	}
 	
 	@Test
@@ -152,9 +148,6 @@ public class AnalyzerTests {
  		    assertEquals(RiTa.phonemes("women"), "w-ih-m-eh-n");
  		    assertEquals(RiTa.phonemes("genuine"), "jh-eh-n-y-uw-w-ah-n");
 
-
- 		 
-		
 	}
    
 	@Test
@@ -186,15 +179,11 @@ public class AnalyzerTests {
 	 		    input = "The emperor had no clothes on.";
 	 		    expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
 	 		    assertEquals(RiTa.syllables(input),expected);
-
 	 		  
 	 		  //syllables(lts)
-
-	 		 
-	 		    RiTa.SILENCE_LTS = true;
-	 		    assertEquals(RiTa.syllables("The Laggin Dragon"),"dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
-	 		    RiTa.SILENCE_LTS = false;
+	 		  RiTa.SILENCE_LTS = true;  //TODO : not implemented yet?
+	 		  assertEquals(RiTa.syllables("The Laggin Dragon"),"dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
+	 		  RiTa.SILENCE_LTS = false;
 	
-
 	}
 }

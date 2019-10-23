@@ -12,374 +12,276 @@ import static org.junit.Assert.*;
 
 public class LexiconTests {
 	
-	
+	/*
 
     @Test 
-    public void testisQuestion() {
+    public void testToPhoneArray() {
 
-    	assertTrue(RiTa.isQuestion("What"));
-        assertTrue(RiTa.isQuestion("what"));
-        assertTrue(RiTa.isQuestion("what"));
-        assertTrue(RiTa.isQuestion("what is this"));
-        assertTrue(RiTa.isQuestion("what is this?"));
-        assertTrue(RiTa.isQuestion("Does it?"));
-        assertTrue(RiTa.isQuestion("Would you believe it?"));
-        assertTrue(RiTa.isQuestion("Have you been?"));
-        assertTrue(RiTa.isQuestion("Is this yours?"));
-        assertTrue(RiTa.isQuestion("Are you done?"));
-        assertTrue(RiTa.isQuestion("what is this? , where is that?"));
-        assertTrue(!RiTa.isQuestion("That is not a toy This is an apple"));
-        assertTrue(!RiTa.isQuestion("string"));
-        assertTrue(!RiTa.isQuestion("?"));
-        assertTrue(!RiTa.isQuestion(""));
-    	System.out.println("tests");
-    }
+    	    String[] result = RiTa.lexicon().toPhoneArray(RiTa.lexicon().rawPhones("tornado"));
+    	    String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
+    	    assertEquals(result,ans);
+    	  }
 
     @Test 
-    public void testisAbbreviation() {
+    public void testAlliterations() {
+    	
 
-        assertTrue(RiTa.isAbbreviation("Dr."));
-        assertTrue(RiTa.isAbbreviation("dr."));
-        //T in java
+	    let result;
 
-        assertTrue(!RiTa.isAbbreviation("DR."));
-        // F in Processing.lowercase is true but uppercase is false
-        assertTrue(!RiTa.isAbbreviation("Dr. "));
-        //space
-        assertTrue(!RiTa.isAbbreviation(" Dr."));
-        //space
-        assertTrue(!RiTa.isAbbreviation("  Dr."));
-        //double space
-        assertTrue(!RiTa.isAbbreviation("Dr.  "));
-        //double space
-        assertTrue(!RiTa.isAbbreviation("   Dr."));
-        //tab space
-        assertTrue(!RiTa.isAbbreviation("Dr.    "));
-        //tab space
-        assertTrue(!RiTa.isAbbreviation("Dr"));
-        assertTrue(!RiTa.isAbbreviation("Doctor"));
-        assertTrue(!RiTa.isAbbreviation("Doctor."));
+	    // TODO: make sure we have LTS cases in here
 
-        assertTrue(RiTa.isAbbreviation("Prof."));
-        assertTrue(RiTa.isAbbreviation("prof."));
-        //T in java
-        assertTrue(!RiTa.isAbbreviation("PRFO."));
-        //  F in Processing. lowercase is true but uppercase is false
-        assertTrue(!RiTa.isAbbreviation("PrFo."));
-        //  F in Processing. lowercase is true but uppercase is false
-        assertTrue(!RiTa.isAbbreviation("Professor"));
-        assertTrue(!RiTa.isAbbreviation("professor"));
-        assertTrue(!RiTa.isAbbreviation("PROFESSOR"));
-        assertTrue(!RiTa.isAbbreviation("Professor."));
+	    result = RiTa.alliterations("");
+	    ok(result.length < 1);
 
-        assertTrue(!RiTa.isAbbreviation("@#$%^&*()"));
+	    result = RiTa.alliterations("#$%^&*");
+	    ok(result.length < 1);
 
-        assertTrue(!RiTa.isAbbreviation(""));
-        assertTrue(!RiTa.isAbbreviation(null));
-        assertTrue(!RiTa.isAbbreviation(undefined));
-        assertTrue(!RiTa.isAbbreviation(1));
-      });
-      
-    @Test 
-    public void testisPunctuation() {
+	    result = RiTa.alliterations("umbrella");
+	    ok(result.length < 1);
 
-        assertTrue(!RiTa.isPunctuation("What the"));
-        assertTrue(!RiTa.isPunctuation("What ! the"));
-        assertTrue(!RiTa.isPunctuation(".#\"\\!@i$%&}<>"));
+	    result = RiTa.alliterations("cat stress");
+	    ok(result.length > 2000);
 
-        assertTrue(RiTa.isPunctuation("!"));
-        assertTrue(RiTa.isPunctuation("?"));
-        assertTrue(RiTa.isPunctuation("?!"));
-        assertTrue(RiTa.isPunctuation("."));
-        assertTrue(RiTa.isPunctuation(".."));
-        assertTrue(RiTa.isPunctuation("..."));
-        assertTrue(RiTa.isPunctuation("...."));
-        assertTrue(RiTa.isPunctuation("%..."));
+	    result = RiTa.alliterations("cat");
+	    ok(result.length > 2000);
+	    for (let i = 0; i < result.length; i++) {
+	      ok(RiTa.isAlliteration(result[i], "cat"));
+	    }
 
-        assertTrue(!RiTa.isPunctuation("! "));
-        //space
-        assertTrue(!RiTa.isPunctuation(" !"));
-        //space
-        assertTrue(!RiTa.isPunctuation("!  "));
-        //double space
-        assertTrue(!RiTa.isPunctuation("  !"));
-        //double space
-        assertTrue(!RiTa.isPunctuation("!  "));
-        //tab space
-        assertTrue(!RiTa.isPunctuation("   !"));
-        
-        
-        
-        String punct;
+	    result = RiTa.alliterations("dog");
+	    ok(result.length > 1000);
+	    for (let i = 0; i < result.length; i++) {
+	      ok(RiTa.isAlliteration(result[i], "dog"));
+	    }
 
-        punct = "$%&^,";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
-        }
+	    result = RiTa.alliterations("dog", { matchMinLength: 15 }
+	    ok(result.length < 5, "got length=" + result.length);
+	    for (let i = 0; i < result.length; i++) {
+	      ok(RiTa.isAlliteration(result[i], "dog"), 'FAIL1: ' + result[i]);
+	    }
 
-        punct = ",;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
-        }
-
-        // TODO: also test multiple characters strings here ****
-        punct = "\"��������`'";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
-        }
-
-        punct = "\"��������`',;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
-        for (int i = 0; i < punct.length; i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]);
-        }
-
-        // TODO: and here...
-        String nopunct = "Helloasdfnals  FgG   \t kjdhfakjsdhf askjdfh aaf98762348576";
-        for (int i = 0; i < nopunct.length; i++) {
-          assertTrue(!RiTa.isPunctuation(nopunct[i]));
-        }
-
-        assertTrue(!RiTa.isPunctuation(""));
-
-    }
-      
-    @Test 
-    public void testSingularize() {
-    	  
-    	  String[] tests = {
-    	               "media", "medium",
-    	               "millennia", "millennium",
-    	               "consortia", "consortium",
-    	               "concerti", "concerto",
-    	               "septa", "septum",
-    	               "termini", "terminus",
-    	               "larvae", "larva",
-    	               "vertebrae", "vertebra",
-    	               "memorabilia", "memorabilium",
-    	               "hooves", "hoof",
-    	               "thieves", "thief",
-    	               "rabbis", "rabbi",
-    	               "flu", "flu",
-    	               "safaris", "safari",
-    	               "sheaves", "sheaf",
-    	               "uses", "use",
-    	               "pinches", "pinch",
-    	               "catharses", "catharsis",
-    	               "hankies", "hanky"
-    	  };
-    	             for (int i = 0; i < tests.length; i += 2) {
-    	               assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
-    	             }
-
-    	             assertEquals(RiTa.singularize("pleae"), "pleae"); // special-cased in code
-    	             assertEquals(RiTa.singularize("whizzes"), "whiz");
-    	             assertEquals(RiTa.singularize("selves"), "self");
-    	             assertEquals(RiTa.singularize("bookshelves"), "bookshelf");
-    	             assertEquals(RiTa.singularize("wheezes"), "wheeze");
-    	             assertEquals(RiTa.singularize("diagnoses"), "diagnosis");
-
-    	             assertEquals("minutia", RiTa.singularize("minutia"));
-    	             assertEquals("blonde", RiTa.singularize("blondes"));
-    	             assertEquals("eye", RiTa.singularize("eyes"));
-    	             assertEquals(RiTa.singularize("swine"), "swine");
-    	             assertEquals(RiTa.singularize("cognoscenti"), "cognoscenti");
-    	             assertEquals(RiTa.singularize("bonsai"), "bonsai");
-    	             assertEquals(RiTa.singularize("taxis"), "taxi");
-    	             assertEquals(RiTa.singularize("chiefs"), "chief");
-    	             assertEquals(RiTa.singularize("monarchs"), "monarch");
-    	             assertEquals(RiTa.singularize("lochs"), "loch");
-    	             assertEquals(RiTa.singularize("stomachs"), "stomach");
-
-    	             assertEquals(RiTa.singularize("Chinese"), "Chinese");
-
-    	             assertEquals(RiTa.singularize("people"), "person");
-    	             assertEquals(RiTa.singularize("monies"), "money");
-    	             assertEquals(RiTa.singularize("vertebrae"), "vertebra");
-    	             assertEquals(RiTa.singularize("humans"), "human");
-    	             assertEquals(RiTa.singularize("germans"), "german");
-    	             assertEquals(RiTa.singularize("romans"), "roman");
-
-    	             assertEquals(RiTa.singularize("memoranda"), "memorandum");
-    	             assertEquals(RiTa.singularize("data"), "datum");
-    	             assertEquals(RiTa.singularize("appendices"), "appendix");
-    	             assertEquals(RiTa.singularize("theses"), "thesis");
-    	             assertEquals(RiTa.singularize("alumni"), "alumnus");
-
-    	             assertEquals(RiTa.singularize("solos"), "solo");
-    	             assertEquals(RiTa.singularize("music"), "music");
-
-    	             assertEquals(RiTa.singularize("oxen"), "ox");
-    	             assertEquals(RiTa.singularize("solos"), "solo");
-    	             assertEquals(RiTa.singularize("music"), "music");
-    	             assertEquals(RiTa.singularize("money"), "money");
-    	             assertEquals(RiTa.singularize("beef"), "beef");
-
-    	             assertEquals(RiTa.singularize("tobacco"), "tobacco");
-    	             assertEquals(RiTa.singularize("cargo"), "cargo");
-    	             assertEquals(RiTa.singularize("golf"), "golf");
-    	             assertEquals(RiTa.singularize("grief"), "grief");
-
-    	             assertEquals(RiTa.singularize("cakes"), "cake");
-
-    	             assertEquals("dog", RiTa.singularize("dogs"));
-    	             assertEquals("foot", RiTa.singularize("feet"));
-    	             assertEquals("tooth", RiTa.singularize("teeth"));
-    	             assertEquals("kiss", RiTa.singularize("kisses"));
-    	             assertEquals("child", RiTa.singularize("children"));
-    	             assertEquals("randomword", RiTa.singularize("randomwords"));
-    	             assertEquals("deer", RiTa.singularize("deer"));
-    	             assertEquals("sheep", RiTa.singularize("sheep"));
-    	             assertEquals("shrimp", RiTa.singularize("shrimps"));
-
-    	             assertEquals(RiTa.singularize("tomatoes"), "tomato");
-    	             assertEquals(RiTa.singularize("photos"), "photo");
-
-    	             assertEquals(RiTa.singularize("toes"), "toe");
-
-    	             assertEquals(RiTa.singularize("series"), "series");
-    	             assertEquals(RiTa.singularize("oxen"), "ox");
-    	             assertEquals(RiTa.singularize("men"), "man");
-    	             assertEquals(RiTa.singularize("mice"), "mouse");
-    	             assertEquals(RiTa.singularize("lice"), "louse");
-    	             assertEquals(RiTa.singularize("children"), "child");
-
-    	             assertEquals(RiTa.singularize("gases"), "gas");
-    	             assertEquals(RiTa.singularize("buses"), "bus");
-    	             assertEquals(RiTa.singularize("happiness"), "happiness");
-
-    	             assertEquals(RiTa.singularize("crises"), "crisis");
-    	             assertEquals(RiTa.singularize("theses"), "thesis");
-    	             assertEquals(RiTa.singularize("apotheses"), "apothesis");
-    	             assertEquals(RiTa.singularize("stimuli"), "stimulus");
-    	             assertEquals(RiTa.singularize("alumni"), "alumnus");
-    	             assertEquals(RiTa.singularize("corpora"), "corpus");
-
-    	             assertEquals("man", RiTa.singularize("men"));
-    	             assertEquals("woman", RiTa.singularize("women"));
-    	             assertEquals("congressman", RiTa.singularize("congressmen"));
-    	             assertEquals("alderman", RiTa.singularize("aldermen"));
-    	             assertEquals("freshman", RiTa.singularize("freshmen"));
-    	             assertEquals("fireman", RiTa.singularize("firemen"));
-    	             assertEquals("grandchild", RiTa.singularize("grandchildren"));
-    	             assertEquals("menu", RiTa.singularize("menus"));
-    	             assertEquals("guru", RiTa.singularize("gurus"));
-
-    	             assertEquals("", RiTa.singularize(""));
-    	             assertEquals("hardness", RiTa.singularize("hardness"));
-    	             assertEquals("shortness", RiTa.singularize("shortness"));
-    	             assertEquals("dreariness", RiTa.singularize("dreariness"));
-    	             assertEquals("unwillingness", RiTa.singularize("unwillingness"));
-    	             assertEquals("deer", RiTa.singularize("deer"));
-    	             assertEquals("fish", RiTa.singularize("fish"));
-    	             assertEquals("ooze", RiTa.singularize("ooze"));
-
-    	             assertEquals("ooze", RiTa.singularize("ooze"));
-    	             assertEquals("enterprise", RiTa.singularize("enterprises"));
-    	             assertEquals("treatise", RiTa.singularize("treatises"));
-    	             assertEquals("house", RiTa.singularize("houses"));
-    	             assertEquals("chemise", RiTa.singularize("chemises"));
-
-    	             assertEquals("aquatics", RiTa.singularize("aquatics"));
-    	             assertEquals("mechanics", RiTa.singularize("mechanics"));
-    	             assertEquals("quarter", RiTa.singularize("quarters"));
-    	  
-      }
-
-    @Test 
-    public void testPluralize() {
-    String[] tests = {
-                 "media", "medium",
-                 "millennia", "millennium",
-                 "consortia", "consortium",
-                 "concerti", "concerto",
-                 "septa", "septum",
-                 "termini", "terminus",
-                 "larvae", "larva",
-                 "vertebrae", "vertebra",
-                 "memorabilia", "memorabilium",
-                 "sheafs", "sheaf",
-                 "spoofs", "spoof",
-                 "proofs", "proof",
-                 "roofs", "roof",
-                 "disbeliefs", "disbelief",
-                 "indices", "index",
-                 "accomplices", "accomplice"
-    };
-               for (int i = 0; i < tests.length; i += 2) {
-                 //console.log(tests[i], RiTa.pluralize(tests[i + 1]),tests[i + 1]);
-            	   assertEquals(tests[i], RiTa.pluralize(tests[i + 1]));
-               }
-
-               // uncountable
-               tests = new String[]{
-                 "turf", "macaroni", "spaghetti", "potpourri", "electrolysis"
-               };
-               for (int i = 0; i < tests.length; i++) {
-                 assertEquals(tests[i], RiTa.pluralize(tests[i]));
-               }
-
-               assertEquals("blondes", RiTa.pluralize("blonde"));
-               assertEquals("eyes", RiTa.pluralize("eye"));
-               assertEquals("blondes", RiTa.pluralize("blond"));
-
-               assertEquals("dogs", RiTa.pluralize("dog"));
-               assertEquals("feet", RiTa.pluralize("foot"));
-               assertEquals("men", RiTa.pluralize("man"));
-
-               assertEquals("beautifuls", RiTa.pluralize("beautiful"));
-               assertEquals("teeth", RiTa.pluralize("tooth"));
-               assertEquals("cakes", RiTa.pluralize("cake"));
-               assertEquals("kisses", RiTa.pluralize("kiss"));
-               assertEquals("children", RiTa.pluralize("child"));
-
-               assertEquals("randomwords", RiTa.pluralize("randomword"));
-               assertEquals("lice", RiTa.pluralize("louse"));
-
-               assertEquals("sheep", RiTa.pluralize("sheep"));
-               assertEquals("shrimps", RiTa.pluralize("shrimp"));
-               assertEquals("series", RiTa.pluralize("series"));
-               assertEquals("mice", RiTa.pluralize("mouse"));
-
-               assertEquals("", RiTa.pluralize(""));
-
-               assertEquals(RiTa.pluralize("tomato"), "tomatoes");
-               assertEquals(RiTa.pluralize("toe"), "toes");
-
-               assertEquals(RiTa.pluralize("deer"), "deer");
-               assertEquals(RiTa.pluralize("ox"), "oxen");
-
-               assertEquals(RiTa.pluralize("tobacco"), "tobacco");
-               assertEquals(RiTa.pluralize("cargo"), "cargo");
-               assertEquals(RiTa.pluralize("golf"), "golf");
-               assertEquals(RiTa.pluralize("grief"), "grief");
-               assertEquals(RiTa.pluralize("wildlife"), "wildlife");
-               assertEquals(RiTa.pluralize("taxi"), "taxis");
-               assertEquals(RiTa.pluralize("Chinese"), "Chinese");
-               assertEquals(RiTa.pluralize("bonsai"), "bonsai");
-
-               assertEquals(RiTa.pluralize("whiz"), "whizzes");
-               assertEquals(RiTa.pluralize("prognosis"), "prognoses");
-               assertEquals(RiTa.pluralize("gas"), "gases");
-               assertEquals(RiTa.pluralize("bus"), "buses");
-
-               assertEquals("crises", RiTa.pluralize("crisis"));
-               assertEquals("theses", RiTa.pluralize("thesis"));
-               assertEquals("apotheses", RiTa.pluralize("apothesis"));
-               assertEquals("stimuli", RiTa.pluralize("stimulus"));
-               assertEquals("alumni", RiTa.pluralize("alumnus"));
-               assertEquals("corpora", RiTa.pluralize("corpus"));
-               assertEquals("menus", RiTa.pluralize("menu"));
-
-               assertEquals("hardness", RiTa.pluralize("hardness"));
-               assertEquals("shortness", RiTa.pluralize("shortness"));
-               assertEquals("dreariness", RiTa.pluralize("dreariness"));
-               assertEquals("unwillingness", RiTa.pluralize("unwillingness"));
-               assertEquals("deer", RiTa.pluralize("deer"));
-               assertEquals("fish", RiTa.pluralize("fish"));
-               assertEquals("moose", RiTa.pluralize("moose"));
-
-               assertEquals("aquatics", RiTa.pluralize("aquatics"));
-               assertEquals("mechanics", RiTa.pluralize("mechanics"));
+	    result = RiTa.alliterations("cat", { matchMinLength: 16 }
+	    ok(result.length < 15);
+	    for (let i = 0; i < result.length; i++) {
+	      ok(RiTa.isAlliteration(result[i], "cat"), 'FAIL2: ' + result[i]);
+	    }
+    	
     }
     
+    
+
+    @Test 
+    public void testRhymes() {
+
+    	    // TODO: add more tests
+
+    	    ok(RiTa.rhymes("cat").includes("hat"));
+    	    ok(RiTa.rhymes("yellow").includes("mellow"));
+    	    ok(RiTa.rhymes("toy").includes("boy"));
+    	    ok(RiTa.rhymes("sieve").includes("give"));
+
+    	    ok(RiTa.rhymes("tense").includes("sense"));
+    	    ok(RiTa.rhymes("crab").includes("drab"));
+    	    ok(RiTa.rhymes("shore").includes("more"));
+
+    	    ok(RiTa.rhymes("mouse").includes("house"));
+
+    	    ok(RiTa.rhymes("weight").includes("eight"));
+    	    ok(RiTa.rhymes("eight").includes("weight"));
+
+    	    ok(!RiTa.rhymes("apple").includes("polo"));
+    	    ok(!RiTa.rhymes("this").includes("these"));
+
+    	    ok(!RiTa.rhymes("hose").includes("house"));
+    	    ok(!RiTa.rhymes("sieve").includes("mellow"));
+    	    ok(!RiTa.rhymes("swag").includes("grab"));
+    
+    	  
+	  }
+	  
+	  
+
+
+    @Test 
+    public void testSimilarBy() {
+    	
+	    	
+
+    	  //similarBy(letter)
+    	    let result;
+    	    result = RiTa.similarBy("banana", { preserveLength: true }
+    	    eql(result, ["cabana"]);
+
+    	    result = RiTa.similarBy("");
+    	    eql(result, []);
+
+    	    result = RiTa.similarBy("banana", { preserveLength: false }
+    	    eql(result, ["banal", "bonanza", "cabana", "manna"]);
+
+    	    result = RiTa.similarBy("banana");
+    	    eql(result, ["banal", "bonanza", "cabana", "manna"]);
+
+    	    result = RiTa.similarBy("banana", { minAllowedDistance: 1, preserveLength: true }
+    	    eql(result, ["cabana"]);
+
+    	    result = RiTa.similarBy("banana", { minAllowedDistance: 1, preserveLength: false }
+    	    eql(result, ["banal", "bonanza", "cabana", "manna"]);
+
+    	    result = RiTa.similarBy("tornado");
+    	    eql(result, ["torpedo"]);
+
+    	    result = RiTa.similarBy("ice");
+    	    eql(result, ["ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice"]);
+
+    	    result = RiTa.similarBy("ice",  { minAllowedDistance: 1}
+    	    eql(result, ["ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice"]);
+
+    	    result = RiTa.similarBy("ice", { minAllowedDistance: 2, preserveLength: true }
+    	    ok(result.length > 10);
+
+    	    result = RiTa.similarBy("ice", { minAllowedDistance: 0, preserveLength: true } // defaults to 1
+    	    eql(result, ["ace", "icy", "ire"]);
+
+    	    result = RiTa.similarBy("ice", { minAllowedDistance: 1, preserveLength: true }
+    	    eql(result, ["ace", "icy", "ire"]);
+
+    	    result = RiTa.similarBy("worngword");
+    	    eql(result, ["foreword", "wormwood"]);
+
+    	    result = RiTa.similarBy("123");
+    	    ok(result.length > 400);
+
+    	  //similarBy(sound)
+
+    	    let result, answer;
+
+    	    eql(RiTa.similarBy("tornado", { type: 'sound' }), ["torpedo"]);
+
+    	    result = RiTa.similarBy("try", { type: 'sound' }
+    	    answer = ["cry", "dry", "fry", "pry", "rye", "tie", "tray", "tree", "tribe", "tried", "tripe", "trite", "true", "wry"];
+    	    eql(result, answer);
+
+    	    result = RiTa.similarBy("try", { type: 'sound', minAllowedDistance: 2 }
+    	    ok(result.length > answer.length); // more
+
+    	    result = RiTa.similarBy("happy", { type: 'sound' }
+    	    answer = ["happier", "hippie"];
+    	    eql(result, answer);
+
+    	    result = RiTa.similarBy("happy", { type: 'sound', minAllowedDistance: 2 }
+    	    ok(result.length > answer.length); // more
+
+    	    result = RiTa.similarBy("cat", { type: 'sound' }
+    	    answer = ["at", "bat", "cab", "cache", "calf", "calve", "can", "can\'t", "cap", "capped", "cash", "cashed", "cast", "caste", "catch", "catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit", "kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat"];
+    	    eql(result, answer);
+
+    	    result = RiTa.similarBy("cat", { type: 'sound', minAllowedDistance: 2 }
+    	    ok(result.length > answer.length);
+
+    	    result = RiTa.similarBy("worngword", { type: 'sound' }
+    	    eql(result, ["watchword", "wayward", "wormwood"]);
+  
+
+
+    	  //similarBy(soundAndLetter)
+    	    let result;
+
+    	    //result = RiTa.similarBy("", { type: 'soundAndLetter' }
+    	    //eql(result, []);
+
+    	    result = RiTa.similarBy("try", { type: 'soundAndLetter' }
+    	    eql(result, ["cry", "dry", "fry", "pry", "tray", "wry"]);
+
+    	    result = RiTa.similarBy("daddy", { type: 'soundAndLetter' }
+    	    eql(result, ["dandy", "paddy"]);
+
+    	    result = RiTa.similarBy("banana", { type: 'soundAndLetter' }
+    	    eql(result, ["bonanza"]);
+
+    	    result = RiTa.similarBy("worngword", { type: 'soundAndLetter' }
+    	    eql(result, ["wormwood"]);
+    	  }
+    	  
+
+    	    @Test 
+    	    public void testIsRhyme() {
+    	    	
+
+    
+    	    ok(!RiTa.isRhyme("apple", "polo"));
+    	    ok(!RiTa.isRhyme("this", "these"));
+
+    	    ok(RiTa.isRhyme("cat", "hat"));
+    	    ok(RiTa.isRhyme("yellow", "mellow"));
+    	    ok(RiTa.isRhyme("toy", "boy"));
+    	    ok(RiTa.isRhyme("sieve", "give"));
+
+    	    ok(RiTa.isRhyme("solo", "tomorrow"));
+    	    ok(RiTa.isRhyme("tense", "sense"));
+    	    ok(RiTa.isRhyme("crab", "drab"));
+    	    ok(RiTa.isRhyme("shore", "more"));
+    	    ok(!RiTa.isRhyme("hose", "house"));
+    	    ok(!RiTa.isRhyme("sieve", "mellow"));
+
+    	    ok(RiTa.isRhyme("mouse", "house")); //why??
+    	    // ok(!RiTa.isRhyme("solo", "yoyo"));
+    	    // ok(!RiTa.isRhyme("yoyo", "jojo")); -> Known Issues
+
+    	    ok(RiTa.isRhyme("yo", "bro"));
+    	    ok(!RiTa.isRhyme("swag", "grab"));
+    	    ok(!RiTa.isRhyme("", ""));
+
+    	    ok(RiTa.isRhyme("weight", "eight"));
+    	    ok(RiTa.isRhyme("eight", "weight"));
+    	  }
+    	  
+
+    	    @Test 
+    	    public void testIsAlliteration() {
+
+
+    	    ok(RiTa.isAlliteration("knife", "gnat")); // gnat=lts
+    	    ok(RiTa.isAlliteration("knife", "naughty"));
+
+    	    ok(RiTa.isAlliteration("sally", "silly"));
+    	    ok(RiTa.isAlliteration("sea", "seven"));
+    	    ok(RiTa.isAlliteration("silly", "seven"));
+    	    ok(RiTa.isAlliteration("sea", "sally"));
+
+    	    ok(RiTa.isAlliteration("big", "bad"));
+    	    ok(RiTa.isAlliteration("bad", "big")); // swap position
+
+    	    ok(RiTa.isAlliteration("BIG", "bad")); // CAPITAL LETTERS
+    	    ok(RiTa.isAlliteration("big", "BAD")); // CAPITAL LETTERS
+    	    ok(RiTa.isAlliteration("BIG", "BAD")); // CAPITAL LETTERS
+    	    ok(RiTa.isAlliteration("this", "these"));
+
+    	    // False
+    	    ok(!RiTa.isAlliteration("", ""));
+    	    ok(!RiTa.isAlliteration("wind", "withdraw"));
+    	    ok(!RiTa.isAlliteration("solo", "tomorrow"));
+    	    ok(!RiTa.isAlliteration("solo", "yoyo"));
+    	    ok(!RiTa.isAlliteration("yoyo", "jojo"));
+    	    ok(!RiTa.isAlliteration("cat", "access"));
+
+    	    ok(RiTa.isAlliteration("unsung", "sine"));
+    	    ok(RiTa.isAlliteration("job", "gene"));
+    	    ok(RiTa.isAlliteration("jeans", "gentle"));
+
+    	    ok(RiTa.isAlliteration("abet", "better"));
+    	    ok(RiTa.isAlliteration("psychology", "cholera"));
+    	    ok(RiTa.isAlliteration("consult", "sultan"));
+    	    ok(RiTa.isAlliteration("never", "knight"));
+    	    ok(RiTa.isAlliteration("knight", "navel"));
+    	    ok(RiTa.isAlliteration("monsoon", "super"));
+    	    ok(RiTa.isAlliteration("cat", "kitchen"));
+
+    	    // not counting assonance
+    	    ok(!RiTa.isAlliteration("octopus", "oblong"));
+    	    ok(!RiTa.isAlliteration("omen", "open"));
+    	    ok(!RiTa.isAlliteration("amicable", "atmosphere"));
+    	  }
+    
+*/
+ 
 }

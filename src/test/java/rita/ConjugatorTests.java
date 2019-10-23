@@ -87,7 +87,7 @@ public class ConjugatorTests {
         //tab space
         assertEquals(RiTa.presentParticiple(""), "");
       }
-      
+      /*
       @Test 
       public void testConjugate() {
     	  Map<String,String> args = new HashMap<>(); //TODO use Map<String,String> here?
@@ -259,4 +259,5 @@ public class ConjugatorTests {
           assertEquals(c, a[i]);
         }
       }
+      */
 }

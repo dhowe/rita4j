@@ -76,9 +76,9 @@ public class RiTaTests {
 
         assertTrue(!RiTa.isAbbreviation(""));
         assertTrue(!RiTa.isAbbreviation(null));
-        assertTrue(!RiTa.isAbbreviation(undefined));
-        assertTrue(!RiTa.isAbbreviation(1));
-      });
+        //assertTrue(!RiTa.isAbbreviation(undefined)); //no undefined in JAVA
+        //assertTrue(!RiTa.isAbbreviation(1)); //no wrong datatype in JAVA
+    }
       
     @Test 
     public void testisPunctuation() {
@@ -113,30 +113,35 @@ public class RiTaTests {
         String punct;
 
         punct = "$%&^,";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
+        String[] punctArr = punct.split("");
+        for (int i = 0; i < punctArr.length; i++) {
+          assertTrue(RiTa.isPunctuation(punctArr[i]));
         }
 
         punct = ",;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
+        punctArr = punct.split("");
+        for (int i = 0; i < punctArr.length; i++) {
+          assertTrue(RiTa.isPunctuation(punctArr[i]));
         }
 
         // TODO: also test multiple characters strings here ****
         punct = "\"��������`'";
-        for (int i = 0; i < punct.length(); i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]));
+        punctArr = punct.split("");
+        for (int i = 0; i < punctArr.length; i++) {
+          assertTrue(RiTa.isPunctuation(punctArr[i]));
         }
 
         punct = "\"��������`',;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
-        for (int i = 0; i < punct.length; i++) {
-          assertTrue(RiTa.isPunctuation(punct[i]);
+        punctArr = punct.split("");
+        for (int i = 0; i < punctArr.length; i++) {
+          assertTrue(RiTa.isPunctuation(punctArr[i]));
         }
 
         // TODO: and here...
         String nopunct = "Helloasdfnals  FgG   \t kjdhfakjsdhf askjdfh aaf98762348576";
-        for (int i = 0; i < nopunct.length; i++) {
-          assertTrue(!RiTa.isPunctuation(nopunct[i]));
+        punctArr = punct.split("");
+        for (int i = 0; i < punctArr.length; i++) {
+          assertTrue(!RiTa.isPunctuation(punctArr[i]));
         }
 
         assertTrue(!RiTa.isPunctuation(""));

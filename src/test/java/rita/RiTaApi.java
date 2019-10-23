@@ -22,14 +22,14 @@ public class RiTaApi {
 
     	//Should access static functions
     	assertEquals(RiTa.hasWord("dog"),true);
-    	
+    	/* 
     	//Should access member classes
     	RiMarkov rm = new RiTa.RiMarkov(3);
     	assertEquals(rm.n,3);
     	
-    	
+	
   	  //Should call alliterations
-  	    expect(RiTa.alliterations).to.be.a('function');
+  	   expect(RiTa.alliterations).to.be.a('function');
 
   	  //Should call analyze
   	    expect(RiTa.analyze).to.be.a('function');
@@ -152,7 +152,7 @@ public class RiTaApi {
 
 	    //Should call words
 	    expect(RiTa.words).to.be.a('function');
-
+*/
     }
 
    
