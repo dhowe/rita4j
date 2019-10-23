@@ -3,6 +3,8 @@ package rita;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class Lexicon
 {
@@ -10,7 +12,7 @@ public class Lexicon
   private static int MAP_SIZE = 30000;
 
   protected Map<String, String[]> dict; // data
-  
+
   public Lexicon(String filePath) throws Exception
   {
     load(filePath);
@@ -32,7 +34,7 @@ public class Lexicon
       String line = lines.get(i);
       String[] parts = line.split(LEXICON_DELIM);
       if (parts == null || parts.length != 2) {
-        throw new Exception("Illegal entry: " +line);
+        throw new Exception("Illegal entry: " + line);
       }
       dict.put(parts[0], parts[1].split(","));
     }
@@ -51,21 +53,18 @@ public class Lexicon
     }
 
     // clean out the JSON formatting (TODO: optimize)
-    //String clean = data.replaceAll("['\\[\\]]", E).replaceAll(",", "|");
-
+    // String clean = data.replaceAll("['\\[\\]]", E).replaceAll(",", "|");
 
     return lines;
   }
 
-  public String[] alliterations(String word, Map opts)
+  public String[] alliterations(String word, int minWordLength)
   {
-
     return null;
   }
 
-  public boolean hasWord(String word, Map opts)
+  public boolean hasWord(String word)
   {
-
     return false;
   }
 
@@ -81,26 +80,25 @@ public class Lexicon
     return false;
   }
 
-  public Object randomWord(Map opts)
+  public String randomWord(String pos, int numSyllabes)
   {
     return null;
   }
 
-  public Object rhymes(String word, Map opts)
+  public String[] rhymes(String word)
   {
-
     return null;
   }
 
-  public Object similarBy(String word, Map opts)
+  public String[] similarBy(String word, Map<String, Object> opts)
   {
-
     return null;
   }
 
-  public String[] words()
+  public String[] words(Pattern regex)
   {
-
+    if (regex != null) return this.dict.keySet().stream().filter
+        (word -> regex.matcher(word).matches()).toArray(String[]::new);
     return this.dict.keySet().toArray(new String[0]);
   }
 

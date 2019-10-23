@@ -1,26 +1,23 @@
 package rita;
 
-import java.util.Map;
 
 public class RandGen
 {
 
-  public static Object randomOrdering(int num)
+  public static int[] randomOrdering(int num)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public static Object random(String word, Map opts)
+  public static float random(float... f)
   {
     // TODO Auto-generated method stub
-    return null;
+    return -1;
   }
 
-  public static Object seed(int theSeed)
+  public static void seed(int theSeed)
   {
-    // TODO Auto-generated method stub
-    return null;
   }
 
 }

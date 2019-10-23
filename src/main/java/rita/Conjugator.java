@@ -5,19 +5,19 @@ import java.util.Map;
 public class Conjugator
 {
 
-  public Object conjugate(String word, Map opts)
+  public String conjugate(String word, Map <String, Object> opts)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Object pastParticiple(String verb)
+  public String pastParticiple(String verb)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Object presentParticiple(String verb)
+  public String presentParticiple(String verb)
   {
     // TODO Auto-generated method stub
     return null;

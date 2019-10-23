@@ -4,17 +4,15 @@ import java.util.Map;
 
 public class Concorder
 {
-
-  public Object concordance(String word, Map opts)
+  public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public Object kwic(String word, Map opts)
+  public String[] kwic(String text, String word, Map<String, Object> opts)
   {
     // TODO Auto-generated method stub
     return null;
   }
-
 }
