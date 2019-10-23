@@ -275,6 +275,11 @@ public class RiTa
     return tokenizer.untokenize(words);
   }
 
+  public static String[] words()
+  {
+    return words((Pattern) null);
+  }
+
   public static String[] words(Map<String, Object> opts)
   {
     return words(Util.strOpt("pattern", opts));
@@ -294,24 +299,25 @@ public class RiTa
 
   private static Lexicon _lexicon()
   {
-    if (lexicon != null) {
-      lts = new LetterToSound();
+    if (RiTa.lexicon == null) {
+      RiTa.lts = new LetterToSound();
       try {
-        lexicon = new Lexicon("./rita_dict");
+        RiTa.lexicon = new Lexicon(DICT_PATH);
       } catch (Exception e) {
-        throw new RiTaException();
+        throw new RiTaException("Cannot load dictionary at "
+            + DICT_PATH + " " + System.getProperty("user.dir"));
       }
     }
-    return lexicon;
+    return RiTa.lexicon;
   }
 
   private static Analyzer _analyzer()
   {
-    if (analyzer != null) {
-      _lexicon();
-      analyzer = new Analyzer();
+    if (analyzer == null) {
+      RiTa._lexicon();
+      RiTa.analyzer = new Analyzer();
     }
-    return analyzer;
+    return RiTa.analyzer;
   }
 
   // STATICS
@@ -324,7 +330,8 @@ public class RiTa
   public static String WORD_BOUNDARY = " ";
   public static String SYLLABLE_BOUNDARY = "/";
   public static String SENTENCE_BOUNDARY = "|";
-  
+  public static String DICT_PATH = "rita_dict.js";
+
   // CONSTANTS
   public static final int FIRST_PERSON = 1;
   public static final int SECOND_PERSON = 2;
@@ -340,7 +347,7 @@ public class RiTa
   public static final int IMPERATIVE = 3;
   public static final int BARE_INFINITIVE = 4;
   public static final int SUBJUNCTIVE = 5;
-  
+
   public static final String JS = "js";
   public static final String NODE = "node";
   public static final String BROWSER = "browser";
@@ -348,6 +355,7 @@ public class RiTa
   public static final String UNSTRESSED = "0";
   public static final String VOWELS = "aeiou";
   public static final String VERSION = "##version##";
+
   public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
   public static final String[] FEATURES = { "TOKENS", "STRESSES", "PHONEMES", "SYLLABLES", "POS", "TEXT" };
   public static final String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have" };
