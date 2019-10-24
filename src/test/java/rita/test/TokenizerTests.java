@@ -93,9 +93,9 @@ public class TokenizerTests {
 		// TODO: check Penn-Treebank tokenizer rules & add some more edge cases
 		String[] inputs = new String[]{"A simple sentence.", "that's why this is our place).",};
 		String[][] outputs = new String[][]{
-		               new String[]{"A", "simple", "sentence", "."},
-		               new String[]{"that's", "why", "this", "is", "our", "place", ")", "."}
-		               };
+			new String[]{"A", "simple", "sentence", "."},
+			new String[]{"that's", "why", "this", "is", "our", "place", ")", "."}
+		};
 
 		assertEquals(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
@@ -127,8 +127,8 @@ public class TokenizerTests {
 		assertArrayEquals(RiTa.tokenize(txt5), new String[]{"We've", "found", "the", "cat", "."});
 		assertArrayEquals(RiTa.tokenize(txt6), new String[]{"We", "didn't", "find", "the", "cat", "."});
 	}
-		
-		
+
+
 	@Test 
 	public void testUntokenize() {
 
@@ -226,20 +226,20 @@ public class TokenizerTests {
 		// more tests
 
 		String[] outputs = new String[]{"A simple sentence.",
-		               "that's why this is our place).",
-		               };
+				"that's why this is our place).",
+		};
 
 		String[][] inputs = new String[][]{
-		              new String[]{"A", "simple", "sentence", "."},
-		              new String[]{"that's", "why", "this", "is", "our", "place", ")", "."}
-		              };
+			new String[]{"A", "simple", "sentence", "."},
+			new String[]{"that's", "why", "this", "is", "our", "place", ")", "."}
+		};
 
 		assertEquals(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
 			assertEquals(RiTa.untokenize(inputs[i]), outputs[i]);
 		}
 	}
-	
+
 	@Test 
 	public void testSentences() {
 
@@ -267,7 +267,7 @@ public class TokenizerTests {
 		assertArrayEquals(output, expected);
 
 		input = "Which dog ate the baby?";
-				output = RiTa.sentences(input);
+		output = RiTa.sentences(input);
 		expected = new String[]{"Which dog ate the baby?"};
 		assertArrayEquals(output, expected);
 

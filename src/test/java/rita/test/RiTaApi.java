@@ -11,25 +11,25 @@ import static org.junit.Assert.*;
 
 
 public class RiTaApi {
-	
+
 	//TODO
 
-    @Test 
-    public void testRiTaApi() {
+	@Test 
+	public void testRiTaApi() {
 
-    	//Should access static constants
+		//Should access static constants
 
-    	assertEquals(RiTa.VERSION,"2");
+		assertEquals(RiTa.VERSION,"2");
 
-    	System.out.println(RiTa.hasWord("dog"));
-    	//Should access static functions
-    	assertEquals(RiTa.hasWord("dog"),true);
-    	/* 
+		System.out.println(RiTa.hasWord("dog"));
+		//Should access static functions
+		assertEquals(RiTa.hasWord("dog"),true);
+
     	//Should access member classes
     	RiMarkov rm = new RiTa.RiMarkov(3);
     	assertEquals(rm.n,3);
-    	
-	
+
+
   	  //Should call alliterations
   	   expect(RiTa.alliterations).to.be.a('function');
 
@@ -45,7 +45,7 @@ public class RiTaApi {
   	  //Should call hasWord
   	  assertEquals(RiTa.hasWord('dog'),true);
   	  assertEquals(RiTa.hasWord(''),false);
-    	
+
   	  //Should call env
   	  assertEquals(RiTa.env(),'node');
 
@@ -64,28 +64,28 @@ public class RiTaApi {
 
 	    //Should call stresses
 	    expect(RiTa.stresses).to.be.a('function');
-	 
+
 	    //Should call stresses
 	    expect(RiTa.syllables).to.be.a('function');
-	  
+
 	    //Should call isAbbreviation
 	    expect(RiTa.isAbbreviation).to.be.a('function');
-	  
+
 	    //Should call isAdjective
 	    expect(RiTa.isAdjective).to.be.a('function');
-	  
+
 	    //Should call isAdverb
 	    expect(RiTa.isAdverb).to.be.a('function');
-	  
+
 	    //Should call isAlliteration
 	    expect(RiTa.isAlliteration).to.be.a('function');
-	  
+
 	    //Should call isNoun
 	    expect(RiTa.isNoun).to.be.a('function');
-	  
+
 	    //Should call isPunctuation
 	    expect(RiTa.isPunctuation).to.be.a('function');
-	  
+
 	    //Should call isQuestion
 	    expect(RiTa.isQuestion).to.be.a('function');
 
@@ -114,27 +114,27 @@ public class RiTaApi {
 
 	    //Should call randomSeed
 	    expect(RiTa.randomSeed).is.a('function');
-	  
+
 
 	    //Should call randomWord
 	    expect(RiTa.randomWord()).is.a('string');
-	  
+
 
 	    //Should call rhymes
 	    expect(RiTa.rhymes).to.be.a('function');
-	  
+
 
 	    //Should call evaluate
 	    expect(RiTa.evaluate('(a | a)')).eq('a');
-	  
+
 
 	    //Should call similarBy
 	    expect(RiTa.similarBy).to.be.a('function');
-	  
+
 
 	    //Should call singularize
 	    expect(RiTa.singularize).to.be.a('function');
-	  
+
 
 	    //Should call sentences
 	    expect(RiTa.sentences).to.be.a('function');
@@ -154,9 +154,9 @@ public class RiTaApi {
 
 	    //Should call words
 	    expect(RiTa.words).to.be.a('function');
-*/
-    }
 
-   
-    
+	}
+
+
+
 }

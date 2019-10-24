@@ -23,7 +23,7 @@ public class AnalyzerTests {
 
 		//analyze()
 
-		Map<String, String> hm = new HashMap<String, String>(); //TODO use Map here?
+		Map<String, String> hm = new HashMap<String, String>(); 
 
 		hm.put("tokens", "");
 		hm.put("pos", "");
@@ -31,7 +31,7 @@ public class AnalyzerTests {
 		hm.put("phonemes", "");
 		hm.put("syllables", "");
 
-		hm = Collections.unmodifiableMap(hm);
+		//	hm = Collections.unmodifiableMap(hm);
 
 		assertEquals(RiTa.analyze(""), hm);
 
@@ -181,9 +181,9 @@ public class AnalyzerTests {
 		assertEquals(RiTa.syllables(input),expected);
 
 		//syllables(lts)
-		//  RiTa.SILENCE_LTS = true;  //TODO : not implemented yet?
-		//  assertEquals(RiTa.syllables("The Laggin Dragon"),"dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
-		//  RiTa.SILENCE_LTS = false;
+		RiTa.SILENCE_LTS = true;  //TODO : not implemented yet?
+		assertEquals(RiTa.syllables("The Laggin Dragon"),"dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
+		RiTa.SILENCE_LTS = false;
 
 	}
 }
