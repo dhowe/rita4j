@@ -101,5 +101,44 @@ public class Lexicon
         (word -> regex.matcher(word).matches()).toArray(String[]::new);
     return this.dict.keySet().toArray(new String[0]);
   }
+  
+  
+  
+   private String[] _lookupRaw(String word) {
+	   //word = word && word.toLowerCase();
+	   String[] a = null;
+	    word = word.toLowerCase();
+	    
+	    if (dict != null) {
+	    	return dict.get(word);
+	    }else {
+	    	return a; //TODO is it correct to return null?
+	    }
+  }
+  
+   String _rawPhones(String word, boolean b) {//, forceLTS) {
+
+	    // TODO: remove all useLTS vars ?
+
+	    String[] phones = null; 
+	    String result = ""; 
+	    String[] rdata = _lookupRaw(word);
+	    //useLTS = useLTS || false;
+
+	    if (rdata != null) result = rdata.length == 2 ? rdata[0] : "";
+
+	    if (rdata == null) { //|| forceLTS) { // ??
+	    	if(RiTa.lts != null) {
+	  	      phones = RiTa.lts.getPhones(word);
+	    	}
+	      if (phones != null && phones.length > 0) {
+	        result = RiTa.syllabifier.fromPhones(phones);
+	      }
+	    }
+
+	    return result;
+  }
+
+
 
 }

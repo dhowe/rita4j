@@ -291,7 +291,7 @@ public class RiTa
 
   // //////////////////////////////////////////////////////////////////////////
 
-  private static Lexicon _lexicon()
+  static Lexicon _lexicon()
   {
     if (lexicon != null) {
       lts = new LetterToSound();
@@ -315,7 +315,8 @@ public class RiTa
 
   // STATICS
   public static boolean SILENT = false;
-  public static boolean SILENT_LTS = true;
+  //public static boolean SILENT_LTS = true; //TODO is SILENT_LTS or SILENCE_LTS?
+  public static boolean SILENCE_LTS = true;
   public static boolean LEX_WARN = false;
   public static boolean SPLIT_CONTRACTIONS = false;
 
