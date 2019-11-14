@@ -32,7 +32,7 @@ public class DocGenerator extends PApplet
 
   static String outputTemplate;
 
-  static String[] CLASS_NAMES = { "RiTa" };// "RiString", "RiText", "RiGrammar", "RiMarkov", "RiTaEvent", "RiWordNet
+  static String[] CLASS_NAMES = { "RiTa", "RiGrammar", "RiMarkov" };// "RiString", "RiText", "RiGrammar", "RiMarkov", "RiTaEvent", "RiWordNet
 
   static boolean DBUG = false;
 
