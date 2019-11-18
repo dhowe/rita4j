@@ -54,18 +54,22 @@ public class Lexicon // KW: Wait on this class please
     return lines;
   }
 
+
+  
   public String[] alliterations(String word, int minWordLength)
   {
 
-	    word = word.includes(" ") ? word.substring(0, word.indexOf(" ")) : word;
+	    word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
 
-	    if (RiTa.VOWELS.includes(word.charAt(0))) return [];
+	    if (RiTa.VOWELS.contains(String.valueOf(word.charAt(0)))) return new String[]{};
 
-	    // let matchMinLength = opts && opts.matchMinLength || 4;
-	    // let useLTS = opts && opts.useLTS || false;
+	   //  int matchMinLength = minWordLength || 4;
+	   //  boolean useLTS = opts && opts.useLTS || false;
+	    
+	    boolean useLTS = false;
 
-	    let results = [];
-	    let words = Object.keys(this.dict);
+	    String[] results = {};
+	    Object[] words = dict.keySet().toArray();
 	    let fss = this._firstStressedSyl(word, useLTS);
 	    let c1 = this._firstPhone(fss);
 
@@ -79,10 +83,18 @@ public class Lexicon // KW: Wait on this class please
 
 	      if (RiTa.VOWELS.includes(word.charAt(0))) return []; // ????
 
-	      if (c1 === c2) results.push(words[i]);
+	      if (c1 == c2) results.push(words[i]);
 	    }
 
 	    return Util.shuffle(results, RiTa);
+  }
+  
+  public String[] alliterations(String word)
+  {
+	     int matchMinLength = 4;
+	     boolean useLTS = false;
+
+	    return alliterations(word,matchMinLength);
   }
 
   public boolean hasWord(String word)
@@ -129,7 +141,156 @@ public class Lexicon // KW: Wait on this class please
     System.out.println(new Lexicon(RiTa.DICT_PATH).words(null).length);
   }
   
-  
+  //////////////////////////////////////////////////////////////////////
+
+  private boolean _isVowel(c) {
+
+    return c && c.length && RiTa.VOWELS.includes(c);
+  }
+
+  private boolean _isConsonant(p) {
+
+    return (typeof p === S && p.length === 1 && // precompile
+      RiTa.VOWELS.indexOf(p) < 0 && /^[a-z\u00C0-\u00ff]+$/.test(p));
+  }
+
+  private String _firstPhone(rawPhones) {
+
+    if (!rawPhones || !rawPhones.length) return '';
+    let phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+    if (phones) return phones[0];
+    return ""; // return null?
+  }
+
+  _intersect() { // https://gist.github.com/lovasoa/3361645
+    let i, all, n, len, ret = [],
+      obj = {},
+      shortest = 0,
+      nOthers = arguments.length - 1,
+      nShortest = arguments[0].length;
+    for (i = 0; i <= nOthers; i++) {
+      n = arguments[i].length;
+      if (n < nShortest) {
+        shortest = i;
+        nShortest = n;
+      }
+    }
+    for (i = 0; i <= nOthers; i++) {
+      n = (i === shortest) ? 0 : (i || shortest);
+      len = arguments[n].length;
+      for (let j = 0; j < len; j++) {
+        let elem = arguments[n][j];
+        if (obj[elem] === i - 1) {
+          if (i === nOthers) {
+            ret.push(elem);
+            obj[elem] = 0;
+          } else {
+            obj[elem] = i;
+          }
+        } else if (i === 0) {
+          obj[elem] = 0;
+        }
+      }
+    }
+    return ret;
+  }
+
+  private String _lastStressedPhoneToEnd(word, useLTS) {
+
+    if (!word || !word.length) return ''; // return null?
+
+    let idx, c, result;
+    let raw = this._rawPhones(word, useLTS);
+
+    if (!raw || !raw.length) return ''; // return null?
+
+    idx = raw.lastIndexOf(RiTa.STRESSED);
+
+    if (idx < 0) return E; // return null?
+
+    c = raw.charAt(--idx);
+    while (c != '-' && c != ' ') {
+      if (--idx < 0) {
+        return raw; // single-stressed syllable
+      }
+      c = raw.charAt(idx);
+    }
+    result = raw.substring(idx + 1);
+
+    return result;
+  }
+
+
+  private String _lastStressedVowelPhonemeToEnd(word, useLTS) {
+
+    if (!word || !word.length) return ''; // return null?
+
+    let raw = this._lastStressedPhoneToEnd(word, useLTS);
+    if (!raw || !raw.length) return ''; // return null?
+
+    let syllables = raw.split(' ');
+    let lastSyllable = syllables[syllables.length - 1];
+    lastSyllable = lastSyllable.replace('[^a-z-1 ]', '');
+
+    let idx = -1;
+    for (let i = 0; i < lastSyllable.length; i++) {
+      let c = lastSyllable.charAt(i);
+      if (RiTa.VOWELS.includes(c)) {
+        idx = i;
+        break;
+      }
+    }
+
+    return lastSyllable.substring(idx);
+  }
+
+  private String _firstStressedSyl(String word, boolean useLTS) {
+
+	 String raw = this._rawPhones(word, useLTS);
+
+    if (raw == ""|| raw == null) return ""; // return null?
+
+    int idx = raw.indexOf(RiTa.STRESSED);
+
+    if (idx < 0) return ""; // no stresses... return null?
+
+    char c = raw.charAt(--idx);
+
+    while (c != ' ') {
+      if (--idx < 0) {
+        // single-stressed syllable
+        idx = 0;
+        break;
+      }
+      c = raw.charAt(idx);
+    }
+
+    String firstToEnd = idx == 0 ? raw : raw.substring(idx).trim();
+    idx = firstToEnd.indexOf(' ');
+
+    return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
+  }
+
+  private String _posData(String word) {
+
+    String[] rdata = _lookupRaw(word);
+    return (rdata != null && rdata.length == 2) ? rdata[1] : "";
+  }
+
+  private String[] _posArr(word) {
+
+    let pl = this._posData(word);
+    if (!pl || !pl.length) return [];
+    return pl.split(' ');
+  }
+
+  private String _bestPos(word) {
+
+    let pl = this._posArr(word);
+    return (pl.length > 0) ? pl[0] : [];
+  }
+
+
   
    private String[] _lookupRaw(String word) {
 	   //word = word && word.toLowerCase();
