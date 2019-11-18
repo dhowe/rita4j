@@ -60,7 +60,33 @@ public class Lexicon
 
   public String[] alliterations(String word, int minWordLength)
   {
-    return null;
+
+	    word = word.includes(" ") ? word.substring(0, word.indexOf(" ")) : word;
+
+	    if (RiTa.VOWELS.includes(word.charAt(0))) return [];
+
+	    // let matchMinLength = opts && opts.matchMinLength || 4;
+	    // let useLTS = opts && opts.useLTS || false;
+
+	    let results = [];
+	    let words = Object.keys(this.dict);
+	    let fss = this._firstStressedSyl(word, useLTS);
+	    let c1 = this._firstPhone(fss);
+
+	    if (!c1 || !c1.length) return [];
+
+	    for (let i = 0; i < words.length; i++) {
+
+	      if (words[i].length < matchMinLength) continue;
+
+	      let c2 = this._firstPhone(this._firstStressedSyl(words[i], useLTS));
+
+	      if (RiTa.VOWELS.includes(word.charAt(0))) return []; // ????
+
+	      if (c1 === c2) results.push(words[i]);
+	    }
+
+	    return Util.shuffle(results, RiTa);
   }
 
   public boolean hasWord(String word)
