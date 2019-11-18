@@ -1,12 +1,12 @@
 package rita;
 
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.net.URL;
+import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class Lexicon
+public class Lexicon // KW: Wait on this class please
 {
   private static String LEXICON_DELIM = ":";
   private static int MAP_SIZE = 30000;
@@ -15,12 +15,6 @@ public class Lexicon
 
   public Lexicon(String filePath) throws Exception
   {
-    load(filePath);
-  }
-
-  public void load(String filePath) throws Exception
-  {
-
     List<String> lines = loadJSON(filePath);
 
     if (lines == null || lines.size() < 2) {
@@ -46,11 +40,13 @@ public class Lexicon
       throw new Exception("No dictionary path specified!");
     }
 
-    final List<String> lines = Files.readAllLines(Paths.get(file));
-
-    if (lines == null || lines.size() < 1) {
+    URL resource = RiTa.class.getResource(file);
+    if (resource == null) {
       throw new Exception("Unable to load lexicon from: " + file);
     }
+      
+    final Path path = Paths.get(resource.toURI());
+    final List<String> lines = Files.readAllLines(path);
 
     // clean out the JSON formatting (TODO: optimize)
     // String clean = data.replaceAll("['\\[\\]]", E).replaceAll(",", "|");
@@ -123,9 +119,14 @@ public class Lexicon
 
   public String[] words(Pattern regex)
   {
-    if (regex != null) return this.dict.keySet().stream().filter
-        (word -> regex.matcher(word).matches()).toArray(String[]::new);
-    return this.dict.keySet().toArray(new String[0]);
+    return regex != null ? this.dict.keySet().stream().filter
+        (word -> regex.matcher(word).matches()).toArray(String[]::new) :
+        this.dict.keySet().toArray(new String[0]);
+  }
+  
+  public static void main(String[] args) throws Exception
+  {
+    System.out.println(new Lexicon(RiTa.DICT_PATH).words(null).length);
   }
   
   

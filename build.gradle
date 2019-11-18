@@ -6,28 +6,45 @@
  * User Manual available at https://docs.gradle.org/5.6/userguide/java_library_plugin.html
  */
 
+configurations {
+    provided
+}
+
+sourceSets {
+    main { compileClasspath += configurations.provided }
+}
+
 plugins {
-    // Apply the java-library plugin to add support for Java Library
+    // Support for Java Libraries
     id 'java-library'
+   
+    // Support for running Node
+	id "com.github.node-gradle.node" version "2.0.0"
+
 }
 
 repositories {
     // Use jcenter for resolving dependencies.
-    // You can declare any Maven/Ivy/file repository here.
     jcenter()
 }
 
 dependencies {
-    // This dependency is exported to consumers, that is to say found on their compile classpath.
+    // Exported
     api 'org.apache.commons:commons-math3:3.6.1'
 
-    // This dependency is used internally, and not exposed to consumers on their own compile classpath.
+    // Internal only
     implementation 'com.google.guava:guava:28.0-jre'
 
-    // Use JUnit test framework
+    // Use JUnit for tests 
     testImplementation 'junit:junit:4.12'
     testCompile 'junit:junit:4.12'
     
-    // Project specific
+    // Use antlr for parser
     compile 'org.antlr:antlr-complete:3.5.2'
+    
+    // for Node/JS
+    id "com.github.node-gradle.node" version "2.0.0"
+    
+    // for DocGenerator
+    provided group: 'org.processing', name: 'core', version: '3.3.7'
 }

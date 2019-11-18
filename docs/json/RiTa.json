@@ -776,18 +776,5 @@
     "related": "",
     "platform": "Java / JavaScript",
     "note": ""
-  }, {
-    "name": "RiTa.size",
-    "example": "RiTa.size();",
-    "description": "Returns the number of words currently in the lexicon ",
-    "syntax": "size();",
-    "parameters": [],
-    "returns": [{
-      "type": "int",
-      "desc": "the # of words"
-    }],
-    "related": "",
-    "platform": "Java / JavaScript",
-    "note": ""
   }]
 }
