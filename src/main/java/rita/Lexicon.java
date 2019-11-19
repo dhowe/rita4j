@@ -105,13 +105,29 @@ public class Lexicon // KW: Wait on this class please
 
   public boolean hasWord(String word)
   {
-    return false;
+	  
+	    word = word.length() > 0 ? word.toLowerCase() : "";
+	    return dict.hasOwnProperty(word) || RiTa.pluralizer.isPlural(word);
   }
 
   public boolean isAlliteration(String word1, String word2)
   {
+	  if (!word1 || !word2 || !word1.length || !word2.length) {
+	      return false;
+	    }
 
-    return false;
+	    if (word1.indexOf(" ") > -1 || word2.indexOf(" ") > -1) {
+	      throw Error('isAlliteration expects single words only');
+	    }
+
+	    let c1 = this._firstPhone(this._firstStressedSyl(word1, useLTS)),
+	      c2 = this._firstPhone(this._firstStressedSyl(word2, useLTS));
+
+	    if (this._isVowel(c1.charAt(0)) || this._isVowel(c2.charAt(0))) {
+	      return false;
+	    }
+
+	    return c1 && c2 && c1 == c2;
   }
 
   public boolean isRhyme(String word1, String word2)
@@ -132,14 +148,25 @@ public class Lexicon // KW: Wait on this class please
 
   public String[] similarBy(String word, Map<String, Object> opts)
   {
-    return null;
+	    if (word != null || word.length() == 0 ) return new String[]{};
+
+	    if(opts.size() == null) return new String[]{};
+	    
+	    if(opts.get("type") == null || opts.get("type") == "") {
+	    	"letter";
+	    }
+	    opts.type = opts.type || "letter";
+
+	    return (opts.type == "soundAndLetter") ?
+	      this.similarBySoundAndLetter(word, opts)
+	      : this.similarByType(word, opts);
   }
 
   public String[] words(Pattern regex)
   {
     return regex != null ? this.dict.keySet().stream().filter
         (word -> regex.matcher(word).matches()).toArray(String[]::new) :
-        this.dict.keySet().toArray(new String[0]);
+        dict.keySet().toArray(new String[0]);
   }
   
   public static void main(String[] args) throws Exception
@@ -151,7 +178,7 @@ public class Lexicon // KW: Wait on this class please
 
   private boolean _isVowel(String c) {
 
-    return c && c.length() && RiTa.VOWELS.contains(c);
+    return c != null && c.length() >0  && RiTa.VOWELS.contains(c);
   }
 
   private boolean _isConsonant(String p) {
