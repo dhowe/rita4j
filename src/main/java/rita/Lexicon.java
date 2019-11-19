@@ -277,17 +277,17 @@ public class Lexicon // KW: Wait on this class please
     return (rdata != null && rdata.length == 2) ? rdata[1] : "";
   }
 
-  private String[] _posArr(word) {
+  private String[] _posArr(String word) {
 
-    let pl = this._posData(word);
-    if (!pl || !pl.length) return [];
-    return pl.split(' ');
+    String pl = _posData(word);
+    if (pl != null || pl.length() > 0) return new String[] {};
+    return pl.split(" ");
   }
 
-  private String _bestPos(word) {
+  private String _bestPos(String word) {
 
-    let pl = this._posArr(word);
-    return (pl.length > 0) ? pl[0] : [];
+    String[] pl = _posArr(word);
+    return (pl.length > 0) ? pl[0] : "";
   }
 
 
