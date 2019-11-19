@@ -68,25 +68,31 @@ public class Lexicon // KW: Wait on this class please
 	    
 	    boolean useLTS = false;
 
+	    ArrayList<String> resultsArrayList;
 	    String[] results = {};
-	    Object[] words = dict.keySet().toArray();
-	    let fss = this._firstStressedSyl(word, useLTS);
-	    let c1 = this._firstPhone(fss);
+	    String[] words = (String[]) dict.keySet().toArray();
+	    String fss = _firstStressedSyl(word, useLTS);
+	    String c1 = _firstPhone(fss);
 
-	    if (!c1 || !c1.length) return [];
+	    if (c1 != null || c1.length() ==0 ) return new String[] {};
 
-	    for (let i = 0; i < words.length; i++) {
+	    for (int i = 0; i < words.length; i++) {
 
-	      if (words[i].length < matchMinLength) continue;
+	      if (words[i].length() < minWordLength) continue;
 
-	      let c2 = this._firstPhone(this._firstStressedSyl(words[i], useLTS));
+	      String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
 
-	      if (RiTa.VOWELS.includes(word.charAt(0))) return []; // ????
+	      if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] {}; // ????
 
-	      if (c1 == c2) results.push(words[i]);
+	      if (c1 == c2) 
+	      {
+	    	  resultsArrayList.add(words[i]);
+	    	  
+	      } 
+
 	    }
-
-	    return Util.shuffle(results, RiTa);
+	    results = (String[]) resultsArrayList.toArray();
+	    return Util.shuffle(results, RiTa); //TODO
   }
   
   public String[] alliterations(String word)
@@ -143,39 +149,41 @@ public class Lexicon // KW: Wait on this class please
   
   //////////////////////////////////////////////////////////////////////
 
-  private boolean _isVowel(c) {
+  private boolean _isVowel(String c) {
 
-    return c && c.length && RiTa.VOWELS.includes(c);
+    return c && c.length() && RiTa.VOWELS.contains(c);
   }
 
-  private boolean _isConsonant(p) {
+  private boolean _isConsonant(String p) {
 
-    return (typeof p === S && p.length === 1 && // precompile
-      RiTa.VOWELS.indexOf(p) < 0 && /^[a-z\u00C0-\u00ff]+$/.test(p));
+    return (typeof p == S && p.length == 1 && RiTa.VOWELS.indexOf(p) < 0 && /^[a-z\u00C0-\u00ff]+$/.test(p)); // precompile
   }
 
-  private String _firstPhone(rawPhones) {
+  private String _firstPhone(String rawPhones) {
 
-    if (!rawPhones || !rawPhones.length) return '';
-    let phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
-    if (phones) return phones[0];
-    return ""; // return null?
+    if (rawPhones != null || rawPhones.length() == 0) return "";
+    String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+    if (phones != null) return phones[0];
+    return ""; //return null?
+    
   }
-
-  _intersect() { // https://gist.github.com/lovasoa/3361645
-    let i, all, n, len, ret = [],
-      obj = {},
-      shortest = 0,
-      nOthers = arguments.length - 1,
-      nShortest = arguments[0].length;
-    for (i = 0; i <= nOthers; i++) {
+  
+  /*
+  private String _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
+    String all, n, len;
+    String[] ret;
+    String[] obj = {},
+    int shortest = 0,
+    int nOthers = arguments.length - 1,
+    int nShortest = arguments[0].length;
+    for (int i = 0; i <= nOthers; i++) {
       n = arguments[i].length;
       if (n < nShortest) {
         shortest = i;
         nShortest = n;
       }
     }
-    for (i = 0; i <= nOthers; i++) {
+    for (int i = 0; i <= nOthers; i++) {
       n = (i === shortest) ? 0 : (i || shortest);
       len = arguments[n].length;
       for (let j = 0; j < len; j++) {
@@ -194,19 +202,22 @@ public class Lexicon // KW: Wait on this class please
     }
     return ret;
   }
+  */
+  
+  private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
 
-  private String _lastStressedPhoneToEnd(word, useLTS) {
+    if (word != null || word.length() == 0) return ""; // return null?
 
-    if (!word || !word.length) return ''; // return null?
+    int idx; 
+    char c;
+    String result;
+    String raw = _rawPhones(word, useLTS);
 
-    let idx, c, result;
-    let raw = this._rawPhones(word, useLTS);
-
-    if (!raw || !raw.length) return ''; // return null?
+    if (raw != null || raw.length() == 0) return ""; // return null?
 
     idx = raw.lastIndexOf(RiTa.STRESSED);
 
-    if (idx < 0) return E; // return null?
+    if (idx < 0) return ""; // return null?
 
     c = raw.charAt(--idx);
     while (c != '-' && c != ' ') {
@@ -221,21 +232,21 @@ public class Lexicon // KW: Wait on this class please
   }
 
 
-  private String _lastStressedVowelPhonemeToEnd(word, useLTS) {
+  private String _lastStressedVowelPhonemeToEnd(String word, boolean useLTS) {
 
-    if (!word || !word.length) return ''; // return null?
+    if (word != null || word.length() == 0) return ""; // return null?
 
-    let raw = this._lastStressedPhoneToEnd(word, useLTS);
-    if (!raw || !raw.length) return ''; // return null?
+    String raw = _lastStressedPhoneToEnd(word, useLTS);
+    if (raw != null || raw.length() == 0) return ""; // return null?
 
-    let syllables = raw.split(' ');
-    let lastSyllable = syllables[syllables.length - 1];
-    lastSyllable = lastSyllable.replace('[^a-z-1 ]', '');
+    String[] syllables = raw.split(" ");
+    String lastSyllable = syllables[syllables.length - 1];
+    lastSyllable = lastSyllable.replace("[^a-z-1 ]", "");
 
-    let idx = -1;
-    for (let i = 0; i < lastSyllable.length; i++) {
-      let c = lastSyllable.charAt(i);
-      if (RiTa.VOWELS.includes(c)) {
+    int idx = -1;
+    for (int i = 0; i < lastSyllable.length(); i++) {
+      char c = lastSyllable.charAt(i);
+      if (RiTa.VOWELS.contains(Character.toString(c))) {
         idx = i;
         break;
       }
@@ -246,7 +257,7 @@ public class Lexicon // KW: Wait on this class please
 
   private String _firstStressedSyl(String word, boolean useLTS) {
 
-	 String raw = this._rawPhones(word, useLTS);
+	 String raw = _rawPhones(word, useLTS);
 
     if (raw == ""|| raw == null) return ""; // return null?
 
