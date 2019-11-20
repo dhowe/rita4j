@@ -95,13 +95,6 @@ public class Lexicon // KW: Wait on this class please
 	    return Util.shuffle(results, RiTa); //TODO
   }
   
-  public String[] alliterations(String word)
-  {
-	     int matchMinLength = 4;
-	     boolean useLTS = false;
-
-	    return alliterations(word,matchMinLength);
-  }
 
   public boolean hasWord(String word)
   {
@@ -112,41 +105,112 @@ public class Lexicon // KW: Wait on this class please
 
   public boolean isAlliteration(String word1, String word2)
   {
-	  if (!word1 || !word2 || !word1.length || !word2.length) {
+	  if ( word1 != null || word2 != null || word1.length() == 0 || word2.length() == 0) {
 	      return false;
 	    }
 
 	    if (word1.indexOf(" ") > -1 || word2.indexOf(" ") > -1) {
-	      throw Error('isAlliteration expects single words only');
+	      throw new IllegalArgumentException("isAlliteration expects single words only");
 	    }
 
-	    let c1 = this._firstPhone(this._firstStressedSyl(word1, useLTS)),
-	      c2 = this._firstPhone(this._firstStressedSyl(word2, useLTS));
+	    String c1 = _firstPhone(this._firstStressedSyl(word1, useLTS));
+	    String c2 = _firstPhone(this._firstStressedSyl(word2, useLTS));
 
-	    if (this._isVowel(c1.charAt(0)) || this._isVowel(c2.charAt(0))) {
+	    if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
 	      return false;
 	    }
 
-	    return c1 && c2 && c1 == c2;
+	    return c1.length() > 0 && c2.length() > 0 && c1 == c2;
   }
 
   public boolean isRhyme(String word1, String word2)
   {
 
-    return false;
+	  if (word1 == null || word2 == null || word1.toUpperCase() == word2.toUpperCase()) {
+	      return false;
+	    }
+
+	    String phones1 = _rawPhones(word1, useLTS);
+	    String phones2 = _rawPhones(word2, useLTS);
+
+	    if (phones2 == phones1) return false;
+
+	    String p1 = _lastStressedVowelPhonemeToEnd(word1, useLTS);
+	    String  p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
+
+	    return p1.length() > 0 && p2.length() > 0 && p1 == p2;
   }
 
-  public String randomWord(String pos, int numSyllabes)
+  public String randomWord(String pos, int numSyllabes)  //TODO one argument only in rita-script
   {
-    return null;
+	  boolean pluralize = false;
+	    String words = Object.keys(dict);
+	    float ran = Math.floor(RiTa.random(words.length()));
+	    let targetPos = opts && opts.pos;
+	    int targetSyls = opts && opts.syllableCount || 0;
+
+	    let isNNWithoutNNS = (w, pos) => (w.endsWith("ness") ||
+	      w.endsWith("ism") || pos.indexOf("vbg") > 0);
+
+	    if (targetPos && targetPos.length) {
+	      targetPos = targetPos.trim().toLowerCase();
+	      pluralize = (targetPos === "nns");
+	      if (targetPos[0] === "n") targetPos = "nn";
+	      else if (targetPos === "v") targetPos = "vb";
+	      else if (targetPos === "r") targetPos = "rb";
+	      else if (targetPos === "a") targetPos = "jj";
+	    }
+
+	    for (let i = 0; i < words.length; i++) {
+	      let j = (ran + i) % words.length;
+	      let rdata = this.dict[words[j]];
+
+	      // match the syls if supplied
+	      if (targetSyls && targetSyls !== rdata[0].split(' ').length) {
+	        continue;
+	      }
+
+	      if (targetPos) { // match the pos if supplied
+	        if (targetPos === rdata[1].split(' ')[0]) {
+
+	          // match any pos but plural noun
+	          if (!pluralize) return words[j];
+
+	          // match plural noun
+	          if (!isNNWithoutNNS(words[j], rdata[1])) {
+	            return RiTa.pluralize(words[j]);
+	          }
+	        }
+	      }
+	      else {
+	        return words[j]; // no pos to match
+	      }
+	    }
+
+	    return []; // TODO: failed, should throw here
   }
 
-  public String[] rhymes(String word)
+  public String[] rhymes(String theWord) //TODO
   {
-    return null;
+	  if (theWord == null || theWord.length() == 0) return new String[] {};
+
+	    String word = theWord.toLowerCase();
+
+	    String[] results;
+	    String words = Object.keys(this.dict);
+	    String p = _lastStressedPhoneToEnd(word);
+
+	    for (int i = 0; i < words.length(); i++) {
+
+	      if (words[i] == word) continue;
+
+	      if (dict[words[i]][0].endsWith(p)) results.push(words[i]);
+	    }
+
+	    return results;
   }
 
-  public String[] similarBy(String word, Map<String, Object> opts)
+  public String[] similarBy(String word, Map<String, Object> opts)  //TODO
   {
 	    if (word != null || word.length() == 0 ) return new String[]{};
 
@@ -195,7 +259,7 @@ public class Lexicon // KW: Wait on this class please
     
   }
   
-  /*
+
   private String _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
     String all, n, len;
     String[] ret;
@@ -229,7 +293,7 @@ public class Lexicon // KW: Wait on this class please
     }
     return ret;
   }
-  */
+
   
   private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
 

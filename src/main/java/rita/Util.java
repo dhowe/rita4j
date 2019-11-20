@@ -70,5 +70,19 @@ public class Util
     }
     return opt;
   }
+  
+  
+  public static shuffle(String[] arr, randomable) { // shuffle array //TODO what is the type of second arg
+	    String[] newArray = arr.slice();
+	    int len = newArray.length;
+	    int i = len;
+	    while (i--) {
+	      int p = parseInt(randomable.random() * len);
+	       String t = newArray[i];
+	      newArray[i] = newArray[p];
+	      newArray[p] = t;
+	    }
+	    return newArray;
+	  }
 
 }

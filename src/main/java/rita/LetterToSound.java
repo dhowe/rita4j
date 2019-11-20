@@ -3,12 +3,6 @@ package rita;
 public class LetterToSound
 {
 
-	
-	
-	let RiTa;
-
-
-
 	  constructor(parent) {
 	    RiTa = parent;
 	    this.cache = {}; // TODO
@@ -23,7 +17,7 @@ public class LetterToSound
 
 	  createState(type) {
 
-	    if (type === "S") {
+	    if (type == "S") {
 
 	      let index = parseInt(this.tokenizer.nextToken());
 	      let c = this.tokenizer.nextToken();

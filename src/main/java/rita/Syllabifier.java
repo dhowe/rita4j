@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.Map;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Syllabifier
@@ -18,27 +19,29 @@ public class Syllabifier
 	    String[] ret;
 	    for (int i = 0; i < syllables.length; i++) {
 
-	      String syl = syllables[i],
-	        stress = syl[0][0],
-	        onset = syl[1],
-	        nucleus = syl[2],
-	        coda = syl[3];
+	      String syl = syllables[i];
+	      String stress = syl[0][0]; //TODO
+	      String onset = syl[1];
+	      String nucleus = syl[2];
+	      String coda = syl[3];
 
-	      if (stress !== undefined && nucleus.length) // dch
+	      if (stress != "" && nucleus.length() > 0) // dch
 	        nucleus[0] += ("" + stress);
 
-	      String[] data;
-	      for (int j = 0; j < onset.length; j++)
-	        data.push(onset[j]);
-	      for (int j = 0; j < nucleus.length; j++)
-	        data.push(nucleus[j]);
-	      for (int j = 0; j < coda.length; j++)
-	        data.push(coda[j]);
+	      ArrayList<String> data = new ArrayList<String>();
 
-	      ret.push(data.join("-"));
+	      for (int j = 0; j < onset.length(); j++)
+	        data.add(onset[j]);
+	      for (int j = 0; j < nucleus.length(); j++)
+	        data.add(nucleus[j]);
+	      for (int j = 0; j < coda.length(); j++)
+	        data.add(coda[j]);
+
+	      ret.add(String.join("-", data));
 	    }
 
-	    return ret.join(" ");
+	    
+	    return String.join(" ", ret);
 	  }
 
 	  // fromWords(input) {
@@ -52,18 +55,19 @@ public class Syllabifier
 	  // }
 
 		String fromPhones(String[] ltsPhones) {
-			let dbug, none;
-		    let internuclei = [];
-		    let syllables = []; // returned data structure
-		    let sylls = typeof input == "string" ? input.split("-") : input;
+			boolean dbug; 
+			int none;
+		    String[] internuclei;
+		    String[] syllables; // returned data structure
+		    String[] sylls = ltsPhones.split("-");
 
-		    for ( i = 0; i < sylls.length; i++) {
+		    for (int i = 0; i < sylls.length; i++) {
 
-		      let phoneme = sylls[i].trim(),
-		        stress = none;
+		      String phoneme = sylls[i].trim();
+		      int stress = none;
 
-		      if (!phoneme.length) continue;
-
+		      if (phoneme.length() == 0) continue;
+		      
 		      if (Util.isNum(Util.last(phoneme))) {
 		        stress = parseInt(Util.last(phoneme));
 		        phoneme = phoneme.substring(0, phoneme.length - 1);
@@ -78,7 +82,7 @@ public class Syllabifier
 		          onset = none;
 
 		        // Make the largest onset we can. The "split" variable marks the break point.
-		        for (let split = 0; split < internuclei.length + 1; split++) {
+		        for (int split = 0; split < internuclei.length + 1; split++) {
 
 		          coda = internuclei.slice(0, split);
 		          onset = internuclei.slice(split, internuclei.length);
@@ -90,7 +94,7 @@ public class Syllabifier
 		          // (in which case an invalid onset is better than a coda that doesn"t follow
 		          // a nucleus), or if we"ve gone through all of the onsets and we didn"t find
 		          // any that are valid, then split the nonvowels we"ve seen at this location.
-		          let bool = Syllabifier.Phones.onsets.includes(onset.join(" "));
+		          boolean bool = Syllabifier.Phones.onsets.includes(onset.join(" "));
 		          if (bool || syllables.length === 0 || onset.length === 0) {
 		            if (dbug) log("  break " + phoneme);
 		            break;
@@ -131,7 +135,7 @@ public class Syllabifier
 
 		    return this.stringify(syllables);
 		  }
-		}
+		
 
 
 
