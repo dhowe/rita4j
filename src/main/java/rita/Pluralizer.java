@@ -10,7 +10,7 @@ public class Pluralizer
 
 	    if (MODALS.includes(word.toLowerCase())) return word;
 
-	    lObjectet rules = PLURAL_RULES; //TODO
+	    Object rules = PLURAL_RULES; //TODO
 	    for (int i = 0; i < rules.length; i++) {
 	      if (rules[i].applies(word.toLowerCase())) {
 	        return rules[i].fire(word);

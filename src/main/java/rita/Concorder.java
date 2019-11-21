@@ -1,103 +1,120 @@
 package rita;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 public class Concorder
 {
+	private boolean ignoreCase;
+	private boolean ignoreStopWords;
+	private boolean ignorePunctuation;
+	private String[] wordsToIgnore;
+
+	String[] words;
+	Map<String, String> model = new HashMap<String, String>();
+	Map<String, Object> _lookup = new HashMap<String, Object>();
+	  
   public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
   {
-	  this._parseOptions(word);
+	  _parseOptions(opts);
 
-	    this.words = Array.isArray(text) ? text : RiTa.tokenize(text);
-	    this._build();
+	  //  words = Array.isArray(text) ? text : RiTa.tokenize(text);
+	    _build();
 
 	    String[] result;
-	    for (let name in this.model) {
-	      result[name] = this.model[name].indexes.length;
+	    for (String name in model) {
+	      result[name] = model[name].indexes.length;
 	    }
 
 	    // TODO: need to sort by value here
 	    return result;
   }
 
-  public String[] kwic(String text, String word, Map<String, Object> opts)
+  public String[] kwic(String text, int numWords, Map<String, Object> opts)
   {
-	  if (!this.model) throw Error('Call concordance() first');
-	    let value = this._lookup(word),
-	      result = [];
-	    if (value) {
-	      let idxs = value.indexes;
-	      for (let i = 0; i < idxs.length; i++) {
-	        let sub = this.words.slice(Math.max(0, idxs[i] - numWords),
-	          Math.min(this.words.length, idxs[i] + numWords + 1));
+	  if (model.size() == 0) throw new RiTaException("Call concordance() first");
+	    String value = _lookup(text);
+	    ArrayList<String> result = new ArrayList<String>();
+	    if (value != null) {
+	      int[] idxs = value.indexes;
+	      for (int i = 0; i < idxs.length; i++) {
+	    	  String[] sub = Arrays.copyOfRange(words, Math.max(0, idxs[i] - numWords), Math.min(words.length, idxs[i] + numWords + 1));
 
 	        if (i < 1 || (idxs[i] - idxs[i - 1]) > numWords) {
-	          result.push(RiTa.untokenize(sub));
+	          result.add(RiTa.untokenize(sub));
 	        }
 	      }
 	    }
-	    return result;
+	    
+	    return (String[]) result.toArray();
   }
   
   
   ///////////////////////////////////////////////////////////////////////////
+  
+  private void _parseOptions(Map<String, Object> options) { //todo
+    if (options.size() > 0) {
+    	if(options.containsKey("ignoreCase")) ignoreCase = true;
+    	if(options.containsKey("ignoreStopWords")) ignoreStopWords = true;
+    	if(options.containsKey("ignorePunctuation")) ignorePunctuation = true;
+    	if(options.containsKey("wordsToIgnore")) wordsToIgnore = (String[]) options.get("wordsToIgnore");
+      }
 
-  private void_parseOptions(String options) {
-    if (options.length() > 0) {
-      options.ignoreCase && (this.ignoreCase = true);
-      options.ignoreStopWords && (this.ignoreStopWords = true);
-      options.ignorePunctuation && (this.ignorePunctuation = true);
-      options.wordsToIgnore && (this.wordsToIgnore = options.wordsToIgnore);
-    }
-
-    if (this.ignoreStopWords) {
-      this.wordsToIgnore = this.wordsToIgnore.concat(RiTa.STOP_WORDS);
-    }
+      if (ignoreStopWords) {
+        wordsToIgnore = wordsToIgnore.concat(RiTa.STOP_WORDS);
+      }
   }
   
-  _build() {
+  private void _build() {
+	  
+	    if (words == null) throw new RiTaException("No text in model"); //TODO is it correct?
 
-	    if (!this.words) throw Error('No text in model');
+	    model = new HashMap<String,String>();
+	    for (int j = 0; j < words.length; j++) {
 
-	    this.model = {};
-	    for (let j = 0; j < this.words.length; j++) {
-
-	      let word = this.words[j];
-	      if (this._isIgnorable(word)) continue;
-	      let _lookup = this._lookup(word);
+	      String word = words[j];
+	      if (_isIgnorable(word)) continue;
+	      _lookup = _lookup(word);
 
 	      // The typeof check below fixes a strange bug in Firefox: #XYZ
 	      // where the string 'watch' comes back from _lookup as a function
 	      // TODO: resolve in a better way
-	      if (!_lookup || typeof _lookup !== 'object') {
+	    //  if (!_lookup || typeof _lookup !== 'object') {
 
-	        _lookup = { word: word, key: this._compareKey(word), indexes: [] };
-	        this.model[_lookup.key] = _lookup;
-	      }
+	      Map<String,Object> lookupMap = new HashMap<String,Object>();
+	      lookupMap.put("word",word);
+	      lookupMap.put("key",_compareKey(word));
+	      lookupMap.put("indexes", new String[] {});
+	        _lookup = lookupMap;
+	        
+	        
+	        model[lookupMap.get(key)] = _lookup; //TODO
+	    //  }
 	      _lookup.indexes.push(j);
 	    }
 	  }
 
-	  _isIgnorable(key) {
+	  private boolean _isIgnorable(String key) {
 
-	    if (this.ignorePunctuation && RiTa.isPunctuation(key))
-	      return true;
+	    if (ignorePunctuation && RiTa.isPunctuation(key)) return true;
 
-	    for (let i = 0; i < this.wordsToIgnore.length; i++) {
-	      let word = this.wordsToIgnore[i];
-	      if ((this.ignoreCase && key.toUpperCase() === word.toUpperCase()) || key === word)
+	    for (int i = 0; i < wordsToIgnore.length; i++) {
+	      String word = wordsToIgnore[i];
+	      if ((ignoreCase && key.toUpperCase() == word.toUpperCase()) || key == word)
 	        return true;
 	    }
 	    return false;
 	  }
 
-	  _compareKey(word) {
-	    return this.ignoreCase ? word.toLowerCase() : word;
+	  public String _compareKey(String word) {
+	    return ignoreCase ? word.toLowerCase() : word;
 	  }
 
-	  _lookup(word) {
-	    let key = this._compareKey(word);
-	    return this.model[key];
+	  public String _lookup(String word) {
+	    String key = _compareKey(word);
+	    return model.get(key);
 	  }
 
 }

@@ -1,5 +1,8 @@
 package rita;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 public class Conjugator
@@ -667,23 +670,122 @@ const PRESENT_TENSE_RULESET = {
   doubling: false
 };
 
+boolean perfect = false;
+boolean progressive = false;
+boolean passive = false;
+boolean interrogative = false;
+int tense = RiTa.PRESENT_TENSE;
+int person = RiTa.FIRST_PERSON;
+int number = RiTa.SINGULAR;
+int form = RiTa.NORMAL;
+
+public void reset() {
+	perfect = false;
+  	progressive = false;
+	passive = false;
+	interrogative = false;
+	tense = RiTa.PRESENT_TENSE;
+	person = RiTa.FIRST_PERSON;
+	number = RiTa.SINGULAR;
+	form = RiTa.NORMAL;
+}
 
   public String conjugate(String word, Map <String, Object> opts)
   {
-    // TODO Auto-generated method stub
-    return null;
+	    if (word == null || word.length() == 0 ) return "";
+
+	    if (opts.size() == 0) return word;
+
+	    // --------------------- handle args ---------------------
+
+	    reset();
+	    
+	    if (opts.containsKey("number")) number = (int) opts.get("number");
+	    if (opts.containsKey("person")) person = (int) opts.get("person");
+	    if (opts.containsKey("tense")) tense = (int) opts.get("tense");
+	    if (opts.containsKey("form")) form = (int) opts.get("form");
+	    if (opts.containsKey("passive")) passive = (boolean) opts.get("passive");
+	    if (opts.containsKey("progressive")) progressive = (boolean) opts.get("progressive");
+	    if (opts.containsKey("interrogative")) interrogative = (boolean) opts.get("interrogative");
+	    if (opts.containsKey("perfect")) perfect = (boolean) opts.get("perfect");
+
+	    // ----------------------- start --------------------------
+
+	    String v = word.toLowerCase(); // handle to-be forms
+	    
+	    String[] c = {"am", "are", "is", "was", "were"};
+	    List<String> list = Arrays.asList(c);
+	    if (list.contains(v)) v = "be";
+
+	    String actualModal; 
+	    ArrayList<String> conjs = new ArrayList<String>();
+	    String verbForm;
+	    String frontVG = v;
+
+	    if (form == RiTa.INFINITIVE) {
+	      actualModal = "to";
+	    }
+
+	    if (this.tense == RiTa.FUTURE_TENSE) {
+	      actualModal = "will";
+	    }
+
+	    if (this.passive) {
+	      conjs.push(pastParticiple(frontVG));
+	      frontVG = "be";
+	    }
+
+	    if (this.progressive) {
+	      conjs.push(presentParticiple(frontVG));
+	      frontVG = "be";
+	    }
+
+	    if (this.perfect) {
+	      conjs.push(pastParticiple(frontVG));
+	      frontVG = "have";
+	    }
+
+	    if (actualModal) {
+	      conjs.push(frontVG);
+	      frontVG = null;
+	    }
+
+	    // Now inflect frontVG (if it exists) and push it on restVG
+	    if (frontVG) {
+	      if (this.form === RiTa.GERUND) { // gerund - use ING form
+
+	        let pp = this.presentParticiple(frontVG);
+
+	        // !@# not yet implemented! ??? WHAT?
+	        conjs.push(pp);
+	      } else if (this.interrogative && frontVG != "be" && conjs.length < 1) {
+
+	        conjs.push(frontVG);
+	      } else {
+
+	        verbForm = this.verbForm(frontVG, this.tense, this.person, this.number);
+	        conjs.push(verbForm);
+	      }
+	    }
+
+	    // add modal, and we're done
+	    actualModal && conjs.push(actualModal);
+
+	    // !@# test this
+	    let s = conjs.reduce((acc, cur) => cur +  ' ' + acc);
+	    if (s.endsWith("peted")) throw Error("Unexpected output: ", this);
+
+	    return s.trim();
   }
 
   public String pastParticiple(String verb)
   {
-    // TODO Auto-generated method stub
-    return null;
+	    return this.checkRules(PAST_PARTICIPLE_RULESET, verb);
   }
 
   public String presentParticiple(String verb)
   {
-    // TODO Auto-generated method stub
-    return null;
+	    return verb == "be" ? "being" : this.checkRules(PRESENT_PARTICIPLE_RULESET, verb);
   }
 
 }

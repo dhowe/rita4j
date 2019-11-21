@@ -43,7 +43,7 @@ public class RiTa
     return concordance(text, word, null);
   }
 
-  public static Map<String, String> concordance(String text, String word, Map<String, Object> opts)
+  public static Map<String, String> concordance(String text, String word, Map<String, Object> opts) //TODO
   {
     return concorder.concordance(text, word, opts);
   }
