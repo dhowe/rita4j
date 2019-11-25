@@ -35,10 +35,10 @@ public class RiTaTests {
 	}
 
 	@Test 
-	public void testIsAbbreviation() {
+	public void testIsAbbreviation() {  //TODO add second parameter tests
 
 		assertTrue(RiTa.isAbbreviation("Dr."));
-		assertTrue(RiTa.isAbbreviation("dr."));
+		assertTrue(!RiTa.isAbbreviation("dr."));
 		//T in java
 
 		assertTrue(!RiTa.isAbbreviation("DR."));
@@ -60,7 +60,7 @@ public class RiTaTests {
 		assertTrue(!RiTa.isAbbreviation("Doctor."));
 
 		assertTrue(RiTa.isAbbreviation("Prof."));
-		assertTrue(RiTa.isAbbreviation("prof."));
+		assertTrue(!RiTa.isAbbreviation("prof."));
 		//T in java
 		assertTrue(!RiTa.isAbbreviation("PRFO."));
 		//  F in Processing. lowercase is true but uppercase is false

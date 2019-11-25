@@ -20,17 +20,17 @@ public class RiTa
 
   public static Map<String, String> analyze(String word)
   {
-    return analyze(word);
+    return _analyzer().analyze(word);
   }
 
   public static String[] alliterations(String word)
   {
-    return _lexicon().alliterations(word, Integer.MAX_VALUE);
+    return alliterations(word, Integer.MAX_VALUE);
   }
 
   public static String[] alliterations(String word, int minWordLength)
   {
-    return alliterations(word, minWordLength);
+    return _lexicon().alliterations(word, minWordLength);
   }
 
   public static String[] alliterations(String word, Map<String, Object> opts)
@@ -75,6 +75,7 @@ public class RiTa
 
   public static boolean isAbbreviation(String input, boolean ignoreCase)
   {
+	  if(input == null) return false;
     if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1);
     return Arrays.stream(ABBREVIATIONS).anyMatch(input::equals);
   }
@@ -125,7 +126,7 @@ public class RiTa
     return kwic(text, word, null);
   }
 
-  public static String[] kwic(String text, String word, Map<String, Object> opts)
+  public static String[] kwic(String text, String word, Map<String, Object> opts) //parameter mismatch
   {
     return concorder.kwic(text, word, opts);
   }
