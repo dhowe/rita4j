@@ -11,7 +11,7 @@ public class Tagger
 	
   public boolean isAdjective(String word)
   {
-	    return checkType(word, ADJ);
+	  return checkType(word, ADJ);
   }
 
   public boolean isAdverb(String word)
@@ -46,11 +46,11 @@ public class Tagger
 
   private boolean checkType(String word, String[] tagArray) {
 
-	    if (word) {
+	    if (word != null) {
 
-	      if (!word.length) return false;
+	      if (word.length() == 0) return false;
 
-	      if (word.indexOf(' ') < 0) {
+	      if (word.indexOf(" ") < 0) {
 
 	        let psa = RiTa._lexicon()._posArr(word);
 

@@ -18,27 +18,33 @@ public class Concorder
 	  
   public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
   {
-	  _parseOptions(opts);
+	  return null;
 
-	  //  words = Array.isArray(text) ? text : RiTa.tokenize(text);
+/*
+	    _parseOptions(options);
+
+	    words = Array.isArray(text) ? text : RiTa.tokenize(text);
 	    _build();
 
 	    String[] result;
-	    for (String name in model) {
-	      result[name] = model[name].indexes.length;
+	    for (let name in this.model) {
+	      result[name] = this.model[name].indexes.length;
 	    }
 
 	    // TODO: need to sort by value here
 	    return result;
+	    */
   }
 
   public String[] kwic(String text, int numWords, Map<String, Object> opts)
   {
+	  return null;
+	  /*
 	  if (model.size() == 0) throw new RiTaException("Call concordance() first");
 	    String value = _lookup(text);
 	    ArrayList<String> result = new ArrayList<String>();
 	    if (value != null) {
-	      int[] idxs = value.indexes;
+	      int[] idxs = value.indexes; //what is .indexes
 	      for (int i = 0; i < idxs.length; i++) {
 	    	  String[] sub = Arrays.copyOfRange(words, Math.max(0, idxs[i] - numWords), Math.min(words.length, idxs[i] + numWords + 1));
 
@@ -49,12 +55,13 @@ public class Concorder
 	    }
 	    
 	    return (String[]) result.toArray();
+	    */
   }
   
   
   ///////////////////////////////////////////////////////////////////////////
   
-  private void _parseOptions(Map<String, Object> options) { //todo
+  private void _parseOptions(Map<String, Object> options) { //TODO
     if (options.size() > 0) {
     	if(options.containsKey("ignoreCase")) ignoreCase = true;
     	if(options.containsKey("ignoreStopWords")) ignoreStopWords = true;

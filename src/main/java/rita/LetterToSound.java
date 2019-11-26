@@ -13134,7 +13134,54 @@ public class LetterToSound
 	};
 
 
+	public String[] getPhones(String input) {
+		return null;
+		
+		/*
+		// use cached value if possible
+		if (cache && typeof cache[input] != "undefined") {
+			return this.cache[input];
+		}
 
+		let result = [];
+		let delim = "-";
+
+		if (typeof input === "string") {
+
+			if (!input.length) return "";
+
+			input = RiTa.tokenize(input);
+		}
+
+		for (let i = 0; i < input.length; i++) {
+			let ph = this.computePhones(input[i]);
+			result[i] = ph ? ph.join(delim) : "";
+		}
+
+		result = result.join(delim).replace(/ax/g, "ah");
+
+		result.replace("/0/g", "");
+
+		if (result.length > 0 && result.indexOf("1") < 0 && result.indexOf(" ") < 0) {
+			let ph = result.split("-");
+			result = "";
+			for (let i = 0; i < ph.length; i++) {
+				if (/[aeiou]/.test(ph[i])) ph[i] += "1";
+				result += ph[i] + "-";
+			}
+			if (ph.length > 1) result = result.substring(0, result.length - 1);
+		}
+
+		// cached the value for later
+		if (this.cache) this.cache[input] = result;
+
+		return result;
+		*/
+	}
+
+
+
+/*
 	constructor(parent) {
 		RiTa = parent;
 		this.cache = {}; // TODO
@@ -13192,48 +13239,7 @@ public class LetterToSound
 
 
 
-	public String[] getPhones(String input) {
-		// use cached value if possible
-		if (this.cache && typeof this.cache[input] !== "undefined") {
-			return this.cache[input];
-		}
-
-		let result = [];
-		let delim = "-";
-
-		if (typeof input === "string") {
-
-			if (!input.length) return "";
-
-			input = RiTa.tokenize(input);
-		}
-
-		for (let i = 0; i < input.length; i++) {
-			let ph = this.computePhones(input[i]);
-			result[i] = ph ? ph.join(delim) : "";
-		}
-
-		result = result.join(delim).replace(/ax/g, "ah");
-
-		result.replace("/0/g", "");
-
-		if (result.length > 0 && result.indexOf("1") < 0 && result.indexOf(" ") < 0) {
-			let ph = result.split("-");
-			result = "";
-			for (let i = 0; i < ph.length; i++) {
-				if (/[aeiou]/.test(ph[i])) ph[i] += "1";
-				result += ph[i] + "-";
-			}
-			if (ph.length > 1) result = result.substring(0, result.length - 1);
-		}
-
-		// cached the value for later
-		if (this.cache) this.cache[input] = result;
-
-		return result;
-	}
-
-
+	
 	computePhones(word) {
 
 		let dig, phoneList = [], windowSize = 4,
@@ -13327,9 +13333,10 @@ public class LetterToSound
 			return this.getState(this.tokenizer.nextToken(), this.tokenizer);
 		}
 	}
+	*/
 }
 
-
+/*
 class LtsTokenizer {
 
 	tokenize(str, delim) {
@@ -13397,7 +13404,7 @@ class FinalState {
 	private static final int TYPE = 2;
 }
 
-
+*/
 
 
 
