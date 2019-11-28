@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.Map;
+import java.util.Random;
 
 public class Util
 {
@@ -72,16 +73,35 @@ public class Util
   }
   
   
-  public static shuffle(String[] arr, randomable) { // shuffle array //TODO what is the type of second arg
-	    String[] newArray = arr.slice();
-	    int len = newArray.length;
-	    int i = len;
-	    while (i--) {
-	      int p = parseInt(randomable.random() * len);
+  public static shuffle(String[] arr, Object randomable) { // shuffle array //TODO what is the type of second arg
+	   	String[] newArray = arr;
+
+		
+		Random rand = new Random();
+		
+		for (int i = 0; i < newArray.length; i++) {
+			int randomIndexToSwap = rand.nextInt(newArray.length);
+			String temp = newArray[randomIndexToSwap];
+			newArray[randomIndexToSwap] = newArray[i];
+			newArray[i] = temp;
+		}
+	    
+	    /*
+	     * 	  
+	     * //  int len = arr.length;
+	  //  int i = len;
+	   // Random rand = new Random();
+	   
+	    while (i>0) {
+	      int p = parseInt(((Object) randomable).random() * len);
 	       String t = newArray[i];
 	      newArray[i] = newArray[p];
 	      newArray[p] = t;
+	      i--;
+	      
+	      
 	    }
+	    */
 	    return newArray;
 	  }
   

@@ -294,6 +294,9 @@ public class Lexicon // KW: Wait on this class please
     return ret;
   }
 
+  private String _lastStressedPhoneToEnd(String word) {	  
+	  return _lastStressedPhoneToEnd(word, false);
+  }
   
   private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
 

@@ -16,12 +16,8 @@ public class RE {
     suffix = suff;
   }
 
-  public RE(String re, int truncate, String suff, int j) {
-	// TODO Auto-generated constructor stub (in conjugator there are 4 parm
-	    regex = Pattern.compile(re, Pattern.CASE_INSENSITIVE).matcher("\\w+");
-	    raw = re;
-	    offset = truncate;
-	    suffix = suff;
+  public RE(String re, int truncate, String suff, int notused) {
+	  this(re, truncate,  suff);
 }
 
 public RE(String re, int truncate) {

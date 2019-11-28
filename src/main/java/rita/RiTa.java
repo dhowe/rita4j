@@ -123,12 +123,12 @@ public class RiTa
 
   public static String[] kwic(String text, String word)
   {
-    return kwic(text, word, null);
+    return concorder.kwic(text, word);
   }
 
   public static String[] kwic(String text, String word, Map<String, Object> opts) //parameter mismatch
   {
-    return concorder.kwic(text, word, opts);
+    return kwic(text, word);
   }
 
   public static String pastParticiple(String verb)
@@ -179,6 +179,11 @@ public class RiTa
   public static String presentParticiple(String verb)
   {
     return conjugator.presentParticiple(verb);
+  }
+  
+  public static float random(float num) //TODO need verify
+  {
+    return RandGen.random(num);
   }
 
   public static int[] randomOrdering(int num)
@@ -362,5 +367,6 @@ public class RiTa
   public static final String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have" };
   public static final String[] ABBREVIATIONS = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.",
       "Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." };
+  public static final String STOP_WORDS = null; //TODO
 
 }

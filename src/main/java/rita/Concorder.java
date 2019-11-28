@@ -36,26 +36,26 @@ public class Concorder
 	    */
   }
 
-  public String[] kwic(String text, int numWords, Map<String, Object> opts)
+  public String[] kwic(String text, String word)
   {
-	  return null;
-	  /*
+	  //return null;
+	  
 	  if (model.size() == 0) throw new RiTaException("Call concordance() first");
 	    String value = _lookup(text);
 	    ArrayList<String> result = new ArrayList<String>();
 	    if (value != null) {
 	      int[] idxs = value.indexes; //what is .indexes
 	      for (int i = 0; i < idxs.length; i++) {
-	    	  String[] sub = Arrays.copyOfRange(words, Math.max(0, idxs[i] - numWords), Math.min(words.length, idxs[i] + numWords + 1));
+	    	  String[] sub = Arrays.copyOfRange(words, Math.max(0, idxs[i] - word), Math.min(words.length, idxs[i] + numWords + 1));
 
-	        if (i < 1 || (idxs[i] - idxs[i - 1]) > numWords) {
+	        if (i < 1 || (idxs[i] - idxs[i - 1]) > word) {
 	          result.add(RiTa.untokenize(sub));
 	        }
 	      }
 	    }
 	    
 	    return (String[]) result.toArray();
-	    */
+	    
   }
   
   
