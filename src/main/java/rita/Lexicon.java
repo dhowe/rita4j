@@ -69,7 +69,7 @@ private static String LEXICON_DELIM = ":";
 	    
 	    boolean useLTS = false;
 
-	    ArrayList<String> resultsArrayList;
+	    ArrayList<String> resultsArrayList = new ArrayList<String>();
 	    String[] results = {};
 	    String[] words = (String[]) dict.keySet().toArray();
 	    String fss = _firstStressedSyl(word, useLTS);

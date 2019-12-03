@@ -38,6 +38,12 @@ public class Pluralizer
 
 	    return RiTa.stem(word);
   }
-  
+
+public boolean isPlural(String word) {
+	// TODO Auto-generated method stub
+	return false;
+}
+
+
   
 }

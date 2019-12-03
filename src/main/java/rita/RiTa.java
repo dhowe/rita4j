@@ -92,8 +92,14 @@ public class RiTa
 
   public static boolean isAlliteration(String word1, String word2)
   {
-    return _lexicon().isAlliteration(word1, word2);
+    return _lexicon().isAlliteration(word1, word2, false);//TODO default?
   }
+  
+  public static boolean isAlliteration(String word1, String word2, boolean useLTS)
+  {
+    return _lexicon().isAlliteration(word1, word2, useLTS); 
+  }
+
 
   public static boolean isNoun(String word)
   {
@@ -113,7 +119,12 @@ public class RiTa
 
   public static boolean isRhyme(String word1, String word2)
   {
-    return _lexicon().isRhyme(word1, word2);
+    return _lexicon().isRhyme(word1, word2, false);//TODO default?
+  }
+  
+  public static boolean isRhyme(String word1, String word2, boolean useLTS)
+  {
+    return _lexicon().isRhyme(word1, word2, useLTS);
   }
 
   public static boolean isVerb(String word)

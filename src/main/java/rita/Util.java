@@ -73,7 +73,7 @@ public class Util
   }
   
   
-  public static shuffle(String[] arr, Object randomable) { // shuffle array //TODO what is the type of second arg
+  public static String[] shuffle(String[] arr, Object randomable) { // shuffle array //TODO what is the type of second arg
 	   	String[] newArray = arr;
 
 		
