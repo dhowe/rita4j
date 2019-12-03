@@ -13,8 +13,8 @@ public class Concorder
 	private String[] wordsToIgnore;
 
 	String[] words;
-	Map<String, String> model = new HashMap<String, String>();
-	Map<String, Object> _lookup = new HashMap<String, Object>();
+	Map<String, Object> model = new HashMap<String, Object>();
+//	Map<String, Object> _lookup = new HashMap<String, Object>();
 	  
   public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
   {
@@ -38,8 +38,8 @@ public class Concorder
 
   public String[] kwic(String text, String word)
   {
-	  //return null;
-	  
+	  return null;
+	  /*
 	  if (model.size() == 0) throw new RiTaException("Call concordance() first");
 	    String value = _lookup(text);
 	    ArrayList<String> result = new ArrayList<String>();
@@ -55,7 +55,7 @@ public class Concorder
 	    }
 	    
 	    return (String[]) result.toArray();
-	    
+	    */
   }
   
   
@@ -70,7 +70,8 @@ public class Concorder
       }
 
       if (ignoreStopWords) {
-        wordsToIgnore = wordsToIgnore.concat(RiTa.STOP_WORDS);
+        //wordsToIgnore = wordsToIgnore.concat(RiTa.STOP_WORDS);
+        wordsToIgnore = RiTa.STOP_WORDS;
       }
   }
   
@@ -78,30 +79,30 @@ public class Concorder
 	  
 	    if (words == null) throw new RiTaException("No text in model"); //TODO is it correct?
 
-	    model = new HashMap<String,String>();
+	    model = new HashMap<String,Object>();
 	    for (int j = 0; j < words.length; j++) {
 
 	      String word = words[j];
 	      if (_isIgnorable(word)) continue;
-	      _lookup = _lookup(word);
+	      Object _lookup = _lookup(word);
 
 	      // The typeof check below fixes a strange bug in Firefox: #XYZ
 	      // where the string 'watch' comes back from _lookup as a function
 	      // TODO: resolve in a better way
-	    //  if (!_lookup || typeof _lookup !== 'object') {
+	      if (_lookup != null || !(_lookup instanceof Object)) {
 
 	      Map<String,Object> lookupMap = new HashMap<String,Object>();
 	      lookupMap.put("word",word);
 	      lookupMap.put("key",_compareKey(word));
 	      lookupMap.put("indexes", new String[] {});
-	        _lookup = lookupMap;
+
 	        
-	        
-	        model[lookupMap.get(key)] = _lookup; //TODO
-	    //  }
-	      _lookup.indexes.push(j);
+	      model.put((String) lookupMap.get("key"), lookupMap);
+
+//	      _lookup.push(j); // TODO
 	    }
 	  }
+  }
 
 	  private boolean _isIgnorable(String key) {
 
@@ -119,9 +120,9 @@ public class Concorder
 	    return ignoreCase ? word.toLowerCase() : word;
 	  }
 
-	  public String _lookup(String word) {
+	  public Object _lookup(String word) {
 	    String key = _compareKey(word);
-	    return model.get(key);
+	    return (Object) model.get(key);
 	  }
 
 }

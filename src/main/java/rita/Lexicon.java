@@ -8,7 +8,8 @@ import java.util.stream.Stream;
 
 public class Lexicon // KW: Wait on this class please
 {
-  private static String LEXICON_DELIM = ":";
+
+private static String LEXICON_DELIM = ":";
   private static int MAP_SIZE = 30000;
 
   protected Map<String, String[]> dict; // data
@@ -49,7 +50,7 @@ public class Lexicon // KW: Wait on this class please
     final List<String> lines = Files.readAllLines(path);
 
     // clean out the JSON formatting (TODO: optimize)
-    // String clean = data.replaceAll("['\\[\\]]", E).replaceAll(",", "|");
+    // String clean = data.replaceAll("["\\[\\]]", E).replaceAll(",", "|");
 
     return lines;
   }
@@ -92,18 +93,19 @@ public class Lexicon // KW: Wait on this class please
 
 	    }
 	    results = (String[]) resultsArrayList.toArray();
-	    return Util.shuffle(results, RiTa); //TODO
+	   // return Util.shuffle(results, RiTa); //TODO
+	    return null;
   }
   
 
   public boolean hasWord(String word)
   {
-	  
+	  	if(word == null) {return false;}
 	    word = word.length() > 0 ? word.toLowerCase() : "";
-	    return dict.hasOwnProperty(word) || RiTa.pluralizer.isPlural(word);
+	    return RiTa.pluralizer.isPlural(word);
   }
 
-  public boolean isAlliteration(String word1, String word2)
+  public boolean isAlliteration(String word1, String word2, boolean useLTS) 
   {
 	  if ( word1 != null || word2 != null || word1.length() == 0 || word2.length() == 0) {
 	      return false;
@@ -113,8 +115,8 @@ public class Lexicon // KW: Wait on this class please
 	      throw new IllegalArgumentException("isAlliteration expects single words only");
 	    }
 
-	    String c1 = _firstPhone(this._firstStressedSyl(word1, useLTS));
-	    String c2 = _firstPhone(this._firstStressedSyl(word2, useLTS));
+	    String c1 = _firstPhone(_firstStressedSyl(word1, useLTS));
+	    String c2 = _firstPhone(_firstStressedSyl(word2, useLTS));
 
 	    if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
 	      return false;
@@ -123,7 +125,7 @@ public class Lexicon // KW: Wait on this class please
 	    return c1.length() > 0 && c2.length() > 0 && c1 == c2;
   }
 
-  public boolean isRhyme(String word1, String word2)
+  public boolean isRhyme(String word1, String word2, boolean useLTS)
   {
 
 	  if (word1 == null || word2 == null || word1.toUpperCase() == word2.toUpperCase()) {
@@ -143,6 +145,7 @@ public class Lexicon // KW: Wait on this class please
 
   public String randomWord(String pos, int numSyllabes)  //TODO one argument only in rita-script
   {
+	  /*
 	  boolean pluralize = false;
 	    String words = Object.keys(dict);
 	    float ran = Math.floor(RiTa.random(words.length()));
@@ -154,24 +157,24 @@ public class Lexicon // KW: Wait on this class please
 
 	    if (targetPos && targetPos.length) {
 	      targetPos = targetPos.trim().toLowerCase();
-	      pluralize = (targetPos === "nns");
-	      if (targetPos[0] === "n") targetPos = "nn";
-	      else if (targetPos === "v") targetPos = "vb";
-	      else if (targetPos === "r") targetPos = "rb";
-	      else if (targetPos === "a") targetPos = "jj";
+	      pluralize = (targetPos == "nns");
+	      if (targetPos[0] == "n") targetPos = "nn";
+	      else if (targetPos == "v") targetPos = "vb";
+	      else if (targetPos == "r") targetPos = "rb";
+	      else if (targetPos == "a") targetPos = "jj";
 	    }
 
 	    for (let i = 0; i < words.length; i++) {
 	      let j = (ran + i) % words.length;
-	      let rdata = this.dict[words[j]];
+	      let rdata = dict[words[j]];
 
 	      // match the syls if supplied
-	      if (targetSyls && targetSyls !== rdata[0].split(' ').length) {
+	      if (targetSyls && targetSyls != rdata[0].split(" ").length) {
 	        continue;
 	      }
 
 	      if (targetPos) { // match the pos if supplied
-	        if (targetPos === rdata[1].split(' ')[0]) {
+	        if (targetPos == rdata[1].split(" ")[0]) {
 
 	          // match any pos but plural noun
 	          if (!pluralize) return words[j];
@@ -188,6 +191,8 @@ public class Lexicon // KW: Wait on this class please
 	    }
 
 	    return []; // TODO: failed, should throw here
+	    */
+	  return null;
   }
 
   public String[] rhymes(String theWord) //TODO
@@ -196,39 +201,107 @@ public class Lexicon // KW: Wait on this class please
 
 	    String word = theWord.toLowerCase();
 
-	    String[] results;
-	    String words = Object.keys(this.dict);
+	    ArrayList<String> results = new ArrayList<String>();
+	    
+	    Set<String> wordSet = dict.keySet();
+	    String[] words = new String[wordSet.size()];
+	    wordSet.toArray(words);
+	    
 	    String p = _lastStressedPhoneToEnd(word);
 
-	    for (int i = 0; i < words.length(); i++) {
+	    for (int i = 0; i < words.length; i++) {
 
 	      if (words[i] == word) continue;
 
-	      if (dict[words[i]][0].endsWith(p)) results.push(words[i]);
+	      String w = dict.get(words[i])[0];
+	      if (w.endsWith(p)) results.add((words[i]));
+	      
+	      //if (dict[words[i]][0].endsWith(p)) 
 	    }
 
-	    return results;
+	    return (String[]) results.toArray();
   }
 
   public String[] similarBy(String word, Map<String, Object> opts)  //TODO
   {
 	    if (word != null || word.length() == 0 ) return new String[]{};
 
-	    if(opts.size() == null) return new String[]{};
+	    if(opts == null) return new String[]{};
 	    
 	    if(opts.get("type") == null || opts.get("type") == "") {
-	    	"letter";
+	    	opts.put("type","letter");
 	    }
-	    opts.type = opts.type || "letter";
 
-	    return (opts.type == "soundAndLetter") ?
-	      this.similarBySoundAndLetter(word, opts)
-	      : this.similarByType(word, opts);
+	    return (opts.get("type") == "soundAndLetter") ? similarBySoundAndLetter(word, opts) : similarByType(word, opts);
   }
+  
+  public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
+/*
+	  	opts.get("type") = "letter";
+	    let simLetter = similarByType(word, opts);
+	    if (simLetter.length < 1) return [];
+
+	    opts.type = "sound";
+	    let simSound = similarByType(word, opts);
+	    if (simSound.length < 1) return [];
+
+	    return _intersect(simSound, simLetter);
+	    */
+	  return null;
+	  }
+  
+  public String[] similarByType(String word, Map<String, Object> opts) {
+/*
+	    let minLen = opts && opts.minimumWordLen || 2;
+	    let preserveLength = opts && opts.preserveLength || 0;
+	    let minAllowedDist = opts && opts.minAllowedDistance || 1;
+
+	    let result = [];
+	    let minVal = Number.MAX_VALUE;
+	    let input = word.toLowerCase();
+	    let words = Object.keys(dict);
+	    let variations = [input, input + "s", input + "es"];
+
+	    let compareA = opts.type == "sound" ?
+	      toPhoneArray(_rawPhones(input)) : input;
+
+	    for (let i = 0; i < words.length; i++) {
+
+	      let entry = words[i];
+
+	      if ((entry.length < minLen) ||
+	        (preserveLength && (entry.length != input.length)) ||
+	        variations.includes(entry)) {
+	        continue;
+	      }
+
+	      let compareB = Array.isArray(compareA) ?
+	        toPhoneArray(dict[entry][0]) : entry;
+
+	      let med = Util.minEditDist(compareA, compareB);
+
+	      // found something even closer
+	      if (med >= minAllowedDist && med < minVal) {
+	        minVal = med;
+	        result = [entry];
+	        //console.log("BEST(" + med + ")" + entry + " -> " + phonesArr);
+	      }
+
+	      // another best to add
+	      else if (med == minVal) {
+	        //console.log("TIED(" + med + ")" + entry + " -> " + phonesArr);
+	        result.push(entry);
+	      }
+	    }
+
+	    return result;
+	    */
+	  return null;
+	  }
 
   public String[] words(Pattern regex)
   {
-    return regex != null ? this.dict.keySet().stream().filter
+    return regex != null ? dict.keySet().stream().filter
         (word -> regex.matcher(word).matches()).toArray(String[]::new) :
         dict.keySet().toArray(new String[0]);
   }
@@ -247,7 +320,7 @@ public class Lexicon // KW: Wait on this class please
 
   private boolean _isConsonant(String p) {
 
-    return (typeof p == S && p.length == 1 && RiTa.VOWELS.indexOf(p) < 0 && /^[a-z\u00C0-\u00ff]+$/.test(p)); // precompile
+    return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0 && "/^[a-z\u00C0-\u00ff]+$/".test(p)); // precompile //TODO
   }
 
   private String _firstPhone(String rawPhones) {
@@ -260,12 +333,13 @@ public class Lexicon // KW: Wait on this class please
   }
   
 
-  private String _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
+  private String[] _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
+	  /*
     String all, n, len;
     String[] ret;
-    String[] obj = {},
-    int shortest = 0,
-    int nOthers = arguments.length - 1,
+    String[] obj = {};
+    int shortest = 0;
+    int nOthers = arguments.length - 1;
     int nShortest = arguments[0].length;
     for (int i = 0; i <= nOthers; i++) {
       n = arguments[i].length;
@@ -275,23 +349,25 @@ public class Lexicon // KW: Wait on this class please
       }
     }
     for (int i = 0; i <= nOthers; i++) {
-      n = (i === shortest) ? 0 : (i || shortest);
+      n = (i == shortest) ? 0 : (i || shortest);
       len = arguments[n].length;
-      for (let j = 0; j < len; j++) {
-        let elem = arguments[n][j];
-        if (obj[elem] === i - 1) {
-          if (i === nOthers) {
+      for (int j = 0; j < len; j++) {
+        List elem = arguments[n][j];
+        if (obj[elem] == i - 1) {
+          if (i == nOthers) {
             ret.push(elem);
             obj[elem] = 0;
           } else {
             obj[elem] = i;
           }
-        } else if (i === 0) {
+        } else if (i == 0) {
           obj[elem] = 0;
         }
       }
     }
     return ret;
+    */
+    return null;
   }
 
   private String _lastStressedPhoneToEnd(String word) {	  
@@ -371,7 +447,7 @@ public class Lexicon // KW: Wait on this class please
     }
 
     String firstToEnd = idx == 0 ? raw : raw.substring(idx).trim();
-    idx = firstToEnd.indexOf(' ');
+    idx = firstToEnd.indexOf(" ");
 
     return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
   }
