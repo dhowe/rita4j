@@ -9,143 +9,143 @@ import java.util.stream.Stream;
 public class Lexicon // KW: Wait on this class please
 {
 
-private static String LEXICON_DELIM = ":";
-  private static int MAP_SIZE = 30000;
+	private static String LEXICON_DELIM = ":";
+	private static int MAP_SIZE = 30000;
 
-  protected Map<String, String[]> dict; // data
+	protected Map<String, String[]> dict; // data
 
-  public Lexicon(String filePath) throws Exception
-  {
-    List<String> lines = loadJSON(filePath);
+	public Lexicon(String filePath) throws Exception
+	{
+		List<String> lines = loadJSON(filePath);
 
-    if (lines == null || lines.size() < 2) {
-      throw new Exception("Problem parsing RiLexicon data files");
-    }
+		if (lines == null || lines.size() < 2) {
+			throw new Exception("Problem parsing RiLexicon data files");
+		}
 
-    dict = new LinkedHashMap<String, String[]>(MAP_SIZE);
+		dict = new LinkedHashMap<String, String[]>(MAP_SIZE);
 
-    for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
-    {
-      String line = lines.get(i);
-      String[] parts = line.split(LEXICON_DELIM);
-      if (parts == null || parts.length != 2) {
-        throw new Exception("Illegal entry: " + line);
-      }
-      dict.put(parts[0], parts[1].split(","));
-    }
-  }
+		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
+		{
+			String line = lines.get(i);
+			String[] parts = line.split(LEXICON_DELIM);
+			if (parts == null || parts.length != 2) {
+				throw new Exception("Illegal entry: " + line);
+			}
+			dict.put(parts[0], parts[1].split(","));
+		}
+	}
 
-  public static List<String> loadJSON(String file) throws Exception
-  {
-    if (file == null) {
-      throw new Exception("No dictionary path specified!");
-    }
+	public static List<String> loadJSON(String file) throws Exception
+	{
+		if (file == null) {
+			throw new Exception("No dictionary path specified!");
+		}
 
-    URL resource = RiTa.class.getResource(file);
-    if (resource == null) {
-      throw new Exception("Unable to load lexicon from: " + file);
-    }
-      
-    final Path path = Paths.get(resource.toURI());
-    final List<String> lines = Files.readAllLines(path);
+		URL resource = RiTa.class.getResource(file);
+		if (resource == null) {
+			throw new Exception("Unable to load lexicon from: " + file);
+		}
 
-    // clean out the JSON formatting (TODO: optimize)
-    // String clean = data.replaceAll("["\\[\\]]", E).replaceAll(",", "|");
+		final Path path = Paths.get(resource.toURI());
+		final List<String> lines = Files.readAllLines(path);
 
-    return lines;
-  }
+		// clean out the JSON formatting (TODO: optimize)
+		// String clean = data.replaceAll("["\\[\\]]", E).replaceAll(",", "|");
+
+		return lines;
+	}
 
 
-  
-  public String[] alliterations(String word, int minWordLength)
-  {
 
-	    word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
+	public String[] alliterations(String word, int minWordLength)
+	{
 
-	    if (RiTa.VOWELS.contains(String.valueOf(word.charAt(0)))) return new String[]{};
+		word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
 
-	   //  int matchMinLength = minWordLength || 4;
-	   //  boolean useLTS = opts && opts.useLTS || false;
-	    
-	    boolean useLTS = false;
+		if (RiTa.VOWELS.contains(String.valueOf(word.charAt(0)))) return new String[]{};
 
-	    ArrayList<String> resultsArrayList = new ArrayList<String>();
-	    String[] results = {};
-	    String[] words = (String[]) dict.keySet().toArray();
-	    String fss = _firstStressedSyl(word, useLTS);
-	    String c1 = _firstPhone(fss);
+		//  int matchMinLength = minWordLength || 4;
+		//  boolean useLTS = opts && opts.useLTS || false;
 
-	    if (c1 != null || c1.length() ==0 ) return new String[] {};
+		boolean useLTS = false;
 
-	    for (int i = 0; i < words.length; i++) {
+		ArrayList<String> resultsArrayList = new ArrayList<String>();
+		String[] results = {};
+		String[] words = (String[]) dict.keySet().toArray();
+		String fss = _firstStressedSyl(word, useLTS);
+		String c1 = _firstPhone(fss);
 
-	      if (words[i].length() < minWordLength) continue;
+		if (c1 != null || c1.length() ==0 ) return new String[] {};
 
-	      String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
+		for (int i = 0; i < words.length; i++) {
 
-	      if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] {}; // ????
+			if (words[i].length() < minWordLength) continue;
 
-	      if (c1 == c2) 
-	      {
-	    	  resultsArrayList.add(words[i]);
-	    	  
-	      } 
+			String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
 
-	    }
-	    results = (String[]) resultsArrayList.toArray();
-	   // return Util.shuffle(results, RiTa); //TODO
-	    return null;
-  }
-  
+			if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] {}; // ????
 
-  public boolean hasWord(String word)
-  {
-	  	if(word == null) {return false;}
-	    word = word.length() > 0 ? word.toLowerCase() : "";
-	    return RiTa.pluralizer.isPlural(word);
-  }
+			if (c1 == c2) 
+			{
+				resultsArrayList.add(words[i]);
 
-  public boolean isAlliteration(String word1, String word2, boolean useLTS) 
-  {
-	  if ( word1 != null || word2 != null || word1.length() == 0 || word2.length() == 0) {
-	      return false;
-	    }
+			} 
 
-	    if (word1.indexOf(" ") > -1 || word2.indexOf(" ") > -1) {
-	      throw new IllegalArgumentException("isAlliteration expects single words only");
-	    }
+		}
+		results = (String[]) resultsArrayList.toArray();
+		// return Util.shuffle(results, RiTa); //TODO
+		return null;
+	}
 
-	    String c1 = _firstPhone(_firstStressedSyl(word1, useLTS));
-	    String c2 = _firstPhone(_firstStressedSyl(word2, useLTS));
 
-	    if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
-	      return false;
-	    }
+	public boolean hasWord(String word)
+	{
+		if(word == null) {return false;}
+		word = word.length() > 0 ? word.toLowerCase() : "";
+		return RiTa.pluralizer.isPlural(word);
+	}
 
-	    return c1.length() > 0 && c2.length() > 0 && c1 == c2;
-  }
+	public boolean isAlliteration(String word1, String word2, boolean useLTS) 
+	{
+		if ( word1 != null || word2 != null || word1.length() == 0 || word2.length() == 0) {
+			return false;
+		}
 
-  public boolean isRhyme(String word1, String word2, boolean useLTS)
-  {
+		if (word1.indexOf(" ") > -1 || word2.indexOf(" ") > -1) {
+			throw new IllegalArgumentException("isAlliteration expects single words only");
+		}
 
-	  if (word1 == null || word2 == null || word1.toUpperCase() == word2.toUpperCase()) {
-	      return false;
-	    }
+		String c1 = _firstPhone(_firstStressedSyl(word1, useLTS));
+		String c2 = _firstPhone(_firstStressedSyl(word2, useLTS));
 
-	    String phones1 = _rawPhones(word1, useLTS);
-	    String phones2 = _rawPhones(word2, useLTS);
+		if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
+			return false;
+		}
 
-	    if (phones2 == phones1) return false;
+		return c1.length() > 0 && c2.length() > 0 && c1 == c2;
+	}
 
-	    String p1 = _lastStressedVowelPhonemeToEnd(word1, useLTS);
-	    String  p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
+	public boolean isRhyme(String word1, String word2, boolean useLTS)
+	{
 
-	    return p1.length() > 0 && p2.length() > 0 && p1 == p2;
-  }
+		if (word1 == null || word2 == null || word1.toUpperCase() == word2.toUpperCase()) {
+			return false;
+		}
 
-  public String randomWord(String pos, int numSyllabes)  //TODO one argument only in rita-script
-  {
-	  /*
+		String phones1 = _rawPhones(word1, useLTS);
+		String phones2 = _rawPhones(word2, useLTS);
+
+		if (phones2 == phones1) return false;
+
+		String p1 = _lastStressedVowelPhonemeToEnd(word1, useLTS);
+		String  p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
+
+		return p1.length() > 0 && p2.length() > 0 && p1 == p2;
+	}
+
+	public String randomWord(String pos, int numSyllabes)  //TODO one argument only in rita-script
+	{
+		/*
 	  boolean pluralize = false;
 	    String words = Object.keys(dict);
 	    float ran = Math.floor(RiTa.random(words.length()));
@@ -191,52 +191,52 @@ private static String LEXICON_DELIM = ":";
 	    }
 
 	    return []; // TODO: failed, should throw here
-	    */
-	  return null;
-  }
+		 */
+		return null;
+	}
 
-  public String[] rhymes(String theWord) //TODO
-  {
-	  if (theWord == null || theWord.length() == 0) return new String[] {};
+	public String[] rhymes(String theWord) //TODO
+	{
+		if (theWord == null || theWord.length() == 0) return new String[] {};
 
-	    String word = theWord.toLowerCase();
+		String word = theWord.toLowerCase();
 
-	    ArrayList<String> results = new ArrayList<String>();
-	    
-	    Set<String> wordSet = dict.keySet();
-	    String[] words = new String[wordSet.size()];
-	    wordSet.toArray(words);
-	    
-	    String p = _lastStressedPhoneToEnd(word);
+		ArrayList<String> results = new ArrayList<String>();
 
-	    for (int i = 0; i < words.length; i++) {
+		Set<String> wordSet = dict.keySet();
+		String[] words = new String[wordSet.size()];
+		wordSet.toArray(words);
 
-	      if (words[i] == word) continue;
+		String p = _lastStressedPhoneToEnd(word);
 
-	      String w = dict.get(words[i])[0];
-	      if (w.endsWith(p)) results.add((words[i]));
-	      
-	      //if (dict[words[i]][0].endsWith(p)) 
-	    }
+		for (int i = 0; i < words.length; i++) {
 
-	    return (String[]) results.toArray();
-  }
+			if (words[i] == word) continue;
 
-  public String[] similarBy(String word, Map<String, Object> opts)  //TODO
-  {
-	    if (word != null || word.length() == 0 ) return new String[]{};
+			String w = dict.get(words[i])[0];
+			if (w.endsWith(p)) results.add((words[i]));
 
-	    if(opts == null) return new String[]{};
-	    
-	    if(opts.get("type") == null || opts.get("type") == "") {
-	    	opts.put("type","letter");
-	    }
+			//if (dict[words[i]][0].endsWith(p)) 
+		}
 
-	    return (opts.get("type") == "soundAndLetter") ? similarBySoundAndLetter(word, opts) : similarByType(word, opts);
-  }
-  
-  public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
-/*
+		return (String[]) results.toArray();
+	}
+
+	public String[] similarBy(String word, Map<String, Object> opts)  //TODO
+	{
+		if (word != null || word.length() == 0 ) return new String[]{};
+
+		if(opts == null) return new String[]{};
+
+		if(opts.get("type") == null || opts.get("type") == "") {
+			opts.put("type","letter");
+		}
+
+		return (opts.get("type") == "soundAndLetter") ? similarBySoundAndLetter(word, opts) : similarByType(word, opts);
+	}
+
+	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
+		/*
 	  	opts.get("type") = "letter";
 	    let simLetter = similarByType(word, opts);
 	    if (simLetter.length < 1) return [];
@@ -246,12 +246,12 @@ private static String LEXICON_DELIM = ":";
 	    if (simSound.length < 1) return [];
 
 	    return _intersect(simSound, simLetter);
-	    */
-	  return null;
-	  }
-  
-  public String[] similarByType(String word, Map<String, Object> opts) {
-/*
+		 */
+		return null;
+	}
+
+	public String[] similarByType(String word, Map<String, Object> opts) {
+		/*
 	    let minLen = opts && opts.minimumWordLen || 2;
 	    let preserveLength = opts && opts.preserveLength || 0;
 	    let minAllowedDist = opts && opts.minAllowedDistance || 1;
@@ -295,46 +295,46 @@ private static String LEXICON_DELIM = ":";
 	    }
 
 	    return result;
-	    */
-	  return null;
-	  }
+		 */
+		return null;
+	}
 
-  public String[] words(Pattern regex)
-  {
-    return regex != null ? dict.keySet().stream().filter
-        (word -> regex.matcher(word).matches()).toArray(String[]::new) :
-        dict.keySet().toArray(new String[0]);
-  }
-  
-  public static void main(String[] args) throws Exception
-  {
-    System.out.println(new Lexicon(RiTa.DICT_PATH).words(null).length);
-  }
-  
-  //////////////////////////////////////////////////////////////////////
+	public String[] words(Pattern regex)
+	{
+		return regex != null ? dict.keySet().stream().filter
+				(word -> regex.matcher(word).matches()).toArray(String[]::new) :
+					dict.keySet().toArray(new String[0]);
+	}
 
-  private boolean _isVowel(String c) {
+	public static void main(String[] args) throws Exception
+	{
+		System.out.println(new Lexicon(RiTa.DICT_PATH).words(null).length);
+	}
 
-    return c != null && c.length() >0  && RiTa.VOWELS.contains(c);
-  }
+	//////////////////////////////////////////////////////////////////////
 
-  private boolean _isConsonant(String p) {
+	private boolean _isVowel(String c) {
 
-    return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0 && "/^[a-z\u00C0-\u00ff]+$/".test(p)); // precompile //TODO
-  }
+		return c != null && c.length() >0  && RiTa.VOWELS.contains(c);
+	}
 
-  private String _firstPhone(String rawPhones) {
+	private boolean _isConsonant(String p) {
 
-    if (rawPhones != null || rawPhones.length() == 0) return "";
-    String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
-    if (phones != null) return phones[0];
-    return ""; //return null?
-    
-  }
-  
+		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0 && "^[a-z\u00C0-\u00ff]+$".matches(p)); // precompile //TODO
+	}
 
-  private String[] _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
-	  /*
+	private String _firstPhone(String rawPhones) {
+
+		if (rawPhones != null || rawPhones.length() == 0) return "";
+		String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+		if (phones != null) return phones[0];
+		return ""; //return null?
+
+	}
+
+
+	private String[] _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
+		/*
     String all, n, len;
     String[] ret;
     String[] obj = {};
@@ -366,147 +366,147 @@ private static String LEXICON_DELIM = ":";
       }
     }
     return ret;
-    */
-    return null;
-  }
+		 */
+		return null;
+	}
 
-  private String _lastStressedPhoneToEnd(String word) {	  
-	  return _lastStressedPhoneToEnd(word, false);
-  }
-  
-  private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
+	private String _lastStressedPhoneToEnd(String word) {	  
+		return _lastStressedPhoneToEnd(word, false);
+	}
 
-    if (word != null || word.length() == 0) return ""; // return null?
+	private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
 
-    int idx; 
-    char c;
-    String result;
-    String raw = _rawPhones(word, useLTS);
+		if (word != null || word.length() == 0) return ""; // return null?
 
-    if (raw != null || raw.length() == 0) return ""; // return null?
+		int idx; 
+		char c;
+		String result;
+		String raw = _rawPhones(word, useLTS);
 
-    idx = raw.lastIndexOf(RiTa.STRESSED);
+		if (raw != null || raw.length() == 0) return ""; // return null?
 
-    if (idx < 0) return ""; // return null?
+		idx = raw.lastIndexOf(RiTa.STRESSED);
 
-    c = raw.charAt(--idx);
-    while (c != '-' && c != ' ') {
-      if (--idx < 0) {
-        return raw; // single-stressed syllable
-      }
-      c = raw.charAt(idx);
-    }
-    result = raw.substring(idx + 1);
+		if (idx < 0) return ""; // return null?
 
-    return result;
-  }
+		c = raw.charAt(--idx);
+		while (c != '-' && c != ' ') {
+			if (--idx < 0) {
+				return raw; // single-stressed syllable
+			}
+			c = raw.charAt(idx);
+		}
+		result = raw.substring(idx + 1);
 
-
-  private String _lastStressedVowelPhonemeToEnd(String word, boolean useLTS) {
-
-    if (word != null || word.length() == 0) return ""; // return null?
-
-    String raw = _lastStressedPhoneToEnd(word, useLTS);
-    if (raw != null || raw.length() == 0) return ""; // return null?
-
-    String[] syllables = raw.split(" ");
-    String lastSyllable = syllables[syllables.length - 1];
-    lastSyllable = lastSyllable.replace("[^a-z-1 ]", "");
-
-    int idx = -1;
-    for (int i = 0; i < lastSyllable.length(); i++) {
-      char c = lastSyllable.charAt(i);
-      if (RiTa.VOWELS.contains(Character.toString(c))) {
-        idx = i;
-        break;
-      }
-    }
-
-    return lastSyllable.substring(idx);
-  }
-
-  private String _firstStressedSyl(String word, boolean useLTS) {
-
-	 String raw = _rawPhones(word, useLTS);
-
-    if (raw == ""|| raw == null) return ""; // return null?
-
-    int idx = raw.indexOf(RiTa.STRESSED);
-
-    if (idx < 0) return ""; // no stresses... return null?
-
-    char c = raw.charAt(--idx);
-
-    while (c != ' ') {
-      if (--idx < 0) {
-        // single-stressed syllable
-        idx = 0;
-        break;
-      }
-      c = raw.charAt(idx);
-    }
-
-    String firstToEnd = idx == 0 ? raw : raw.substring(idx).trim();
-    idx = firstToEnd.indexOf(" ");
-
-    return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
-  }
-
-  private String _posData(String word) {
-
-    String[] rdata = _lookupRaw(word);
-    return (rdata != null && rdata.length == 2) ? rdata[1] : "";
-  }
-
-  private String[] _posArr(String word) {
-
-    String pl = _posData(word);
-    if (pl != null || pl.length() > 0) return new String[] {};
-    return pl.split(" ");
-  }
-
-  private String _bestPos(String word) {
-
-    String[] pl = _posArr(word);
-    return (pl.length > 0) ? pl[0] : "";
-  }
+		return result;
+	}
 
 
-  
-   private String[] _lookupRaw(String word) {
-	   //word = word && word.toLowerCase();
-	   String[] a = null;
-	    word = word.toLowerCase();
-	    
-	    if (dict != null) {
-	    	return dict.get(word);
-	    }else {
-	    	return a; //TODO is it correct to return null?
-	    }
-  }
-  
-   String _rawPhones(String word, boolean b) {//, forceLTS) {
+	private String _lastStressedVowelPhonemeToEnd(String word, boolean useLTS) {
 
-	    // TODO: remove all useLTS vars ?
+		if (word != null || word.length() == 0) return ""; // return null?
 
-	    String[] phones = null; 
-	    String result = ""; 
-	    String[] rdata = _lookupRaw(word);
-	    //useLTS = useLTS || false;
+		String raw = _lastStressedPhoneToEnd(word, useLTS);
+		if (raw != null || raw.length() == 0) return ""; // return null?
 
-	    if (rdata != null) result = rdata.length == 2 ? rdata[0] : "";
+		String[] syllables = raw.split(" ");
+		String lastSyllable = syllables[syllables.length - 1];
+		lastSyllable = lastSyllable.replace("[^a-z-1 ]", "");
 
-	    if (rdata == null) { //|| forceLTS) { // ??
-	    	if(RiTa.lts != null) {
-	  	      phones = RiTa.lts.getPhones(word);
-	    	}
-	      if (phones != null && phones.length > 0) {
-	        result = RiTa.syllabifier.fromPhones(phones);
-	      }
-	    }
+		int idx = -1;
+		for (int i = 0; i < lastSyllable.length(); i++) {
+			char c = lastSyllable.charAt(i);
+			if (RiTa.VOWELS.contains(Character.toString(c))) {
+				idx = i;
+				break;
+			}
+		}
 
-	    return result;
-  }
+		return lastSyllable.substring(idx);
+	}
+
+	private String _firstStressedSyl(String word, boolean useLTS) {
+
+		String raw = _rawPhones(word, useLTS);
+
+		if (raw == ""|| raw == null) return ""; // return null?
+
+		int idx = raw.indexOf(RiTa.STRESSED);
+
+		if (idx < 0) return ""; // no stresses... return null?
+
+		char c = raw.charAt(--idx);
+
+		while (c != ' ') {
+			if (--idx < 0) {
+				// single-stressed syllable
+				idx = 0;
+				break;
+			}
+			c = raw.charAt(idx);
+		}
+
+		String firstToEnd = idx == 0 ? raw : raw.substring(idx).trim();
+		idx = firstToEnd.indexOf(" ");
+
+		return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
+	}
+
+	private String _posData(String word) {
+
+		String[] rdata = _lookupRaw(word);
+		return (rdata != null && rdata.length == 2) ? rdata[1] : "";
+	}
+
+	String[] _posArr(String word) {
+
+		String pl = _posData(word);
+		if (pl != null || pl.length() > 0) return new String[] {};
+		return pl.split(" ");
+	}
+
+	private String _bestPos(String word) {
+
+		String[] pl = _posArr(word);
+		return (pl.length > 0) ? pl[0] : "";
+	}
+
+
+
+	private String[] _lookupRaw(String word) {
+		//word = word && word.toLowerCase();
+		String[] a = null;
+		word = word.toLowerCase();
+
+		if (dict != null) {
+			return dict.get(word);
+		}else {
+			return a; //TODO is it correct to return null?
+		}
+	}
+
+	String _rawPhones(String word, boolean b) {//, forceLTS) {
+
+		// TODO: remove all useLTS vars ?
+
+		String[] phones = null; 
+		String result = ""; 
+		String[] rdata = _lookupRaw(word);
+		//useLTS = useLTS || false;
+
+		if (rdata != null) result = rdata.length == 2 ? rdata[0] : "";
+
+		if (rdata == null) { //|| forceLTS) { // ??
+			if(RiTa.lts != null) {
+				phones = RiTa.lts.getPhones(word);
+			}
+			if (phones != null && phones.length > 0) {
+				result = RiTa.syllabifier.fromPhones(phones);
+			}
+		}
+
+		return result;
+	}
 
 
 

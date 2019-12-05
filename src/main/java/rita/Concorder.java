@@ -14,13 +14,13 @@ public class Concorder
 
 	String[] words;
 	Map<String, Object> model = new HashMap<String, Object>();
-//	Map<String, Object> _lookup = new HashMap<String, Object>();
-	  
-  public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
-  {
-	  return null;
+	//	Map<String, Object> _lookup = new HashMap<String, Object>();
 
-/*
+	public Map<String, String> concordance(String text, String word, Map<String, Object> opts)
+	{
+		return null;
+
+		/*
 	    _parseOptions(options);
 
 	    words = Array.isArray(text) ? text : RiTa.tokenize(text);
@@ -33,13 +33,13 @@ public class Concorder
 
 	    // TODO: need to sort by value here
 	    return result;
-	    */
-  }
+		 */
+	}
 
-  public String[] kwic(String text, String word)
-  {
-	  return null;
-	  /*
+	public String[] kwic(String text, String word)
+	{
+		return null;
+		/*
 	  if (model.size() == 0) throw new RiTaException("Call concordance() first");
 	    String value = _lookup(text);
 	    ArrayList<String> result = new ArrayList<String>();
@@ -53,76 +53,76 @@ public class Concorder
 	        }
 	      }
 	    }
-	    
+
 	    return (String[]) result.toArray();
-	    */
-  }
-  
-  
-  ///////////////////////////////////////////////////////////////////////////
-  
-  private void _parseOptions(Map<String, Object> options) { //TODO
-    if (options.size() > 0) {
-    	if(options.containsKey("ignoreCase")) ignoreCase = true;
-    	if(options.containsKey("ignoreStopWords")) ignoreStopWords = true;
-    	if(options.containsKey("ignorePunctuation")) ignorePunctuation = true;
-    	if(options.containsKey("wordsToIgnore")) wordsToIgnore = (String[]) options.get("wordsToIgnore");
-      }
+		 */
+	}
 
-      if (ignoreStopWords) {
-        //wordsToIgnore = wordsToIgnore.concat(RiTa.STOP_WORDS);
-        wordsToIgnore = RiTa.STOP_WORDS;
-      }
-  }
-  
-  private void _build() {
-	  
-	    if (words == null) throw new RiTaException("No text in model"); //TODO is it correct?
 
-	    model = new HashMap<String,Object>();
-	    for (int j = 0; j < words.length; j++) {
+	///////////////////////////////////////////////////////////////////////////
 
-	      String word = words[j];
-	      if (_isIgnorable(word)) continue;
-	      Object _lookup = _lookup(word);
+	private void _parseOptions(Map<String, Object> options) { //TODO
+		if (options.size() > 0) {
+			if(options.containsKey("ignoreCase")) ignoreCase = true;
+			if(options.containsKey("ignoreStopWords")) ignoreStopWords = true;
+			if(options.containsKey("ignorePunctuation")) ignorePunctuation = true;
+			if(options.containsKey("wordsToIgnore")) wordsToIgnore = (String[]) options.get("wordsToIgnore");
+		}
 
-	      // The typeof check below fixes a strange bug in Firefox: #XYZ
-	      // where the string 'watch' comes back from _lookup as a function
-	      // TODO: resolve in a better way
-	      if (_lookup != null || !(_lookup instanceof Object)) {
+		if (ignoreStopWords) {
+			//wordsToIgnore = wordsToIgnore.concat(RiTa.STOP_WORDS);
+			wordsToIgnore = RiTa.STOP_WORDS;
+		}
+	}
 
-	      Map<String,Object> lookupMap = new HashMap<String,Object>();
-	      lookupMap.put("word",word);
-	      lookupMap.put("key",_compareKey(word));
-	      lookupMap.put("indexes", new String[] {});
+	private void _build() {
 
-	        
-	      model.put((String) lookupMap.get("key"), lookupMap);
+		if (words == null) throw new RiTaException("No text in model"); //TODO is it correct?
 
-//	      _lookup.push(j); // TODO
-	    }
-	  }
-  }
+		model = new HashMap<String,Object>();
+		for (int j = 0; j < words.length; j++) {
 
-	  private boolean _isIgnorable(String key) {
+			String word = words[j];
+			if (_isIgnorable(word)) continue;
+			Object _lookup = _lookup(word);
 
-	    if (ignorePunctuation && RiTa.isPunctuation(key)) return true;
+			// The typeof check below fixes a strange bug in Firefox: #XYZ
+			// where the string 'watch' comes back from _lookup as a function
+			// TODO: resolve in a better way
+			if (_lookup != null || !(_lookup instanceof Object)) {
 
-	    for (int i = 0; i < wordsToIgnore.length; i++) {
-	      String word = wordsToIgnore[i];
-	      if ((ignoreCase && key.toUpperCase() == word.toUpperCase()) || key == word)
-	        return true;
-	    }
-	    return false;
-	  }
+				Map<String,Object> lookupMap = new HashMap<String,Object>();
+				lookupMap.put("word",word);
+				lookupMap.put("key",_compareKey(word));
+				lookupMap.put("indexes", new String[] {});
 
-	  public String _compareKey(String word) {
-	    return ignoreCase ? word.toLowerCase() : word;
-	  }
 
-	  public Object _lookup(String word) {
-	    String key = _compareKey(word);
-	    return (Object) model.get(key);
-	  }
+				model.put((String) lookupMap.get("key"), lookupMap);
+
+				//	      _lookup.push(j); // TODO
+			}
+		}
+	}
+
+	private boolean _isIgnorable(String key) {
+
+		if (ignorePunctuation && RiTa.isPunctuation(key)) return true;
+
+		for (int i = 0; i < wordsToIgnore.length; i++) {
+			String word = wordsToIgnore[i];
+			if ((ignoreCase && key.toUpperCase() == word.toUpperCase()) || key == word)
+				return true;
+		}
+		return false;
+	}
+
+	public String _compareKey(String word) {
+		return ignoreCase ? word.toLowerCase() : word;
+	}
+
+	public Object _lookup(String word) {
+		String key = _compareKey(word);
+		return (Object) model.get(key);
+	}
 
 }

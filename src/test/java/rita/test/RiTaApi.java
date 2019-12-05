@@ -24,7 +24,7 @@ public class RiTaApi {
 		System.out.println(RiTa.hasWord("dog"));
 		//Should access static functions
 		assertEquals(RiTa.hasWord("dog"),true);
-
+		/*
     	//Should access member classes
     	RiMarkov rm = new RiTa.RiMarkov(3);
     	assertEquals(rm.n,3);
@@ -154,7 +154,7 @@ public class RiTaApi {
 
 	    //Should call words
 	    expect(RiTa.words).to.be.a('function');
-
+*/
 	}
 
 

@@ -45,14 +45,14 @@ public class Tagger
   }
 
   private boolean checkType(String word, String[] tagArray) {
-
+/*
 	    if (word != null) {
 
 	      if (word.length() == 0) return false;
 
 	      if (word.indexOf(" ") < 0) {
 
-	        let psa = RiTa._lexicon()._posArr(word);
+	        String[] psa = RiTa._lexicon()._posArr(word);
 
 	        if (RiTa.LEX_WARN && psa.length < 1 && this.size() <= 1000) {
 	          warn(RiTa.LEX_WARN);
@@ -64,5 +64,10 @@ public class Tagger
 
 	      throw Error("checkType() expects single word, found: '" + word + "'");
 	    }
+	    	    */
+	    return (Boolean) null;
+
 	  }
+	  
+
 }

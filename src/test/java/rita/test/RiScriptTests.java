@@ -16,20 +16,22 @@ public class RiScriptTests {
 
 	@Test 
 	public void testParseSymbols() {
+		/*
 		//Should throw on bad symbols
 		expect(() => parser.lexParseVisitQuiet('$')).to.throw();
 
 		//Should correctly parse/resolve symbols
-		expect(parser.lexParseVisit('a $dog', { dog: 'terrier' })).eq('a terrier');
-		expect(parser.lexParseVisit('I ate the $dog', { dog: 'beagle' }, 0)).eq('I ate the beagle');
-		expect(parser.lexParseVisit('The $dog today.', { dog: 'lab' }, 0)).eq('The lab today.');
-		expect(parser.lexParseVisit('I ate the $dog.', { dog: 'lab' }, 0)).eq('I ate the lab.');
+		expect(parser.lexParseVisit("a $dog", { dog: "terrier" })).eq("a terrier");
+		expect(parser.lexParseVisit("I ate the $dog", { dog: "beagle" }, 0)).eq("I ate the beagle");
+		expect(parser.lexParseVisit("The $dog today.", { dog: "lab" }, 0)).eq("The lab today.");
+		expect(parser.lexParseVisit("I ate the $dog.", { dog: "lab" }, 0)).eq("I ate the lab.");
+		*/
 	}
 
 
 	@Test 
 	public void testParseChoices() {
-
+/*
 		//Should throw on bad choices
 		expect(() => parser.lexParseVisitQuiet('|')).to.throw();
 		expect(() => parser.lexParseVisitQuiet('a |')).to.throw();
@@ -77,10 +79,11 @@ public class RiScriptTests {
 		expect(parser.lexParseVisit("$user.name.toUpperCase()", ctx, 0)).eq('JEN');
 		expect(parser.lexParseVisit("$user.name.uc()", ctx, 0)).eq('JEN');
 		expect(parser.lexParseVisit("$user.name.ucf()", ctx, 0)).eq('Jen');
+		*/
 	}
 	@Test 
 	public void testParseEntities() {
-
+/*
 		//Should correctly decode HTML entitie
 
 		expect(parser.lexParseVisit('The &num; symbol')).eq('The # symbol');
@@ -106,11 +109,13 @@ public class RiScriptTests {
 		expect(parser.lexParseVisit("The &nbsp;dog", {}, 0)).eq("The  dog");
 		expect(parser.lexParseVisit("The&nbsp; dog", {}, 0)).eq("The  dog");
 		expect(parser.lexParseVisit("The &nbsp; dog", {}, 0)).eq("The   dog");
+		*/
 	}
 
 
 	@Test 
 	public void testParseTransforms() {
+		/*
 		//Should throw on bad transforms
 
 		expect(() => parser.lexParseVisitQuiet('a.toUpperCase()')).to.throw();
@@ -120,8 +125,8 @@ public class RiScriptTests {
 		expect(parser.lexParseVisit('(a | b).toUpperCase()')).to.be.oneOf(['A', 'B']);
 		expect(parser.lexParseVisit("The (boy | boy).toUpperCase() ate.")).eq('The BOY ate.');
 
-
-		/*
+*/
+		/*//this has been commented out in rita-script
    //Should correctly handle assign transforms
 
     		      let ctx = {};
@@ -133,6 +138,8 @@ public class RiScriptTests {
     		      parser.lexParseVisit('[$x=(a | b)].toUpperCase()', ctx);
     		      expect(ctx.x).to.be.oneOf(['a', 'b']);
 		 */
+		
+	/*
 		//Should correctly handle symbol transforms
 
 		expect(parser.lexParseVisit('The $dog.toUpperCase()', { dog: 'spot' })).eq('The SPOT');
@@ -171,11 +178,12 @@ public class RiScriptTests {
 
 		expect(parser.lexParseVisit('How many (teeth).quotify() do you have?')).eq('How many "teeth" do you have?');
 		expect(parser.lexParseVisit('That is (ant).articlize().')).eq('That is an ant.');
-
+*/
 	}
 
 	@Test 
 	public void testParseAssignments() {
+		/*
 		//Should parse assignments
 
 		let ctx = {};
@@ -263,6 +271,7 @@ public class RiScriptTests {
 		ctx = {};
 		expect(parser.lexParseVisit('$foo=().toUpperCase()', ctx, 0)).eq(''); // empty string
 		expect(ctx.foo).eq('');
+		*/
 	}
 
 
@@ -369,14 +378,17 @@ public class RiScriptTests {
 		//Should be fixed to pass
 
 		//return;
-
+/*
 		ctx = {};
 		expect(parser.lexParseVisit('$foo=().toUpperCase()', ctx, 0)).eq('');
 		expect(ctx.foo).eq('');
 
 		// *** WORKING HERE: transform should not be applied to silent assign
 		0 && expect(parser.lexParseVisit('How many (tooth | tooth).pluralize() do you have?')).eq('How many teeth do you have?');
+	
+	
 	}
+	*/
 }
 
 }

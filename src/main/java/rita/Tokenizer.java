@@ -13,6 +13,7 @@ public class Tokenizer
 
   public String untokenize(String[] words)
   {
+	  /*
 
 	    delim = delim || ' ';
 
@@ -81,11 +82,15 @@ public class Tokenizer
 	    }
 
 	    return Util.trim(result);
+	 
 	  }
+	  */
+	  return null;
   }
 
   public String[] tokenize(String words)
   {
+	  /*
 	  if (text == null ) return new String[] {};
 
 	    if (regex) return words.split(regex); //TODO check this param
@@ -128,6 +133,8 @@ public class Tokenizer
 	    words = words.replace(/_([Ii])([Ee])_/g, "$1.$2."); // I.E.
 
 	    return Util.trim(words).split(/\s+/);
+	    */
+	  return null;
   }
 
 }
