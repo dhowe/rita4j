@@ -5,13 +5,13 @@ import java.util.regex.Pattern;
 public class Tokenizer
 {
 
-  public String[] sentences(String text, Pattern regex)
+  public static String[] sentences(String text, Pattern regex)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public String untokenize(String[] words)
+  public static String untokenize(String[] words)
   {
 	  /*
 
@@ -88,53 +88,56 @@ public class Tokenizer
 	  return null;
   }
 
-  public String[] tokenize(String words)
+  public static String[] tokenize(String words)
   {
-	  /*
-	  if (text == null ) return new String[] {};
+	  if (words == null || words.length() == 0) return new String[] {""};
 
-	    if (regex) return words.split(regex); //TODO check this param
+	    //if (regex) return words.split(regex); //TODO check this param
 
+	  //Javascript to java regex converted from https://regex101.com/
 	    words = words.trim(); // ???
-	    words = words.replace(/([Ee])[.]([Gg])[.]/g, "_$1$2_"); // E.©G.
-	    words = words.replace(/([Ii])[.]([Ee])[.]/g, "_$1$2_"); // I.E.
+	    System.out.print("inside tokenize");
+	    System.out.print(words);
+	    words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
+	    words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
 
-	    words = words.replace(/([\\?!\"\u201C\\.,;:@#$%&])/g, " $1 ");
-	    words = words.replace(/\\.\\.\\./g, " ... ");
-	    words = words.replace(/\\s+/g, ' ');
-	    words = words.replace(/,([^0-9])/g, " , $1");
-	    words = words.replace(/([^.])([.])([\])}>\"'’]*)\\s*$/g, "$1 $2$3 ");
-	    words = words.replace(/([\[\](){}<>])/g, " $1 ");
-	    words = words.replace(/--/g, " -- ");
-	    words = words.replace(/$/g, ' ');
-	    words = words.replace(/^/g, ' ');
-	    words = words.replace(/([^'])' | '/g, "$1 ' ");
-	    words = words.replace(/ \u2018/g, " \u2018 ");
-	    words = words.replace(/'([SMD]) /g, " '$1 ");
+	    words = words.replaceAll("([\\\\\\\\?!\\\\\\\"\\\\u201C\\\\\\\\.,;:@#$%&])", " $1 ");
+	    words = words.replaceAll("\\\\\\\\.\\\\\\\\.\\\\\\\\.", " ... ");
+	    words = words.replaceAll("\\\\\\\\s+", " ");
+	    words = words.replaceAll(",([^0-9])", " , $1");
+	    words = words.replaceAll("(([^.])([.])([\\\\])\\\\}>\\\\\\\"'’]*)\\\\\\\\s*$", "$1 $2$3 ");
+	    words = words.replaceAll("([\\\\[\\\\]()\\\\{}<>])", " $1 ");
+	    words = words.replaceAll("--", " -- ");
+	    words = words.replaceAll("$", " ");
+	    words = words.replaceAll("^", " ");
+	    words = words.replaceAll("([^'])' | '", "$1 \' ");
+	    words = words.replaceAll(" \\\\u2018", " \u2018 ");
+	    words = words.replaceAll("'([SMD]) ", " \'$1 ");
 
 	    if (RiTa.SPLIT_CONTRACTIONS) {
 
-	      words = words.replace(/([Cc])an['’]t/g, "$1an not");
-	      words = words.replace(/([Dd])idn['’]t/g, "$1id not");
-	      words = words.replace(/([CcWw])ouldn['’]t/g, "$1ould not");
-	      words = words.replace(/([Ss])houldn['’]t/g, "$1hould not");
-	      words = words.replace(/ ([Ii])t['’]s/g, " $1t is");
-	      words = words.replace(/n['’]t /g, " not ");
-	      words = words.replace(/['’]ve /g, " have ");
-	      words = words.replace(/['’]re /g, " are ");
+	      words = words.replaceAll("([Cc])an['’]t", "$1an not");
+	      words = words.replaceAll("([Dd])idn['’]t", "$1id not");
+	      words = words.replaceAll("([CcWw])ouldn['’]t", "$1ould not");
+	      words = words.replaceAll("([Ss])houldn['’]t", "$1hould not");
+	      words = words.replaceAll(" ([Ii])t['’]s", " $1t is");
+	      words = words.replaceAll("n['’]t ", " not ");
+	      words = words.replaceAll("['’]ve ", " have ");
+	      words = words.replaceAll("['’]re ", " are ");
 	    }
 
 	    // "Nicole I. Kidman" gets tokenized as "Nicole I . Kidman"
-	    words = words.replace(/ ([A-Z]) \\./g, " $1. ");
-	    words = words.replace(/\\s+/g, ' ');
-	    words = words.replace(/^\\s+/g, '');
+	    words = words.replaceAll(" ([A-Z]) \\\\\\\\.", " $1. ");
+	    words = words.replaceAll("\\\\\\\\s+", " ");
+	    words = words.replaceAll("^\\\\\\\\s+", "");
 
-	    words = words.replace(/_([Ee])([Gg])_/g, "$1.$2."); // E.G.
-	    words = words.replace(/_([Ii])([Ee])_/g, "$1.$2."); // I.E.
+	    words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
+	    words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
+	    
+	    words = words.trim();
 
-	    return Util.trim(words).split(/\s+/);
-	    */
-	  return null;
+	    return words.split("\\s+");
+	    
   }
 
 }

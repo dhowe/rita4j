@@ -32,7 +32,7 @@ public class AnalyzerTests {
 		hm.put("syllables", "");
 
 		//	hm = Collections.unmodifiableMap(hm);
-
+		System.out.println(RiTa.analyze(""));
 		assertEquals(RiTa.analyze(""), hm);
 
 		Map<String,String> feats;

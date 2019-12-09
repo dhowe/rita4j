@@ -172,7 +172,7 @@ public class RiTaTests {
 				"hankies", "hanky"
 		};
 		for (int i = 0; i < tests.length; i += 2) {
-			System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i + 1]);
+		//	System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i + 1]);
 			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
 

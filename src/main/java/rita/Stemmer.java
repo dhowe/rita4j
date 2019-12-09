@@ -1,5 +1,7 @@
 package rita;
 
+import java.util.Arrays;
+import java.util.List;
 
 public class Stemmer
 {
@@ -55,12 +57,192 @@ public class Stemmer
 	/* Maps irregular Germanic English plural nouns to their singular form */
 	private static final String[] categoryIRR = {"blondes", "blonde", "teeth", "tooth", "beefs", "beef", "brethren", "brother", "busses", "bus", "cattle", "cow", "children", "child", "corpora", "corpus", "femora", "femur", "genera", "genus", "genies", "genie", "genii", "genie", "lice", "louse", "mice", "mouse", "mongooses", "mongoose", "monies", "money", "octopodes", "octopus", "oxen", "ox", "people", "person", "schemata", "schema", "soliloquies", "soliloquy", "taxis", "taxi", "throes", "throes", "trilbys", "trilby", "innings", "inning", "alibis", "alibi", "skis", "ski", "safaris", "safari", "rabbis", "rabbi"};
 
+	private static String cut(String s, String suffix) {  // Cuts a suffix from a string (that is the number of chars given by the
 
-	
-  public String stem(String word)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
+		return (s.substring(0, s.length() - suffix.length()));
+	}
+
+	private static Boolean greek(String s) {  // Cuts a suffix from a string (that is the number of chars given by the
+		return (s.indexOf("ph") > 0 || s.indexOf('y') > 0 && s.endsWith("nges"));
+	}
+
+	/* Returns true if a word is probably not Latin */
+	private static Boolean noLatin(String s) {
+		return (s.indexOf('h') > 0 || s.indexOf('j') > 0 || s.indexOf('k') > 0 || s.indexOf('w') > 0 || s.indexOf('y') > 0 || s.indexOf('z') > 0 || s.indexOf("ou") > 0 || s.indexOf("sh") > 0 || s.indexOf("ch") > 0 || s.endsWith("aus"));
+	}
+
+	public static String stem(String s)
+	{
+
+
+		// Handle irregular ones
+		if (Arrays.asList(categoryIRR).contains(s)) {
+			int index = Arrays.asList(categoryIRR).indexOf(s);
+			if (index % 2 == 0) {
+				String irreg = categoryIRR[index + 1];
+				return (irreg);
+			}
+		}
+		// -on to -a
+		if (Arrays.asList(categoryON_A).contains(s))
+			return (cut(s, "a") + "on");
+
+		// -um to -a
+		if (Arrays.asList(categoryUM_A).contains(s))
+			return (cut(s, "a") + "um");
+
+		// -x to -ices
+		if (Arrays.asList(categoryIX_ICES).contains(s))
+			return (cut(s, "ices") + "ix");
+
+		// -o to -i
+		if (Arrays.asList(categoryO_I).contains(s))
+			return (cut(s, "i") + "o");
+
+		// -se to ses
+		if (Arrays.asList(categorySE_SES).contains(s))
+			return (cut(s, "s"));
+
+		// -is to -es
+		if (Arrays.asList(categoryIS_ES).contains(s) || s.endsWith("theses"))
+			return (cut(s, "es") + "is");
+
+		// -us to -i
+		if (Arrays.asList(categoryUS_I).contains(s))
+			return (cut(s, "i") + "us");
+
+		//Wrong plural
+		if (s.endsWith("uses") && Arrays.asList(categoryUS_I).contains(cut(s, "uses") + "i") || s == ("genuses") || s == ("corpuses"))
+			return (cut(s, "es"));
+
+		// -ex to -ices
+		if (Arrays.asList(categoryEX_ICES).contains(s))
+			return (cut(s, "ices") + "ex");
+
+		// Words that do not inflect in the plural
+		if (s.endsWith("ois") || s.endsWith("itis") || Arrays.asList(category00).contains(s) || Arrays.asList(categoryICS).contains(s))
+			return (s);
+
+		// -en to -ina
+		// No other common words end in -ina
+		if (s.endsWith("ina"))
+			return (cut(s, "en"));
+
+		// -a to -ae
+		// No other common words end in -ae
+		if (s.endsWith("ae") && s != "pleae") // special case
+			return (cut(s, "e"));
+
+		// -a to -ata
+		// No other common words end in -ata
+		if (s.endsWith("ata"))
+			return (cut(s, "ta"));
+
+		// trix to -trices
+		// No common word ends with -trice(s)
+		if (s.endsWith("trices"))
+			return (cut(s, "trices") + "trix");
+
+		// -us to -us
+		//No other common word ends in -us, except for false plurals of French words
+		//Catch words that are not latin or known to end in -u
+		if (s.endsWith("us") && !s.endsWith("eaus") && !s.endsWith("ieus") && !noLatin(s) && !Arrays.asList(categoryU_US).contains(s))
+			return (s);
+
+		// -tooth to -teeth
+		// -goose to -geese
+		// -foot to -feet
+		// -zoon to -zoa
+		//No other common words end with the indicated suffixes
+		if (s.endsWith("teeth"))
+			return (cut(s, "teeth") + "tooth");
+		if (s.endsWith("geese"))
+			return (cut(s, "geese") + "goose");
+		if (s.endsWith("feet"))
+			return (cut(s, "feet") + "foot");
+		if (s.endsWith("zoa"))
+			return (cut(s, "zoa") + "zoon");
+
+		// -men to -man
+		// -firemen to -fireman
+		if (s.endsWith("men")) return (cut(s, "men") + "man");
+
+		// -martinis to -martini
+		// -bikinis to -bikini
+		if (s.endsWith("inis")) return (cut(s, "inis") + "ini");
+
+		// -children to -child
+		// -schoolchildren to -schoolchild
+		if (s.endsWith("children")) return (cut(s, "ren"));
+
+		// -eau to -eaux
+		//No other common words end in eaux
+		if (s.endsWith("eaux"))
+			return (cut(s, "x"));
+
+		// -ieu to -ieux
+		//No other common words end in ieux
+		if (s.endsWith("ieux"))
+			return (cut(s, "x"));
+
+		// -nx to -nges
+		// Pay attention not to kill words ending in -nge with plural -nges
+		// Take only Greek words (works fine, only a handfull of exceptions)
+		if (s.endsWith("nges") && greek(s))
+			return (cut(s, "nges") + "nx");
+
+		// -[sc]h to -[sc]hes
+		//No other common word ends with "shes", "ches" or "she(s)"
+		//Quite a lot end with "che(s)", filter them out
+		if (s.endsWith("shes") || s.endsWith("ches") && !Arrays.asList(categoryCHE_CHES).contains(s))
+			return (cut(s, "es"));
+
+		// -ss to -sses
+		// No other common singular word ends with "sses"
+		// Filter out those ending in "sse(s)"
+		if (s.endsWith("sses") && !Arrays.asList(categorySSE_SSES).contains(s) && !s.endsWith("mousses"))
+			return (cut(s, "es"));
+
+		// -x to -xes
+		// No other common word ends with "xe(s)" except for "axe"
+		if (s.endsWith("xes") && s != "axes")
+			return (cut(s, "es"));
+
+		// -[nlw]ife to -[nlw]ives
+		//No other common word ends with "[nlw]ive(s)" except for olive
+		if (s.endsWith("nives") || s.endsWith("lives") && !s.endsWith("olives") || s.endsWith("wives"))
+			return (cut(s, "ves") + "fe");
+
+		// -[aeo]lf to -ves  exceptions: valve, solve
+		// -[^d]eaf to -ves  exceptions: heave, weave
+		// -arf to -ves      no exception
+		if (s.endsWith("alves") && !s.endsWith("valves") || s.endsWith("olves") && !s.endsWith("solves") || s.endsWith("eaves") && !s.endsWith("heaves") && !s.endsWith("weaves") || s.endsWith("arves") || s.endsWith("shelves") || s.endsWith("selves"))
+			return (cut(s, "ves") + "f");
+
+		// -y to -ies
+		// -ies is very uncommon as a singular suffix
+		// but -ie is quite common, filter them out
+		if (s.endsWith("ies") && !Arrays.asList(categoryIE_IES).contains(s))
+			return (cut(s, "ies") + "y");
+
+		// -o to -oes
+		// Some words end with -oe, so don't kill the "e"
+		if (s.endsWith("oes") && !Arrays.asList(categoryOE_OES).contains(s))
+			return (cut(s, "es"));
+
+		// -s to -ses
+		// -z to -zes
+		// no words end with "-ses" or "-zes" in singular
+		if (s.endsWith("ses") || s.endsWith("zes"))
+			return (cut(s, "es"));
+
+		// - to -s
+		if (s.endsWith("s") && !s.endsWith("ss") && !s.endsWith("is"))
+			return (cut(s, "s"));
+
+		return (s);
+
+
+	}
 
 }

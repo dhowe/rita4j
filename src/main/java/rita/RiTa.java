@@ -184,7 +184,7 @@ public class RiTa
 
   public static String pluralize(String word)
   {
-    return pluralizer.pluralize(word);
+    return RiTa.pluralizer.pluralize(word);
   }
 
   public static String presentParticiple(String verb)

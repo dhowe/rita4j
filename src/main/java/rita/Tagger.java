@@ -9,42 +9,42 @@ public class Tagger
 	public static final String[] NOUNS = {"nn", "nns", "nnp", "nnps"};
 	public static final String[] VERBS = {"vb", "vbd", "vbg", "vbn", "vbp", "vbz"};
 	
-  public boolean isAdjective(String word)
+  public static boolean isAdjective(String word)
   {
 	  return checkType(word, ADJ);
   }
 
-  public boolean isAdverb(String word)
+  public static boolean isAdverb(String word)
   {
     // TODO Auto-generated method stub
     return false;
   }
 
-  public boolean isNoun(String word)
+  public static boolean isNoun(String word)
   {
     // TODO Auto-generated method stub
     return false;
   }
 
-  public boolean isVerb(String word)
+  public static boolean isVerb(String word)
   {
     // TODO Auto-generated method stub
     return false;
   }
 
-  public String tagInline(String text, boolean useSimpleTags)
+  public static String tagInline(String text, boolean useSimpleTags)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  public String[] tag(String text, boolean useSimpleTags)
+  public static String[] tag(String text, boolean useSimpleTags)
   {
     // TODO Auto-generated method stub
     return null;
   }
 
-  private boolean checkType(String word, String[] tagArray) {
+  private static boolean checkType(String word, String[] tagArray) {
 /*
 	    if (word != null) {
 

@@ -71,9 +71,9 @@ public class Pluralizer
 
 	private static final String[] MODALS = {"shall", "would", "may", "might", "ought", "should"};
 	
-	public String pluralize(String word)
+	public static String pluralize(String word)
 	{
-
+		System.out.println("word : "+ word);
 		if (word == null || word.length() == 0 ) return "";
 
 		if (Arrays.stream(MODALS).anyMatch(word.toLowerCase()::equals)) return word;
@@ -88,7 +88,7 @@ public class Pluralizer
 		return DEFAULT_PLURAL_RULE.fire(word);
 	}
 
-	public String singularize(String word)
+	public static String singularize(String word)
 	{
 
 		if (word == null || word.length() == 0 ) return "";
@@ -108,7 +108,7 @@ public class Pluralizer
 		return RiTa.stem(word);
 	}
 
-	public boolean isPlural(String word) {
+	public static boolean isPlural(String word) {
 		// TODO Auto-generated method stub
 		return false;
 	}
