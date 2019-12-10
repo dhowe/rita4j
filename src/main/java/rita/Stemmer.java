@@ -1,5 +1,6 @@
 package rita;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -244,5 +245,24 @@ public class Stemmer
 
 
 	}
+
+	public static boolean _checkPluralNoLex(String s) {
+		ArrayList<String> cats = new ArrayList<String>();
+		cats.addAll(Arrays.asList(categoryUM_A));
+		cats.addAll(Arrays.asList(categoryON_A));
+		cats.addAll(Arrays.asList(categoryO_I));
+		cats.addAll(Arrays.asList(categoryUS_I));
+		cats.addAll(Arrays.asList(categoryIX_ICES));
+		
+		//for (int i = 0; i < cats.length; i++) {
+		if (cats.contains(s)) return true;
+		//}
+
+		int idx =  Arrays.asList(categoryIRR).indexOf(s);
+		return (idx % 2 == 0) ? true : false;
+	}
+
+
+
 
 }

@@ -7,10 +7,8 @@ public class Analyzer
 {
 
 	
-	public Map<String,String> analyze(String text)
+	public static Map<String,String> analyze(String text)
 	{
-		System.out.println("Tokenize>> : " + text);
-		System.out.println("Tokenize>> : "+ RiTa.tokenize(text));
 		String[] stressyls;
 		String[] ltsPhones;
 		String phones;
@@ -23,7 +21,6 @@ public class Analyzer
 
 		Map<String, String> features = new HashMap<String, String>();
 
-		System.out.println("Tokenize : "+ RiTa.tokenize(text));
 		String[] words = RiTa.tokenize(text);
 		String[] tags = RiTa.posTags(text);
 
@@ -79,7 +76,7 @@ public class Analyzer
 		features.put("phonemes", phonemes.trim());//.replace(/\\s+/, ' '); // needed?
 		features.put("syllables", syllables.trim());//.replace(/\\s+/, ' '); // needed?
 
-		System.out.print("analysis ");
+		System.out.print("analysis features: ");
 		System.out.print(features);
 		return features;
 	}

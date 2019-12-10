@@ -682,14 +682,14 @@ public class Conjugator
 		PRESENT_TENSE_RULESET.put("doubling" , false);
 	}
 
-	boolean perfect = false;
-	boolean progressive = false;
-	boolean passive = false;
-	boolean interrogative = false;
-	int tense = RiTa.PRESENT_TENSE;
-	int person = RiTa.FIRST_PERSON;
-	int number = RiTa.SINGULAR;
-	int form = RiTa.NORMAL;
+	private static boolean perfect = false;
+	private static boolean progressive = false;
+	private static boolean passive = false;
+	private static boolean interrogative = false;
+	private static int tense = RiTa.PRESENT_TENSE;
+	private static int person = RiTa.FIRST_PERSON;
+	private static int number = RiTa.SINGULAR;
+	private static int form = RiTa.NORMAL;
 
 	public void reset() {
 		perfect = false;
@@ -796,7 +796,7 @@ public class Conjugator
 
 
 
-	private String checkRules(Map<String, Object> pastParticipleRuleset, String theVerb) {
+	private static String checkRules(Map<String, Object> pastParticipleRuleset, String theVerb) {
 		// TODO Auto-generated method stub
 		return null;
 		/*
@@ -848,7 +848,7 @@ public class Conjugator
 	}
 
 
-	public String pastTense(String theVerb,int pers,int numb) {
+	public static String pastTense(String theVerb,int pers,int numb) {
 
 		if (theVerb.toLowerCase() == "be") {
 
@@ -877,7 +877,7 @@ public class Conjugator
 		return checkRules(PAST_TENSE_RULESET, theVerb);
 	}
 
-	public String presentTense(String theVerb, int per,int numb) {
+	public static String presentTense(String theVerb, int per,int numb) {
 
 		person = per;
 		number = numb;
@@ -908,17 +908,17 @@ public class Conjugator
 		}
 		return theVerb;
 	}
-	public String presentParticiple(String verb)
+	public static String presentParticiple(String verb)
 	{
 		return verb == "be" ? "being" : checkRules(PRESENT_PARTICIPLE_RULESET, verb);
 	}
 
-	public String pastParticiple(String verb)
+	public static String pastParticiple(String verb)
 	{
 		return checkRules(PAST_PARTICIPLE_RULESET, verb);
 	}
 
-	private String verbForm(String theVerb, int tense, int person, int number) {
+	private static String verbForm(String theVerb, int tense, int person, int number) {
 
 		switch (tense) {
 		case RiTa.PRESENT_TENSE:

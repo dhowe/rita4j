@@ -129,7 +129,7 @@ public class RiTa
 
   public static boolean isVerb(String word)
   {
-    return tagger.isVerb(word);
+    return Tagger.isVerb(word);
   }
 
   public static String[] kwic(String text, String word)
@@ -239,7 +239,7 @@ public class RiTa
 
   public static String stresses(String text)
   {
-    return _analyzer().analyze(text).get("stresses");
+	return  _analyzer().analyze(text).get("stresses");
   }
 
   public static String syllables(String text)
@@ -253,7 +253,7 @@ public class RiTa
   }
   public static String singularize(String word)
   {
-    return pluralizer.singularize(word);
+    return Pluralizer.singularize(word);
   }
 
   public static String[] sentences(String text)
@@ -273,22 +273,22 @@ public class RiTa
 
   public static String[] sentences(String text, Pattern regex)
   {
-    return tokenizer.sentences(text, regex);
+    return Tokenizer.sentences(text, regex);
   }
 
   public static String stem(String word)
   {
-    return stemmer.stem(word);
+    return Stemmer.stem(word);
   }
 
   public static String[] tokenize(String text)
   {
-    return tokenizer.tokenize(text);
+    return Tokenizer.tokenize(text);
   }
 
   public static String untokenize(String[] words)
   {
-    return tokenizer.untokenize(words);
+    return Tokenizer.untokenize(words);
   }
 
   public static String[] words()
@@ -341,6 +341,7 @@ public class RiTa
   //public static boolean SILENT_LTS = true; //TODO is SILENT_LTS or SILENCE_LTS?
   public static boolean SILENCE_LTS = true;
   public static boolean LEX_WARN = false;
+  public static boolean LTS_WARN = false;
   public static boolean SPLIT_CONTRACTIONS = false;
 
   public static String PHONEME_BOUNDARY = "-";

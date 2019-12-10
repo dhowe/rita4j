@@ -96,8 +96,6 @@ public class Tokenizer
 
 	  //Javascript to java regex converted from https://regex101.com/
 	    words = words.trim(); // ???
-	    System.out.print("inside tokenize");
-	    System.out.print(words);
 	    words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
 	    words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
 

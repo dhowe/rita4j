@@ -1,5 +1,10 @@
 package rita;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import java.util.logging.Logger;
 
 public class Tagger
 {
@@ -8,66 +13,201 @@ public class Tagger
 	public static final String[] ADV = {"rb", "rbr", "rbs", "rp"};
 	public static final String[] NOUNS = {"nn", "nns", "nnp", "nnps"};
 	public static final String[] VERBS = {"vb", "vbd", "vbg", "vbn", "vbp", "vbz"};
-	
-  public static boolean isAdjective(String word)
-  {
-	  return checkType(word, ADJ);
-  }
 
-  public static boolean isAdverb(String word)
-  {
-    // TODO Auto-generated method stub
-    return false;
-  }
 
-  public static boolean isNoun(String word)
-  {
-    // TODO Auto-generated method stub
-    return false;
-  }
+	public static boolean isAdjective(String word)
+	{
+		return checkType(word, ADJ);
+	}
 
-  public static boolean isVerb(String word)
-  {
-    // TODO Auto-generated method stub
-    return false;
-  }
+	public static boolean isAdverb(String word)
+	{
 
-  public static String tagInline(String text, boolean useSimpleTags)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
+		return checkType(word, ADV);
+	}
 
-  public static String[] tag(String text, boolean useSimpleTags)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	public static boolean isNoun(String word)
+	{
+	    boolean result = checkType(word, NOUNS);
+	    if (!result) {
+	      String singular = RiTa.singularize(word);
+	      if (singular != word) {
+	        result = checkType(singular, NOUNS);
+	      }
+	    }
+	    return result;
+	}
 
-  private static boolean checkType(String word, String[] tagArray) {
-/*
-	    if (word != null) {
+	public static boolean isVerb(String word)
+	{
+		return checkType(word, VERBS);
+	}
 
-	      if (word.length() == 0) return false;
+	public static boolean isVerbTag(String tag)
+	{
+		return Arrays.asList(VERBS).contains(tag);
+	}
+	public static boolean isNounTag(String tag) {
+		return Arrays.asList(NOUNS).contains(tag);
+	}
 
-	      if (word.indexOf(" ") < 0) {
+	public static boolean isAdverbTag(String tag) {
+		return Arrays.asList(ADV).contains(tag);
+	}
 
-	        String[] psa = RiTa._lexicon()._posArr(word);
+	public static boolean isAdjTag(String tag) {
+		return Arrays.asList(ADJ).contains(tag);
+	}
 
-	        if (RiTa.LEX_WARN && psa.length < 1 && this.size() <= 1000) {
-	          warn(RiTa.LEX_WARN);
-	          RiTa.LEX_WARN = 0; // only once
-	        }
+	public static String tagInline(String text, boolean useSimpleTags)
+	{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-	        return psa.filter(p => tagArray.indexOf(p) > -1).length > 0;
+	public static String[] tag(String words, boolean useSimpleTags)
+	{
+
+	    if (words == null || words.length() == 0) return new String[] {};
+
+	    Lexicon lexicon = RiTa._lexicon();
+	    ArrayList<String> result = new ArrayList<String>();
+	    ArrayList<String> choices2d = new ArrayList<String>();;
+
+	    
+	    if (words == "") return new String[] {};
+	    String[] wordsArr = Tokenizer.tokenize(words);
+
+
+	    for (int i = 0; i < wordsArr.length; i++) {
+
+	      if (wordsArr[i].length() < 1) {
+
+	        result.add("");
+	        continue;
 	      }
 
-	      throw Error("checkType() expects single word, found: '" + word + "'");
+	      if (wordsArr[i].length() == 1) {
+
+	        result.add(_handleSingleLetter(wordsArr[i]));
+	        continue;
+	      }
+
+	      String[] data = lexicon._posArr(wordsArr[i]);
+	      if (data.length == 0) {
+
+	        // use stemmer categories if no lexicon
+
+	        //choices2d.add("");
+	        String tag = "nn";
+	        if (wordsArr[i].endsWith("s")) {
+	          tag = "nns";
+	        }
+
+	        if (!RiTa.SILENT) { // warn // TODO 
+	          if (RiTa.LEX_WARN) { // lex.size() <= 1000 lex is never defined
+	        	  Logger logger = Logger.getLogger( Tagger.class.getName()); 
+					logger.warning(Boolean.toString(RiTa.LEX_WARN));
+					RiTa.LEX_WARN = false; // only once
+	          }
+	          /*//TODO
+	          if (RiTa.LTS_WARN && LetterToSound == "undefined") {
+	        	  Logger logger = Logger.getLogger( Tagger.class.getName()); 
+					logger.warning(Boolean.toString(RiTa.LTS_WARN));
+					RiTa.LTS_WARN = false; // only once
+	          }
+	          */
+	        }
+
+	        if (wordsArr[i].endsWith("s")) {
+	          String sub2 ="";
+	          String sub = wordsArr[i].substring(0, wordsArr[i].length() - 1);
+
+	          if (wordsArr[i].endsWith("es"))
+	            sub2 = wordsArr[i].substring(0, wordsArr[i].length() - 2);
+
+	          if (_lexHas("n", sub) || (sub2.length() > 0 && _lexHas("n", sub2))) {
+	            choices2d.add("nns");
+	          } else {
+	            String sing = RiTa.singularize(wordsArr[i]);
+	            if (_lexHas("n", sing)) choices2d.add("nns");
+	          }
+
+	        } else {
+
+	          String sing = RiTa.singularize(wordsArr[i]);
+
+	          if (_lexHas("n", sing)) {
+	            choices2d.add("nns");
+	            tag = "nns";
+	          } else if (RiTa.stemmer._checkPluralNoLex(wordsArr[i])) {
+	            tag = "nns";
+	            //common plurals
+	          }
+	        }
+
+	        result.add(tag);
+
+	      } else {
+
+	        result.add(data[0]);
+	        choices2d.addAll(Arrays.asList(data));
+	      }
 	    }
-	    	    */
-	    return (Boolean) null;
 
-	  }
-	  
+	    // Adjust pos according to transformation rules
+	    String[] tags = _applyContext(words, result, choices2d);
 
+	    if (useSimpleTags) {
+	      for (int i = 0; i < tags.length; i++) {
+	        if (Arrays.asList(NOUNS).contains(tags[i])) tags[i] = "n";
+	        else if (Arrays.asList(VERBS).contains(tags[i])) tags[i] = "v";
+	        else if (Arrays.asList(ADJ).contains(tags[i])) tags[i] = "a";
+	        else if (Arrays.asList(ADV).contains(tags[i])) tags[i] = "r";
+	        else tags[i] = "-"; // default: other
+	      }
+	    }
+
+	    return tags;
+	}
+
+	private static String[] _applyContext(String words, List<String> result, List<String> choices2d) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static boolean _lexHas(String string, String sub) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	private static String _handleSingleLetter(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private static boolean checkType(String word, String[] tagArray) {
+
+		if (word != null || word.length() == 0) return false;
+
+
+		if (word.indexOf(" ") < 0) {
+
+			List<String> psa = Arrays.asList(RiTa._lexicon()._posArr(word));
+
+			if (RiTa.LEX_WARN && psa.size() < 1) { // TODO what is this.size() <= 1000 ??
+				Logger logger = Logger.getLogger( Tagger.class.getName()); 
+				logger.warning(Boolean.toString(RiTa.LEX_WARN));
+				RiTa.LEX_WARN = false; // only once
+			}
+
+			 psa.stream().filter(p -> Arrays.asList(tagArray).indexOf(p) > -1);
+			 
+			 return psa.size() > 0;
+		}
+
+		throw new RiTaException("checkType() expects single word, found: '" + word + "'");
+
+
+	}
 }
