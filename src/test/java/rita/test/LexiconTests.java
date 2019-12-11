@@ -21,14 +21,13 @@ public class LexiconTests {
 
 	@Test 
 	public void testToPhoneArray() {
-		/*
-		
+/*
 
-		String[] result = RiTa.lexicon().toPhoneArray(RiTa.lexicon().rawPhones("tornado"));
+		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon().rawPhones("tornado"));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
 		assertArrayEquals(result,ans);
+	*/	
 		
-		*/
 	}
 
 	@Test 
@@ -132,6 +131,8 @@ public class LexiconTests {
 
 		//similarBy(letter)
 		result = RiTa.similarBy("banana", hm);
+		System.out.println("result : ");
+		System.out.println(Arrays.toString(result));
 		assertArrayEquals(result, new String[]{"cabana"});
 		/*//TODO do we need one param option?
 		result = RiTa.similarBy("");

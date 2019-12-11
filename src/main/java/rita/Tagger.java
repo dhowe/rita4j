@@ -140,7 +140,7 @@ public class Tagger
 	          if (_lexHas("n", sing)) {
 	            choices2d.add("nns");
 	            tag = "nns";
-	          } else if (RiTa.stemmer._checkPluralNoLex(wordsArr[i])) {
+	          } else if (Stemmer._checkPluralNoLex(wordsArr[i])) {
 	            tag = "nns";
 	            //common plurals
 	          }

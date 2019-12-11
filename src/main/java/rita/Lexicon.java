@@ -224,7 +224,7 @@ public class Lexicon // KW: Wait on this class please
 
 	public String[] similarBy(String word, Map<String, Object> opts)  //TODO
 	{
-		if (word != null || word.length() == 0 ) return new String[]{};
+		if (word == null || word.length() == 0 ) return new String[]{};
 
 		if(opts == null) return new String[]{};
 
@@ -236,68 +236,99 @@ public class Lexicon // KW: Wait on this class please
 	}
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
-		/*
-	  	opts.get("type") = "letter";
-	    let simLetter = similarByType(word, opts);
-	    if (simLetter.length < 1) return [];
+		
+		opts.put("type","letter");
+	  	//opts.get("type") = "letter";
+	    String[] simLetter = similarByType(word, opts);
+	    if (simLetter.length < 1) return new String[] {};
 
-	    opts.type = "sound";
-	    let simSound = similarByType(word, opts);
-	    if (simSound.length < 1) return [];
+	    opts.put("type","sound");
+	    String[] simSound = similarByType(word, opts);
+	    if (simSound.length < 1) return new String[] {};
 
 	    return _intersect(simSound, simLetter);
-		 */
-		return null;
+
 	}
 
 	public String[] similarByType(String word, Map<String, Object> opts) {
-		/*
-	    let minLen = opts && opts.minimumWordLen || 2;
-	    let preserveLength = opts && opts.preserveLength || 0;
-	    let minAllowedDist = opts && opts.minAllowedDistance || 1;
+		
+		int minLen = 2;
+		int preserveLength = 0;
+		int minAllowedDist = 1;
+		
+		if (!opts.isEmpty()) {
+			minLen = (int) ((opts.containsValue("minimumWordLen")) ? opts.get("minimumWordLen"): 2);
+			preserveLength = (int) ((opts.containsValue("preserveLength")) ? opts.get("preserveLength"): 0);
+			minAllowedDist = (int) ((opts.containsValue("minAllowedDistance")) ? opts.get("minAllowedDistance"): 1);
+		}
 
-	    let result = [];
-	    let minVal = Number.MAX_VALUE;
-	    let input = word.toLowerCase();
-	    let words = Object.keys(dict);
-	    let variations = [input, input + "s", input + "es"];
 
-	    let compareA = opts.type == "sound" ?
-	      toPhoneArray(_rawPhones(input)) : input;
+	    ArrayList<String> result = new ArrayList<String>();
+	    int minVal = Integer.MAX_VALUE;
+	    String input = word.toLowerCase();
+	    
+	    ArrayList<String> words = new ArrayList<String>(dict.keySet());
+	    ArrayList<String> variations = new ArrayList<String>();
+	    variations.add(input);
+	    variations.add(input + "s");
+	    variations.add(input + "es");
 
-	    for (let i = 0; i < words.length; i++) {
+	    boolean useLTS = true; //TODO _rawPhones second param has to be removed?
+	    String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, useLTS)) : new String[] {input});
 
-	      let entry = words[i];
+	    for (int i = 0; i < words.size(); i++) {
 
-	      if ((entry.length < minLen) ||
-	        (preserveLength && (entry.length != input.length)) ||
-	        variations.includes(entry)) {
+	      String entry = words.get(i);
+
+	      if ((entry.length() < minLen) || preserveLength > 0 && (entry.length() != input.length()) || variations.contains(entry)) {
 	        continue;
 	      }
+	      
 
-	      let compareB = Array.isArray(compareA) ?
-	        toPhoneArray(dict[entry][0]) : entry;
+	      String[] compareB = toPhoneArray(dict.get(entry)[0]);
+		    for (int j = 0; j < compareA.length; j++) {
+		    	System.out.println(compareA[j]);
+		    }
+		    for (int j = 0; j < compareB.length; j++) {
+			    System.out.println(compareB[j]);
+				    }
 
-	      let med = Util.minEditDist(compareA, compareB);
+	      int med = Util.minEditDist(compareA, compareB);
 
 	      // found something even closer
 	      if (med >= minAllowedDist && med < minVal) {
 	        minVal = med;
-	        result = [entry];
+	        result.add(entry);
 	        //console.log("BEST(" + med + ")" + entry + " -> " + phonesArr);
 	      }
 
 	      // another best to add
 	      else if (med == minVal) {
 	        //console.log("TIED(" + med + ")" + entry + " -> " + phonesArr);
-	        result.push(entry);
+	        result.add(entry);
 	      }
 	    }
-
-	    return result;
-		 */
-		return null;
+String[] s = (String[]) result.toArray(new String[0]);
+	    return s;
+		 
 	}
+	
+	  public static String[] toPhoneArray(String raw) {
+		  	ArrayList<String> result = new ArrayList<String>();
+		    String sofar = "";
+		    for (int i = 0; i < raw.length(); i++) {
+		      if (raw.charAt(i) == ' ' || raw.charAt(i) == '-') {
+		        result.add(sofar);
+		        sofar = "";
+		      }
+		      else if (raw.charAt(i) != '1' && raw.charAt(i) != '0') {
+		        sofar += raw.charAt(i);
+		      }
+		    }
+		    result.add(sofar);
+		    String[] s = result.toArray(new String[0]);
+		    return s;
+		  }
 
 	public String[] words(Pattern regex)
 	{
@@ -332,27 +363,37 @@ public class Lexicon // KW: Wait on this class please
 
 	}
 
-
-	private String[] _intersect() { // https://gist.github.com/lovasoa/3361645 //TODO
-		/*
-    String all, n, len;
+/*
+	private String[] _intersect(String[]... args) { // https://gist.github.com/lovasoa/3361645 //TODO
+		
+    String all;
+    int len;
+	int n;
     String[] ret;
-    String[] obj = {};
+    String[] obj = new String[]{};
     int shortest = 0;
-    int nOthers = arguments.length - 1;
-    int nShortest = arguments[0].length;
+    //for (String[] arg : args) {
+   //     System.out.println(arg);
+    //}
+    int nOthers = args.length - 1;
+    int nShortest = args[0].length;
     for (int i = 0; i <= nOthers; i++) {
-      n = arguments[i].length;
+      n = args[i].length;
       if (n < nShortest) {
         shortest = i;
         nShortest = n;
       }
     }
     for (int i = 0; i <= nOthers; i++) {
-      n = (i == shortest) ? 0 : (i || shortest);
-      len = arguments[n].length;
+      if (i == shortest) {
+    	  n = 0;
+      }else {
+    	  n = i;   	// TODO  0 : (i || shortest);)
+      }
+      len = args[n].length;
       for (int j = 0; j < len; j++) {
-        List elem = arguments[n][j];
+        List<String> elem; 
+        elem.add(args[n][j]);
         if (obj[elem] == i - 1) {
           if (i == nOthers) {
             ret.push(elem);
@@ -366,10 +407,19 @@ public class Lexicon // KW: Wait on this class please
       }
     }
     return ret;
-		 */
-		return null;
+		 
 	}
+*/
+	
+	public static String[] _intersect(String[] a, String[] b) { //https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
+		
+		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
+		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
+		s1.retainAll(s2);
 
+	return s1.toArray(new String[s1.size()]);
+	}
+	
 	private String _lastStressedPhoneToEnd(String word) {	  
 		return _lastStressedPhoneToEnd(word, false);
 	}
