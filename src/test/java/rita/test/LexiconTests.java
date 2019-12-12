@@ -21,13 +21,13 @@ public class LexiconTests {
 
 	@Test 
 	public void testToPhoneArray() {
-/*
+		
 
-		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon().rawPhones("tornado"));
+		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon()._rawPhones("tornado",false));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
 		assertArrayEquals(result,ans);
-	*/	
-		
+		 
+
 	}
 
 	@Test 
@@ -48,6 +48,7 @@ public class LexiconTests {
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("cat stress");
+		System.out.println(RiTa.alliterations("cat stress").length);
 		assertTrue(result.length > 2000);
 
 		result = RiTa.alliterations("cat");
@@ -85,11 +86,23 @@ public class LexiconTests {
 	}
 
 
+	public static boolean contains(String[] arr, String item) {
+		for (String n : arr) {
+			if (item == n) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 	@Test 
 	public void testRhymes() {
 
 		// TODO: add more tests
+
+		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
+
 
 		assertTrue(Arrays.asList(RiTa.rhymes("cat")).contains("hat"));
 		assertTrue(Arrays.asList(RiTa.rhymes("yellow")).contains("mellow"));
@@ -105,7 +118,7 @@ public class LexiconTests {
 
 		assertTrue(Arrays.asList(RiTa.rhymes("weight")).contains("eight"));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight")).contains("weight"));
-		
+
 
 		assertTrue(!Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
 		assertTrue(!Arrays.asList(RiTa.rhymes("this")).contains("these"));
@@ -137,7 +150,7 @@ public class LexiconTests {
 		/*//TODO do we need one param option?
 		result = RiTa.similarBy("");
 		assertArrayEquals(result, new String[]{});
-*/
+		 */
 		hm.clear();
 		hm.put("preserveLength", false);
 
@@ -147,7 +160,7 @@ public class LexiconTests {
 		/*//TODO do we need one param option?
 		result = RiTa.similarBy("banana");
 		assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana", "manna"});
-		*/
+		 */
 
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
@@ -167,7 +180,7 @@ public class LexiconTests {
 
 		result = RiTa.similarBy("ice");
 		assertArrayEquals(result, new String[]{"ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice"});
-*/
+		 */
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
 		result = RiTa.similarBy("ice", hm);
@@ -197,7 +210,7 @@ public class LexiconTests {
 
 		result = RiTa.similarBy("123");
 		assertTrue(result.length > 400);
-*/
+		 */
 		//similarBy(sound)
 
 		hm.clear();

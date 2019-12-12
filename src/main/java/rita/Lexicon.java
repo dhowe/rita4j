@@ -31,7 +31,7 @@ public class Lexicon // KW: Wait on this class please
 			if (parts == null || parts.length != 2) {
 				throw new Exception("Illegal entry: " + line);
 			}
-			dict.put(parts[0], parts[1].split(","));
+			dict.put(parts[0].replaceAll("'","").trim(), parts[1].split(","));
 		}
 	}
 
@@ -59,23 +59,24 @@ public class Lexicon // KW: Wait on this class please
 
 	public String[] alliterations(String word, int minWordLength)
 	{
-
+		if(word == null || word.length() == 0) return new String[]{};
+		
 		word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
 
-		if (RiTa.VOWELS.contains(String.valueOf(word.charAt(0)))) return new String[]{};
+		if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[]{};
 
 		//  int matchMinLength = minWordLength || 4;
 		//  boolean useLTS = opts && opts.useLTS || false;
 
-		boolean useLTS = false;
+		boolean useLTS = false; //TODO: default is true or false?
 
 		ArrayList<String> resultsArrayList = new ArrayList<String>();
-		String[] results = {};
-		String[] words = (String[]) dict.keySet().toArray();
+		String[] results = new String[]{};
+		String[] words = (String[]) dict.keySet().toArray(new String[dict.size()]);
 		String fss = _firstStressedSyl(word, useLTS);
 		String c1 = _firstPhone(fss);
 
-		if (c1 != null || c1.length() ==0 ) return new String[] {};
+		if (c1 == null || c1.length() == 0 ) return new String[] {};
 
 		for (int i = 0; i < words.length; i++) {
 
@@ -92,9 +93,10 @@ public class Lexicon // KW: Wait on this class please
 			} 
 
 		}
-		results = (String[]) resultsArrayList.toArray();
-		// return Util.shuffle(results, RiTa); //TODO
-		return null;
+		
+		results = resultsArrayList.toArray(new String[0]);
+		 return Util.shuffle(results); //TODO
+		//return null;
 	}
 
 
@@ -107,7 +109,7 @@ public class Lexicon // KW: Wait on this class please
 
 	public boolean isAlliteration(String word1, String word2, boolean useLTS) 
 	{
-		if ( word1 != null || word2 != null || word1.length() == 0 || word2.length() == 0) {
+		if ( word1 == null || word2 == null || word1.length() == 0 || word2.length() == 0) {
 			return false;
 		}
 
@@ -134,13 +136,13 @@ public class Lexicon // KW: Wait on this class please
 
 		String phones1 = _rawPhones(word1, useLTS);
 		String phones2 = _rawPhones(word2, useLTS);
-
+		
 		if (phones2 == phones1) return false;
 
 		String p1 = _lastStressedVowelPhonemeToEnd(word1, useLTS);
-		String  p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
+		String p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
 
-		return p1.length() > 0 && p2.length() > 0 && p1 == p2;
+		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
 	}
 
 	public String randomWord(String pos, int numSyllabes)  //TODO one argument only in rita-script
@@ -204,6 +206,7 @@ public class Lexicon // KW: Wait on this class please
 		ArrayList<String> results = new ArrayList<String>();
 
 		Set<String> wordSet = dict.keySet();
+		
 		String[] words = new String[wordSet.size()];
 		wordSet.toArray(words);
 
@@ -214,12 +217,16 @@ public class Lexicon // KW: Wait on this class please
 			if (words[i] == word) continue;
 
 			String w = dict.get(words[i])[0];
+			//System.out.print(w + ", " + p + ", ");
+			//System.out.println(w.endsWith(p));
+			//System.out.println(words[i]);
+			
 			if (w.endsWith(p)) results.add((words[i]));
 
 			//if (dict[words[i]][0].endsWith(p)) 
 		}
-
-		return (String[]) results.toArray();
+		String[] s = results.toArray(new String[0]);
+		return s;
 	}
 
 	public String[] similarBy(String word, Map<String, Object> opts)  //TODO
@@ -313,7 +320,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 		 
 	}
 	
-	  public static String[] toPhoneArray(String raw) {
+	  public String[] toPhoneArray(String raw) {
 		  	ArrayList<String> result = new ArrayList<String>();
 		    String sofar = "";
 		    for (int i = 0; i < raw.length(); i++) {
@@ -332,9 +339,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 
 	public String[] words(Pattern regex)
 	{
-		return regex != null ? dict.keySet().stream().filter
-				(word -> regex.matcher(word).matches()).toArray(String[]::new) :
-					dict.keySet().toArray(new String[0]);
+		return regex != null ? dict.keySet().stream().filter(word -> regex.matcher(word).matches()).toArray(String[]::new) :dict.keySet().toArray(new String[0]);
 	}
 
 	public static void main(String[] args) throws Exception
@@ -356,9 +361,12 @@ String[] s = (String[]) result.toArray(new String[0]);
 
 	private String _firstPhone(String rawPhones) {
 
-		if (rawPhones != null || rawPhones.length() == 0) return "";
+		if (rawPhones == null || rawPhones.length() == 0) return "";
+		
 		String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+		
 		if (phones != null) return phones[0];
+		
 		return ""; //return null?
 
 	}
@@ -426,14 +434,15 @@ String[] s = (String[]) result.toArray(new String[0]);
 
 	private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
 
-		if (word != null || word.length() == 0) return ""; // return null?
+		if (word == null || word.length() == 0) return ""; // return null?
 
 		int idx; 
 		char c;
 		String result;
+		//System.out.println("WORD : >> " + word);
 		String raw = _rawPhones(word, useLTS);
-
-		if (raw != null || raw.length() == 0) return ""; // return null?
+		//System.out.println("RAW: " + raw);
+		if (raw == null || raw.length() == 0) return ""; // return null?
 
 		idx = raw.lastIndexOf(RiTa.STRESSED);
 
@@ -448,16 +457,17 @@ String[] s = (String[]) result.toArray(new String[0]);
 		}
 		result = raw.substring(idx + 1);
 
+
 		return result;
 	}
 
 
 	private String _lastStressedVowelPhonemeToEnd(String word, boolean useLTS) {
 
-		if (word != null || word.length() == 0) return ""; // return null?
+		if (word == null || word.length() == 0) return ""; // return null?
 
 		String raw = _lastStressedPhoneToEnd(word, useLTS);
-		if (raw != null || raw.length() == 0) return ""; // return null?
+		if (raw == null || raw.length() == 0) return ""; // return null?
 
 		String[] syllables = raw.split(" ");
 		String lastSyllable = syllables[syllables.length - 1];
@@ -511,7 +521,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 	String[] _posArr(String word) {
 
 		String pl = _posData(word);
-		if (pl != null || pl.length() > 0) return new String[] {};
+		if (pl == null || pl.length() == 0) return new String[] {};
 		return pl.split(" ");
 	}
 
@@ -523,17 +533,17 @@ String[] s = (String[]) result.toArray(new String[0]);
 
 	private static String[] _lookupRaw(String word) {
 		//word = word && word.toLowerCase();
-		String[] a = null;
+		if(word == null || word.length() == 0 ) return new String[] {};
 		word = word.toLowerCase();
 
 		if (dict != null) {
 			return dict.get(word);
 		}else {
-			return a; //TODO is it correct to return null?
+			return new String[] {};
 		}
 	}
 
-	String _rawPhones(String word, boolean b) {//, forceLTS) {
+	public String _rawPhones(String word, boolean b) {//, forceLTS) {
 
 		// TODO: remove all useLTS vars ?
 

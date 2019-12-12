@@ -313,7 +313,7 @@ public class RiTa
 
   // //////////////////////////////////////////////////////////////////////////
 
-  static Lexicon _lexicon()
+  public static Lexicon _lexicon()
   {
     if (RiTa.lexicon == null) {
       RiTa.lts = new LetterToSound();
