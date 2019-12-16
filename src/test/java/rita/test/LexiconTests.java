@@ -101,7 +101,7 @@ public class LexiconTests {
 
 		// TODO: add more tests
 
-		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
+	
 
 
 		assertTrue(Arrays.asList(RiTa.rhymes("cat")).contains("hat"));
@@ -117,6 +117,7 @@ public class LexiconTests {
 
 
 		assertTrue(Arrays.asList(RiTa.rhymes("weight")).contains("eight"));
+//		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight")).contains("weight"));
 
 
@@ -144,8 +145,8 @@ public class LexiconTests {
 
 		//similarBy(letter)
 		result = RiTa.similarBy("banana", hm);
-		System.out.println("result : ");
-		System.out.println(Arrays.toString(result));
+		//System.out.println("result : ");
+		//System.out.println(Arrays.toString(result));
 		assertArrayEquals(result, new String[]{"cabana"});
 		/*//TODO do we need one param option?
 		result = RiTa.similarBy("");

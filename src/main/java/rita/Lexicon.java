@@ -77,16 +77,18 @@ public class Lexicon // KW: Wait on this class please
 		String c1 = _firstPhone(fss);
 
 		if (c1 == null || c1.length() == 0 ) return new String[] {};
-
+		
 		for (int i = 0; i < words.length; i++) {
-
-			if (words[i].length() < minWordLength) continue;
+			
+			if (words[i].length() < 4) continue;
 
 			String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
 
 			if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] {}; // ????
 
-			if (c1 == c2) 
+
+
+			if (c1.equals(c2)) 
 			{
 				resultsArrayList.add(words[i]);
 
@@ -119,9 +121,12 @@ public class Lexicon // KW: Wait on this class please
 
 		String c1 = _firstPhone(_firstStressedSyl(word1, useLTS));
 		String c2 = _firstPhone(_firstStressedSyl(word2, useLTS));
+		
 
-		if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
-			return false;
+		if (c1.length() > 0 && c2.length() > 0) {
+			if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
+				return false;
+			}
 		}
 
 		return c1.length() > 0 && c2.length() > 0 && c1 == c2;
@@ -211,26 +216,28 @@ public class Lexicon // KW: Wait on this class please
 		wordSet.toArray(words);
 
 		String p = _lastStressedPhoneToEnd(word);
+	
 
 		for (int i = 0; i < words.length; i++) {
 
 			if (words[i] == word) continue;
 
 			String w = dict.get(words[i])[0];
-			//System.out.print(w + ", " + p + ", ");
-			//System.out.println(w.endsWith(p));
-			//System.out.println(words[i]);
-			
+			 w = w.replaceAll("'", "").replaceAll("\\[", "");
+		
 			if (w.endsWith(p)) results.add((words[i]));
-
+			
 			//if (dict[words[i]][0].endsWith(p)) 
 		}
+		
+		
 		String[] s = results.toArray(new String[0]);
 		return s;
 	}
 
 	public String[] similarBy(String word, Map<String, Object> opts)  //TODO
 	{
+		
 		if (word == null || word.length() == 0 ) return new String[]{};
 
 		if(opts == null) return new String[]{};
@@ -257,7 +264,7 @@ public class Lexicon // KW: Wait on this class please
 
 	}
 
-	public String[] similarByType(String word, Map<String, Object> opts) {
+	public String[] similarByType(String word, Map<String, Object> opts) { //TODO check result against js (compareA, compare B)
 		
 		int minLen = 2;
 		int preserveLength = 0;
@@ -268,8 +275,8 @@ public class Lexicon // KW: Wait on this class please
 			preserveLength = (int) ((opts.containsValue("preserveLength")) ? opts.get("preserveLength"): 0);
 			minAllowedDist = (int) ((opts.containsValue("minAllowedDistance")) ? opts.get("minAllowedDistance"): 1);
 		}
-
-
+		//System.out.println("opts : " +opts.get("type"));
+	//	System.out.println("preserve length : " +opts.get("preserveLength"));
 	    ArrayList<String> result = new ArrayList<String>();
 	    int minVal = Integer.MAX_VALUE;
 	    String input = word.toLowerCase();
@@ -292,12 +299,14 @@ public class Lexicon // KW: Wait on this class please
 	      }
 	      
 
-	      String[] compareB = toPhoneArray(dict.get(entry)[0]);
+	      String[] compareB = toPhoneArray(dict.get(entry)[0].replaceAll("'","").replaceAll("\\[",""));
+	      
 		    for (int j = 0; j < compareA.length; j++) {
-		    	System.out.println(compareA[j]);
+		   // 	System.out.print("Compare A " + compareA[j]);
 		    }
+		   // System.out.print(" compareA[j] ");
 		    for (int j = 0; j < compareB.length; j++) {
-			    System.out.println(compareB[j]);
+			//    System.out.println(" ,Compare B " + compareB[j]);
 				    }
 
 	      int med = Util.minEditDist(compareA, compareB);
@@ -315,7 +324,7 @@ public class Lexicon // KW: Wait on this class please
 	        result.add(entry);
 	      }
 	    }
-String[] s = (String[]) result.toArray(new String[0]);
+	    String[] s = (String[]) result.toArray(new String[0]);
 	    return s;
 		 
 	}
@@ -333,6 +342,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 		      }
 		    }
 		    result.add(sofar);
+		    
 		    String[] s = result.toArray(new String[0]);
 		    return s;
 		  }
@@ -425,7 +435,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
 		s1.retainAll(s2);
 
-	return s1.toArray(new String[s1.size()]);
+		return s1.toArray(new String[s1.size()]);
 	}
 	
 	private String _lastStressedPhoneToEnd(String word) {	  
@@ -439,9 +449,9 @@ String[] s = (String[]) result.toArray(new String[0]);
 		int idx; 
 		char c;
 		String result;
-		//System.out.println("WORD : >> " + word);
+		
 		String raw = _rawPhones(word, useLTS);
-		//System.out.println("RAW: " + raw);
+
 		if (raw == null || raw.length() == 0) return ""; // return null?
 
 		idx = raw.lastIndexOf(RiTa.STRESSED);
@@ -456,7 +466,6 @@ String[] s = (String[]) result.toArray(new String[0]);
 			c = raw.charAt(idx);
 		}
 		result = raw.substring(idx + 1);
-
 
 		return result;
 	}
@@ -488,7 +497,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 	private String _firstStressedSyl(String word, boolean useLTS) {
 
 		String raw = _rawPhones(word, useLTS);
-
+		
 		if (raw == ""|| raw == null) return ""; // return null?
 
 		int idx = raw.indexOf(RiTa.STRESSED);
@@ -515,7 +524,8 @@ String[] s = (String[]) result.toArray(new String[0]);
 	private String _posData(String word) {
 
 		String[] rdata = _lookupRaw(word);
-		return (rdata != null && rdata.length == 2) ? rdata[1] : "";
+		
+		return (rdata != null && rdata.length == 2) ? rdata[1].replaceAll("'", "").replaceAll("\\]", "") : "";
 	}
 
 	String[] _posArr(String word) {
@@ -535,7 +545,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 		//word = word && word.toLowerCase();
 		if(word == null || word.length() == 0 ) return new String[] {};
 		word = word.toLowerCase();
-
+		
 		if (dict != null) {
 			return dict.get(word);
 		}else {
@@ -563,7 +573,7 @@ String[] s = (String[]) result.toArray(new String[0]);
 			}
 		}
 
-		return result;
+		return result.replaceAll("\\[","").replaceAll("'","");
 	}
 
 

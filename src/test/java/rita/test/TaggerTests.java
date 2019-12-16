@@ -435,6 +435,7 @@ public class TaggerTests {
 		assertTrue(RiTa.isAdjective("kindly")); //+adv
 
 		//n
+		assertTrue(!RiTa.isAdjective("dog"));
 		assertTrue(!RiTa.isAdjective("dogs"));
 		assertTrue(!RiTa.isAdjective("wind"));
 		assertTrue(!RiTa.isAdjective("dolls"));

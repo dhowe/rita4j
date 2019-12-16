@@ -2,6 +2,7 @@ package rita;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 
 import java.util.logging.Logger;
@@ -59,9 +60,29 @@ public class Tagger
 		return Arrays.asList(ADJ).contains(tag);
 	}
 
-	public static String tagInline(String text, boolean useSimpleTags)
+	public static String tagInline(String words, boolean useSimpleTags)
 	{
-		// TODO Auto-generated method stub
+		/*
+		  if (words == null || words.length() == 0 ) return "";
+
+		    if (words.length() != tags.length) throw new RiTaException("Tagger: invalid state");
+
+		    delimiter = delimiter || '/';
+
+		    String sb = "";
+		    for (int i = 0; i < words.length(); i++) {
+
+		      sb += words[i];
+		      if (!RiTa.isPunctuation(words[i])) {
+		        sb += delimiter + tags[i];
+		      }
+		      sb += ' ';
+		    }
+
+		    return sb.trim();
+		    
+		    */
+		
 		return null;
 	}
 
@@ -166,9 +187,8 @@ public class Tagger
 	        else if (Arrays.asList(ADV).contains(tags[i])) tags[i] = "r";
 	        else tags[i] = "-"; // default: other
 	      }
-	    }
-
-	    return tags;
+	    }	    
+	    return ((tags == null) ? new String[] {} : tags);
 	}
 
 	private static String[] _applyContext(String words, List<String> result, List<String> choices2d) {
@@ -188,22 +208,35 @@ public class Tagger
 
 	private static boolean checkType(String word, String[] tagArray) {
 
-		if (word != null || word.length() == 0) return false;
+		if (word == null || word.length() == 0) return false;
 
 
 		if (word.indexOf(" ") < 0) {
 
 			List<String> psa = Arrays.asList(RiTa._lexicon()._posArr(word));
-
-			if (RiTa.LEX_WARN && psa.size() < 1) { // TODO what is this.size() <= 1000 ??
-				Logger logger = Logger.getLogger( Tagger.class.getName()); 
-				logger.warning(Boolean.toString(RiTa.LEX_WARN));
-				RiTa.LEX_WARN = false; // only once
+			
+			System.out.println("psa before : " + psa );
+			
+			if(psa.size() == 0) {
+				if (RiTa.LEX_WARN) { // TODO what is this.size() <= 1000 ??
+					Logger logger = Logger.getLogger( Tagger.class.getName()); 
+					logger.warning(Boolean.toString(RiTa.LEX_WARN));
+					RiTa.LEX_WARN = false; // only once
+				}
+				List<String> posT = Arrays.asList(RiTa.posTags(word));
+				//System.out.println("posT.length " + posT.length );
+				if(posT.size() > 0 ) psa.addAll(posT);
 			}
-
-			 psa.stream().filter(p -> Arrays.asList(tagArray).indexOf(p) > -1);
-			 
-			 return psa.size() > 0;
+			List<String> finalType = new ArrayList<String>();
+			for (String item : psa) {
+			    if (Arrays.asList(tagArray).contains(item)) {
+			    	finalType.add(item);
+			    }
+			}
+			
+		//	psa.forEach(p -> Arrays.asList(tagArray).stream().filter(p1 -> p.indexOf(p1) > 0).forEach(list::add));
+			 System.out.println("finalType " + finalType );
+			 return finalType.size() > 0;
 		}
 
 		throw new RiTaException("checkType() expects single word, found: '" + word + "'");
