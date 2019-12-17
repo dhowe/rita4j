@@ -115,7 +115,7 @@ public class Util
 		// Step 1 ----------------------------------------------
 
 		for (i = 0; i <= source.length; i++) {
-			System.out.println(i);
+			//System.out.println(i);
 		      matrix[i][0] = i;
 		}
 

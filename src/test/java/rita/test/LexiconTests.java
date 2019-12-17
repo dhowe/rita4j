@@ -145,8 +145,8 @@ public class LexiconTests {
 
 		//similarBy(letter)
 		result = RiTa.similarBy("banana", hm);
-		//System.out.println("result : ");
-		//System.out.println(Arrays.toString(result));
+		System.out.println("result : ");
+		System.out.println(Arrays.toString(result));
 		assertArrayEquals(result, new String[]{"cabana"});
 		/*//TODO do we need one param option?
 		result = RiTa.similarBy("");

@@ -275,8 +275,7 @@ public class Lexicon // KW: Wait on this class please
 			preserveLength = (int) ((opts.containsValue("preserveLength")) ? opts.get("preserveLength"): 0);
 			minAllowedDist = (int) ((opts.containsValue("minAllowedDistance")) ? opts.get("minAllowedDistance"): 1);
 		}
-		//System.out.println("opts : " +opts.get("type"));
-	//	System.out.println("preserve length : " +opts.get("preserveLength"));
+
 	    ArrayList<String> result = new ArrayList<String>();
 	    int minVal = Integer.MAX_VALUE;
 	    String input = word.toLowerCase();
@@ -287,7 +286,7 @@ public class Lexicon // KW: Wait on this class please
 	    variations.add(input + "s");
 	    variations.add(input + "es");
 
-	    boolean useLTS = true; //TODO _rawPhones second param has to be removed?
+	    boolean useLTS = false; //TODO _rawPhones second param has to be removed?
 	    String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, useLTS)) : new String[] {input});
 
 	    for (int i = 0; i < words.size(); i++) {
@@ -525,12 +524,15 @@ public class Lexicon // KW: Wait on this class please
 
 		String[] rdata = _lookupRaw(word);
 		
+
+		
 		return (rdata != null && rdata.length == 2) ? rdata[1].replaceAll("'", "").replaceAll("\\]", "") : "";
 	}
 
 	String[] _posArr(String word) {
 
 		String pl = _posData(word);
+
 		if (pl == null || pl.length() == 0) return new String[] {};
 		return pl.split(" ");
 	}
@@ -545,8 +547,11 @@ public class Lexicon // KW: Wait on this class please
 		//word = word && word.toLowerCase();
 		if(word == null || word.length() == 0 ) return new String[] {};
 		word = word.toLowerCase();
+		System.out.println("word : " + word);
+		
 		
 		if (dict != null) {
+			System.out.println("dict.get(word) : " + dict.get(word));
 			return dict.get(word);
 		}else {
 			return new String[] {};

@@ -7,6 +7,8 @@ import java.util.List;
 
 import java.util.logging.Logger;
 
+import com.sun.xml.internal.ws.util.StringUtils;
+
 public class Tagger
 {
 
@@ -114,7 +116,10 @@ public class Tagger
 	        continue;
 	      }
 
-	      String[] data = lexicon._posArr(wordsArr[i]);
+	      String[] data = lexicon._posArr(wordsArr[i]); // fail if no lexicon
+	      
+		  System.out.println("data : " + Arrays.toString(data));
+		  
 	      if (data.length == 0) {
 
 	        // use stemmer categories if no lexicon
@@ -187,7 +192,8 @@ public class Tagger
 	        else if (Arrays.asList(ADV).contains(tags[i])) tags[i] = "r";
 	        else tags[i] = "-"; // default: other
 	      }
-	    }	    
+	    }	  
+	    System.out.println("Tags : " + Arrays.toString(tags));
 	    return ((tags == null) ? new String[] {} : tags);
 	}
 
@@ -201,9 +207,29 @@ public class Tagger
 		return false;
 	}
 
-	private static String _handleSingleLetter(String string) {
-		// TODO Auto-generated method stub
-		return null;
+	private static String _handleSingleLetter(String c) {
+	    String result = c;
+
+	    if (c == "a" || c == "A")
+	      result = "dt";
+	    else if (c == "I")
+	      result = "prp";
+	    else if (isNumeric(c))
+	      result = "cd";
+
+	    return result;
+	}
+	
+	private static boolean isNumeric(String strNum) {
+	    if (strNum == null) {
+	        return false;
+	    }
+	    try {
+	        double d = Double.parseDouble(strNum);
+	    } catch (NumberFormatException nfe) {
+	        return false;
+	    }
+	    return true;
 	}
 
 	private static boolean checkType(String word, String[] tagArray) {
@@ -215,7 +241,6 @@ public class Tagger
 
 			List<String> psa = Arrays.asList(RiTa._lexicon()._posArr(word));
 			
-			System.out.println("psa before : " + psa );
 			
 			if(psa.size() == 0) {
 				if (RiTa.LEX_WARN) { // TODO what is this.size() <= 1000 ??
@@ -224,7 +249,7 @@ public class Tagger
 					RiTa.LEX_WARN = false; // only once
 				}
 				List<String> posT = Arrays.asList(RiTa.posTags(word));
-				//System.out.println("posT.length " + posT.length );
+
 				if(posT.size() > 0 ) psa.addAll(posT);
 			}
 			List<String> finalType = new ArrayList<String>();
@@ -235,7 +260,6 @@ public class Tagger
 			}
 			
 		//	psa.forEach(p -> Arrays.asList(tagArray).stream().filter(p1 -> p.indexOf(p1) > 0).forEach(list::add));
-			 System.out.println("finalType " + finalType );
 			 return finalType.size() > 0;
 		}
 

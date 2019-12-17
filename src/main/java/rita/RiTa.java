@@ -113,8 +113,7 @@ public class RiTa
 
   public static boolean isQuestion(String sentence)
   { // remove?
-    return Arrays.stream(QUESTIONS).anyMatch
-        (tokenize(sentence)[0].toLowerCase()::equals);
+    return Arrays.stream(QUESTIONS).anyMatch(tokenize(sentence)[0].toLowerCase()::equals);
   }
 
   public static boolean isRhyme(String word1, String word2)

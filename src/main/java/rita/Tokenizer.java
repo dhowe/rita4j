@@ -99,18 +99,20 @@ public class Tokenizer
 	    words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
 	    words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
 
-	    words = words.replaceAll("([\\\\\\\\?!\\\\\\\"\\\\u201C\\\\\\\\.,;:@#$%&])", " $1 ");
-	    words = words.replaceAll("\\\\\\\\.\\\\\\\\.\\\\\\\\.", " ... ");
-	    words = words.replaceAll("\\\\\\\\s+", " ");
+	    
+	    words = words.replaceAll("([\\\\?!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
+	    words = words.replaceAll("\\\\.\\\\.\\\\.", " ... ");
+	    words = words.replaceAll("\\\\s+", " ");
 	    words = words.replaceAll(",([^0-9])", " , $1");
-	    words = words.replaceAll("(([^.])([.])([\\\\])\\\\}>\\\\\\\"'’]*)\\\\\\\\s*$", "$1 $2$3 ");
-	    words = words.replaceAll("([\\\\[\\\\]()\\\\{}<>])", " $1 ");
+	    words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\\\s*$", "$1 $2$3 ");
+	    words = words.replaceAll("([\\[\\](){}<>])", " $1 ");
 	    words = words.replaceAll("--", " -- ");
 	    words = words.replaceAll("$", " ");
 	    words = words.replaceAll("^", " ");
 	    words = words.replaceAll("([^'])' | '", "$1 \' ");
 	    words = words.replaceAll(" \\\\u2018", " \u2018 ");
 	    words = words.replaceAll("'([SMD]) ", " \'$1 ");
+	    
 
 	    if (RiTa.SPLIT_CONTRACTIONS) {
 
@@ -125,13 +127,13 @@ public class Tokenizer
 	    }
 
 	    // "Nicole I. Kidman" gets tokenized as "Nicole I . Kidman"
-	    words = words.replaceAll(" ([A-Z]) \\\\\\\\.", " $1. ");
-	    words = words.replaceAll("\\\\\\\\s+", " ");
-	    words = words.replaceAll("^\\\\\\\\s+", "");
+	    words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
+	    words = words.replaceAll("\\\\s+", " ");
+	    words = words.replaceAll("^\\\\s+", "");
 
 	    words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
 	    words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
-	    
+
 	    words = words.trim();
 
 	    return words.split("\\s+");
