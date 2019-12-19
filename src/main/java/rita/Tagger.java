@@ -146,7 +146,7 @@ public class Tagger
 	        }
 
 	        if (wordsArr[i].endsWith("s")) {
-	          String sub2 ="";
+	          String sub2 = "";
 	          String sub = wordsArr[i].substring(0, wordsArr[i].length() - 1);
 
 	          if (wordsArr[i].endsWith("es"))
@@ -183,7 +183,7 @@ public class Tagger
 
 	    // Adjust pos according to transformation rules
 	    String[] tags = _applyContext(words, result, choices2d);
-
+	    System.out.println("choices2d : " + choices2d);
 	    if (useSimpleTags) {
 	      for (int i = 0; i < tags.length; i++) {
 	        if (Arrays.asList(NOUNS).contains(tags[i])) tags[i] = "n";
