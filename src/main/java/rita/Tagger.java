@@ -1,13 +1,7 @@
 package rita;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-
+import java.util.*;
 import java.util.logging.Logger;
-
-import com.sun.xml.internal.ws.util.StringUtils;
 
 public class Tagger
 {
