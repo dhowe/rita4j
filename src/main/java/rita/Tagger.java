@@ -196,7 +196,7 @@ public class Tagger
 	}
 
 	private static String[] _applyContext(String words, String[] result, String[] choices2d) {
-
+/*
 		//console.log("ac(" + words + "," + result + "," + choices2d + ")");
 
 	    // Apply transformations
@@ -335,7 +335,7 @@ public class Tagger
 	    }
 
 	    return result;
-		
+		*/
 		
 		return null;
 	}
