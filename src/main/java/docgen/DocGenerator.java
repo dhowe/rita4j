@@ -115,69 +115,72 @@ public class DocGenerator extends PApplet
       pln("  Class : " + className);
       
       JSONArray items = json.getJSONArray("fields");
-      numOfMethods = items.size();
-      pln("  Fields(" + numOfMethods + ") : ");
-
-      initArrays();
-
-      for (int j = 0; j < numOfMethods; j++)
-      {
-        lines = stringsFrom(outputTemplate);
-
-        JSONObject entry = items.getJSONObject(j);
-
-        hidden[j] = false;
-        if (!entry.isNull("hidden")) {
-          hidden[j] = entry.getBoolean("hidden");
-        }
-
-        isVariable[j] = false;
-        if (!entry.isNull("variable")) {
-          isVariable[j] = entry.getBoolean("variable");
-        }
-
-        methodName[j] = entry.getString("name");
-        pln("    " + methodName[j]);
-
-        example[j] = "";
-        if (!entry.isNull("example")) {
-          example[j] = entry.getString("example");
-        }
-
-        description[j] = entry.getString("description");
-        syntax[j] = entry.getString("syntax");
-
-        JSONArray parametersJSON = entry.getJSONArray("parameters");
-        numOfparameters = parametersJSON.size();
-        parameter = new String[numOfparameters];
-        parameterType = new String[numOfparameters];
-        parameterDesc = new String[numOfparameters];
+      if (items != null) {
+        numOfMethods = items.size();
         
-        for (int k = 0; k < numOfparameters; k++)
+        pln("  Fields(" + numOfMethods + ") : ");
+  
+        initArrays();
+  
+        for (int j = 0; j < numOfMethods; j++)
         {
-          JSONObject parametersJSONEntry = parametersJSON.getJSONObject(k);
-          parameterType[k] = parametersJSONEntry.getString("type");
-          parameterDesc[k] = parametersJSONEntry.getString("desc");
+          lines = stringsFrom(outputTemplate);
+  
+          JSONObject entry = items.getJSONObject(j);
+  
+          hidden[j] = false;
+          if (!entry.isNull("hidden")) {
+            hidden[j] = entry.getBoolean("hidden");
+          }
+  
+          isVariable[j] = false;
+          if (!entry.isNull("variable")) {
+            isVariable[j] = entry.getBoolean("variable");
+          }
+  
+          methodName[j] = entry.getString("name");
+          pln("    " + methodName[j]);
+  
+          example[j] = "";
+          if (!entry.isNull("example")) {
+            example[j] = entry.getString("example");
+          }
+  
+          description[j] = entry.getString("description");
+          syntax[j] = entry.getString("syntax");
+  
+          JSONArray parametersJSON = entry.getJSONArray("parameters");
+          numOfparameters = parametersJSON.size();
+          parameter = new String[numOfparameters];
+          parameterType = new String[numOfparameters];
+          parameterDesc = new String[numOfparameters];
+          
+          for (int k = 0; k < numOfparameters; k++)
+          {
+            JSONObject parametersJSONEntry = parametersJSON.getJSONObject(k);
+            parameterType[k] = parametersJSONEntry.getString("type");
+            parameterDesc[k] = parametersJSONEntry.getString("desc");
+          }
+  
+          JSONArray returnsJSON = entry.getJSONArray("returns");
+          numOfReturns = returnsJSON.size();
+          theReturn = new String[numOfReturns];
+          returnType = new String[numOfReturns];
+          returnDesc = new String[numOfReturns];
+          for (int k = 0; k < numOfReturns; k++)
+          {
+            JSONObject returnsJSONEntry = returnsJSON.getJSONObject(k);
+            returnType[k] = returnsJSONEntry.getString("type");
+            returnDesc[k] = returnsJSONEntry.getString("desc");
+          }
+          related[j] = entry.getString("related");
+          thePlatform[j] = entry.getString("platform");
+          note[j] = entry.getString("note");
+  
+          template(j, shortName);
+  
+          plnMarkup(shortName, methodName[j], isVariable[j]);
         }
-
-        JSONArray returnsJSON = entry.getJSONArray("returns");
-        numOfReturns = returnsJSON.size();
-        theReturn = new String[numOfReturns];
-        returnType = new String[numOfReturns];
-        returnDesc = new String[numOfReturns];
-        for (int k = 0; k < numOfReturns; k++)
-        {
-          JSONObject returnsJSONEntry = returnsJSON.getJSONObject(k);
-          returnType[k] = returnsJSONEntry.getString("type");
-          returnDesc[k] = returnsJSONEntry.getString("desc");
-        }
-        related[j] = entry.getString("related");
-        thePlatform[j] = entry.getString("platform");
-        note[j] = entry.getString("note");
-
-        template(j, shortName);
-
-        plnMarkup(shortName, methodName[j], isVariable[j]);
       }
     } catch (Exception e)
     {
