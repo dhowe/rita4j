@@ -5,6 +5,14 @@
  * For more details take a look at the Java Libraries chapter in the Gradle
  * User Manual available at https://docs.gradle.org/5.6/userguide/java_library_plugin.html
  */
+ 
+plugins {
+    // Support for Java Libraries
+    id 'java-library'
+   
+    // Support for running Node
+	//id "com.github.node-gradle.node" version "2.0.0"
+}
 
 configurations {
     provided
@@ -14,14 +22,7 @@ sourceSets {
     main { compileClasspath += configurations.provided }
 }
 
-plugins {
-    // Support for Java Libraries
-    id 'java-library'
-   
-    // Support for running Node
-	id "com.github.node-gradle.node" version "2.0.0"
 
-}
 
 repositories {
     // Use jcenter for resolving dependencies.
@@ -43,8 +44,10 @@ dependencies {
     compile 'org.antlr:antlr-complete:3.5.2'
     
     // for Node/JS
-    id "com.github.node-gradle.node" version "2.0.0"
+    //id "com.github.node-gradle.node" version "2.0.0"
     
     // for DocGenerator
-    provided group: 'org.processing', name: 'core', version: '3.3.7'
+    //provided group: 'org.processing', name: 'core', version: '3.3.7'
+    
+	implementation fileTree(dir: 'lib', include: ['*.jar'])
 }
