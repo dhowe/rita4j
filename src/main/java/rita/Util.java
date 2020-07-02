@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class Util
 {
-	
+
 	public static final String[] MODALS = {"asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos", "cognoscenti", "clippers", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows", /*"gas",*/ "graffiti", "herpes", "innings", "lens", "means", "measles", "mews", "mumps", "news", "pathos", "pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series", "shears", "species", "tuna", "acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics", "dialectics", "deer", "dynamics", "ethics", "harmonics", /*"happiness", "hardness", "shortness",*/ "heroics", "mechanics", "metrics", "ooze", "optics", /*"people",*/ "physics", "polemics", "pyrotechnics", "quadratics", /*"quarters",*/ "salespeople", "statistics", "tactics", "tropics", "bengalese", "bengali", "bonsai", "booze", "cellulose", "mess", "moose", "burmese", "chinese", "colossus", "congolese", "discus", "electrolysis", "emphasis", "expertise", "flu", "fructose", "gauze", "glucose", "grease", "guyanese", "haze", "incense", "japanese", "lebanese", "malaise",  "mayonnaise", "maltese", "music", "money", "menopause", "merchandise", "olympics", "overuse", "paradise", "poise", "polymerase", "portuguese", "prose", "recompense", "remorse", "repose", "senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese", "suspense", "swiss", "taiwanese", "vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus", "asparagus", "barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp", "catfish", "chassis", "clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish", "crayfish", "crossroads", "cuttlefish", "deer", "dice", "dogfish", "doings", "dory", "downstairs", "eldest", "earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder", "fowl", "fry", "fries", "works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz", "horsepower", "goods", "hovercraft", "ironworks", "kilohertz", "ling", "shrimp", "swine", "lungfish", "mackerel", "macaroni", "means", "megahertz", "moorfowl", "moorgame", "mullet", "nepalese", "offspring", "pants", "patois", "pekinese", "perch", "pickerel", "pike", "potpourri", "precis", "quid", "rand", "rendezvous", "roach", "salmon", "samurai", "series", "seychelles", "shad", "sheep", "shellfish", "smelt", "spaghetti", "spacecraft", "species", "starfish", "stockfish", "sunfish", "superficies", "sweepstakes", "smallpox", "swordfish", "tennis", "tobacco", "triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl", "waterworks", "waxworks", "wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics", "news", "odds", "politics", "remains", "goods", "aids", "wildlife", "shall", "would", "may", "might", "ought", "should", "wildlife"};
 
 	public static boolean isNode()
@@ -24,7 +24,8 @@ public class Util
 	{
 		boolean opt = def;
 		if (opts != null) {
-			Object o = opts.getOrDefault("ignoreCase", def);
+			Object o = opts.getOrDefault(key, def);
+			System.out.println(o);
 			opt = o != null && Boolean.TRUE.equals(o);
 		}
 		return opt;
@@ -89,7 +90,7 @@ public class Util
 			newArray[i] = temp;
 		}
 		/*
-		 * 	  
+		 *
 		 * //  int len = arr.length;
 	  //  int i = len;
 	   // Random rand = new Random();
