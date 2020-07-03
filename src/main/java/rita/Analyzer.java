@@ -5,9 +5,7 @@ import java.util.Map;
 
 public class Analyzer
 {
-
-	
-	public static Map<String,String> analyze(String text)
+	public Map<String,String> analyze(String text)
 	{
 		String[] stressyls;
 		String[] ltsPhones;
@@ -22,7 +20,7 @@ public class Analyzer
 		Map<String, String> features = new HashMap<String, String>();
 
 		String[] words = RiTa.tokenize(text);
-		String[] tags = RiTa.posTags(text);
+		String[] tags = RiTa.pos(text);
 
 		features.put("tokens", String.join(" " , words));
 		features.put("pos", String.join(" " , tags));
@@ -41,7 +39,7 @@ public class Analyzer
 						System.out.println("[RiTa] Used LTS-rules for '" + words[i] + "'");
 					}
 
-					phones = RiTa.syllabifier.fromPhones(ltsPhones);
+					phones = Syllabifier.fromPhones(ltsPhones);
 
 				} else {
 					//phones = words[i];

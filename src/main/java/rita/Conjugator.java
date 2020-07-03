@@ -7,16 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-public class Conjugator
-{
-
-
+public class Conjugator {
 	private static final String CONS = "[bcdfghjklmnpqrstvwxyz]";
 	private static final String ANY_STEM = "^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$";
-	private static final String[] MODALS = {"shall", "would", "may", "might", "ought", "should"};
 	private static final String VERBAL_PREFIX = "((be|with|pre|un|over|re|mis|under|out|up|fore|for|counter|co|sub)(-?))";
 
-
+	// ???
+	private static final String[] MODALS = { "shall", "would", "may", "might", "ought", "should" };
 
 	private static final RE[] ING_FORM_RULES = {
 			new RE(CONS + "ie$", 2, "ying", 1),
@@ -34,7 +31,10 @@ public class Conjugator
 
 			new RE(CONS + "y$", 1, "ied", 1),
 			new RE("^" + VERBAL_PREFIX + "?(bring)$", 3, "ought", 0),
-			new RE("^" + VERBAL_PREFIX + "?(take|rise|strew|blow|draw|drive|know|give|" + "arise|gnaw|grave|grow|hew|know|mow|see|sew|throw|prove|saw|quartersaw|" + "partake|sake|shake|shew|show|shrive|sightsee|strew|strive)$",
+			new RE(
+					"^" + VERBAL_PREFIX + "?(take|rise|strew|blow|draw|drive|know|give|"
+							+ "arise|gnaw|grave|grow|hew|know|mow|see|sew|throw|prove|saw|quartersaw|"
+							+ "partake|sake|shake|shew|show|shrive|sightsee|strew|strive)$",
 					0, "n", 0),
 			new RE("^" + VERBAL_PREFIX + "?[gd]o$", 0, "ne", 1),
 			new RE("^(beat|eat|be|fall)$", 0, "en", 0),
@@ -224,7 +224,9 @@ public class Conjugator
 			new RE("e$", 0, "d", 1),
 
 			// Null past forms
-			new RE("^" + VERBAL_PREFIX + "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|let|cost|burst|beat|beset|set|upset|hit|offset|put|quit|" + "wed|typeset|wed|spread|split|slit|read|run|rerun|shut|shed)$", 0)
+			new RE("^" + VERBAL_PREFIX
+					+ "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|let|cost|burst|beat|beset|set|upset|hit|offset|put|quit|"
+					+ "wed|typeset|wed|spread|split|slit|read|run|rerun|shut|shed)$", 0)
 	};
 
 	private static final RE[] PAST_TENSE_RULES = {
@@ -482,7 +484,9 @@ public class Conjugator
 			new RE("^swim", 2, "am", 0),
 
 			// Null past forms
-			new RE("^" + VERBAL_PREFIX + "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|" + "let|cost|burst|beat|beset|set|upset|offset|put|quit|wed|typeset|" + "wed|spread|split|slit|read|run|shut|shed|lay)$", 0)
+			new RE("^" + VERBAL_PREFIX + "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|"
+					+ "let|cost|burst|beat|beset|set|upset|offset|put|quit|wed|typeset|"
+					+ "wed|spread|split|slit|read|run|shut|shed|lay)$", 0)
 	};
 
 	private static final RE[] PRESENT_TENSE_RULES = {
@@ -500,7 +504,7 @@ public class Conjugator
 			new RE("([zsx]|ch|sh)$", 0, "es", 1)
 	};
 
-	private static final String[] VERB_CONS_DOUBLING = {"abat", "abet", "abhor", "abut", "accur", "acquit", "adlib",
+	private static final String[] VERB_CONS_DOUBLING = { "abat", "abet", "abhor", "abut", "accur", "acquit", "adlib",
 			"admit", "aerobat", "aerosol", "agendaset", "allot", "alot", "anagram",
 			"annul", "appal", "apparel", "armbar", "aver", "babysit", "airdrop", "appal",
 			"blackleg", "bobsled", "bur", "chum", "confab", "counterplot", "curet", "dib",
@@ -655,31 +659,31 @@ public class Conjugator
 		PAST_PARTICIPLE_RULESET.put("doubling", true);
 	}
 
-	private static final Map<String, Object>  PRESENT_PARTICIPLE_RULESET;
+	private static final Map<String, Object> PRESENT_PARTICIPLE_RULESET;
 	static {
 		PRESENT_PARTICIPLE_RULESET = new HashMap<>();
-		PAST_PARTICIPLE_RULESET.put("name" , "ING_FORM");
-		PAST_PARTICIPLE_RULESET.put("defaultRule" , new RE(ANY_STEM, 0, "ing", 2));
+		PAST_PARTICIPLE_RULESET.put("name", "ING_FORM");
+		PAST_PARTICIPLE_RULESET.put("defaultRule", new RE(ANY_STEM, 0, "ing", 2));
 		PAST_PARTICIPLE_RULESET.put("rules", ING_FORM_RULES);
-		PAST_PARTICIPLE_RULESET.put("doubling" , true);
+		PAST_PARTICIPLE_RULESET.put("doubling", true);
 	}
 
-	private static final Map<String, Object>  PAST_TENSE_RULESET;
-	static{
+	private static final Map<String, Object> PAST_TENSE_RULESET;
+	static {
 		PAST_TENSE_RULESET = new HashMap<>();
-		PAST_TENSE_RULESET.put("name" , "PAST_TENSE");
-		PAST_TENSE_RULESET.put("defaultRule" , new RE(ANY_STEM, 0, "ed", 2));
+		PAST_TENSE_RULESET.put("name", "PAST_TENSE");
+		PAST_TENSE_RULESET.put("defaultRule", new RE(ANY_STEM, 0, "ed", 2));
 		PAST_TENSE_RULESET.put("rules", PAST_TENSE_RULES);
-		PAST_TENSE_RULESET.put("doubling" , true);
+		PAST_TENSE_RULESET.put("doubling", true);
 	}
 
-	private static final Map<String, Object>  PRESENT_TENSE_RULESET;
-	static{
+	private static final Map<String, Object> PRESENT_TENSE_RULESET;
+	static {
 		PRESENT_TENSE_RULESET = new HashMap<>();
-		PRESENT_TENSE_RULESET.put("name" , "PRESENT_TENSE");
-		PRESENT_TENSE_RULESET.put("defaultRule" , new RE(ANY_STEM, 0, "s", 2));
+		PRESENT_TENSE_RULESET.put("name", "PRESENT_TENSE");
+		PRESENT_TENSE_RULESET.put("defaultRule", new RE(ANY_STEM, 0, "s", 2));
 		PRESENT_TENSE_RULESET.put("rules", PRESENT_TENSE_RULES);
-		PRESENT_TENSE_RULESET.put("doubling" , false);
+		PRESENT_TENSE_RULESET.put("doubling", false);
 	}
 
 	private static boolean perfect = false;
@@ -702,9 +706,8 @@ public class Conjugator
 		form = RiTa.NORMAL;
 	}
 
-	public String conjugate(String word, Map <String, Object> opts)
-	{
-		if (word == null || word.length() == 0 ) return "";
+	public String conjugate(String word, Map<String, Object> opts) {
+		if (word == null || word.length() == 0) return "";
 
 		if (opts.size() == 0) return word;
 
@@ -725,11 +728,11 @@ public class Conjugator
 
 		String v = word.toLowerCase(); // handle to-be forms
 
-		String[] c = {"am", "are", "is", "was", "were"};
+		String[] c = { "am", "are", "is", "was", "were" };
 		List<String> list = Arrays.asList(c);
 		if (list.contains(v)) v = "be";
 
-		String actualModal = null; 
+		String actualModal = null;
 		ArrayList<String> conjs = new ArrayList<String>();
 		String verbForm;
 		String frontVG = v;
@@ -786,69 +789,60 @@ public class Conjugator
 		}
 
 		// !@# test this
-		Optional<String> os = conjs.stream().reduce((acc, cur) -> cur +  " " + acc); 
-		//  String s = conjs.reduce((acc, cur) => cur +  ' ' + acc);
+		Optional<String> os = conjs.stream().reduce((acc, cur) -> cur + " " + acc);
+		// String s = conjs.reduce((acc, cur) => cur + ' ' + acc);
 		String s = os.get();
 		if (s.endsWith("peted")) throw new RiTaException("Unexpected output: ");
 
 		return s.trim();
 	}
 
-
-
 	private static String checkRules(Map<String, Object> pastParticipleRuleset, String theVerb) {
 		// TODO Auto-generated method stub
 		return null;
 		/*
-    if (theVerb == null || theVerb.length == 0) return "";
-
-    theVerb = theVerb.trim();
-
-    int dbug = 0;
-
-    String res;
-    String name = (String) pastParticipleRuleset.get("name");
-
-    String rules = (String) pastParticipleRuleset.get("rules");
-    String defRule = (String) pastParticipleRuleset.get("defaultRule");
-
-
-    if (rules == null) System.err.println("no rule: " + (String)pastParticipleRuleset.get("name"); + " of " + theVerb);
-
-    if (MODALS.includes(theVerb)) return theVerb;
-
-    for (int i = 0; i < rules.length; i++) {
-
-      dbug && console.log("checkRules(" + name + ").fire(" + i + ")=" + rules[i].regex);
-      if (rules[i].applies(theVerb)) {
-
-        let got = rules[i].fire(theVerb);
-
-        dbug && console.log("HIT(" + name + ").fire(" + i + ")=" + rules[i].regex + "_returns: " + got);
-        return got;
-      }
-    }
-    dbug && console.log("NO HIT!");
-
-    if (ruleSet.doubling && VERB_CONS_DOUBLING.includes(theVerb)) {
-
-      dbug && console.log("doDoubling!");
-      theVerb = doubleFinalConsonant(theVerb);
-    }
-
-    res = defRule.fire(theVerb);
-
-    dbug && console.log("checkRules(" + name + ").returns: " + res);
-
-    return res;
-  }
+		 * if (theVerb == null || theVerb.length == 0) return "";
+		 * 
+		 * theVerb = theVerb.trim();
+		 * 
+		 * int dbug = 0;
+		 * 
+		 * String res; String name = (String) pastParticipleRuleset.get("name");
+		 * 
+		 * String rules = (String) pastParticipleRuleset.get("rules"); String defRule =
+		 * (String) pastParticipleRuleset.get("defaultRule");
+		 * 
+		 * 
+		 * if (rules == null) System.err.println("no rule: " +
+		 * (String)pastParticipleRuleset.get("name"); + " of " + theVerb);
+		 * 
+		 * if (MODALS.includes(theVerb)) return theVerb;
+		 * 
+		 * for (int i = 0; i < rules.length; i++) {
+		 * 
+		 * dbug && console.log("checkRules(" + name + ").fire(" + i + ")=" +
+		 * rules[i].regex); if (rules[i].applies(theVerb)) {
+		 * 
+		 * let got = rules[i].fire(theVerb);
+		 * 
+		 * dbug && console.log("HIT(" + name + ").fire(" + i + ")=" + rules[i].regex +
+		 * "_returns: " + got); return got; } } dbug && console.log("NO HIT!");
+		 * 
+		 * if (ruleSet.doubling && VERB_CONS_DOUBLING.includes(theVerb)) {
+		 * 
+		 * dbug && console.log("doDoubling!"); theVerb = doubleFinalConsonant(theVerb);
+		 * }
+		 * 
+		 * res = defRule.fire(theVerb);
+		 * 
+		 * dbug && console.log("checkRules(" + name + ").returns: " + res);
+		 * 
+		 * return res; }
 		 */
-
 
 	}
 
-
-	public static String pastTense(String theVerb,int pers,int numb) {
+	public static String pastTense(String theVerb, int pers, int numb) {
 
 		if (theVerb.toLowerCase() == "be") {
 
@@ -877,7 +871,7 @@ public class Conjugator
 		return checkRules(PAST_TENSE_RULESET, theVerb);
 	}
 
-	public static String presentTense(String theVerb, int per,int numb) {
+	public static String presentTense(String theVerb, int per, int numb) {
 
 		person = per;
 		number = numb;
@@ -885,8 +879,8 @@ public class Conjugator
 		if ((person == RiTa.THIRD_PERSON) && (number == RiTa.SINGULAR)) {
 
 			return checkRules(PRESENT_TENSE_RULESET, theVerb);
-		}
-		else if (theVerb == "be") {
+
+		} else if (theVerb == "be") {
 
 			if (number == RiTa.SINGULAR) {
 
@@ -908,13 +902,12 @@ public class Conjugator
 		}
 		return theVerb;
 	}
-	public static String presentParticiple(String verb)
-	{
+
+	public static String presentParticiple(String verb) {
 		return verb == "be" ? "being" : checkRules(PRESENT_PARTICIPLE_RULESET, verb);
 	}
 
-	public static String pastParticiple(String verb)
-	{
+	public static String pastParticiple(String verb) {
 		return checkRules(PAST_PARTICIPLE_RULESET, verb);
 	}
 
@@ -928,6 +921,5 @@ public class Conjugator
 		}
 		return theVerb;
 	}
-
 
 }

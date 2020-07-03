@@ -106,7 +106,7 @@ public class Lexicon // KW: Wait on this class please
 	{
 		if(word == null) {return false;}
 		word = word.length() > 0 ? word.toLowerCase() : "";
-		return RiTa.pluralizer.isPlural(word);
+		return Pluralizer.isPlural(word);
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean useLTS) 
@@ -574,7 +574,7 @@ public class Lexicon // KW: Wait on this class please
 				phones = RiTa.lts.getPhones(word);
 			}
 			if (phones != null && phones.length > 0) {
-				result = RiTa.syllabifier.fromPhones(phones);
+				result = Syllabifier.fromPhones(phones);
 			}
 		}
 

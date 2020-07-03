@@ -6,17 +6,21 @@ import java.util.regex.Pattern;
 
 public class RiTa
 {
-  protected static LetterToSound lts;
   protected static Lexicon lexicon;
-  protected static Concorder concorder;
   protected static Analyzer analyzer;
+  
   protected static LexParser parser;
-  protected static Stemmer stemmer;
-  protected static Tagger tagger;
-  protected static Pluralizer pluralizer;
-  protected static Tokenizer tokenizer;
+  protected static Concorder concorder;
   protected static Conjugator conjugator;
-  protected static Syllabifier syllabifier;
+  protected static LetterToSound lts;
+  
+  
+//  UNCOMMENT IF/AS NEEDED:
+//  protected static Tagger tagger;
+//  protected static Pluralizer pluralizer;
+//  protected static Tokenizer tokenizer;
+//  protected static Syllabifier syllabifier;
+//  protected static Stemmer stemmer;
 
   public static Map<String, String> analyze(String word)
   {
@@ -82,12 +86,12 @@ public class RiTa
 
   public static boolean isAdjective(String word)
   {
-    return tagger.isAdjective(word);
+    return Tagger.isAdjective(word);
   }
 
   public static boolean isAdverb(String word)
   {
-    return tagger.isAdverb(word);
+    return Tagger.isAdverb(word);
   }
 
   public static boolean isAlliteration(String word1, String word2)
@@ -100,10 +104,9 @@ public class RiTa
     return _lexicon().isAlliteration(word1, word2, useLTS); 
   }
 
-
   public static boolean isNoun(String word)
   {
-    return tagger.isNoun(word);
+    return Tagger.isNoun(word);
   }
 
   public static boolean isPunctuation(String text)
@@ -143,7 +146,7 @@ public class RiTa
 
   public static String pastParticiple(String verb)
   {
-    return conjugator.pastParticiple(verb);
+    return Conjugator.pastParticiple(verb);
   }
 
   public static String phonemes(String text)
@@ -151,44 +154,59 @@ public class RiTa
     return _analyzer().analyze(text).get("phonemes");
   }
 
-  public static String posTagsInline(String text, Map<String, Object> opts)
+  public static String posInline(String text, Map<String, Object> opts)
   {
-    return posTagsInline(text, Util.boolOpt("simple", opts));
+    return posInline(text, Util.boolOpt("simple", opts));
   }
 
-  public static String posTagsInline(String text)
+  public static String posInline(String text)
   {
-    return posTagsInline(text, false);
+    return posInline(text, false);
   }
 
-  public static String posTagsInline(String text, boolean useSimpleTags)
+  public static String posInline(String text, boolean useSimpleTags)
   {
-    return tagger.tagInline(text, useSimpleTags);
+    return Tagger.tagInline(text, useSimpleTags);
+  }
+  
+  public static String[] pos(String text, Map<String, Object> opts)
+  {
+    return pos(text, Util.boolOpt("simple", opts));
   }
 
-  public static String[] posTags(String text, Map<String, Object> opts)
+  public static String[] pos(String text)
   {
-    return posTags(text, Util.boolOpt("simple", opts));
+    return pos(text, false);
+  }
+  
+  public static String[] pos(String[] text, Map<String, Object> opts)
+  {
+    return pos(text, Util.boolOpt("simple", opts));
   }
 
-  public static String[] posTags(String text)
+  public static String[] pos(String[] text)
   {
-    return posTags(text, false);
+    return pos(text, false);
   }
 
-  public static String[] posTags(String text, boolean useSimpleTags)
+  public static String[] pos(String[] text, boolean useSimpleTags)
   {
-    return tagger.tag(text, useSimpleTags);
+    return Tagger.tag(text, useSimpleTags);
+  }
+  
+  public static String[] pos(String text, boolean useSimpleTags)
+  {
+    return Tagger.tag(text, useSimpleTags);
   }
 
   public static String pluralize(String word)
   {
-    return RiTa.pluralizer.pluralize(word);
+    return Pluralizer.pluralize(word);
   }
 
   public static String presentParticiple(String verb)
   {
-    return conjugator.presentParticiple(verb);
+    return Conjugator.presentParticiple(verb);
   }
   
   public static float random(float num) //TODO need verify
@@ -238,7 +256,7 @@ public class RiTa
 
   public static String stresses(String text)
   {
-	return  _analyzer().analyze(text).get("stresses");
+	return _analyzer().analyze(text).get("stresses");
   }
 
   public static String syllables(String text)

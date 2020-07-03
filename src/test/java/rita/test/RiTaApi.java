@@ -56,7 +56,7 @@ public class RiTaApi {
 	    expect(RiTa.phonemes).to.be.a('function');
 
 	    //Should call posTags
-	    expect(RiTa.posTags).to.be.a('function');
+	    expect(RiTa.pos).to.be.a('function');
 
 	    //Should call presentParticiple
 
