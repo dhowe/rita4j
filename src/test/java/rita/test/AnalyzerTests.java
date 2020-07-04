@@ -3,27 +3,23 @@
  */
 package rita.test;
 
+import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
-import rita.*;
-import static org.junit.Assert.*;
-
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Test;
+
+import rita.RiTa;
 
 public class AnalyzerTests {
 
-
-
-	@Test 
+	@Test
 	public void testAnalyze() {
 
-		//analyze()
+		// analyze()
 
-		Map<String, String> hm = new HashMap<String, String>(); 
+		Map<String, String> hm = new HashMap<String, String>();
 
 		hm.put("tokens", "");
 		hm.put("pos", "");
@@ -31,32 +27,31 @@ public class AnalyzerTests {
 		hm.put("phonemes", "");
 		hm.put("syllables", "");
 
-		//	hm = Collections.unmodifiableMap(hm);
+		// hm = Collections.unmodifiableMap(hm);
 		System.out.println(RiTa.analyze(""));
 		assertEquals(RiTa.analyze(""), hm);
 
-		Map<String,String> feats;
+		Map<String, String> feats;
 		feats = RiTa.analyze("clothes");
-		assertEquals(feats.get("pos"),"nns");
-		assertEquals(feats.get("tokens"),"clothes");
-		assertEquals(feats.get("syllables"),"k-l-ow-dh-z");
+		assertEquals(feats.get("pos"), "nns");
+		assertEquals(feats.get("tokens"), "clothes");
+		assertEquals(feats.get("syllables"), "k-l-ow-dh-z");
 
 		feats = RiTa.analyze("the clothes");
-		assertEquals(feats.get("pos"),"dt nns");
-		assertEquals(feats.get("tokens"),"the clothes");
-		assertEquals(feats.get("syllables"),"dh-ah k-l-ow-dh-z");
+		assertEquals(feats.get("pos"), "dt nns");
+		assertEquals(feats.get("tokens"), "the clothes");
+		assertEquals(feats.get("syllables"), "dh-ah k-l-ow-dh-z");
 
 		feats = RiTa.analyze("chevrolet");
-		assertEquals(feats.get("tokens"),"chevrolet");
-		assertEquals(feats.get("syllables"),"sh-eh-v/r-ow/l-ey");
+		assertEquals(feats.get("tokens"), "chevrolet");
+		assertEquals(feats.get("syllables"), "sh-eh-v/r-ow/l-ey");
 
-
-		//analyze(lts)
+		// analyze(lts)
 
 		feats = RiTa.analyze("cloze");
-		assertEquals(feats.get("pos"),"nn");
-		assertEquals(feats.get("tokens"),"cloze");
-		assertEquals(feats.get("syllables"),"k-l-ow-z");
+		assertEquals(feats.get("pos"), "nn");
+		assertEquals(feats.get("tokens"), "cloze");
+		assertEquals(feats.get("syllables"), "k-l-ow-z");
 
 	}
 
@@ -152,37 +147,37 @@ public class AnalyzerTests {
 
 	@Test
 	public void testSyllables() {
-		//syllables()
+		// syllables()
 
-		assertEquals(RiTa.syllables("clothes"),"k-l-ow-dh-z");
+		assertEquals(RiTa.syllables("clothes"), "k-l-ow-dh-z");
 
-		assertEquals(RiTa.syllables(""),"");
-		assertEquals(RiTa.syllables("chevrolet"),"sh-eh-v/r-ow/l-ey");
+		assertEquals(RiTa.syllables(""), "");
+		assertEquals(RiTa.syllables("chevrolet"), "sh-eh-v/r-ow/l-ey");
 
-		assertEquals(RiTa.syllables("women"),"w-ih/m-eh-n");
-		assertEquals(RiTa.syllables("genuine"),"jh-eh-n/y-uw/w-ah-n");
+		assertEquals(RiTa.syllables("women"), "w-ih/m-eh-n");
+		assertEquals(RiTa.syllables("genuine"), "jh-eh-n/y-uw/w-ah-n");
 
 		String input, expected;
 
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
-		assertEquals(RiTa.syllables(input),expected);
+		assertEquals(RiTa.syllables(input), expected);
 
 		input = "The dog ran faster than the other dog. But the other dog was prettier.";
 		expected = "dh-ah d-ao-g r-ae-n f-ae/s-t-er dh-ae-n dh-ah ah/dh-er d-ao-g . b-ah-t dh-ah ah/dh-er d-ao-g w-aa-z p-r-ih/t-iy/er .";
-		assertEquals(RiTa.syllables(input),expected);
+		assertEquals(RiTa.syllables(input), expected);
 
 		input = "The dog ran faster than the other dog. But the other dog was prettier.";
 		expected = "dh-ah d-ao-g r-ae-n f-ae/s-t-er dh-ae-n dh-ah ah/dh-er d-ao-g . b-ah-t dh-ah ah/dh-er d-ao-g w-aa-z p-r-ih/t-iy/er .";
-		assertEquals(RiTa.syllables(input),expected);
+		assertEquals(RiTa.syllables(input), expected);
 
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
-		assertEquals(RiTa.syllables(input),expected);
+		assertEquals(RiTa.syllables(input), expected);
 
-		//syllables(lts)
-		RiTa.SILENCE_LTS = true;  //TODO : not implemented yet?
-		assertEquals(RiTa.syllables("The Laggin Dragon"),"dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
+		// syllables(lts)
+		RiTa.SILENCE_LTS = true; // TODO : not implemented yet?
+		assertEquals(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
 
 	}

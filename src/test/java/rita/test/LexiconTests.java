@@ -3,36 +3,29 @@
  */
 package rita.test;
 
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.junit.Test;
 
-import rita.*;
-import static org.junit.Assert.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import rita.RiTa;
 
 public class LexiconTests {
 
-
-	@Test 
+	@Test
 	public void testToPhoneArray() {
-		
 
-		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon()._rawPhones("tornado",false));
+		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon()._rawPhones("tornado", false));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
-		assertArrayEquals(result,ans);
-		 
-
+		assertArrayEquals(result, ans);
 	}
 
-	@Test 
+	@Test
 	public void testAlliterations() {
-
 
 		String[] result;
 
@@ -63,16 +56,15 @@ public class LexiconTests {
 			assertTrue(RiTa.isAlliteration(result[i], "dog"));
 		}
 
-		Map<String, Object> hm = new HashMap<String, Object>(); 
+		Map<String, Object> hm = new HashMap<String, Object>();
 
 		hm.put("matchMinLength", 15);
 
 		result = RiTa.alliterations("dog", hm);
-		assertTrue(result.length < 5); //, "got length=" + result.length
+		assertTrue(result.length < 5); // , "got length=" + result.length
 		for (int i = 0; i < result.length; i++) {
-			assertTrue(RiTa.isAlliteration(result[i], "dog")); //, "FAIL1: " + result[i]
+			assertTrue(RiTa.isAlliteration(result[i], "dog")); // , "FAIL1: " + result[i]
 		}
-
 
 		hm.clear();
 		hm.put("matchMinLength", 16);
@@ -80,11 +72,10 @@ public class LexiconTests {
 		result = RiTa.alliterations("cat", hm);
 		assertTrue(result.length < 15);
 		for (int i = 0; i < result.length; i++) {
-			assertTrue(RiTa.isAlliteration(result[i], "cat"));//, "FAIL2: " + result[i]
+			assertTrue(RiTa.isAlliteration(result[i], "cat"));// , "FAIL2: " + result[i]
 		}
 
 	}
-
 
 	public static boolean contains(String[] arr, String item) {
 		for (String n : arr) {
@@ -95,14 +86,10 @@ public class LexiconTests {
 		return false;
 	}
 
-
-	@Test 
+	@Test
 	public void testRhymes() {
 
 		// TODO: add more tests
-
-	
-
 
 		assertTrue(Arrays.asList(RiTa.rhymes("cat")).contains("hat"));
 		assertTrue(Arrays.asList(RiTa.rhymes("yellow")).contains("mellow"));
@@ -115,11 +102,9 @@ public class LexiconTests {
 
 		assertTrue(Arrays.asList(RiTa.rhymes("mouse")).contains("house"));
 
-
 		assertTrue(Arrays.asList(RiTa.rhymes("weight")).contains("eight"));
 //		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight")).contains("weight"));
-
 
 		assertTrue(!Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
 		assertTrue(!Arrays.asList(RiTa.rhymes("this")).contains("these"));
@@ -130,62 +115,59 @@ public class LexiconTests {
 
 	}
 
-
-
-
-	@Test 
+	@Test
 	public void testSimilarBy() {
 
 		String[] result, answer;
 
-		Map<String, Object> hm = new HashMap<String, Object>(); 
+		Map<String, Object> hm = new HashMap<String, Object>();
 
 		hm.put("preserveLength", true);
 
-
-		//similarBy(letter)
+		// similarBy(letter)
 		result = RiTa.similarBy("banana", hm);
 		System.out.println("result : ");
 		System.out.println(Arrays.toString(result));
-		assertArrayEquals(result, new String[]{"cabana"});
-		/*//TODO do we need one param option?
-		result = RiTa.similarBy("");
-		assertArrayEquals(result, new String[]{});
+		assertArrayEquals(result, new String[] { "cabana" });
+		/*
+		 * //TODO do we need one param option? result = RiTa.similarBy("");
+		 * assertArrayEquals(result, new String[]{});
 		 */
 		hm.clear();
 		hm.put("preserveLength", false);
 
 		result = RiTa.similarBy("banana", hm);
-		assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana", "manna"});
+		assertArrayEquals(result, new String[] { "banal", "bonanza", "cabana", "manna" });
 
-		/*//TODO do we need one param option?
-		result = RiTa.similarBy("banana");
-		assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana", "manna"});
+		/*
+		 * //TODO do we need one param option? result = RiTa.similarBy("banana");
+		 * assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana",
+		 * "manna"});
 		 */
 
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
 		hm.put("preserveLength", true);
 		result = RiTa.similarBy("banana", hm);
-		assertArrayEquals(result, new String[]{"cabana"});
+		assertArrayEquals(result, new String[] { "cabana" });
 
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
 		hm.put("preserveLength", false);
 		result = RiTa.similarBy("banana", hm);
-		assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana", "manna"});
+		assertArrayEquals(result, new String[] { "banal", "bonanza", "cabana", "manna" });
 
-		/*//TODO do we need one param option?
-		result = RiTa.similarBy("tornado");
-		assertArrayEquals(result, new String[]{"torpedo"});
-
-		result = RiTa.similarBy("ice");
-		assertArrayEquals(result, new String[]{"ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice"});
+		/*
+		 * //TODO do we need one param option? result = RiTa.similarBy("tornado");
+		 * assertArrayEquals(result, new String[]{"torpedo"});
+		 * 
+		 * result = RiTa.similarBy("ice"); assertArrayEquals(result, new String[]{"ace",
+		 * "dice", "iced", "icy", "ire", "nice", "rice", "vice"});
 		 */
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
 		result = RiTa.similarBy("ice", hm);
-		assertArrayEquals(result, new String[]{"ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice"});
+		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice" });
 
 		hm.clear();
 		hm.put("minAllowedDistance", 2);
@@ -193,35 +175,34 @@ public class LexiconTests {
 		result = RiTa.similarBy("ice", hm);
 		assertTrue(result.length > 10);
 
-
 		hm.clear();
 		hm.put("minAllowedDistance", 0);
 		hm.put("preserveLength", true);
 		result = RiTa.similarBy("ice", hm); // defaults to 1
-		assertArrayEquals(result, new String[]{"ace", "icy", "ire"});
+		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
 
 		hm.clear();
 		hm.put("minAllowedDistance", 1);
 		hm.put("preserveLength", true);
 		result = RiTa.similarBy("ice", hm);
-		assertArrayEquals(result, new String[]{"ace", "icy", "ire"});
-		/*//TODO do we need one param option?
-		result = RiTa.similarBy("worngword");
-		assertArrayEquals(result, new String[]{"foreword", "wormwood"});
-
-		result = RiTa.similarBy("123");
-		assertTrue(result.length > 400);
+		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
+		/*
+		 * //TODO do we need one param option? result = RiTa.similarBy("worngword");
+		 * assertArrayEquals(result, new String[]{"foreword", "wormwood"});
+		 * 
+		 * result = RiTa.similarBy("123"); assertTrue(result.length > 400);
 		 */
-		//similarBy(sound)
+		// similarBy(sound)
 
 		hm.clear();
 		hm.put("type", "sound");
-		assertArrayEquals(RiTa.similarBy("tornado", hm), new String[]{"torpedo"});
+		assertArrayEquals(RiTa.similarBy("tornado", hm), new String[] { "torpedo" });
 
 		hm.clear();
 		hm.put("type", "sound");
 		result = RiTa.similarBy("try", hm);
-		answer = new String[]{"cry", "dry", "fry", "pry", "rye", "tie", "tray", "tree", "tribe", "tried", "tripe", "trite", "true", "wry"};
+		answer = new String[] { "cry", "dry", "fry", "pry", "rye", "tie", "tray", "tree", "tribe", "tried", "tripe",
+				"trite", "true", "wry" };
 		assertArrayEquals(result, answer);
 
 		hm.clear();
@@ -233,7 +214,7 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("type", "sound");
 		result = RiTa.similarBy("happy", hm);
-		answer = new String[]{"happier", "hippie"};
+		answer = new String[] { "happier", "hippie" };
 		assertArrayEquals(result, answer);
 
 		hm.clear();
@@ -245,7 +226,9 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("type", "sound");
 		result = RiTa.similarBy("cat", hm);
-		answer = new String[]{"at", "bat", "cab", "cache", "calf", "calve", "can", "can\'t", "cap", "capped", "cash", "cashed", "cast", "caste", "catch", "catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit", "kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat"};
+		answer = new String[] { "at", "bat", "cab", "cache", "calf", "calve", "can", "can\'t", "cap", "capped", "cash",
+				"cashed", "cast", "caste", "catch", "catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat",
+				"kit", "kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat" };
 		assertArrayEquals(result, answer);
 
 		hm.clear();
@@ -257,41 +240,36 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("type", "sound");
 		result = RiTa.similarBy("worngword", hm);
-		assertArrayEquals(result, new String[]{"watchword", "wayward", "wormwood"});
+		assertArrayEquals(result, new String[] { "watchword", "wayward", "wormwood" });
 
+		// similarBy(soundAndLetter)
 
-
-		//similarBy(soundAndLetter)
-
-		//result = RiTa.similarBy("", { type: 'soundAndLetter' }
-		//assertArrayEquals(result, new String[]{});
+		// result = RiTa.similarBy("", { type: 'soundAndLetter' }
+		// assertArrayEquals(result, new String[]{});
 
 		hm.clear();
 		hm.put("type", "soundAndLetter");
 		result = RiTa.similarBy("try", hm);
-		assertArrayEquals(result, new String[]{"cry", "dry", "fry", "pry", "tray", "wry"});
+		assertArrayEquals(result, new String[] { "cry", "dry", "fry", "pry", "tray", "wry" });
 
 		hm.clear();
 		hm.put("type", "soundAndLetter");
 		result = RiTa.similarBy("daddy", hm);
-		assertArrayEquals(result, new String[]{"dandy", "paddy"});
+		assertArrayEquals(result, new String[] { "dandy", "paddy" });
 
 		hm.clear();
 		hm.put("type", "soundAndLetter");
 		result = RiTa.similarBy("banana", hm);
-		assertArrayEquals(result, new String[]{"bonanza"});
+		assertArrayEquals(result, new String[] { "bonanza" });
 
 		hm.clear();
 		hm.put("type", "soundAndLetter");
 		result = RiTa.similarBy("worngword", hm);
-		assertArrayEquals(result, new String[]{"wormwood"});
+		assertArrayEquals(result, new String[] { "wormwood" });
 	}
 
-
-	@Test 
+	@Test
 	public void testIsRhyme() {
-
-
 
 		assertTrue(!RiTa.isRhyme("apple", "polo"));
 		assertTrue(!RiTa.isRhyme("this", "these"));
@@ -308,7 +286,7 @@ public class LexiconTests {
 		assertTrue(!RiTa.isRhyme("hose", "house"));
 		assertTrue(!RiTa.isRhyme("sieve", "mellow"));
 
-		assertTrue(RiTa.isRhyme("mouse", "house")); //why??
+		assertTrue(RiTa.isRhyme("mouse", "house")); // why??
 		// assertTrue(!RiTa.isRhyme("solo", "yoyo"));
 		// assertTrue(!RiTa.isRhyme("yoyo", "jojo")); -> Known Issues
 
@@ -320,10 +298,8 @@ public class LexiconTests {
 		assertTrue(RiTa.isRhyme("eight", "weight"));
 	}
 
-
-	@Test 
+	@Test
 	public void testIsAlliteration() {
-
 
 		assertTrue(RiTa.isAlliteration("knife", "gnat")); // gnat=lts
 		assertTrue(RiTa.isAlliteration("knife", "naughty"));
@@ -366,7 +342,5 @@ public class LexiconTests {
 		assertTrue(!RiTa.isAlliteration("omen", "open"));
 		assertTrue(!RiTa.isAlliteration("amicable", "atmosphere"));
 	}
-
-
 
 }

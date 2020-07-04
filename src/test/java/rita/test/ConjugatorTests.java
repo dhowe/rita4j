@@ -3,7 +3,6 @@
  */
 package rita.test;
 
-
 import org.junit.Test;
 
 import rita.*;
@@ -13,15 +12,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-
 public class ConjugatorTests {
 
-
-
-
-	@Test 
+	@Test
 	public void testPastParticiple() {
-
 
 		assertEquals(RiTa.pastParticiple("sleep"), "slept");
 		assertEquals(RiTa.pastParticiple("withhold"), "withheld");
@@ -51,9 +45,8 @@ public class ConjugatorTests {
 		assertEquals(RiTa.pastParticiple("study"), "studied");
 	}
 
-	@Test 
+	@Test
 	public void testPresentParticiple() {
-
 
 		assertEquals(RiTa.presentParticiple("sleep"), "sleeping");
 		assertEquals(RiTa.presentParticiple("withhold"), "withholding");
@@ -78,31 +71,32 @@ public class ConjugatorTests {
 		assertEquals(RiTa.presentParticiple("speak"), "speaking");
 
 		assertEquals(RiTa.presentParticiple("study "), "studying");
-		//space
+		// space
 		assertEquals(RiTa.presentParticiple(" study"), "studying");
-		//space
+		// space
 		assertEquals(RiTa.presentParticiple("study  "), "studying");
-		//double space
+		// double space
 		assertEquals(RiTa.presentParticiple("  study"), "studying");
-		//double space
+		// double space
 		assertEquals(RiTa.presentParticiple("study    "), "studying");
-		//tab space
+		// tab space
 		assertEquals(RiTa.presentParticiple(" study"), "studying");
-		//tab space
+		// tab space
 		assertEquals(RiTa.presentParticiple(""), "");
 	}
 
-	@Test 
+	@Test
 	public void testConjugate() {
-		// Map<String,String> args = new HashMap<>(); //TODO use Map<String,String> here?
+		// Map<String,String> args = new HashMap<>(); //TODO use Map<String,String>
+		// here?
 
-		Map<String, Object> args = new HashMap<String, Object>(); 
+		Map<String, Object> args = new HashMap<String, Object>();
 
 		String[] s;
 		String[] a;
 
 		assertEquals("swum", RiTa.pastParticiple("swim"));
-		//return;  //TODO also in rita-script
+		// return; //TODO also in rita-script
 
 		args.clear();
 		args.put("form", RiTa.GERUND);
@@ -110,10 +104,10 @@ public class ConjugatorTests {
 
 		assertEquals(RiTa.conjugate("be", args), "being");
 
-		s = new String[]{"swim", "need", "open"};
-		a = new String[]{"swims", "needs", "opens"};
+		s = new String[] { "swim", "need", "open" };
+		a = new String[] { "swims", "needs", "opens" };
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
@@ -123,28 +117,28 @@ public class ConjugatorTests {
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 		args.put("passive", true);
 
-		a = new String[] {"is swum", "is needed", "is opened"};
+		a = new String[] { "is swum", "is needed", "is opened" };
 		for (int i = 0; i < s.length; i++) {
 			assertEquals(RiTa.conjugate(s[i], args), a[i]);
 		}
 
 		/////////////////////////////////////////////////
 
-		args.clear(); 
+		args.clear();
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.FIRST_PERSON);
 		args.put("tense", RiTa.PAST_TENSE);
 
 		assertEquals(RiTa.conjugate("swim", args), "swam");
 
-		s = new String[]{"swim", "need", "open", ""};
-		a = new String[]{"swam", "needed", "opened", ""};
+		s = new String[] { "swim", "need", "open", "" };
+		a = new String[] { "swam", "needed", "opened", "" };
 
 		assertEquals(a.length, s.length);
 
@@ -153,101 +147,101 @@ public class ConjugatorTests {
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("number", RiTa.PLURAL);
 		args.put("person", RiTa.SECOND_PERSON);
 		args.put("tense", RiTa.PAST_TENSE);
 
-		a = new String[]{"swam", "needed", "opened", ""};
+		a = new String[] { "swam", "needed", "opened", "" };
 		assertEquals(a.length, s.length);
 
 		for (int i = 0; i < s.length; i++) {
 			assertEquals(RiTa.conjugate(s[i], args), a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("number", RiTa.PLURAL);
 		args.put("person", RiTa.SECOND_PERSON);
 		args.put("tense", RiTa.FUTURE_TENSE);
 
-		a = new String[]{"will swim", "will need", "will open", ""};
-		assertEquals(a.length,s.length);
+		a = new String[] { "will swim", "will need", "will open", "" };
+		assertEquals(a.length, s.length);
 
 		for (int i = 0; i < s.length; i++) {
 			assertEquals(RiTa.conjugate(s[i], args), a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PAST_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 
-		a = new String[]{"swam", "needed", "opened", ""};
+		a = new String[] { "swam", "needed", "opened", "" };
 
-		assertEquals(a.length,s.length);
+		assertEquals(a.length, s.length);
 
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PAST_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 		args.put("form", RiTa.INFINITIVE);
 
-		a = new String[]{"to swim", "to need", "to open", ""};
-		assertEquals(a.length,s.length);
+		a = new String[] { "to swim", "to need", "to open", "" };
+		assertEquals(a.length, s.length);
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PAST_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 		args.put("passive", true);
 
-		s = new String[]{"scorch", "burn", "hit", ""};
-		a = new String[]{"was scorched", "was burned", "was hit", ""};
-		assertEquals(a.length,s.length);
+		s = new String[] { "scorch", "burn", "hit", "" };
+		a = new String[] { "was scorched", "was burned", "was hit", "" };
+		assertEquals(a.length, s.length);
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
 		}
 
-		s = new String[]{"swim", "need", "open", ""};
-		args.clear(); 
+		s = new String[] { "swim", "need", "open", "" };
+		args.clear();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 		args.put("form", RiTa.INFINITIVE);
 		args.put("progressive", true);
 
-		a = new String[]{"to be swimming", "to be needing", "to be opening", ""};
-		assertEquals(a.length,s.length);
+		a = new String[] { "to be swimming", "to be needing", "to be opening", "" };
+		assertEquals(a.length, s.length);
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
 		args.put("form", RiTa.INFINITIVE);
 		args.put("perfect", true);
 
-		a = new String[]{"to have swum", "to have needed", "to have opened", ""};
-		assertEquals(a.length,s.length);
+		a = new String[] { "to have swum", "to have needed", "to have opened", "" };
+		assertEquals(a.length, s.length);
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
 		}
 
-		args.clear(); 
+		args.clear();
 		args.put("number", RiTa.PLURAL);
 		args.put("person", RiTa.SECOND_PERSON);
 		args.put("tense", RiTa.PAST_TENSE);
@@ -255,9 +249,9 @@ public class ConjugatorTests {
 		assertEquals(RiTa.conjugate("barter", args), "bartered");
 		assertEquals(RiTa.conjugate("run", args), "ran");
 
-		s = new String[]{"compete", "complete", "eject"};
-		a = new String[]{"competed", "completed", "ejected"};
-		assertEquals(a.length,s.length);
+		s = new String[] { "compete", "complete", "eject" };
+		a = new String[] { "competed", "completed", "ejected" };
+		assertEquals(a.length, s.length);
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
 			assertEquals(c, a[i]);
