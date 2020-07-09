@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import rita.RiTa;
 
+
 public class TokenizerTests {
 
 	@Test
@@ -250,6 +251,16 @@ public class TokenizerTests {
 				"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.",
 				"The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.",
 				"If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs." };
+
+		String[] output = RiTa.sentences(input);
+		assertArrayEquals(output, expected);
+
+		String input = "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.\n\nThe slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.\r\n If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.";
+		String[] expected = new String[] {
+				"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.",
+				"The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.",
+				"If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs." };
+
 		String[] output = RiTa.sentences(input);
 		assertArrayEquals(output, expected);
 
