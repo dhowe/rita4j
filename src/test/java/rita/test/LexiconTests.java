@@ -8,6 +8,8 @@ import static org.junit.Assert.*;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+
+import rita.Pluralizer;
 import rita.RiTa;
 import org.junit.Test;
 
@@ -100,9 +102,11 @@ public class LexiconTests {
 
 		for (int i = 0; i < 20; i++) {
       String result = RiTa.randomWord(hm);
-      if (!RiTa.Pluralizer.isPlural(result)) {
+      if (!Pluralizer.isPlural(result)) {
         // For now, just warn here as there are too many edge cases (see #521)
-        System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result + " (" + "isPlural=" + RiTa.inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result) + ")";
+        System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result +
+        		" (" + "isPlural=" + RiTa.inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result)
+        		+ ")");
       }
       // TODO: occasional problem here, examples: beaux
 
@@ -123,7 +127,7 @@ public class LexiconTests {
 
 		for (int j = 0; j < pos.length; j++) {
       for (int i = 0; i < 5; i++) {
-				hm.clear()
+				hm.clear();
 				hm.put("pos", pos[j]);
         String result = RiTa.randomWord(hm);
         String best = RiTa._lexicon()._bestPos(result);// private

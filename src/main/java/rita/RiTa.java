@@ -14,6 +14,8 @@ public class RiTa
   protected static Conjugator conjugator;
   protected static LetterToSound lts;
   
+  public static Inflector inflector;
+  
   
 //  UNCOMMENT IF/AS NEEDED:
 //  protected static Tagger tagger;
@@ -248,6 +250,12 @@ public class RiTa
   {
     return _lexicon().rhymes(word);
   }
+  
+  public static String[] rhymes(String word, Map<String, Object> opts)
+  {
+    return _lexicon().rhymes(word, opts);
+  }
+
 
   public static String evaluate(String word, Map<String, Object> opts)
   {
@@ -264,10 +272,40 @@ public class RiTa
     return _analyzer().analyze(text).get("syllables");
   }
 
-  public static String[] similarBy(String word, Map<String, Object> opts)
+  public static String[] soundsLike(String word)
   {
-    return _lexicon().similarBy(word, opts);
+    return _lexicon().soundsLike(word);
   }
+  
+  public static String[] spellsLike(String word)
+  {
+    return _lexicon().spellsLike(word);
+  }
+  
+	public static String[] search() {
+		return _lexicon().search(null);
+	}
+
+  public static String[] search(String word)
+  {
+    return _lexicon().search(word);
+  }
+  
+  public static String[] soundsLike(String word, Map<String, Object> opts)
+  {
+    return _lexicon().soundsLike(word, opts);
+  }
+  
+  public static String[] spellsLike(String word, Map<String, Object> opts)
+  {
+    return _lexicon().spellsLike(word, opts);
+  }
+  
+  public static String[] search(String word, Map<String, Object> opts)
+  {
+    return _lexicon().search(word, opts);
+  }
+  
   public static String singularize(String word)
   {
     return Pluralizer.singularize(word);
@@ -397,5 +435,7 @@ public class RiTa
   public static final String[] ABBREVIATIONS = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.",
       "Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." };
   public static final String[] STOP_WORDS = null; //TODO
+
+
 
 }

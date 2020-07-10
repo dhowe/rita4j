@@ -1,8 +1,10 @@
 package rita.test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+//import static org.junit.Assert.assertTrue;
+
+import java.util.Arrays;
 
 import org.junit.Test;
 
@@ -47,10 +49,12 @@ public class RiTaTests {
 
 	@Test
 	public void testRandomOrdering() {
-		int[] result = [0];
+		int[] result = new int[]{0};
 		assertArrayEquals(RiTa.randomOrdering(1), result);
-		int[] result2 = [0, 1];
-		assertArrayEquals(Arrays.sort(RiTa.randomOrdering(2)), result2);
+		int[] result2 = new int[]{0,1};
+		int[] ro = RiTa.randomOrdering(2);
+		Arrays.sort(ro);
+		assertArrayEquals(ro, result2);
 	  // expect(RiTa.randomOrdering(['a'])).eql(['a']);
 	  // expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
 	}

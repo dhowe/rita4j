@@ -202,9 +202,43 @@ public class Lexicon // KW: Wait on this class please
 		return null;
 	}
 
+	public String[] search(String theWord) //TODO
+	{
+		return this.search(theWord, null);
+	}
+	
+	public String[] search(String theWord, Map<String, Object> opts) 
+	{
+		//TODO
+		return null;
+	}
+	
+	public String[] soundsLike(String word) {
+		return this.soundsLike(word, null);
+	}
+
+	public String[] spellsLike(String word) {
+		return this.spellsLike(word, null);
+	}
+
+	public String[] soundsLike(String word, Map<String, Object> opts) {
+		// TODO 
+		return null;
+	}
+
+	public String[] spellsLike(String word, Map<String, Object> opts) {
+		// TODO 
+		return null;
+	}
+
 	public String[] rhymes(String theWord) //TODO
 	{
-		if (theWord == null || theWord.length() == 0) return new String[] {};
+		return this.rhymes(theWord, null);
+	}
+	
+	public String[] rhymes(String theWord, Map<String, Object> opts) //TODO
+	{
+		if (theWord == null || theWord.length() == 0) return new String[0];
 
 		String word = theWord.toLowerCase();
 
@@ -520,11 +554,9 @@ public class Lexicon // KW: Wait on this class please
 		return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
 	}
 
-	private String _posData(String word) {
+	public String _posData(String word) {
 
 		String[] rdata = _lookupRaw(word);
-		
-
 		
 		return (rdata != null && rdata.length == 2) ? rdata[1].replaceAll("'", "").replaceAll("\\]", "") : "";
 	}
@@ -537,7 +569,7 @@ public class Lexicon // KW: Wait on this class please
 		return pl.split(" ");
 	}
 
-	private String _bestPos(String word) {
+	public String _bestPos(String word) {
 
 		String[] pl = _posArr(word);
 		return (pl.length > 0) ? pl[0] : "";
@@ -580,7 +612,6 @@ public class Lexicon // KW: Wait on this class please
 
 		return result.replaceAll("\\[","").replaceAll("'","");
 	}
-
 
 
 }
