@@ -3,14 +3,14 @@
  */
 package rita.test;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-
+import rita.RiTa;
 import org.junit.Test;
+
 public class LexiconTests {
 
 	@Test
@@ -59,7 +59,7 @@ public class LexiconTests {
 
 	@Test
 	public void testAugmentedLexicon() {
-		Lexicon lexicon = RiTa._lexicon();
+//		Lexicon lexicon = RiTa._lexicon();
 		// toAdd = {
 		// "deg": ["d-eh1-g", "nn"],
 		// "wadly": ["w-ae1-d l-iy", "rb"],
@@ -76,7 +76,7 @@ public class LexiconTests {
 
 	@Test
 	public void testCustomLexicon() {
-		Lexicon lexicon = RiTa._lexicon();
+//		Lexicon lexicon = RiTa._lexicon();
 		// TODO:
 		// lex.data = {
 		// "dog": ["d-ao1-g", "nn"],
@@ -102,8 +102,7 @@ public class LexiconTests {
       String result = RiTa.randomWord(hm);
       if (!RiTa.Pluralizer.isPlural(result)) {
         // For now, just warn here as there are too many edge cases (see #521)
-        System.err.println("Pluralize/Singularize problem: randomWord(nns) was "" + result + "" (" +
-          "isPlural=" + RiTa.inflector.isPlural(result) + "), singularized is "" + RiTa.singularize(result) + """);
+        System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result + " (" + "isPlural=" + RiTa.inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result) + ")";
       }
       // TODO: occasional problem here, examples: beaux
 
@@ -144,29 +143,28 @@ public class LexiconTests {
 		Map<String, Object> hm = new HashMap<String, Object>();
 
 		hm.put("numSyllables", 3);
-    for (i = 0; i < 10; i++) {
-      result = RiTa.randomWord(hm);
-      syllables = RiTa.syllables(result);
-      num = syllables.split(RiTa.SYLLABLE_BOUNDARY).length;
+		for (i = 0; i < 10; i++) {
+			result = RiTa.randomWord(hm);
+			syllables = RiTa.syllables(result);
+			num = syllables.split(RiTa.SYLLABLE_BOUNDARY).length;
 			assertTrue(result.length() > 0);
 			assertTrue(num == 3); // "3 syllables: "
-    }
+		}
 
-		hm.clear()
+		hm.clear();
 		hm.put("numSyllables", 5);
-    for (i = 0; i < 10; i++) {
-      result = RiTa.randomWord(hm);
-      syllables = RiTa.syllables(result);
-      num = syllables.split(RiTa.SYLLABLE_BOUNDARY).length;
+		for (i = 0; i < 10; i++) {
+			result = RiTa.randomWord(hm);
+			syllables = RiTa.syllables(result);
+			num = syllables.split(RiTa.SYLLABLE_BOUNDARY).length;
 			assertTrue(result.length() > 0);
 			assertTrue(num == 5); // "5 syllables: "
-    }
+		}
 
 	}
 
 	@Test
 	public void testSearchWithoutOpts() {
-		// TODO:
 		assertTrue(RiTa.search().length > 20000);
 	}
 
@@ -222,51 +220,55 @@ public class LexiconTests {
 
 	@Test
 	public void testSearchWithPos() {
-		 Map<String, Object> hm = new HashMap<String, Object>();
-		 hm.put("type", "stresses");
-		 hm.put("limit", 5);
-		 hm.put("pos", "n");
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("type", "stresses");
+		hm.put("limit", 5);
+		hm.put("pos", "n");
 
-		 assertArrayEquals(RiTa.search("010", hm), new String[]{"abalone", "abandonment", "abatement", "abbreviation", "abdomen"});
+		assertArrayEquals(RiTa.search("010", hm),
+				new String[] { "abalone", "abandonment", "abatement", "abbreviation", "abdomen" });
 
-		 hm.put("numSyllables", 3);
-		 assertArrayEquals(RiTa.search("010", hm), new String[]{"abatement", "abdomen", "abduction", "abeyance", "abortion"});
+		hm.put("numSyllables", 3);
+		assertArrayEquals(RiTa.search("010", hm),
+				new String[] { "abatement", "abdomen", "abduction", "abeyance", "abortion" });
 
-		 hm.clear();
-		 hm.put("type", "phones");
-		 hm.put("limit", 3);
-		 hm.put("pos", "n");
-		 assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[]{"elephant", "infant", "infantry"});
+		hm.clear();
+		hm.put("type", "phones");
+		hm.put("limit", 3);
+		hm.put("pos", "n");
+		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "elephant", "infant", "infantry" });
 
-		 hm.put("numSyllables", 2);
-		 assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[]{"infant"});
+		hm.put("numSyllables", 2);
+		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "infant" });
 
-		 hm.clear();
-		 hm.put("type", "phones");
-		 hm.put("limit", 5);
-		 hm.put("pos", "v")
-		 assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[]{"fantasize"});
+		hm.clear();
+		hm.put("type", "phones");
+		hm.put("limit", 5);
+		hm.put("pos", "v");
+		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
 
-		 hm.clear();
-		 hm.put("type", "stresses");
-		 hm.put("limit", 5);
-		 hm.put("pos", "nns")
-		 assertArrayEquals(RiTa.search("010", hm), new String[]{"abalone", "abandonments", "abatements", "abbreviations", "abdomens"});
+		hm.clear();
+		hm.put("type", "stresses");
+		hm.put("limit", 5);
+		hm.put("pos", "nns");
+		assertArrayEquals(RiTa.search("010", hm),
+				new String[] { "abalone", "abandonments", "abatements", "abbreviations", "abdomens" });
 
-		 hm.put("numSyllables", 3);
-		 assertArrayEquals(RiTa.search("010", hm), new String[]{"abatements", "abdomens", "abductions", "abeyances", "abortions"});
+		hm.put("numSyllables", 3);
+		assertArrayEquals(RiTa.search("010", hm),
+				new String[] { "abatements", "abdomens", "abductions", "abeyances", "abortions" });
 
-		 hm.clear();
-		 hm.put("type", "phones");
-		 hm.put("limit", 3);
-		 hm.put("pos", "nns")
-		 assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[]{"elephants", "infants", "infantries"});
+		hm.clear();
+		hm.put("type", "phones");
+		hm.put("limit", 3);
+		hm.put("pos", "nns");
+		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "elephants", "infants", "infantries" });
 
-		 hm.clear();
-		 hm.put("type", "phones");
-		 hm.put("limit", 5);
-		 hm.put("pos", "vb")
-		 assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[]{"fantasize"});
+		hm.clear();
+		hm.put("type", "phones");
+		hm.put("limit", 5);
+		hm.put("pos", "vb");
+		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
 
 	}
 
@@ -313,7 +315,59 @@ public class LexiconTests {
 
 	@Test
 	public void testRandomWordPosSyls() {
-		// TODO:
+		// function fail(result, epos) {
+		// let test = result.endsWith('es') ? result.substring(-2) : result;
+		// let ent = RiTa.lexicon()[test];
+		// return ('(' + epos + ') Fail: ' + result + ': expected ' + epos + ', got ' +
+		// (ent ? ent[1] : 'null'));
+		// }
+
+		Map<String, Object> hm = new HashMap<String, Object>();
+		String result, syllables;
+		RiTa.SILENCE_LTS = true;
+
+		for (int j = 0; j < 1; j++) {
+
+			for (int i = 0; i < 5; i++) {
+				hm.put("pos", "vbz");
+				hm.put("numSyllables", 3);
+				result = RiTa.randomWord(hm);
+				assertTrue(result.length() > 0);
+				syllables = RiTa.syllables(result);
+				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 3);
+				assertTrue(RiTa.isVerb(result));
+
+				hm.clear();
+				hm.put("pos", "n");
+				hm.put("numSyllables", 1);
+				result = RiTa.randomWord(hm);
+				assertTrue(result.length() > 0);
+				syllables = RiTa.syllables(result);
+				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertTrue(RiTa.isNoun(result));
+
+				hm.clear();
+				hm.put("pos", "nns");
+				hm.put("numSyllables", 1);
+				result = RiTa.randomWord(hm);
+				assertTrue(result.length() > 0);
+				syllables = RiTa.syllables(result);
+				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertTrue(RiTa.isNoun(result));
+
+				hm.clear();
+				hm.put("pos", "nns");
+				hm.put("numSyllables", 5);
+				result = RiTa.randomWord(hm);
+				assertTrue(result.length() > 0);
+				syllables = RiTa.syllables(result);
+				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 5);
+				assertTrue(RiTa.isNoun(result));
+
+			}
+		}
+
+		RiTa.SILENCE_LTS = false;
 
 	}
 
@@ -328,7 +382,17 @@ public class LexiconTests {
 
 	@Test
 	public void testAlliterationsNumSyllables() {
-		// TODO:
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("minLength", 1);
+		hm.put("numSyllables", 7);
+
+		String[] result = RiTa.alliterations("cat", hm);
+		assertArrayEquals(result, new String[] { "electrocardiogram", "electromechanical", "telecommunications" });
+
+		for (int i = 0; i < result.length; i++) {
+			assertTrue(RiTa.isAlliteration(result[i], "cat"));
+		}
+
 	}
 
 	@Test
@@ -477,17 +541,65 @@ public class LexiconTests {
 
 	@Test
 	public void testRhymesPos() {
-		// TODO:
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("pos", "v");
+
+		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertTrue(Arrays.asList(RiTa.rhymes("tense", hm)).contains("sense"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("shore", hm)).contains("more"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("this")).contains("these"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("hose")).contains("house"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
+
+		hm.clear();
+		hm.put("pos", "a");
+		assertTrue(Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
+
+		hm.clear();
+		hm.put("pos", "n");
+		assertTrue(Arrays.asList(RiTa.rhymes("toy", hm)).contains("boy"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("sieve", hm)).contains("give"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("crab", hm)).contains("drab"));
+
+		hm.clear();
+		hm.put("pos", "nn");
+		assertTrue(Arrays.asList(RiTa.rhymes("mouse", hm)).contains("house"));
+		assertTrue(Arrays.asList(RiTa.rhymes("eight", hm)).contains("weight"));
+
+		hm.clear();
+		hm.put("pos", "vb");
+		assertTrue(Arrays.asList(RiTa.rhymes("weight", hm)).contains("eight"));
+
 	}
 
 	@Test
 	public void testRhymesNumSyllables() {
-		// TODO:
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("numSyllables", 1);
+		assertTrue(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+
+		hm.clear();
+		hm.put("numSyllables", 2);
+		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertTrue(Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
+
+		hm.clear();
+		hm.put("numSyllables", 3);
+		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertTrue(!Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
 	}
 
 	@Test
 	public void testRhymesWordLength() {
-		// TODO:
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("minLength", 4);
+		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+
+		hm.clear();
+		hm.put("maxLength", 2);
+		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 	}
 
 	@Test
@@ -576,178 +688,102 @@ public class LexiconTests {
 
 	@Test
 	public void testSoundsLike() {
-		// TODO:
+		String[] result, answer;
+		Map<String, Object> hm = new HashMap<String, Object>();
+
+		result = RiTa.soundsLike("tornado");
+		assertArrayEquals(result, new String[] { "torpedo" });
+
+		result = RiTa.soundsLike("try");
+		answer = new String[] { "cry", "dry", "fry", "pry", "rye", "tie", "tray",
+				"tree", "tribe", "tried", "tripe", "trite", "true", "wry" };
+		assertArrayEquals(result, answer);
+
+		hm.put("minAllowedDistance", 2);
+		result = RiTa.soundsLike("try", hm);
+		assertTrue(result.length > answer.length); // more
+
+		result = RiTa.soundsLike("happy");
+		answer = new String[] { "happier", "hippie" };
+		assertArrayEquals(result, answer);
+
+		result = RiTa.soundsLike("happy", hm);
+		assertTrue(result.length > answer.length); // more
+
+		result = RiTa.soundsLike("cat");
+		answer = new String[] { "bat", "cab", "cache", "calf", "calve", "can",
+				"can\"t", "cap", "capped", "cash", "cashed", "cast", "caste", "catch",
+				"catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
+				"kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("limit", 5);
+		result = RiTa.soundsLike("cat", hm);
+		answer = new String[] { "abashed", "abate", "abbey", "abbot", "abet" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("minLength", 2);
+		hm.put("maxLength", 4);
+		result = RiTa.soundsLike("cat", hm);
+		answer = new String[] { "at", "bat", "cab", "calf", "can", "cap", "cash", "cast", "chat", "coat", "cot", "curt",
+				"cut", "fat", "hat", "kit", "kite", "mat", "matt", "pat", "rat", "sat", "tat", "that", "vat" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("minLength", 4);
+		hm.put("maxLength", 5);
+		hm.put("pos", "jj");
+		hm.put("limit", 8);
+		result = RiTa.soundsLike("cat", hm);
+		answer = new String[] { "acute", "aged", "airy", "alert", "arty", "awed", "awry", "azure" };
+
+		hm.clear();
+		hm.put("minLength", 2);
+		assertTrue(result.length > answer.length); // more
+
 	}
 
 	@Test
 	public void testSoundsLikeMatchSpelling() {
-		// TODO:
-	}
+		String[] result, answer;
+		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("matchSpelling", true);
 
-	// @Test
-	// public void testSimilarBy() {
-	//
-	// String[] result, answer;
-	//
-	// Map<String, Object> hm = new HashMap<String, Object>();
-	//
-	// hm.put("preserveLength", true);
-	//
-	//
-	// //similarBy(letter)
-	// result = RiTa.similarBy("banana", hm);
-	// System.out.println("result : ");
-	// System.out.println(Arrays.toString(result));
-	// assertArrayEquals(result, new String[]{"cabana"});
-	// /*//TODO do we need one param option?
-	// result = RiTa.similarBy("");
-	// assertArrayEquals(result, new String[]{});
-	// */
-	// hm.clear();
-	// hm.put("preserveLength", false);
-	//
-	// result = RiTa.similarBy("banana", hm);
-	// assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana",
-	// "manna"});
-	//
-	// /*//TODO do we need one param option?
-	// result = RiTa.similarBy("banana");
-	// assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana",
-	// "manna"});
-	// */
-	//
-	// hm.clear();
-	// hm.put("minAllowedDistance", 1);
-	// hm.put("preserveLength", true);
-	// result = RiTa.similarBy("banana", hm);
-	// assertArrayEquals(result, new String[]{"cabana"});
-	//
-	// hm.clear();
-	// hm.put("minAllowedDistance", 1);
-	// hm.put("preserveLength", false);
-	// result = RiTa.similarBy("banana", hm);
-	// assertArrayEquals(result, new String[]{"banal", "bonanza", "cabana",
-	// "manna"});
-	//
-	// /*//TODO do we need one param option?
-	// result = RiTa.similarBy("tornado");
-	// assertArrayEquals(result, new String[]{"torpedo"});
-	//
-	// result = RiTa.similarBy("ice");
-	// assertArrayEquals(result, new String[]{"ace", "dice", "iced", "icy", "ire",
-	// "nice", "rice", "vice"});
-	// */
-	// hm.clear();
-	// hm.put("minAllowedDistance", 1);
-	// result = RiTa.similarBy("ice", hm);
-	// assertArrayEquals(result, new String[]{"ace", "dice", "iced", "icy", "ire",
-	// "nice", "rice", "vice"});
-	//
-	// hm.clear();
-	// hm.put("minAllowedDistance", 2);
-	// hm.put("preserveLength", true);
-	// result = RiTa.similarBy("ice", hm);
-	// assertTrue(result.length > 10);
-	//
-	//
-	// hm.clear();
-	// hm.put("minAllowedDistance", 0);
-	// hm.put("preserveLength", true);
-	// result = RiTa.similarBy("ice", hm); // defaults to 1
-	// assertArrayEquals(result, new String[]{"ace", "icy", "ire"});
-	//
-	// hm.clear();
-	// hm.put("minAllowedDistance", 1);
-	// hm.put("preserveLength", true);
-	// result = RiTa.similarBy("ice", hm);
-	// assertArrayEquals(result, new String[]{"ace", "icy", "ire"});
-	// /*//TODO do we need one param option?
-	// result = RiTa.similarBy("worngword");
-	// assertArrayEquals(result, new String[]{"foreword", "wormwood"});
-	//
-	// result = RiTa.similarBy("123");
-	// assertTrue(result.length > 400);
-	// */
-	// //similarBy(sound)
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// assertArrayEquals(RiTa.similarBy("tornado", hm), new String[]{"torpedo"});
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// result = RiTa.similarBy("try", hm);
-	// answer = new String[]{"cry", "dry", "fry", "pry", "rye", "tie", "tray",
-	// "tree", "tribe", "tried", "tripe", "trite", "true", "wry"};
-	// assertArrayEquals(result, answer);
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// hm.put("minAllowedDistance", 2);
-	// result = RiTa.similarBy("try", hm);
-	// assertTrue(result.length > answer.length); // more
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// result = RiTa.similarBy("happy", hm);
-	// answer = new String[]{"happier", "hippie"};
-	// assertArrayEquals(result, answer);
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// hm.put("minAllowedDistance", 2);
-	// result = RiTa.similarBy("happy", hm);
-	// assertTrue(result.length > answer.length); // more
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// result = RiTa.similarBy("cat", hm);
-	// answer = new String[]{"at", "bat", "cab", "cache", "calf", "calve", "can",
-	// "can\"t", "cap", "capped", "cash", "cashed", "cast", "caste", "catch",
-	// "catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
-	// "kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat"};
-	// assertArrayEquals(result, answer);
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// hm.put("minAllowedDistance", 2);
-	// result = RiTa.similarBy("cat", hm);
-	// assertTrue(result.length > answer.length);
-	//
-	// hm.clear();
-	// hm.put("type", "sound");
-	// result = RiTa.similarBy("worngword", hm);
-	// assertArrayEquals(result, new String[]{"watchword", "wayward", "wormwood"});
-	//
-	//
-	//
-	// //similarBy(soundAndLetter)
-	//
-	// //result = RiTa.similarBy("", { type: "soundAndLetter" }
-	// //assertArrayEquals(result, new String[]{});
-	//
-	// hm.clear();
-	// hm.put("type", "soundAndLetter");
-	// result = RiTa.similarBy("try", hm);
-	// assertArrayEquals(result, new String[]{"cry", "dry", "fry", "pry", "tray",
-	// "wry"});
-	//
-	// hm.clear();
-	// hm.put("type", "soundAndLetter");
-	// result = RiTa.similarBy("daddy", hm);
-	// assertArrayEquals(result, new String[]{"dandy", "paddy"});
-	//
-	// hm.clear();
-	// hm.put("type", "soundAndLetter");
-	// result = RiTa.similarBy("banana", hm);
-	// assertArrayEquals(result, new String[]{"bonanza"});
-	//
-	// hm.clear();
-	// hm.put("type", "soundAndLetter");
-	// result = RiTa.similarBy("worngword", hm);
-	// assertArrayEquals(result, new String[]{"wormwood"});
-	// }
-	//
+		result = RiTa.soundsLike("try", hm);
+		answer = new String[] { "cry", "dry", "fry", "pry", "tray", "wry" };
+		assertArrayEquals(result, answer);
+
+		hm.put("maxLength", 3);
+		result = RiTa.soundsLike("try", hm);
+		answer = new String[] { "cry", "dry", "fry", "pry", "wry" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("matchSpelling", true);
+		hm.put("minLength", 4);
+		result = RiTa.soundsLike("try", hm);
+		answer = new String[] { "tray" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("matchSpelling", true);
+		hm.put("limit", 3);
+		result = RiTa.soundsLike("try", hm);
+		answer = new String[] { "cry", "dry", "fry" };
+		assertArrayEquals(result, answer);
+
+		hm.clear();
+		hm.put("matchSpelling", true);
+		result = RiTa.soundsLike("daddy", hm);
+		answer = new String[] { "dandy", "paddy" };
+		assertArrayEquals(result, answer);
+
+		result = RiTa.soundsLike("banana", hm);
+		answer = new String[] { "bonanza" };
+		assertArrayEquals(result, answer);
+	}
 
 	@Test
 	public void testIsRhyme() {
