@@ -16,7 +16,6 @@ public class ConjugatorTests {
 
 	@Test
 	public void testPastParticiple() {
-
 		assertEquals(RiTa.pastParticiple("sleep"), "slept");
 		assertEquals(RiTa.pastParticiple("withhold"), "withheld");
 
@@ -80,9 +79,28 @@ public class ConjugatorTests {
 		// double space
 		assertEquals(RiTa.presentParticiple("study    "), "studying");
 		// tab space
-		assertEquals(RiTa.presentParticiple(" study"), "studying");
+		assertEquals(RiTa.presentParticiple("    study"), "studying");
 		// tab space
 		assertEquals(RiTa.presentParticiple(""), "");
+	}
+
+	@Test
+	public void testConjugateVbd() {
+		Map<String, Object> args = new HashMap<String, Object>();
+		args.put("tense", RiTa.PAST_TENSE);
+		args.put("number", RiTa.SINGULAR);
+		args.put("person", RiTa.FIRST_PERSON);
+
+		String c = RiTa.conjugate("go", args);
+		assertEquals(c, "went");
+
+		args.clear();
+		args.put("tense", RiTa.PAST_TENSE);
+		args.put("number", RiTa.SINGULAR);
+		args.put("person", RiTa.FIRST_PERSON);
+
+		String s = RiTa.conjugate("run", args);
+		assertEquals(s, "ran");
 	}
 
 	@Test
@@ -213,6 +231,7 @@ public class ConjugatorTests {
 		}
 
 		s = new String[] { "swim", "need", "open", "" };
+
 		args.clear();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
@@ -258,5 +277,3 @@ public class ConjugatorTests {
 		}
 
 	}
-
-}
