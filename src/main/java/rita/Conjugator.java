@@ -715,6 +715,7 @@ public class Conjugator {
 
 		reset();
 
+		// TODO: use Util.boolOpt/intOpt here
 		if (opts.containsKey("number")) number = (int) opts.get("number");
 		if (opts.containsKey("person")) person = (int) opts.get("person");
 		if (opts.containsKey("tense")) tense = (int) opts.get("tense");

@@ -1,0 +1,104 @@
+package rita;
+
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.antlr.v4.runtime.*;
+
+import rita.grammar.RiScriptLexer;
+import rita.grammar.RiScriptParser;
+import rita.grammar.RiScriptParser.ScriptContext;
+import rita.grammar.TreeUtils;
+
+public class RiScript {
+
+	protected RiScriptLexer lexer;
+	protected RiScriptParser parser;
+	protected Visitor visitor;
+
+	public static String eval(String input) {
+
+		return new RiScript().lexParseVisit(input, null);
+	}
+
+	public static String eval(String input, Map<String, Object> ctx) {
+
+		return new RiScript().lexParseVisit(input, ctx);
+	}
+
+	public CommonTokenStream lex(String input) {
+		return this.lex(input, null);
+	}
+
+	public CommonTokenStream lex(String input, Map<String, Object> opts) {
+		CharStream chars = CharStreams.fromString(input);
+		this.lexer = new RiScriptLexer(chars);
+		CommonTokenStream tokenStream = new CommonTokenStream(this.lexer);
+		if (Util.boolOpt("trace", opts)) {
+			System.out.println("-------------------------------------------------------");
+			tokenStream.fill();
+			int i = 0;
+			for (Token tok : tokenStream.getTokens()) {
+				System.out.println((i++) + ")" + tok);
+			}
+		}
+		return tokenStream;
+	}
+
+	public ScriptContext parse(CommonTokenStream tokens, String input) {
+		return this.parse(tokens, input, null);
+	}
+
+	public ScriptContext parse(CommonTokenStream tokens, String input, Map<String, Object> opts) {
+
+		// create the parser
+		this.parser = new RiScriptParser(tokens);
+
+		// try the parsing
+		ScriptContext tree;
+		try {
+			tree = this.parser.script();
+			if (Util.boolOpt("trace", opts)) {
+				System.out.println(TreeUtils.toPrettyTree(tree,
+					Arrays.asList(parser.getRuleNames())));
+			}
+		} catch (Exception e) {
+			System.err.println("PARSER: '" + input + "'\n" + e.getMessage() + "\n");
+			throw e;
+		}
+		return tree;
+	}
+
+	public ScriptContext lexParse(String input) {
+		return this.lexParse(input, null);
+	}
+
+	public ScriptContext lexParse(String input, Map<String, Object> opts) {
+
+		CommonTokenStream tokens = this.lex(input, opts);
+		return this.parse(tokens, input, opts);
+	}
+
+	public String lexParseVisit(String input, Map<String, Object> context) {
+		return this.lexParseVisit(input, context, null);
+	}
+
+	public String lexParseVisit(String input, Map<String, Object> context, Map<String, Object> opts) {
+
+		ScriptContext tree = this.lexParse(input, opts);
+		return this.createVisitor(context, opts).start(tree);
+	}
+
+	private Visitor createVisitor(Map<String, Object> context, Map<String, Object> opts) {
+		return new Visitor(this, context, opts);
+	}
+
+	public static void main(String[] args) {
+		// CommonTokenStream toks = new RiScript().lex("(A | B)", Util.opts("trace",
+		// true));
+		ScriptContext sc = new RiScript().lexParse("(A | B)", Util.opts("trace", true));
+
+		// System.out.println(RiScript.eval("Hello"));
+	}
+}

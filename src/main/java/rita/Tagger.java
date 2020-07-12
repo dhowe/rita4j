@@ -15,8 +15,9 @@ public class Tagger {
 
 	static Lexicon lexicon = RiTa._lexicon();
 
-	private Tagger() {} // static class
-	
+	private Tagger() {
+	} // static class
+
 	public static boolean isAdjective(String word) {
 		return checkType(word, ADJ);
 	}
