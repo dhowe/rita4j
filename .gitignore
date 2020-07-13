@@ -1,3 +1,7 @@
+# Misc
+.grammar
+misc
+
 # Ignore Gradle project-specific cache directory
 .gradle
 

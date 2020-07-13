@@ -87,7 +87,8 @@ public class RiScript {
 	public String lexParseVisit(String input, Map<String, Object> context, Map<String, Object> opts) {
 
 		ScriptContext tree = this.lexParse(input, opts);
-		return this.createVisitor(context, opts).start(tree);
+		Visitor vis = this.createVisitor(context, opts);
+		return vis.start(tree);
 	}
 
 	private Visitor createVisitor(Map<String, Object> context, Map<String, Object> opts) {
@@ -97,8 +98,9 @@ public class RiScript {
 	public static void main(String[] args) {
 		// CommonTokenStream toks = new RiScript().lex("(A | B)", Util.opts("trace",
 		// true));
-		ScriptContext sc = new RiScript().lexParse("(A | B)", Util.opts("trace", true));
-
+		RiScript rs = new RiScript();
+		String s = rs.lexParseVisit("(A | B)", Util.opts("trace", true));
+		System.out.println("Result: "+s);
 		// System.out.println(RiScript.eval("Hello"));
 	}
 }
