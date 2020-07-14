@@ -255,11 +255,15 @@ public class RiTa
   {
     return _lexicon().rhymes(word, opts);
   }
-
+  
+  public static String evaluate(String word)
+  {
+    return RiTa.evaluate(word, null);
+  }
 
   public static String evaluate(String word, Map<String, Object> opts)
   {
-    return parser.lexParseVisit(word, opts);
+    return RiScript.eval(word, opts);
   }
 
   public static String stresses(String text)

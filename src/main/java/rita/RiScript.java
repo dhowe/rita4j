@@ -19,7 +19,7 @@ public class RiScript {
 
 	public static String eval(String input) {
 
-		return new RiScript().lexParseVisit(input, null);
+		return RiScript.eval(input, null);
 	}
 
 	public static String eval(String input, Map<String, Object> ctx) {
