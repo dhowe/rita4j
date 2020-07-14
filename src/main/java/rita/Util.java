@@ -155,6 +155,10 @@ public class Util {
 		return matrix[source.length][target.length];
 	}
 
+	public static Map<String, Object> opts() {
+		return new HashMap<String, Object>();
+	}
+
 	public static Map<String, Object> opts(String key, Object val) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		data.put(key, val);

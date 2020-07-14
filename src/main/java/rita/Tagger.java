@@ -165,7 +165,7 @@ public class Tagger {
 
 	private static String[] posOptions(String word) {
 		String[] posdata = lexicon._posArr(word); // fail if no lexicon
-		System.out.println("data : " + Arrays.toString(posdata));
+		//System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
 		return posdata;
 
@@ -178,7 +178,9 @@ public class Tagger {
 
 	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
 		if (wordsArr == null || wordsArr.length == 0) return new String[0];
-
+		
+		boolean dbug = false;
+		
 		String[][] choices2d = new String[wordsArr.length][];
 		String[] result = new String[wordsArr.length];
 
@@ -196,15 +198,15 @@ public class Tagger {
 				continue;
 			} else {
 				choices2d[i] = posOptions(word); // all options
-				System.out.println(word + " " + choices2d[i].length);
+				if (dbug) System.out.println(word + " " + choices2d[i].length);
 				result[i] = choices2d[i][0]; // first option
 			}
 		}
 
 		// Adjust pos according to transformation rules
 		String[] tags = _applyContext(wordsArr, result, choices2d);
-		System.out.println("choices2d : " + choices2d);
-		System.out.println(tags.length);
+		if (dbug) System.out.println("choices2d : " + choices2d);
+		if (dbug) System.out.println(tags.length);
 		if (useSimpleTags) {
 			for (int i = 0; i < tags.length; i++) {
 				if (Arrays.asList(NOUNS).contains(tags[i]))
@@ -218,16 +220,17 @@ public class Tagger {
 				else
 					tags[i] = "-"; // default: other
 			}
-			System.out.println("simple: " + Arrays.toString(tags));
+			if (dbug) System.out.println("simple: " + Arrays.toString(tags));
 		}
-		System.out.println("Tags : " + Arrays.toString(tags));
+		if (dbug) System.out.println("Tags : " + Arrays.toString(tags));
 		return ((tags == null) ? new String[] { } : tags);
 	}
 
 	private static String[] _applyContext(String[] words, String[] result, String[][] choices2d) {
 
 		// console.log("ac(" + words + "," + result + "," + choices2d + ")");
-
+		boolean dbug = false;
+		
 		// Apply transformations
 		for (int i = 0, l = words.length; i < l; i++) {
 
@@ -250,7 +253,7 @@ public class Tagger {
 						}
 					}
 
-					_logCustom("1a", word, tag);
+					if (dbug) _logCustom("1a", word, tag);
 				}
 
 				// transform 1b: DT, {RB | RBR | RBS} --> DT, {JJ |
@@ -258,7 +261,7 @@ public class Tagger {
 				else if (tag.startsWith("rb")) {
 
 					tag = (tag.length() > 2) ? "jj" + tag.charAt(2) : "jj";
-					_logCustom("1b", word, tag);
+					if (dbug) _logCustom("1b", word, tag);
 				}
 			}
 
@@ -301,7 +304,7 @@ public class Tagger {
 				// DH: fixed here -- add check on choices2d for any verb: eg. // "morning"
 				if (hasTag(choices2d[i], "vb")) {
 					tag = "vbg";
-					_logCustom("8", word, tag);
+					if (dbug) _logCustom("8", word, tag);
 				}
 			}
 
@@ -310,7 +313,7 @@ public class Tagger {
 			// dances)
 			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && resultSA[i - 1].matches("^(nn|prp|nnp)$")) {
 				tag = "vbz";
-				_logCustom("9", word, tag);
+				if (dbug) _logCustom("9", word, tag);
 			}
 
 			// transform 10(dch): convert common nouns to proper
@@ -321,7 +324,7 @@ public class Tagger {
 				// or when it is at the start of a sentence but can't be found in the dictionary
 				if (i != 0 || words.length == 1 || (i == 0 && !_lexHas("nn", RiTa.singularize(word).toLowerCase()))) {
 					tag = tag.endsWith("s") ? "nnps" : "nnp";
-					_logCustom("10", word, tag);
+					if (dbug) _logCustom("10", word, tag);
 				}
 			}
 
@@ -330,7 +333,7 @@ public class Tagger {
 			if (i < result.length - 1 && tag.equals("nns") && resultSA[i + 1].startsWith("rb") &&
 					hasTag(choices2d[i], "vbz")) {
 				tag = "vbz";
-				_logCustom("11", word, tag);
+				if (dbug) _logCustom("11", word, tag);
 			}
 
 			// transform 12(dch): convert plural nouns which have an entry for their base
@@ -344,7 +347,7 @@ public class Tagger {
 					// if word is ends with s or es and is "nns" and has a vb
 					if (_lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
-						_logCustom("12", word, tag);
+						if (dbug) _logCustom("12", word, tag);
 					}
 				} // if only word and not in lexicon
 				else if (words.length == 1 && choices2d[i].length == 0) {
@@ -352,7 +355,7 @@ public class Tagger {
 					// only return vbz when the stem is vb but not nn
 					if (!_lexHas("nn", RiTa.singularize(word)) && _lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
-						_logCustom("12", word, tag);
+						if (dbug) _logCustom("12", word, tag);
 					}
 
 				}
@@ -363,7 +366,7 @@ public class Tagger {
 			if (tag.equals("vb") || (tag.equals("nn") && hasTag(choices2d[i], "vb"))) {
 				if (i > 0 && resultSA[i - 1].matches("^(nns|nnps|prp)$")) {
 					tag = "vbp";
-					_logCustom("13", word, tag);
+					if (dbug) _logCustom("13", word, tag);
 				}
 			}
 

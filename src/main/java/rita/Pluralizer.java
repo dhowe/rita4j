@@ -73,7 +73,7 @@ public class Pluralizer
 	
 	public static String pluralize(String word)
 	{
-		System.out.println("word : "+ word);
+		//System.out.println("word : "+ word);
 		if (word == null || word.length() == 0 ) return "";
 
 		if (Arrays.stream(MODALS).anyMatch(word.toLowerCase()::equals)) return word;

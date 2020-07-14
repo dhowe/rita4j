@@ -74,8 +74,8 @@ public class Analyzer
 		features.put("phonemes", phonemes.trim());//.replace(/\\s+/, ' '); // needed?
 		features.put("syllables", syllables.trim());//.replace(/\\s+/, ' '); // needed?
 
-		System.out.print("analysis features: ");
-		System.out.print(features);
+		//System.out.print("analysis features: ");
+		//System.out.print(features);
 		return features;
 	}
 

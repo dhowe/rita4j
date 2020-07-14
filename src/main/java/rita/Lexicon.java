@@ -579,11 +579,11 @@ public class Lexicon // KW: Wait on this class please
 		//word = word && word.toLowerCase();
 		if(word == null || word.length() == 0 ) return new String[] {};
 		word = word.toLowerCase();
-		System.out.println("word : " + word);
+		//System.out.println("word : " + word);
 		
 		
 		if (dict != null) {
-			System.out.println("dict.get(word) : " + dict.get(word));
+			//System.out.println("dict.get(word) : " + dict.get(word));
 			return dict.get(word);
 		}else {
 			return new String[] {};

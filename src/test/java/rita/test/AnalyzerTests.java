@@ -178,8 +178,8 @@ public class AnalyzerTests {
 				"accomplices", "accomplice"
 		};
 		for (int i = 0; i < tests.length; i += 2) {
-			System.out.println("singular: " + tests[i]);
-			System.out.println("plural: " + RiTa.pluralize(tests[i + 1]));
+			//System.out.println("singular: " + tests[i]);
+			//System.out.println("plural: " + RiTa.pluralize(tests[i + 1]));
 			assertEquals(tests[i], RiTa.pluralize(tests[i + 1]));
 		}
 
@@ -269,7 +269,7 @@ public class AnalyzerTests {
 		hm.put("syllables", "");
 
 		// hm = Collections.unmodifiableMap(hm);
-		System.out.println(RiTa.analyze(""));
+		//System.out.println(RiTa.analyze(""));
 		assertEquals(RiTa.analyze(""), hm);
 
 		Map<String, String> feats;

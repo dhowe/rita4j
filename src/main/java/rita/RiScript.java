@@ -99,8 +99,9 @@ public class RiScript {
 		// CommonTokenStream toks = new RiScript().lex("(A | B)", Util.opts("trace",
 		// true));
 		RiScript rs = new RiScript();
-		String s = rs.lexParseVisit("(A | B)", Util.opts("trace", true));
-		System.out.println("Result: "+s);
+		Map<String, Object> opts = Util.opts();
+		String s = rs.lexParseVisit("$a=(A | B)\n$a.", opts, Util.opts("trace", true));
+		System.out.println("Result: "+s+" :: "+ opts.get("a"));
 		// System.out.println(RiScript.eval("Hello"));
 	}
 }
