@@ -25,6 +25,11 @@ public class RiScript {
 
 	public static String eval(String input, Map<String, Object> ctx) {
 
+		return new RiScript().lexParseVisit(input, ctx, null);
+	}
+	
+	public static String eval(String input, Map<String, Object> ctx, Map<String, Object> opts) {
+
 		return new RiScript().lexParseVisit(input, ctx);
 	}
 

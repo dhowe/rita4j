@@ -265,6 +265,11 @@ public class RiTa
   {
     return RiScript.eval(word, opts);
   }
+  
+  public static String evaluate(String word, Map<String, Object> ctx, Map<String, Object> opts)
+  {
+    return RiScript.eval(word, ctx, opts);
+  }
 
   public static String stresses(String text)
   {
@@ -439,7 +444,5 @@ public class RiTa
   public static final String[] ABBREVIATIONS = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.",
       "Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." };
   public static final String[] STOP_WORDS = null; //TODO
-
-
 
 }

@@ -5,9 +5,11 @@ package rita.test;
 
 import static org.junit.Assert.assertTrue;
 
+import java.util.Map;
+
 import org.junit.Test;
 
-import rita.RiScript;
+import rita.*;
 
 public class RiScriptTests {
 
@@ -18,7 +20,21 @@ public class RiScriptTests {
 		assertTrue(RiScript.isParseable("(A | B)"));
 		assertTrue(!RiScript.isParseable("$hello"));
 	}
-	
+
+//	class Nest {
+//		public 
+//		public Nest(Map<String, Object> data) {
+//			this.data = data;
+//		}
+//	}
+
+	@Test
+	public void testNestedContext() {
+		Map<String, Object> ctx = Util.opts();
+		ctx.put("bar", Util.opts("color", "blue"));
+		RiTa.evaluate("$foo=$bar.color\n$foo", ctx, Util.opts("trace", false));
+	}
+
 	@Test
 	public void testParseSymbols() {
 		/*
