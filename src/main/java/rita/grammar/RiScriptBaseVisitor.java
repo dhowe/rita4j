@@ -22,7 +22,7 @@ public class RiScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 */
 	@Override
 	public T visitScript(RiScriptParser.ScriptContext ctx) {
-		System.out.println("visitScript: '" + ctx.getText() + "'");
+		System.out.println("visitScript: '" + ctx.getText().replaceAll("\\n", "\\\\n") + "'");
 		return visitChildren(ctx);
 	}
 

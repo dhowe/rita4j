@@ -3,10 +3,22 @@
  */
 package rita.test;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
+
+import rita.RiScript;
 
 public class RiScriptTests {
 
+	@Test
+	public void testIsParseable() {
+		assertTrue(!RiScript.isParseable("Hello"));
+		assertTrue(RiScript.isParseable("("));
+		assertTrue(RiScript.isParseable("(A | B)"));
+		assertTrue(!RiScript.isParseable("$hello"));
+	}
+	
 	@Test
 	public void testParseSymbols() {
 		/*

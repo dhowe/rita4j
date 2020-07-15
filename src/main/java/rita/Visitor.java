@@ -1,14 +1,9 @@
 package rita;
 
-import java.lang.reflect.Array;
 import java.util.*;
-import java.util.stream.*;
-import java.util.function.Function;
 
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.tree.ParseTree;
-import org.antlr.v4.runtime.tree.RuleNode;
-import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.*;
 
 import rita.grammar.RiScriptBaseVisitor;
 import rita.grammar.RiScriptParser.*;
@@ -40,6 +35,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		this.context = context;
 		this.pendingSymbols = new ArrayList<String>();
 	}
+	
+	public String start(ScriptContext ctx) {
+		return visitScript(ctx).trim();
+	}
 
 	public String visitChildren(RuleNode node) {
 		// public String visitChildren(ParserRuleContext ctx) {
@@ -57,9 +56,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result;
 	}
 
-	public String start(ScriptContext ctx) {
-		return visitScript(ctx);
-	}
 
 	public String visitAssign(AssignContext ctx) {
 		//System.out.println("visitAssign: '" + ctx.getText() + "'");
@@ -75,8 +71,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitTerminal(TerminalNode ctx) {
 		
-		
-		
+		String term = ctx.getText();
+    if (term.equals(Visitor.EOF)) return "";
+    System.out.println("visitTerminal: '" + term.replaceAll("\\n", "\\\\n") + "'");
+    return term;
 		// NEXT: WORKING HERE (also rita-js transformed phrases)
 		
 		
@@ -108,7 +106,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
       this.trace && console.log('visitTerminal2(""): tfs=[' + (tfs || '') + ']');
     }
     return this.handleTransforms(term, tfs);*/
-  	return null;
   }
 	
 	 /* visit the resolved symbol */
@@ -133,8 +130,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 //    textContext.transforms = ctx.transforms || [];
 //    ctx.transform().map(t => textContext.transforms.push(t.getText()));
 
-    if (this.trace) System.out.println("visitSymbol($" 
-    		+ ident.replaceAll("^\\$", "") + ")");
+    if (this.trace) System.out.println("visitSymbol: $" 
+    		+ ident.replaceAll("^\\$", "") + " -> ...");
       //+ " tfs=[" + (textContext.transforms || "") + "] ctx[\""
       //+ ident + "\"]=" + (ident === "RiTa" ? "{RiTa}" : textContext.text));
 
@@ -201,7 +198,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	protected String symbolName(String text) {
-		return (text.length() > 0 && text.substring(0,1) == Visitor.SYM)
+		return (text.length() > 0 && text.substring(0,1).equals(Visitor.SYM))
 				? text.substring(1)
 				: text;
 	}
@@ -210,13 +207,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return this.parent.parser.getRuleNames()[ctx.getRuleIndex()];
 	}
 
-//	protected String getRuleName(ParserRuleContext ctx) {
-//		return ctx.hasOwnProperty("symbol") ? this.parent.lexer.symbolicNames[ctx.symbol.type]
-//				: this.parent.parser.ruleNames[ctx.ruleIndex];
-//	}
-
 	protected String flatten(ParserRuleContext... toks) {
 		return Arrays.asList(toks).stream().map(t -> t.getText())
 				.reduce("", (acc, t) -> (acc + t));
-	}
+	}	
+
 }
