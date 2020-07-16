@@ -1,7 +1,6 @@
 package rita.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import rita.*;
 import static rita.Util.opts;
@@ -34,11 +33,11 @@ public class RiScriptTests {
 
 	// Conditional
 
-	@Test(expected = RiTaException.class)
+	@Test
 	public void testBadConditionals() {
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
-		RiTa.evaluate("{$a<} foo", ctx, opts("silent", true));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<} foo", ctx, opts("silent", true)));
 	}
 
 	@Test
@@ -466,16 +465,16 @@ public class RiScriptTests {
 
 	// Symbol
 
-	@Test(expected = RiTaException.class)
+	@Test
 	public void testBadSymbols() {
 		Map<String, Object> ctx = opts();
-		String rs = RiTa.evaluate("$", ctx, opts("silent", true));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("$", ctx, opts("silent", true)));
 	}
 
-	@Test(expected = RiTaException.class)
+	@Test
 	public void testRiScriptInContextSymbol() {
 		Map<String, Object> ctx = opts("name", "(Dave | Dave)");
-		String rs = RiTa.evaluate("[$stored=$name] is called $stored", ctx, opts("trace", true));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("[$stored=$name] is called $stored", ctx, opts("trace", true)));
 	}
 
 	@Test
@@ -542,7 +541,7 @@ public class RiScriptTests {
 		assertEquals(RiTa.evaluate("$100 is a lot of $dog.", ctx, tf), "$100 is a lot of terrier.");
 		assertEquals(RiTa.evaluate("the $dog cost $100", ctx, tf), "the terrier cost $100");
 		assertEquals(RiTa.evaluate("the $dog cost $100!", ctx, tf), "the terrier cost $100!");
-		assertEquals(RiTa.evaluate("the $dog costot, ctx, tf), "the terrier costot);
+		assertEquals(RiTa.evaluate("the $dog costot", ctx, tf), "the terrier costot");
 		assertEquals(RiTa.evaluate("the $dog^1 was a footnote.", ctx, tf), "the terrier^1 was a footnote.");
 
 	}
@@ -576,7 +575,7 @@ public class RiScriptTests {
 		assertEquals(RiTa.evaluate("$bar", ctx), "A");
 		ctx.clear();
 		ctx.put("foo", "baz");
-		ctx.put("$foo starts with (b | b)");
+		ctx.put("bar", "$foo starts with (b | b)");
 		assertEquals(RiTa.evaluate("$bar", ctx), "baz starts with b");
 		assertEquals(RiTa.evaluate("$start=$foo\n$foo=hello\n$start"), "hello");
 		assertEquals(RiTa.evaluate("$start = $noun\n$noun = hello\n$start"), "hello");
@@ -629,12 +628,13 @@ public class RiScriptTests {
 	public void TestBadChoices() {
 		Map<String, Object> ctx = opts();
 		Map<String, Object> st = opts("silent", true);
-		// TODO: -> throw error
-		// RiTa.evaluate("|", ctx, st);
-		// RiTa.evaluate("a |", ctx, st);
-		// RiTa.evaluate("a | b", ctx, st);
-		// RiTa.evaluate("a | b | c", ctx, st);
-		// RiTa.evaluate("(a | b) | c", ctx, st);
+
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("|", ctx, st));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("a |", ctx, st));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("a | b", ctx, st));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("a | b | c", ctx, st));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("(a | b) | c", ctx, st));
+		
 	}
 
 	@Test
@@ -747,11 +747,8 @@ public class RiScriptTests {
 	@Test
 	public void UseTransfromsInContext() {
 		Map<String, Object> ctx = opts();
-		// let ctx = { "capB": (s) => s || "B" };
-		// Function<String, String> func = (s) -> {String result = s || "B"; return
-		// result;};
+		Function<String, String> func = s -> ( s != null ? s : "B");
 		ctx.put("capB", func);
-
 		assertEquals(RiTa.evaluate(".capB()", ctx, tf), "B");
 		assertEquals(RiTa.evaluate("(c).capB()", ctx, tf), "c");
 		assertEquals(RiTa.evaluate("(c).toUpperCase()", ctx, tf), "C");
@@ -996,7 +993,6 @@ public class RiScriptTests {
 				"$noun = (woman | woman)",
 				"$verb = shoots",
 				"$start") + "\n";
-		// console.log(script);
 		String rs = RiTa.evaluate(script, ctx, tf);
 		assertEquals(rs, "the woman shoots the woman.");
 	}
@@ -1042,9 +1038,9 @@ public class RiScriptTests {
 	@Test
 	public void testBasicPunctuation() {
 		Map<String, Object> ctx = opts();
-		assertEquals(RiTa.evaluate("The -;:.!?"`", ctx, tf), "The -;:.!?"`");
-		assertEquals(RiTa.evaluate("The -;:.!?\"`", ctx), "The -;:.!?\"`");
-		assertEquals(RiTa.evaluate(",.;:\"?!-_`“”’‘…‐–—―^*", ctx, tf), ",.;:\"?!-_`“”’‘…‐–—―^*");
+		assertEquals(RiTa.evaluate("The -;:.!?\'`", ctx, tf), "The -;:.!?'`");
+		assertEquals(RiTa.evaluate("The -;:.!?\'`", ctx), "The -;:.!?\"`");
+		assertEquals(RiTa.evaluate(",.;:'?!-_`“”’‘…‐–—―^*", ctx, tf), ",.;:'?!-_`“”’‘…‐–—―^*");
 		assertEquals(RiTa.evaluate(",.;:\"?!-_`“”’‘…‐–—―^*", ctx, tf), ",.;:\"?!-_`“”’‘…‐–—―^*");
 		assertEquals(RiTa.evaluate("/&%©@*"), "/&%©@*");
 	}
@@ -1078,7 +1074,7 @@ public class RiScriptTests {
 		assertEquals(Operator.NE.invoke("hello", ""), true);
 		assertEquals(Operator.NE.invoke("hello", "false"), true);
 
-		// Operator.NE.invoke(null, null) -> throw
+		assertThrows(RiTaException.class, () -> Operator.NE.invoke(null, null));
 	}
 
 	@Test
@@ -1098,7 +1094,7 @@ public class RiScriptTests {
 		assertEquals(Operator.NE.invoke("hello", ""), true);
 		assertEquals(Operator.NE.invoke("hello", "false"), true);
 
-		// Operator.NE.invoke(null, null) -> throw
+		assertThrows(RiTaException.class, () -> Operator.NE.invoke(null, null));
 	}
 
 	@Test
@@ -1133,13 +1129,12 @@ public class RiScriptTests {
 		assertEquals(Operator.LE.invoke("2.0", "1.00"), false);
 		assertEquals(Operator.LE.invoke("1.0", "2.00"), true);
 		assertEquals(Operator.LE.invoke("1.0", "1.00"), true);
-		// TODO: -> throw error
+	
+		assertThrows(RiTaException.class, () -> Operator.GT.invoke("2", ""));
+		assertThrows(RiTaException.class, () -> Operator.GT.invoke("2", "h"));
+		assertThrows(RiTaException.class, () -> Operator.GT.invoke("", ""));
+		assertThrows(RiTaException.class, () -> Operator.GT.invoke("2", null));
 
-		// Operator.GT.invoke("2", "");
-		// Operator.LE.invoke("2", "h");
-		// Operator.GE.invoke("", "");
-
-		// Operator.LT.invoke("2", null) -> throw();
 	}
 
 	@Test
@@ -1169,10 +1164,9 @@ public class RiScriptTests {
 		assertEquals(Operator.RE.invoke("bye", "(hello|bye)"), true);
 		assertEquals(Operator.RE.invoke("by", "(hello|bye)"), false);
 
-		// Operator.SW.invoke(null, "hello") -> throw
-		// Operator.SW.invoke(null, null) -> throw
-	}
+		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, "hello"));
+		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, null));
 
-}
+	}
 
 }
