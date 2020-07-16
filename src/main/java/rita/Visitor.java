@@ -5,9 +5,8 @@ import java.util.*;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 
-import rita.grammar.RiScriptBaseVisitor;
-import rita.grammar.RiScriptParser;
-import rita.grammar.RiScriptParser.*;
+import rita.antlr.RiScriptBaseVisitor;
+import rita.antlr.RiScriptParser.*;
 
 public class Visitor extends RiScriptBaseVisitor<String> {
 

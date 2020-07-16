@@ -1,10 +1,6 @@
 package rita.test;
 
-import static org.junit.Assert.*;
-
 import org.junit.Test;
-
-import rita.RiTa;
 
 public class GrammarTests {
 

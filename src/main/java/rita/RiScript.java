@@ -1,16 +1,13 @@
 package rita;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.*;
 
-import rita.grammar.RiScriptLexer;
-import rita.grammar.RiScriptParser;
-import rita.grammar.RiScriptParser.ScriptContext;
-import rita.grammar.TreeUtils;
+import rita.antlr.*;
+import rita.antlr.RiScriptParser.ScriptContext;
 
 public class RiScript {
 
@@ -27,7 +24,7 @@ public class RiScript {
 
 		return new RiScript().lexParseVisit(input, ctx, null);
 	}
-	
+
 	public static String eval(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 
 		return new RiScript().lexParseVisit(input, ctx);
@@ -66,8 +63,8 @@ public class RiScript {
 		try {
 			tree = this.parser.script();
 			if (Util.boolOpt("trace", opts)) {
-				System.out.println(TreeUtils.toPrettyTree(tree,
-						Arrays.asList(parser.getRuleNames())));
+				System.out.println("\n" + tree.toStringTree(
+						Arrays.asList(parser.getRuleNames())) + "\n");
 			}
 		} catch (Exception e) {
 			System.err.println("PARSER: '" + input + "'\n" + e.getMessage() + "\n");
@@ -106,14 +103,11 @@ public class RiScript {
 	}
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\\\$[A-Za-z_][A-Za-z_0-9-]*)");
-	
+
 	public static void main(String[] args) {
-		// CommonTokenStream toks = new RiScript().lex("(A | B)", Util.opts("trace",
-		// true));
 		RiScript rs = new RiScript();
 		Map<String, Object> opts = Util.opts();
 		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
-		System.out.println("Result: '" + s + "', opts: " + opts);
-		// System.out.println(RiScript.eval("Hello"));
+		System.out.println("\nResult: '" + s + "', opts: " + opts);
 	}
 }

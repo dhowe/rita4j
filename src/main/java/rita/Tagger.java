@@ -85,12 +85,12 @@ public class Tagger {
 		 * present participle VBN Verb, past participle VBP Verb, non-3rd person
 		 * singular present VBZ Verb, 3rd person singular present NNS Noun, plural
 		 */
-		List<String> pos;
+		String[] pos;
 
 		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
 			String check = word.substring(0, word.length() - 3) + "y";
-			pos = Arrays.asList(lexicon._posArr(check));
-			if (pos.contains("vb")) {
+			pos = lexicon._posArr(check);
+			if (Arrays.asList(pos).contains("vb")) {
 				String[] result = { "vbz" };
 				return result;
 			}
@@ -112,25 +112,26 @@ public class Tagger {
 			}
 
 			if (result.size() > 0) return result.toArray(new String[0]);
+
 		} else if (word.endsWith("ed")) { // simple past or past participle
-			pos = Arrays.asList(lexicon._posArr(word.substring(0, word.length() - 1)));
-			if (pos.size() < 1) pos = Arrays.asList(lexicon._posArr(word.substring(0, word.length() - 2)));
-			if (Arrays.asList(pos).contains("vb")) { // What is the warning here ?
-				String[] result = { "vbd", "vbn" };
-				return result; // hate-> hated || row->rowed
+
+			pos = lexicon._posArr(word.substring(0, word.length() - 1));
+			if (pos.length < 1) pos = lexicon._posArr(word.substring(0, word.length() - 2));
+			if (Arrays.asList(pos).contains("vb")) {
+				return new String[] { "vbd", "vbn" }; // hate-> hated || row->rowed
 			}
+
 		} else if (word.endsWith("ing")) {
+
 			String stem = word.substring(0, word.length() - 3);
 			if (stem.length() > 0) {
-				pos = Arrays.asList(lexicon._posArr(stem));
-				if (pos.contains("vb")) {
-					String[] result = { "vbg" };
-					return result; // assenting
+				pos = lexicon._posArr(stem);
+				if (Arrays.asList(pos).contains("vb")) {
+					return new String[] { "vbg" }; // assenting
 				} else {
-					pos = Arrays.asList(lexicon._posArr(stem + 'e')); // hate
-					if (pos.contains("vb")) {
-						String[] result = { "vbg" };
-						return result; // hating
+					pos = lexicon._posArr(stem + 'e'); // hate
+					if (Arrays.asList(pos).contains("vb")) {
+						return new String[] { "vbg" }; // hating
 					}
 				}
 			}
@@ -153,11 +154,7 @@ public class Tagger {
 		if (word.endsWith("ly")) {
 			result[0] = "rb";
 		} else {
-			if (word.endsWith("s")) {
-				result[0] = "nns";
-			} else {
-				result[0] = "nn";
-			}
+			result[0] = word.endsWith("s") ? "nns" : "nn";
 		}
 
 		return result;
@@ -165,7 +162,7 @@ public class Tagger {
 
 	private static String[] posOptions(String word) {
 		String[] posdata = lexicon._posArr(word); // fail if no lexicon
-		//System.out.println("data : " + Arrays.toString(posdata));
+		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
 		return posdata;
 
@@ -178,9 +175,9 @@ public class Tagger {
 
 	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
 		if (wordsArr == null || wordsArr.length == 0) return new String[0];
-		
+
 		boolean dbug = false;
-		
+
 		String[][] choices2d = new String[wordsArr.length][];
 		String[] result = new String[wordsArr.length];
 
@@ -230,7 +227,7 @@ public class Tagger {
 
 		// console.log("ac(" + words + "," + result + "," + choices2d + ")");
 		boolean dbug = false;
-		
+
 		// Apply transformations
 		for (int i = 0, l = words.length; i < l; i++) {
 
@@ -434,7 +431,7 @@ public class Tagger {
 			return false;
 		}
 		try {
-			double d = Double.parseDouble(strNum);
+			Double.parseDouble(strNum);
 		} catch (NumberFormatException nfe) {
 			return false;
 		}

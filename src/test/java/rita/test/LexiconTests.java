@@ -608,7 +608,7 @@ public class LexiconTests {
 
 	@Test
 	public void testSpellsLike() {
-		String[] result, answer;
+		String[] result;
 
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("minLength", 6);

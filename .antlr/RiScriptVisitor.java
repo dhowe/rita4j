@@ -1,5 +1,5 @@
 // Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.7.1
-package rita.grammar;
+package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
 /**
