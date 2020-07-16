@@ -6,8 +6,9 @@ For JavaScript, see [this repo](https://github.com/dhowe/rita2js) and/or [try th
 <br>
 
 ### Building
-
+```
 $ git clone https://github.com/dhowe/rita2.git
 $ cd rita2
 $ git checkout maven
 $ mvn install
+```
