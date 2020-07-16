@@ -9,7 +9,6 @@ public class RiTa
   protected static Lexicon lexicon;
   protected static Analyzer analyzer;
   
-  protected static LexParser parser;
   protected static Concorder concorder;
   protected static Conjugator conjugator;
   protected static LetterToSound lts;
