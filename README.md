@@ -13,5 +13,5 @@ $ mvn install -D skipTests  # should see "BUILD SUCCESS"
 
 ### Eclipse
 1. Do steps above under **Building**
-2. In eclipse, File->Import->Maven->Existing Maven Projects and select 'rita2' folder
-3. Right-click on project, and select Run-as 'Maven install' or 'JUnit tests'
+2. In eclipse, File->Import->Maven->Existing Maven Projects and select your 'rita2' folder
+3. Right-click on project, and select 'Run-as' -> 'Maven install' or 'JUnit tests'
