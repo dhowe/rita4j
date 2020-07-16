@@ -12,3 +12,6 @@ $ cd rita2
 $ git checkout maven
 $ mvn install
 ```
+
+### Eclipse
+1. Do steps above under **Building**
