@@ -112,7 +112,7 @@ public class RiScript {
 		// true));
 		RiScript rs = new RiScript();
 		Map<String, Object> opts = Util.opts();
-		String s = rs.lexParseVisit("$a=(A | B)\n$a.", opts, Util.opts("trace", true));
+		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
 		System.out.println("Result: '" + s + "', opts: " + opts);
 		// System.out.println(RiScript.eval("Hello"));
 	}
