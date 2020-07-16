@@ -7,7 +7,6 @@ For JavaScript, see [this repo](https://github.com/dhowe/rita2js) and/or [try th
 ```
 $ git clone https://github.com/dhowe/rita2.git
 $ cd rita2
-$ git checkout maven        # tmp
 $ mvn install -D skipTests  # should see "BUILD SUCCESS"
 ```
 
