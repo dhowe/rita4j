@@ -52,11 +52,17 @@
 
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.12</version>
-			<scope>test</scope>
-		</dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.4.2</version>
+        <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-engine</artifactId>
+        <version>5.4.2</version>
+        <scope>test</scope>
+    </dependency>
 
 	</dependencies>
 
@@ -64,5 +70,5 @@
 		<name>Rednoise</name>
 		<url>https://rednoise.org</url>
 	</organization>
-	
+
 </project>

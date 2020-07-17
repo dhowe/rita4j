@@ -3,10 +3,10 @@
  */
 package rita.test;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import rita.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.Collections;
 import java.util.HashMap;
