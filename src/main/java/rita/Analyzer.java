@@ -70,12 +70,11 @@ public class Analyzer
 			if (!stresses.endsWith(" ")) stresses += " ";
 		}
 
+		features.put("phones", phonemes.trim());
 		features.put("stresses", stresses.trim());
-		features.put("phonemes", phonemes.trim());//.replace(/\\s+/, ' '); // needed?
-		features.put("syllables", syllables.trim());//.replace(/\\s+/, ' '); // needed?
+		features.put("syllables", syllables.trim());
 
-		//System.out.print("analysis features: ");
-		//System.out.print(features);
+		//System.out.print("analysis features: "+features);
 		return features;
 	}
 

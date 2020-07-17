@@ -190,7 +190,7 @@ public class Util {
 		return data;
 	}
 
-	public static Map<String, Object> from(String[] keys, Object[] vals) {
+	public static Map<String, Object> opts(String[] keys, Object[] vals) {
 		Map<String, Object> data = new HashMap<String, Object>();
 		for (int i = 0; i < keys.length; i++) {
 			data.put(keys[i], vals[i]);

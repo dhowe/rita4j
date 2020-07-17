@@ -411,7 +411,7 @@ public class RiScriptTests {
 		Map<String, Object> ctx = opts();
 		String result = RiTa.evaluate("[$stored=(a | b)]", ctx);
 		assertEquals(result, "");
-		result = ctx.get("stored");
+		result = (String) ctx.get("stored");
 		String[] results = { "a", "b" };
 		assertTrue(Arrays.asList(results).contains(result));
 
@@ -736,12 +736,10 @@ public class RiScriptTests {
 			return "A";
 		};
 
-		int orig = RiTa.addTransform("capA", func).length;
+		int orig = RiTa.addTransform("capA", func).size();
 		assertEquals(RiTa.evaluate(".capA()", ctx, tf), "A");
 		assertEquals(RiTa.evaluate("(b).capA()", ctx, tf), "A");
-		int post = RiTa.addTransform("capA").length;
-		assertEquals(post, orig);
-
+		assertEquals(1, orig);
 	}
 
 	@Test

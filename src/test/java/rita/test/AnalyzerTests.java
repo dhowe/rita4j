@@ -341,49 +341,49 @@ public class AnalyzerTests {
 
 		String result, answer;
 
-		result = RiTa.phonemes("");
+		result = RiTa.phones("");
 		answer = "";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("The");
+		result = RiTa.phones("The");
 		answer = "dh-ah";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("said");
+		result = RiTa.phones("said");
 		answer = "s-eh-d";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("The.");
+		result = RiTa.phones("The.");
 		answer = "dh-ah .";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("The boy jumped over the wild dog.");
+		result = RiTa.phones("The boy jumped over the wild dog.");
 		answer = "dh-ah b-oy jh-ah-m-p-t ow-v-er dh-ah w-ay-l-d d-ao-g .";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("The boy ran to the store.");
+		result = RiTa.phones("The boy ran to the store.");
 		answer = "dh-ah b-oy r-ae-n t-uw dh-ah s-t-ao-r .";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("The dog ran faster than the other dog.  But the other dog was prettier.");
+		result = RiTa.phones("The dog ran faster than the other dog.  But the other dog was prettier.");
 		answer = "dh-ah d-ao-g r-ae-n f-ae-s-t-er dh-ae-n dh-ah ah-dh-er d-ao-g . b-ah-t dh-ah ah-dh-er d-ao-g w-aa-z p-r-ih-t-iy-er .";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("flowers");
+		result = RiTa.phones("flowers");
 		answer = "f-l-aw-er-z";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("quiche");
+		result = RiTa.phones("quiche");
 		answer = "k-iy-sh";
 		assertEquals(result, answer);
 
-		result = RiTa.phonemes("mice");
+		result = RiTa.phones("mice");
 		answer = "m-ay-s";
 		assertEquals(result, answer);
 
-		assertEquals(RiTa.phonemes("chevrolet"), "sh-eh-v-r-ow-l-ey");
-		assertEquals(RiTa.phonemes("women"), "w-ih-m-eh-n");
-		assertEquals(RiTa.phonemes("genuine"), "jh-eh-n-y-uw-w-ah-n");
+		assertEquals(RiTa.phones("chevrolet"), "sh-eh-v-r-ow-l-ey");
+		assertEquals(RiTa.phones("women"), "w-ih-m-eh-n");
+		assertEquals(RiTa.phones("genuine"), "jh-eh-n-y-uw-w-ah-n");
 
 	}
 

@@ -2,11 +2,13 @@ package rita;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.*;
 
-import rita.antlr.*;
+import rita.antlr.RiScriptLexer;
+import rita.antlr.RiScriptParser;
 import rita.antlr.RiScriptParser.ScriptContext;
 
 public class RiScript {
@@ -14,6 +16,8 @@ public class RiScript {
 	protected RiScriptLexer lexer;
 	protected RiScriptParser parser;
 	protected Visitor visitor;
+
+	protected static Map<String, Function<String, String>> transforms;
 
 	public static String eval(String input) {
 
@@ -100,6 +104,12 @@ public class RiScript {
 
 	public static boolean isParseable(String s) { // public for testing
 		return PARSEABLE_RE.matcher(s).find();
+	}
+
+	public static String articlize(String s) {
+		String phones = RiTa.phones(s, Util.opts("silent", true));
+		return (phones != null && phones.length() > 0
+				&& RE.test("[aeiou]", phones.substring(0,1)) ? "an " : "a ") + s;
 	}
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\\\$[A-Za-z_][A-Za-z_0-9-]*)");

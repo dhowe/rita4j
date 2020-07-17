@@ -2,6 +2,8 @@ package rita;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 public class RiTa
@@ -22,6 +24,26 @@ public class RiTa
 //  protected static Tokenizer tokenizer;
 //  protected static Syllabifier syllabifier;
 //  protected static Stemmer stemmer;
+    
+	public static Map<String, Function<String,String>> addTransform(String string) { 
+		RiScript.transforms.put(string, Function.identity());
+		return RiScript.transforms;
+	}
+	
+	public static Map<String, Function<String,String>> addTransform(String string, Function<String, String> func) {
+		RiScript.transforms.put(string, func);
+		return RiScript.transforms;
+	}
+	
+	public static Map<String, Function<String,String>> addTransform(String string, Supplier<String> func) {
+		// RiScript.transforms.put(string, func); //TODO
+		return RiScript.transforms;
+	}
+	
+	public static Object articlize(String string) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
   public static Map<String, String> analyze(String word)
   {
@@ -150,9 +172,14 @@ public class RiTa
     return Conjugator.pastParticiple(verb);
   }
 
-  public static String phonemes(String text)
+  public static String phones(String text)
   {
-    return _analyzer().analyze(text).get("phonemes");
+    return RiTa.phones(text, null);
+  }
+  
+  public static String phones(String text, Map<String, Object> opts)
+  {
+    return _analyzer().analyze(text).get("phones");
   }
 
   public static String posInline(String text, Map<String, Object> opts)
