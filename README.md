@@ -10,6 +10,7 @@ $ cd rita2
 $ git checkout maven        # tmp
 $ mvn install -D skipTests  # should see "BUILD SUCCESS"
 ```
+The project requires a minimum version of Java 8 and Maven 3.6 to build.
 
 ### Eclipse
 1. Do steps above under **Building**
