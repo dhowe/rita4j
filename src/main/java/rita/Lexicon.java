@@ -11,7 +11,7 @@ public class Lexicon // KW: Wait on this class please
 	private static String LEXICON_DELIM = ":";
 	private static int MAP_SIZE = 30000;
 
-	protected static Map<String, String[]> dict; // data
+	public Map<String, String[]> dict; // data
 
 	public Lexicon(String filePath) throws Exception
 	{
