@@ -1,6 +1,7 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static rita.Util.opts;
 
 import java.util.*;
@@ -17,42 +18,43 @@ public class RiScriptTests {
 	static final Map<String, Object> ST = opts("silent", true);
 	
 	@Test
+	public void testCustomRegexes() {
+		String expr = "The $foo\ndog.";
+		assumeTrue(RE.test("\\$[A-Za-z_]", expr));
+		System.out.println(expr);
+	}
+	
+		
+	@Test
 	public void testSymbolsInContext() {
 
 		Map<String, Object> ctx = opts();
-		ctx.put("a", "(terrier | terrier)");
-		assertEq(RiTa.evaluate("$a.capitalize()", ctx), "Terrier");
-		
-if (1==1) return;
-
-		ctx.clear();
-		ctx.put("dog", "terrier");
+		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("the $dog ate", ctx), "the terrier ate");
 
 		ctx.put("verb", "ate");
 		assertEq(RiTa.evaluate("the $dog $verb", ctx), "the terrier ate");
 
 		ctx.clear();
-		assertEq(RiTa.evaluate("$foo", ctx, ST), "$foo");
+		assertEq(RiTa.evaluate("$foo", ctx), "$foo");
 		assertEq(RiTa.evaluate("a $foo dog", ctx, ST), "a $foo dog");
 
-		ctx.put("foo", "bar");
+		ctx = opts("foo", "bar");
 		assertEq(RiTa.evaluate("$foo", ctx), "bar");
-		ctx.clear();
-		ctx.put("dog", "terrier");
+		
+		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("a $dog", ctx), "a terrier");
 
-		ctx.clear();
-		ctx.put("dog", "beagle");
+		ctx = opts("dog", "beagle");
 		assertEq(RiTa.evaluate("I ate the $dog", ctx), "I ate the beagle");
-		ctx.clear();
-		ctx.put("dog", "lab");
+
+		ctx = opts("dog", "lab");
 		assertEq(RiTa.evaluate("The $dog today.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the $dog.", ctx), "I ate the lab.");
 
 		ctx.clear();
-		assertEq(RiTa.evaluate("$foo\n", ctx, ST), "$foo");
-		assertEq(RiTa.evaluate("a $foo\ndog", ctx, ST), "a $foo dog");
+		assertEq(RiTa.evaluate("$foo\n", ctx), "$foo");
+		assertEq(RiTa.evaluate("a $foo\ndog", ctx), "a $foo dog");
 		ctx.put("foo", "bar");
 		assertEq(RiTa.evaluate("$foo\n", ctx), "bar");
 		ctx.clear();
@@ -66,14 +68,18 @@ if (1==1) return;
 		assertEq(RiTa.evaluate("The $dog\ntoday.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the\n$dog.", ctx), "I ate the lab.");
 
-		ctx.clear();
-		ctx.put("dog", "terrier");
+		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("$100 is a lot of $dog.", ctx), "$100 is a lot of terrier.");
 		assertEq(RiTa.evaluate("the $dog cost $100", ctx), "the terrier cost $100");
 		assertEq(RiTa.evaluate("the $dog cost $100!", ctx), "the terrier cost $100!");
 		assertEq(RiTa.evaluate("the $dog costot", ctx), "the terrier costot");
 		assertEq(RiTa.evaluate("the $dog^1 was a footnote.", ctx), "the terrier^1 was a footnote.");
+		
+		// TODO: failing pre-transforms
+		ctx = opts("a", "\"(terrier | terrier)");
+		assertEq(RiTa.evaluate("$a.capitalize()", ctx), "Terrier");
 	}
+	
 	@Test
 	public void testArticlize() {
 		assertEq(RiTa.articlize("dog"), "a dog");
