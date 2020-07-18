@@ -39,16 +39,6 @@ public class RiTa
 		// RiScript.transforms.put(string, func); //TODO
 		return RiScript.transforms;
 	}
-	
-	public static Object articlize(String string) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-  public static Map<String, String> analyze(String word)
-  {
-    return _analyzer().analyze(word);
-  }
 
   public static String[] alliterations(String word)
   {
@@ -64,7 +54,17 @@ public class RiTa
   {
     return alliterations(word, Util.intOpt("minWordLength", opts, Integer.MAX_VALUE));
   }
+  
+  public static Map<String, String> analyze(String word)
+  {
+    return _analyzer().analyze(word);
+  }
 
+	public static String articlize(String s) {
+
+		return RiScript.articlize(s);
+	}
+	
   public static Map<String, String> concordance(String text, String word)
   {
     return concordance(text, word, null);

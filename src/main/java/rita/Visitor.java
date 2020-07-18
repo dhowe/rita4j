@@ -13,12 +13,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	private static final String SYM = "$";
 	private static final String EOF = "<EOF>";
 	private static final String FUNCTION = "()";
-	
-	//private static final String LP = "(";
-	//private static final String RP = ")";
-	//private static final String OR = "OR";
-	//private static final String ASSIGN = "[]";
-		
+
+	// private static final String LP = "(";
+	// private static final String RP = ")";
+	// private static final String OR = "OR";
+	// private static final String ASSIGN = "[]";
+
 	protected RiScript parent;
 	protected List<String> pendingSymbols;
 	protected Map<String, Object> context;
@@ -75,7 +75,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		String term = ctx.getText();
 		if (term.equals(Visitor.EOF)) return "";
-		System.out.println("visitTerminal: '" + term.replaceAll("\\n", "\\\\n") + "'");
+		if (this.trace) System.out.println("visitTerminal: '"
+				+ term.replaceAll("\\n", "\\\\n") + "'");
 		return term;
 		// NEXT: WORKING HERE (also rita-js transformed phrases)
 
@@ -145,14 +146,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		@Override
 		public Token getSymbol() {
-
 			return this.symbol;
 		}
 	}
 
 	public String visitChars(CharsContext ctx) {
 
-		System.out.println("visitChars: '" + ctx.getText() + "'");
+		if (this.trace) System.out.println
+			("visitChars: '" + ctx.getText() + "'");
 		return ctx.getText().toString();
 	}
 

@@ -13,6 +13,8 @@ import rita.antlr.RiScriptParser.ScriptContext;
 
 public class RiScript {
 
+	public static final int MAX_TRIES = 100;
+	
 	protected RiScriptLexer lexer;
 	protected RiScriptParser parser;
 	protected Visitor visitor;
@@ -26,12 +28,25 @@ public class RiScript {
 
 	public static String eval(String input, Map<String, Object> ctx) {
 
-		return new RiScript().lexParseVisit(input, ctx, null);
+		return RiScript.eval(input, ctx, null);
 	}
 
 	public static String eval(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 
-		return new RiScript().lexParseVisit(input, ctx);
+		RiScript rs = new RiScript();
+		String last = input;
+		String expr = rs.lexParseVisit(input, ctx, opts);
+		boolean onepass = Util.boolOpt("singlePass", opts);
+		if (!onepass && rs.isParseable(expr)) {
+      for (int i = 0; i < RiScript.MAX_TRIES && !expr.equals(last); i++) {
+      	// WORKING HERE
+      }
+		}
+		return rs.resolveEntities(expr);
+	}
+
+	private String resolveEntities(String expr) {
+		return expr;
 	}
 
 	public CommonTokenStream lex(String input) {
@@ -102,7 +117,7 @@ public class RiScript {
 		return new Visitor(this, context, opts);
 	}
 
-	public static boolean isParseable(String s) { // public for testing
+	public boolean isParseable(String s) { // public for testing
 		return PARSEABLE_RE.matcher(s).find();
 	}
 
