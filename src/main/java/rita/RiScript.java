@@ -6,6 +6,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.*;
+import org.apache.commons.text.StringEscapeUtils;
 
 import rita.antlr.RiScriptLexer;
 import rita.antlr.RiScriptParser;
@@ -95,9 +96,8 @@ public class RiScript {
 		return this;
 	}
 
-	private String resolveEntities(String expr) {
-		// TODO
-		return expr;
+	private String resolveEntities(String s) {
+		return StringEscapeUtils.unescapeHtml4(s);
 	}
 
 	public CommonTokenStream lex(String input) {

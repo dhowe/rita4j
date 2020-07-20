@@ -13,7 +13,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	private static final String SYM = "$";
 	private static final String EOF = "<EOF>";
 	private static final String FUNCTION = "()";
-	
+
 	protected RiScript parent;
 	protected List<String> pendingSymbols;
 	protected Map<String, Object> context;
@@ -48,7 +48,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public String visitExpr(ExprContext ctx) {
-		if (this.trace) System.out.println("visitExpr('" 
+		if (this.trace) System.out.println("visitExpr('"
 				+ ctx.getText() + "'):");// tfs=" + (ctx.transforms || "[]"));
 		return this.visitChildren(ctx);
 	}
@@ -81,9 +81,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (this.trace && RE.test("\\S", term)) {
 			System.out.println("visitTerminal: '" + term.replaceAll("\\n", "\\\\n") + "'");
 		}
-		//if (this.parent.isParseable(term)) return term + tfs.reduce..ctx. // TODO: 
+		// if (this.parent.isParseable(term)) return term + tfs.reduce..ctx. // TODO:
 		return term;
-	}		
+	}
 
 	/* visit the resolved symbol */
 	public String visitSymbol(SymbolContext ctx) {
@@ -99,8 +99,15 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			return SYM + ident;
 		}
 
-		String text = (String) this.context.get(ident);
-		if (text == null) text = SYM + ident; // reset
+		String text;
+		Object def = this.context.get(ident);
+
+		// NOTE: this does not match JS
+		if (def == null || !(def instanceof String)) {
+			text = SYM + ident; // reset
+		} else {
+			text = (String) def;
+		}
 
 		// hack to pass transforms along to visitTerminal
 //    let textContext = { text, getText: () => text };

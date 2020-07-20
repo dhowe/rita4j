@@ -1,7 +1,7 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static rita.Util.opts;
 
 import java.util.*;
@@ -20,7 +20,7 @@ public class RiScriptTests {
 	@Test
 	public void testCustomRegexes() {
 		String expr = "The $foo\ndog.";
-		assumeTrue(RE.test("\\$[A-Za-z_]", expr));
+		assertTrue(RE.test("\\$[A-Za-z_]", expr));
 		System.out.println(expr);
 	}
 	
@@ -73,11 +73,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("the $dog cost $100", ctx), "the terrier cost $100");
 		assertEq(RiTa.evaluate("the $dog cost $100!", ctx), "the terrier cost $100!");
 		assertEq(RiTa.evaluate("the $dog costot", ctx), "the terrier costot");
-		assertEq(RiTa.evaluate("the $dog^1 was a footnote.", ctx), "the terrier^1 was a footnote.");
-		
-		// TODO: failing pre-transforms
-		ctx = opts("a", "\"(terrier | terrier)");
-		assertEq(RiTa.evaluate("$a.capitalize()", ctx), "Terrier");
+		assertEq(RiTa.evaluate("the $dog^1 was a footnote.", ctx), "the terrier^1 was a footnote.");		
 	}
 	
 	@Test
@@ -87,6 +83,44 @@ public class RiScriptTests {
 		assertEq(RiTa.articlize("honor"), "an honor");
 		assertEq(RiTa.articlize("eagle"), "an eagle");
 		assertEq(RiTa.articlize("ermintrout"), "an ermintrout");
+	}
+	
+	@Test
+	public void testArticlizePhrases() {
+		assertEq(RiTa.articlize("black dog"), "a black dog");
+		assertEq(RiTa.articlize("black ant"), "a black ant");
+		assertEq(RiTa.articlize("orange ant"), "an orange ant");
+	}
+
+	@Test
+	public void testInvokeMatchingOperators() {
+		assertEq(Operator.SW.invoke("Hello", "He"), true);
+		assertEq(Operator.SW.invoke("Hello", "Hello"), true);
+		assertEq(Operator.SW.invoke("Hello", "Hej"), false);
+		assertEq(Operator.SW.invoke("Hello", null), false);
+		assertEq(Operator.SW.invoke("Hello", ""), true);
+
+		assertEq(Operator.EW.invoke("Hello", "o"), true);
+		assertEq(Operator.EW.invoke("Hello", "Hello"), true);
+		assertEq(Operator.EW.invoke("Hello", "l1o"), false);
+		assertEq(Operator.EW.invoke("Hello", null), false);
+		assertEq(Operator.EW.invoke("Hello", ""), true);
+
+		assertEq(Operator.RE.invoke("Hello", "ll"), true);
+		assertEq(Operator.RE.invoke("Hello", "e"), true);
+		assertEq(Operator.RE.invoke("Hello", "l1"), false);
+		assertEq(Operator.RE.invoke("Hello", null), false);
+		assertEq(Operator.RE.invoke("Hello", ""), true);
+
+		assertEq(Operator.SW.invoke("$Hello", "$"), true);
+		assertEq(Operator.EW.invoke("$Hello", "$"), false);
+		assertEq(Operator.RE.invoke("$Hello", "$"), true);
+		assertEq(Operator.RE.invoke("hello", "(hello|bye)"), true);
+		assertEq(Operator.RE.invoke("bye", "(hello|bye)"), true);
+		assertEq(Operator.RE.invoke("by", "(hello|bye)"), false);
+
+		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, "hello"));
+		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, null));
 	}
 
 	@Test
@@ -102,93 +136,7 @@ public class RiScriptTests {
 	public void testNestedContext() {
 		Map<String, Object> ctx = opts();
 		ctx.put("bar", opts("color", "blue"));
-		String res = RiTa.evaluate("$foo=$bar.color\n$foo", ctx, opts("trace", false));
-	}
-
-	// Conditional
-
-	@Test
-	public void testBadConditionals() {
-		Map<String, Object> ctx = opts();
-		ctx.put("a", 2);
-		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<} foo", ctx, ST));
-	}
-
-	@Test
-	public void testConditionals() {
-		Map<String, Object> ctx = opts();
-		ctx.put("a", 2);
-		assertEq(RiTa.evaluate("{$a<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1} foo", ctx), "foo");
-		ctx.clear();
-		ctx.put("a", "hello");
-		assertEq(RiTa.evaluate("{$a=hello} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a=goodbye} foo", ctx), "");
-	}
-
-	@Test
-	public void testFloatConditionals() {
-		Map<String, Object> ctx = opts();
-		ctx.put("a", 2);
-
-		assertEq(RiTa.evaluate("{$a<1.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1.1} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a<.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>.1} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>0.1} foo", ctx), "foo");
-
-		ctx.clear();
-		ctx.put("a", .1);
-		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>=0.1} foo", ctx), "foo");
-
-	}
-
-	@Test
-	public void testMultivalConditionals() {
-		Map<String, Object> ctx = opts();
-		ctx.put("a", 2);
-
-		assertEq(RiTa.evaluate("{$a<1,$b<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
-
-		ctx.put("b", 2);
-		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a=ok,$b>=1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1,$b>=1} foo", ctx), "foo");
-	}
-
-	@Test
-	public void testMatchingConditional() {
-		Map<String, Object> ctx = opts();
-		ctx.put("a", "hello");
-
-		assertEq(RiTa.evaluate("{$a!=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$ell} foo", ctx), "foo");
-
-		ctx.clear();
-		ctx.put("a", "ello");
-		assertEq(RiTa.evaluate("{$a^=ell} foo", ctx), "foo");
-		ctx.clear();
-		ctx.put("a", "helloell");
-		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "foo");
-		ctx.clear();
-		ctx.put("a", "helloellx");
-		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "");
-
-	}
-
-	@Test
-	public void testRSMatchingConditional() {
-		Map<String, Object> ctx = opts();
-
-		assertEq(RiTa.evaluate("$a=hello\n{$a!=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=hello\n{$ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=ello\n{$a^=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=helloell\n{$a$=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell} foo", ctx), "foo");
-
+		String res = RiTa.evaluate("$foo=$bar.color\n$foo", ctx);
 	}
 
 	// Evaluation
@@ -1126,42 +1074,102 @@ public class RiScriptTests {
 		assertThrows(RiTaException.class, () -> Operator.GT.invoke("2", "h"));
 		assertThrows(RiTaException.class, () -> Operator.GT.invoke("", ""));
 		assertThrows(RiTaException.class, () -> Operator.GT.invoke("2", null));
+	}	
+	
+	@Test
+	public void testTransformedSymbolsInContext() {
+
+		// TODO: failing pre-transforms
+		Map<String, Object> ctx = opts("a", "\"(terrier | terrier)");
+		assertEq(RiTa.evaluate("$a.capitalize()", ctx), "Terrier");
+	}
+	
+	// Conditionals ======================================================
+
+	@Test
+	public void testBadConditionals() {
+		Map<String, Object> ctx = opts();
+		ctx.put("a", 2);
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<} foo", ctx, ST));
+	}
+
+	@Test
+	public void testConditionals() {
+		Map<String, Object> ctx = opts();
+		ctx.put("a", 2);
+		assertEq(RiTa.evaluate("{$a<1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1} foo", ctx), "foo");
+		ctx.clear();
+		ctx.put("a", "hello");
+		assertEq(RiTa.evaluate("{$a=hello} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a=goodbye} foo", ctx), "");
+	}
+
+	@Test
+	public void testFloatConditionals() {
+		Map<String, Object> ctx = opts();
+		ctx.put("a", 2);
+
+		assertEq(RiTa.evaluate("{$a<1.1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1.1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<.1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>.1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>0.1} foo", ctx), "foo");
+
+		ctx.clear();
+		ctx.put("a", .1);
+		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>=0.1} foo", ctx), "foo");
 
 	}
 
 	@Test
-	public void testInvokeMatchingOperators() {
-		assertEq(Operator.SW.invoke("Hello", "He"), true);
-		assertEq(Operator.SW.invoke("Hello", "Hello"), true);
-		assertEq(Operator.SW.invoke("Hello", "Hej"), false);
-		assertEq(Operator.SW.invoke("Hello", null), false);
-		assertEq(Operator.SW.invoke("Hello", ""), true);
+	public void testMultivalConditionals() {
+		Map<String, Object> ctx = opts();
+		ctx.put("a", 2);
 
-		assertEq(Operator.EW.invoke("Hello", "o"), true);
-		assertEq(Operator.EW.invoke("Hello", "Hello"), true);
-		assertEq(Operator.EW.invoke("Hello", "l1o"), false);
-		assertEq(Operator.EW.invoke("Hello", null), false);
-		assertEq(Operator.EW.invoke("Hello", ""), true);
+		assertEq(RiTa.evaluate("{$a<1,$b<1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
 
-		assertEq(Operator.RE.invoke("Hello", "ll"), true);
-		assertEq(Operator.RE.invoke("Hello", "e"), true);
-		assertEq(Operator.RE.invoke("Hello", "l1"), false);
-		assertEq(Operator.RE.invoke("Hello", null), false);
-		assertEq(Operator.RE.invoke("Hello", ""), true);
+		ctx.put("b", 2);
+		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a=ok,$b>=1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1,$b>=1} foo", ctx), "foo");
+	}
 
-		assertEq(Operator.SW.invoke("$Hello", "$"), true);
-		assertEq(Operator.EW.invoke("$Hello", "$"), false);
-		assertEq(Operator.RE.invoke("$Hello", "$"), true);
-		assertEq(Operator.RE.invoke("hello", "(hello|bye)"), true);
-		assertEq(Operator.RE.invoke("bye", "(hello|bye)"), true);
-		assertEq(Operator.RE.invoke("by", "(hello|bye)"), false);
+	@Test
+	public void testMatchingConditional() {
+		Map<String, Object> ctx = opts();
+		ctx.put("a", "hello");
 
-		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, "hello"));
-		assertThrows(RiTaException.class, () -> Operator.SW.invoke(null, null));
+		assertEq(RiTa.evaluate("{$a!=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$ell} foo", ctx), "foo");
+
+		ctx.clear();
+		ctx.put("a", "ello");
+		assertEq(RiTa.evaluate("{$a^=ell} foo", ctx), "foo");
+		ctx.clear();
+		ctx.put("a", "helloell");
+		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "foo");
+		ctx.clear();
+		ctx.put("a", "helloellx");
+		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "");
 
 	}
 
-	static void assertEq(Object a, Object b) { // swap order of args
+	@Test
+	public void testRSMatchingConditional() {
+		Map<String, Object> ctx = opts();
+
+		assertEq(RiTa.evaluate("$a=hello\n{$a!=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=hello\n{$ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=ello\n{$a^=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=helloell\n{$a$=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell} foo", ctx), "foo");
+	}
+
+	private static void assertEq(Object a, Object b) { // swap order of args
 		assertEquals(b, a);
 	}
 }
