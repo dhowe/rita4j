@@ -471,4 +471,5 @@ public class RiTa
       "Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." };
   public static final String[] STOP_WORDS = null; //TODO
 
+
 }
