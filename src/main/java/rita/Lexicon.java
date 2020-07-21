@@ -11,7 +11,7 @@ public class Lexicon // KW: Wait on this class please
 	private static String LEXICON_DELIM = ":";
 	private static int MAP_SIZE = 30000;
 
-	protected static Map<String, String[]> dict; // data
+	public Map<String, String[]> dict; // data
 
 	public Lexicon(String filePath) throws Exception
 	{
@@ -574,7 +574,7 @@ public class Lexicon // KW: Wait on this class please
 		return (pl.length > 0) ? pl[0] : "";
 	}
 
-	private static String[] _lookupRaw(String word) {
+	private String[] _lookupRaw(String word) {
 		//word = word && word.toLowerCase();
 		if(word == null || word.length() == 0 ) return new String[] {};
 		word = word.toLowerCase();

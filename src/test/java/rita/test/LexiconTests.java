@@ -9,8 +9,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import rita.Lexicon;
 import rita.Pluralizer;
 import rita.RiTa;
+import rita.RiTaException;
+
 import org.junit.jupiter.api.Test;
 
 public class LexiconTests {
@@ -23,11 +26,14 @@ public class LexiconTests {
 	@Test
 	public void randomWord() {
 		String result;
-
-//    result = RiTa.randomWord();
-//		assertTrue(result.length > 0);
-
 		Map<String, Object> hm = new HashMap<String, Object>();
+		hm.put("pos", "xxx");
+		assertThrows(RiTaException.class, () -> RiTa.randomWord(hm));
+
+		hm.clear();
+    result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 0);
+
 		hm.put("pos", "nn");
 		result = RiTa.randomWord(hm);
 		assertTrue(result.length() > 0);
@@ -61,38 +67,40 @@ public class LexiconTests {
 
 	@Test
 	public void testAugmentedLexicon() {
-//		Lexicon lexicon = RiTa._lexicon();
-		// toAdd = {
-		// "deg": ["d-eh1-g", "nn"],
-		// "wadly": ["w-ae1-d l-iy", "rb"],
-		// }
-		// lexicon.data()
-		// TODO:
+    Lexicon lexicon = RiTa._lexicon();
+    lexicon.dict.put("deg", new String[] {"d-eh1-g", "nn"});
+    lexicon.dict.put("wadly", new String[] {"w-ae1-d l-iy", "rb"});
 
 		assertTrue(RiTa.hasWord("run"));
 		assertTrue(RiTa.hasWord("walk"));
 		assertTrue(RiTa.hasWord("deg"));
 		assertTrue(RiTa.hasWord("wadly"));
 		assertTrue(RiTa.isAlliteration("wadly", "welcome"));
+
+		// Remove two entries;
+		lexicon.dict.remove("deg");
+		lexicon.dict.remove("wadly");
 	}
 
 	@Test
 	public void testCustomLexicon() {
-//		Lexicon lexicon = RiTa._lexicon();
-		// TODO:
-		// lex.data = {
-		// "dog": ["d-ao1-g", "nn"],
-		// "cat": ["k-ae1-t", "nn"],
-		// "happily": ["hh-ae1 p-ah l-iy", "rb"],
-		// "walk": ["w-ao1-k", "vb vbp nn"],
-		// "welcome": ["w-eh1-l k-ah-m", "jj nn vb vbp"],
-		// "sadly": ["s-ae1-d l-iy", "rb"],
-		// }
+		Lexicon lexicon = RiTa._lexicon();
+		Map<String, String[]> orig = lexicon.dict;
+		Map<String,String[]> data = new HashMap<String,String[]>();
+		data.put("dog", new String[] {"d-ao1-g", "nn"});
+		data.put("cat", new String[] {"k-ae1-t", "nn"});
+		data.put("happily", new String[] {"hh-ae1 p-ah l-iy", "rb"});
+		data.put("walk", new String[] {"w-ao1-k", "vb vbp nn"});
+		data.put("welcome", new String[] {"w-eh1-l k-ah-m", "jj nn vb vbp"});
+		data.put("sadly", new String[] {"s-ae1-d l-iy", "rb"});
+
+		for (Map.Entry<String,String[]> entry : data.entrySet())
+     lexicon.dict.put(entry.getKey(), entry.getValue());
 
 		assertTrue(!RiTa.hasWord("run"));
 		assertTrue(RiTa.hasWord("walk"));
 		assertTrue(RiTa.isAlliteration("walk", "welcome"));
-		// lex.data = orig;
+		lexicon.dict = orig;
 	}
 
 	@Test
