@@ -17,6 +17,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import java.util.function.Function;
+
 public class MarkovTests {
 
 	String sample = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself.";
@@ -170,7 +171,7 @@ public class MarkovTests {
 		hm.put("untokenize", untokenize);
 		Markov rm = new Markov(4, hm);
 		rm.addText(sentArray);
-	  
+
 		hm.clear();
 		hm.put("startTokens", "家");
 		String[] result = rm.generate(5, hm);
@@ -586,7 +587,7 @@ public class MarkovTests {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		rm.addText(new String[] { "I ate the dog." });
 		// TODO: fromJSON
-		//	Markov copy = Markov.fromJSON(rm.toJSON());
+		// Markov copy = Markov.fromJSON(rm.toJSON());
 //		markovEquals(rm, copy);
 //		assertEquals(copy.generate(), rm.generate());
 	}

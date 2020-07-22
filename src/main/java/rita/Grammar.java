@@ -16,6 +16,7 @@ public class Grammar {
 	public Grammar(String rules) {
 		this(rules, null);
 	}
+
 	public Grammar() {
 		this("", null);
 	}
@@ -47,22 +48,21 @@ public class Grammar {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String expand(String rule , Map<String, Object> opts) {
+	public String expand(String rule, Map<String, Object> opts) {
 
-    Map<String, Object> ctx = Util.mergeMaps(this.context, this.rules);
-    if (opts != null) {
-    	Object val = opts.get("context");
-    	if (val != null) {
-    		ctx = Util.mergeMaps(ctx, (Map<String, Object>)val);
-    	}
-    }
-    if (rule.startsWith("$")) rule = rule.substring(1);
-    Object o = ctx.get(rule);
-    if (o == null) throw new RiTaException("Rule " + rule + " not found");
+		Map<String, Object> ctx = Util.mergeMaps(this.context, this.rules);
+		if (opts != null) {
+			Object val = opts.get("context");
+			if (val != null) {
+				ctx = Util.mergeMaps(ctx, (Map<String, Object>) val);
+			}
+		}
+		if (rule.startsWith("$")) rule = rule.substring(1);
+		Object o = ctx.get(rule);
+		if (o == null) throw new RiTaException("Rule " + rule + " not found");
 
-    return this.compiler.evaluate((String) o, ctx, opts);
-  }
-
+		return this.compiler.evaluate((String) o, ctx, opts);
+	}
 
 	public Grammar setRules(Map<String, Object> rules) {
 		this.rules = rules;
@@ -122,9 +122,19 @@ public class Grammar {
 		return this;
 	}
 
-	public Grammar addTransform(String name, Function<String,String> f) { RiScript.addTransform(name, f); return this; }
-	public Grammar removeTransform(String name) { RiScript.removeTransform(name); return this; }
-	public Grammar getTransforms() { return RiScript.getTransforms(); }
+	public Grammar addTransform(String name, Function<String, String> f) {
+		RiScript.addTransform(name, f);
+		return this;
+	}
+
+	public Grammar removeTransform(String name) {
+		RiScript.removeTransform(name);
+		return this;
+	}
+
+	public Grammar getTransforms() {
+		return RiScript.getTransforms();
+	}
 
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));

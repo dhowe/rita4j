@@ -123,7 +123,7 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		assertTrue(rg.rules.get("start") != null);
-		//TODO:prob.
+		// TODO:prob.
 //		rg.addRule("$start", "$dog", .3);
 		assertTrue(rg.rules.get("noun_phrase") != null);
 	}
@@ -247,19 +247,19 @@ public class GrammarTests {
 	public void testPluralizePhrasesInTransform() {
 		Function<String, String> pluralise = (s) -> {
 			s = s.trim();
-           if (s.contains(" ")) {
-               String[] words = RiTa.tokenize(s);
-               int lastIdx = words.length - 1;
-               String last = words[lastIdx];
-               words[lastIdx] = RiTa.pluralize(last);
-               return RiTa.untokenize(words);
-           }
+			if (s.contains(" ")) {
+				String[] words = RiTa.tokenize(s);
+				int lastIdx = words.length - 1;
+				String last = words[lastIdx];
+				words[lastIdx] = RiTa.pluralize(last);
+				return RiTa.untokenize(words);
+			}
 			return RiTa.pluralize(s);
 		};
 		Map<String, Object> ctx = opts("pluralise", pluralise);
 		String jsonString = "{start: '($state feeling).pluralise()',state: 'bad | bad',}";
 		Grammar rg = new Grammar(jsonString, ctx);
-   		
+
 		String res = rg.expand();
 		assertEquals(res, "bad feelings");
 
@@ -270,11 +270,11 @@ public class GrammarTests {
 		Supplier<String> randomPosition = () -> {
 			return "jobArea jobType";
 		};
-		Map <String, Object> context = opts("randomPosition", randomPosition);
-		Grammar rg = new  Grammar(opts("start","My .randomPosition()." ));
+		Map<String, Object> context = opts("randomPosition", randomPosition);
+		Grammar rg = new Grammar(opts("start", "My .randomPosition()."));
 		assertEquals(rg.expand(context), "My jobArea jobType.");
-		
-		rg = new  Grammar(opts("stat","My .randomPosition()." ));
+
+		rg = new Grammar(opts("stat", "My .randomPosition()."));
 		assertEquals(rg.expand("stat", context), "My jobArea jobType.");
 
 	}
@@ -285,7 +285,7 @@ public class GrammarTests {
 		Supplier<String> randomPosition = () -> {
 			return "jobArea jobType";
 		};
-		Map <String, Object> context = opts("randomPosition", randomPosition);
+		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = new Grammar(rules, context);
 		assertEquals(rg.expand(), "My jobArea jobType.");
 	}
@@ -348,12 +348,12 @@ public class GrammarTests {
 
 	private void containsMultipleValues(ArrayList<String> arrayList, String[] members) {
 		int found = 0;
-		for (String item : members ) {
-		    if (arrayList.contains(item)) {
-		       found ++; 
-		    } 
+		for (String item : members) {
+			if (arrayList.contains(item)) {
+				found++;
+			}
 		}
-		assertTrue( found == members.length);
+		assertTrue(found == members.length);
 	}
 
 }
