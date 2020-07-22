@@ -1,6 +1,5 @@
 package rita.test;
 
-
 import static org.junit.jupiter.api.Assertions.*;
 //import static org.junit.Assert.assertTrue;
 
@@ -49,14 +48,14 @@ public class RiTaTests {
 
 	@Test
 	public void testRandomOrdering() {
-		int[] result = new int[]{0};
+		int[] result = new int[] { 0 };
 		assertArrayEquals(RiTa.randomOrdering(1), result);
-		int[] result2 = new int[]{0,1};
+		int[] result2 = new int[] { 0, 1 };
 		int[] ro = RiTa.randomOrdering(2);
 		Arrays.sort(ro);
 		assertArrayEquals(ro, result2);
-	  // expect(RiTa.randomOrdering(['a'])).eql(['a']);
-	  // expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
+		// expect(RiTa.randomOrdering(['a'])).eql(['a']);
+		// expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
 	}
 
 	@Test
