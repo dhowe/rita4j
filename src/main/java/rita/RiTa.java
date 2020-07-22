@@ -416,6 +416,10 @@ public class RiTa
     }
     return RiTa.lexicon;
   }
+  
+  public static Markov createMarkov(int n) {
+  	 return new Markov(n);
+  }
 
   private static Analyzer _analyzer()
   {
