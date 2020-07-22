@@ -1,13 +1,16 @@
 package rita;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import com.google.gson.Gson;
 
 public class Grammar {
+
+	public static String DEFAULT_RULE_NAME = "start";
+
 	protected Map<String, Object> context;
 	public Map<String, Object> rules;
-	
 	protected RiScript compiler;
 
 	public Grammar(String rules) {
@@ -31,6 +34,36 @@ public class Grammar {
 		this.compiler = new RiScript();
 	}
 
+	public String expand(String rule) {
+		return expand(rule, null);
+	}
+
+	public String expand() {
+		return expand("", null);
+	}
+
+	public String expand(Map<String, Object> opts) {
+		return expand(DEFAULT_RULE_NAME, opts);
+	}
+
+	@SuppressWarnings("unchecked")
+	public String expand(String rule , Map<String, Object> opts) {
+
+    Map<String, Object> ctx = Util.mergeMaps(this.context, this.rules);
+    if (opts != null) {
+    	Object val = opts.get("context");
+    	if (val != null) {
+    		ctx = Util.mergeMaps(ctx, (Map<String, Object>)val);
+    	}
+    }
+    if (rule.startsWith("$")) rule = rule.substring(1);
+    Object o = ctx.get(rule);
+    if (o == null) throw new RiTaException("Rule " + rule + " not found");
+
+    return this.compiler.evaluate((String) o, ctx, opts);
+  }
+
+
 	public Grammar setRules(Map<String, Object> rules) {
 		this.rules = rules;
 		return this;
@@ -40,12 +73,6 @@ public class Grammar {
 		this.rules = parseJson(json);
 		return this;
 	}
-	
-	public Grammar removeRule(String key) {
-		//
-		return this;
-	}
-	
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> parseJson(String rules) {
@@ -62,7 +89,6 @@ public class Grammar {
 	public Grammar addRule(String name, String[] rule) {
 		return this.addRule(name, joinChoice(rule));
 	}
-	
 
 	public Grammar addRule(String name, String rule) {
 		if (name.startsWith("$")) name = name.substring(1);
@@ -72,12 +98,6 @@ public class Grammar {
 		this.rules.put(name, rule);
 		return this;
 	}
-	
-	public Grammar addRule(String name, String rule, double p) {
-		// TODO
-		return this;
-	}
-	
 
 	private String joinChoice(String[] opts) {
 		String res = "(";
@@ -87,34 +107,24 @@ public class Grammar {
 		}
 		return res + ")";
 	}
-	
-	public String expand() {
-		//TODO:
-		return "";
-	}
-	
-	public String expand(Map<String, Object> opts) {
-		//TODO:
-		return "";
-	}
-	
-	public String expand(String start) {
-		//TODO:
-		return "";
-	}
-	
-	public String expand(String start, Map<String, Object> opts) {
-		//TODO:
-		return "";
-	}
 
 	public String toString() {
-		String s = "";
-		for (Map.Entry<String, Object> kv : rules.entrySet()) {
-			s += kv.getKey() + ": " + kv.getValue() + "\n";
-		}
-		return s;
+		StringBuffer sb = new StringBuffer();
+		rules.forEach((k, v) -> sb.append(k + ':' + v));
+		return sb.toString();
 	}
+
+	public Grammar removeRule(String name) {
+		if (name != null) {
+			if (name.startsWith("$")) name = name.substring(1);
+			this.rules.remove(name);
+		}
+		return this;
+	}
+
+	public Grammar addTransform(String name, Function<String,String> f) { RiScript.addTransform(name, f); return this; }
+	public Grammar removeTransform(String name) { RiScript.removeTransform(name); return this; }
+	public Grammar getTransforms() { return RiScript.getTransforms(); }
 
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));

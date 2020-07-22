@@ -33,13 +33,16 @@ public class RiScript {
 	}
 
 	public static String eval(String input, Map<String, Object> ctx, Map<String, Object> opts) {
-
+		return new RiScript().evaluate(input, ctx, opts);
+	}
+	
+	public String evaluate(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 		boolean trace = Util.boolOpt("trace", opts);
 		boolean silent = Util.boolOpt("silent", opts);
 		boolean onepass = Util.boolOpt("singlePass", opts);
 
 		String last = input;
-		RiScript rs = new RiScript().pushTransforms(ctx);
+		RiScript rs = this.pushTransforms(ctx);
 		String expr = rs.lexParseVisit(input, ctx, opts);
 		if (!onepass && rs.isParseable(expr)) {
 			for (int i = 0; i < RiScript.MAX_TRIES && !expr.equals(last); i++) {
@@ -196,10 +199,24 @@ public class RiScript {
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\\\$[A-Za-z_][A-Za-z_0-9-]*)");
 
+	public static Grammar getTransforms() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static void removeTransform(String name) {
+		// TODO Auto-generated method stub
+	}
+
+	public static void addTransform(String name, Function<String, String> f) {
+		// TODO Auto-generated method stub
+	}
+	
 	public static void main(String[] args) {
 		RiScript rs = new RiScript();
 		Map<String, Object> opts = Util.opts();
 		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
 		System.out.println("\nResult: '" + s + "', opts: " + opts);
 	}
+
 }

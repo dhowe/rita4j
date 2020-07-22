@@ -123,7 +123,8 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		assertTrue(rg.rules.get("start") != null);
-		rg.addRule("$start", "$dog", .3);
+		//TODO:prob.
+//		rg.addRule("$start", "$dog", .3);
 		assertTrue(rg.rules.get("noun_phrase") != null);
 	}
 

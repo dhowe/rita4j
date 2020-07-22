@@ -1,8 +1,6 @@
 package rita;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class Util {
 	public static final String[] MODALS = { "asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos",
@@ -38,17 +36,24 @@ public class Util {
 		return false;
 	}
 
+	public static Map<String, Object> mergeMaps(Map<String, Object> m1, Map<String, Object> m2) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (m1 != null) result.putAll(m1);
+		if (m2 != null) result.putAll(m2);
+		return result;
+	}
+
 	public static boolean boolOpt(String key, Map<String, Object> opts) {
 		return boolOpt(key, opts, false);
 	}
 
 	public static boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
-		boolean opt = def;
-		if (opts != null) {
-			Object o = opts.getOrDefault(key, def);
-			opt = o != null && Boolean.TRUE.equals(o);
-		}
-		return opt;
+//		boolean opt = def;
+//		if (opts != null) {
+//			Object o = opts.getOrDefault(key, def);
+//			opt = o != null && Boolean.TRUE.equals(o);
+//		}
+		return (boolean) opts.getOrDefault(key, def);
 	}
 
 	public static int intOpt(String key, Map<String, Object> opts) {
@@ -56,12 +61,12 @@ public class Util {
 	}
 
 	public static int intOpt(String key, Map<String, Object> opts, int def) {
-		int opt = def;
-		if (opts != null) {
-			Object o = opts.getOrDefault("ignoreCase", def);
-			if (o != null) opt = (int) o;
-		}
-		return opt;
+//		int opt = def;
+//		if (opts != null) {
+//			Object o = opts.getOrDefault(key, def);
+//			if (o != null) opt = (int) o;
+//		}
+		return (int) opts.getOrDefault(key, def);
 	}
 
 	public static float floatOpt(String key, Map<String, Object> opts) {
@@ -69,12 +74,12 @@ public class Util {
 	}
 
 	public static float floatOpt(String key, Map<String, Object> opts, float def) {
-		float opt = def;
-		if (opts != null) {
-			Object o = opts.getOrDefault("ignoreCase", def);
-			if (o != null) opt = (float) o;
-		}
-		return opt;
+//		float opt = def;
+//		if (opts != null) {
+//			Object o = opts.getOrDefault(key, def);
+//			if (o != null) opt = (float) o;
+//		}
+		return (float) opts.getOrDefault(key, def);
 	}
 
 	public static String strOpt(String key, Map<String, Object> opts) {
@@ -82,12 +87,28 @@ public class Util {
 	}
 
 	public static String strOpt(String key, Map<String, Object> opts, String def) {
-		String opt = def;
-		if (opts != null) {
-			Object o = opts.getOrDefault("ignoreCase", def);
-			if (o != null) opt = (String) o;
-		}
-		return opt;
+//		String opt = def;
+//		if (opts != null) {
+//			Object o = opts.getOrDefault(key, def);
+//			if (o != null) opt = (String) o;
+//		}
+//		return opt;
+		return (String) opts.getOrDefault(key, def);
+
+	}
+
+	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
+		return mapOpt(key, opts, null);// new HashMap<String, Object>());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
+//		if (opts != null) {
+//			Object o = opts.get("ignoreCase", def);
+//			if (o != null) opt = (String) o;
+//		}
+		Object val = opts.get(key);
+		return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
 	}
 
 	public static String[] shuffle(String[] arr) { // shuffle array //TODO what is the type of second arg
