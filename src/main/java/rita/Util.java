@@ -36,7 +36,7 @@ public class Util {
 		return false;
 	}
 
-	public static Map<String, Object> mergeMaps(Map<String, Object> m1, Map<String, Object> m2) {
+	public static Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		if (m1 != null) result.putAll(m1);
 		if (m2 != null) result.putAll(m2);

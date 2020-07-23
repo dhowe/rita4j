@@ -6,9 +6,9 @@ import java.util.function.Function;
 import com.google.gson.Gson;
 
 public class Grammar {
-	
+
 	public static String DEFAULT_RULE_NAME = "start";
-	
+
 	protected Map<String, Object> context, rules;
 	protected RiScript compiler;
 
@@ -29,32 +29,31 @@ public class Grammar {
 		this.context = context;
 		this.compiler = new RiScript();
 	}
-	
+
 	public String expand(String rule) {
-		return expand(rule, null);		
+		return expand(rule, null);
 	}
-	
+
 	public String expand(Map<String, Object> opts) {
 		return expand(DEFAULT_RULE_NAME, opts);
 	}
 
 	@SuppressWarnings("unchecked")
-	public String expand(String rule , Map<String, Object> opts) {
+	public String expand(String rule, Map<String, Object> opts) {
 
-    Map<String, Object> ctx = Util.mergeMaps(this.context, this.rules);
-    if (opts != null) {
-    	Object val = opts.get("context");
-    	if (val != null) {
-    		ctx = Util.mergeMaps(ctx, (Map<String, Object>)val);	
-    	}
-    }
-    if (rule.startsWith("$")) rule = rule.substring(1);
-    Object o = ctx.get(rule);
-    if (o == null) throw new RiTaException("Rule " + rule + " not found");
+		Map<String, Object> ctx = Util.deepMerge(this.context, this.rules);
+		if (opts != null) {
+			Object val = opts.get("context");
+			if (val != null) {
+				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
+			}
+		}
+		if (rule.startsWith("$")) rule = rule.substring(1);
+		Object o = ctx.get(rule);
+		if (o == null) throw new RiTaException("Rule " + rule + " not found");
 
-    return this.compiler.evaluate((String) o, ctx, opts);
-  }
-
+		return this.compiler.evaluate((String) o, ctx, opts);
+	}
 
 	public Grammar setRules(Map<String, Object> rules) {
 		this.rules = rules;
@@ -113,10 +112,20 @@ public class Grammar {
 		}
 		return this;
 	}
-	
-	public Grammar addTransform(String name, Function<String,String> f) { RiScript.addTransform(name, f); return this; }
-	public Grammar removeTransform(String name) { RiScript.removeTransform(name); return this; }
-	public Grammar getTransforms() { return RiScript.getTransforms(); }
+
+	public Grammar addTransform(String name, Function<String, String> f) {
+		RiScript.addTransform(name, f);
+		return this;
+	}
+
+	public Grammar removeTransform(String name) {
+		RiScript.removeTransform(name);
+		return this;
+	}
+
+	public Grammar getTransforms() {
+		return RiScript.getTransforms();
+	}
 
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));
