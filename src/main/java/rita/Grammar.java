@@ -9,9 +9,15 @@ public class Grammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	protected Map<String, Object> context, rules;
+	protected Map<String, Object> context;
+
+	public Map<String, Object> rules;
 	protected RiScript compiler;
 
+	public Grammar() {
+		this((String)null);
+	}
+	
 	public Grammar(String rules) {
 		this(rules, null);
 	}
@@ -30,6 +36,10 @@ public class Grammar {
 		this.compiler = new RiScript();
 	}
 
+	public String expand() {
+		return expand(DEFAULT_RULE_NAME, null);
+	}
+	
 	public String expand(String rule) {
 		return expand(rule, null);
 	}
@@ -67,6 +77,7 @@ public class Grammar {
 
 	@SuppressWarnings("unchecked")
 	private static Map<String, Object> parseJson(String rules) {
+		if (rules == null || rules.length() == 0) return null;
 		Gson gson = new Gson();
 		Map<String, Object> rmap;
 		try {
