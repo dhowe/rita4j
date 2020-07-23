@@ -4,10 +4,10 @@ import java.util.*;
 
 public class LetterToSound { // in-progress
 
-	final static String TOTAL = "TOTAL";
-	final static String INDEX = "INDEX";
-	final static String STATE = "STATE";
-	final static String PHONE = "PHONE";
+	final static String TOTAL = "T";
+	final static String INDEX = "I";
+	final static String STATE = "S";
+	final static String PHONE = "P";
 	final static int WINDOW_SIZE = 4;
 
 	private int numStates = 0;
@@ -18,6 +18,7 @@ public class LetterToSound { // in-progress
 	
 
 	public LetterToSound() {
+		letterIndex = new HashMap<String, Integer>();
 		//cache = new HashMap<String, String>();
 		for (int i = 0; i < RULES.length; i++) {
 			parseAndAdd(RULES[i]);
@@ -44,7 +45,7 @@ public class LetterToSound { // in-progress
 
 		// For each character in the word, create a WINDOW_SIZE
 		// context on each size of the character, and then ask the
-		// state machine what's next. Its magic
+		// state machine what's next.
 		for (int pos = 0; pos < word.length(); pos++) {
 			for (int i = 0; i < WINDOW_SIZE; i++) {
 				fval_buff[i] = full_buff[pos + i];
@@ -52,9 +53,7 @@ public class LetterToSound { // in-progress
 			}
 			c = word.charAt(pos);
 			startIndex = (Integer) letterIndex.get(Character.toString(c));
-			if (startIndex == null) {
-				continue;
-			}
+			if (startIndex == null) continue;
 
 			stateIndex = startIndex.intValue();
 			currentState = getState(stateIndex);
@@ -88,16 +87,18 @@ public class LetterToSound { // in-progress
 
 	protected void parseAndAdd(String aline) {
 		String line = aline.replaceAll("(^'|',?)", "");
-		StringTokenizer tokenizer = new StringTokenizer(line, " ");
-		String type = tokenizer.nextToken();
-
+		StringTokenizer tknr = new StringTokenizer(line, " ");
+		String type = tknr.nextToken();
+		//System.out.println(type);
 		if (type.equals(STATE) || type.equals(PHONE)) {
-			stateMachine[numStates++] = createState(type, tokenizer);
+			stateMachine[numStates++] = createState(type, tknr);
 		} else if (type.equals(INDEX)) {
-			int index = Integer.parseInt(tokenizer.nextToken());
-			letterIndex.put(tokenizer.nextToken(), index);
+			int index = Integer.parseInt(tknr.nextToken());
+			String tok = tknr.nextToken();
+			//System.out.println(tok+":"+index);
+			letterIndex.put(tok, index);
 		} else if (type.equals(TOTAL)) {
-			stateMachine = new Object[Integer.parseInt(tokenizer.nextToken())];
+			stateMachine = new Object[Integer.parseInt(tknr.nextToken())];
 		}
 	}
 
@@ -13321,19 +13322,14 @@ public class LetterToSound { // in-progress
 				"S 4 b 13098 13079"
 		};
 	}
-
-	public static String[] RULES = combine(Rules1.RULES1, Rules2.RULES2);
-
 	private static String[] combine(String[] a, String[] b) {
 		String[] result = new String[a.length + b.length];
 		System.arraycopy(a, 0, result, 0, a.length);
 		System.arraycopy(b, 0, result, a.length, b.length);
 		return result;
 	}
-
-	public String[] getPhones(String input) {
-		return null;
-	}
+	
+	public static String[] RULES = combine(Rules1.RULES1, Rules2.RULES2);
 
 	public static void main(String[] args) {
 		System.out.println(LetterToSound.RULES.length);

@@ -1,21 +1,15 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static rita.Util.opts;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
-import rita.Grammar;
-import rita.RiTa;
-import rita.RiTaException;
-
-import static rita.Util.opts;
+import rita.*;
 
 public class GrammarTests {
 

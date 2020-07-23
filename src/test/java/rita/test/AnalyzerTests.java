@@ -3,7 +3,7 @@
  */
 package rita.test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 import rita.*;
 
@@ -41,120 +41,120 @@ public class AnalyzerTests {
 		for (int i = 0; i < tests.length; i += 2) {
 			// System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i +
 			// 1]);
-			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
+			eq(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
 
-		assertEquals(RiTa.singularize("pleae"), "pleae"); // special-cased in code
-		assertEquals(RiTa.singularize("whizzes"), "whiz");
-		assertEquals(RiTa.singularize("selves"), "self");
-		assertEquals(RiTa.singularize("bookshelves"), "bookshelf");
-		assertEquals(RiTa.singularize("wheezes"), "wheeze");
-		assertEquals(RiTa.singularize("diagnoses"), "diagnosis");
+		eq(RiTa.singularize("pleae"), "pleae"); // special-cased in code
+		eq(RiTa.singularize("whizzes"), "whiz");
+		eq(RiTa.singularize("selves"), "self");
+		eq(RiTa.singularize("bookshelves"), "bookshelf");
+		eq(RiTa.singularize("wheezes"), "wheeze");
+		eq(RiTa.singularize("diagnoses"), "diagnosis");
 
-		assertEquals("minutia", RiTa.singularize("minutia"));
-		assertEquals("blonde", RiTa.singularize("blondes"));
-		assertEquals("eye", RiTa.singularize("eyes"));
-		assertEquals(RiTa.singularize("swine"), "swine");
-		assertEquals(RiTa.singularize("cognoscenti"), "cognoscenti");
-		assertEquals(RiTa.singularize("bonsai"), "bonsai");
-		assertEquals(RiTa.singularize("taxis"), "taxi");
-		assertEquals(RiTa.singularize("chiefs"), "chief");
-		assertEquals(RiTa.singularize("monarchs"), "monarch");
-		assertEquals(RiTa.singularize("lochs"), "loch");
-		assertEquals(RiTa.singularize("stomachs"), "stomach");
+		eq("minutia", RiTa.singularize("minutia"));
+		eq("blonde", RiTa.singularize("blondes"));
+		eq("eye", RiTa.singularize("eyes"));
+		eq(RiTa.singularize("swine"), "swine");
+		eq(RiTa.singularize("cognoscenti"), "cognoscenti");
+		eq(RiTa.singularize("bonsai"), "bonsai");
+		eq(RiTa.singularize("taxis"), "taxi");
+		eq(RiTa.singularize("chiefs"), "chief");
+		eq(RiTa.singularize("monarchs"), "monarch");
+		eq(RiTa.singularize("lochs"), "loch");
+		eq(RiTa.singularize("stomachs"), "stomach");
 
-		assertEquals(RiTa.singularize("Chinese"), "Chinese");
+		eq(RiTa.singularize("Chinese"), "Chinese");
 
-		assertEquals(RiTa.singularize("people"), "person");
-		assertEquals(RiTa.singularize("monies"), "money");
-		assertEquals(RiTa.singularize("vertebrae"), "vertebra");
-		assertEquals(RiTa.singularize("humans"), "human");
-		assertEquals(RiTa.singularize("germans"), "german");
-		assertEquals(RiTa.singularize("romans"), "roman");
+		eq(RiTa.singularize("people"), "person");
+		eq(RiTa.singularize("monies"), "money");
+		eq(RiTa.singularize("vertebrae"), "vertebra");
+		eq(RiTa.singularize("humans"), "human");
+		eq(RiTa.singularize("germans"), "german");
+		eq(RiTa.singularize("romans"), "roman");
 
-		assertEquals(RiTa.singularize("memoranda"), "memorandum");
-		assertEquals(RiTa.singularize("data"), "datum");
-		assertEquals(RiTa.singularize("appendices"), "appendix");
-		assertEquals(RiTa.singularize("theses"), "thesis");
-		assertEquals(RiTa.singularize("alumni"), "alumnus");
+		eq(RiTa.singularize("memoranda"), "memorandum");
+		eq(RiTa.singularize("data"), "datum");
+		eq(RiTa.singularize("appendices"), "appendix");
+		eq(RiTa.singularize("theses"), "thesis");
+		eq(RiTa.singularize("alumni"), "alumnus");
 
-		assertEquals(RiTa.singularize("solos"), "solo");
-		assertEquals(RiTa.singularize("music"), "music");
+		eq(RiTa.singularize("solos"), "solo");
+		eq(RiTa.singularize("music"), "music");
 
-		assertEquals(RiTa.singularize("oxen"), "ox");
-		assertEquals(RiTa.singularize("solos"), "solo");
-		assertEquals(RiTa.singularize("music"), "music");
-		assertEquals(RiTa.singularize("money"), "money");
-		assertEquals(RiTa.singularize("beef"), "beef");
+		eq(RiTa.singularize("oxen"), "ox");
+		eq(RiTa.singularize("solos"), "solo");
+		eq(RiTa.singularize("music"), "music");
+		eq(RiTa.singularize("money"), "money");
+		eq(RiTa.singularize("beef"), "beef");
 
-		assertEquals(RiTa.singularize("tobacco"), "tobacco");
-		assertEquals(RiTa.singularize("cargo"), "cargo");
-		assertEquals(RiTa.singularize("golf"), "golf");
-		assertEquals(RiTa.singularize("grief"), "grief");
+		eq(RiTa.singularize("tobacco"), "tobacco");
+		eq(RiTa.singularize("cargo"), "cargo");
+		eq(RiTa.singularize("golf"), "golf");
+		eq(RiTa.singularize("grief"), "grief");
 
-		assertEquals(RiTa.singularize("cakes"), "cake");
+		eq(RiTa.singularize("cakes"), "cake");
 
-		assertEquals("dog", RiTa.singularize("dogs"));
-		assertEquals("foot", RiTa.singularize("feet"));
-		assertEquals("tooth", RiTa.singularize("teeth"));
-		assertEquals("kiss", RiTa.singularize("kisses"));
-		assertEquals("child", RiTa.singularize("children"));
-		assertEquals("randomword", RiTa.singularize("randomwords"));
-		assertEquals("deer", RiTa.singularize("deer"));
-		assertEquals("sheep", RiTa.singularize("sheep"));
-		assertEquals("shrimp", RiTa.singularize("shrimps"));
+		eq("dog", RiTa.singularize("dogs"));
+		eq("foot", RiTa.singularize("feet"));
+		eq("tooth", RiTa.singularize("teeth"));
+		eq("kiss", RiTa.singularize("kisses"));
+		eq("child", RiTa.singularize("children"));
+		eq("randomword", RiTa.singularize("randomwords"));
+		eq("deer", RiTa.singularize("deer"));
+		eq("sheep", RiTa.singularize("sheep"));
+		eq("shrimp", RiTa.singularize("shrimps"));
 
-		assertEquals(RiTa.singularize("tomatoes"), "tomato");
-		assertEquals(RiTa.singularize("photos"), "photo");
+		eq(RiTa.singularize("tomatoes"), "tomato");
+		eq(RiTa.singularize("photos"), "photo");
 
-		assertEquals(RiTa.singularize("toes"), "toe");
+		eq(RiTa.singularize("toes"), "toe");
 
-		assertEquals(RiTa.singularize("series"), "series");
-		assertEquals(RiTa.singularize("oxen"), "ox");
-		assertEquals(RiTa.singularize("men"), "man");
-		assertEquals(RiTa.singularize("mice"), "mouse");
-		assertEquals(RiTa.singularize("lice"), "louse");
-		assertEquals(RiTa.singularize("children"), "child");
+		eq(RiTa.singularize("series"), "series");
+		eq(RiTa.singularize("oxen"), "ox");
+		eq(RiTa.singularize("men"), "man");
+		eq(RiTa.singularize("mice"), "mouse");
+		eq(RiTa.singularize("lice"), "louse");
+		eq(RiTa.singularize("children"), "child");
 
-		assertEquals(RiTa.singularize("gases"), "gas");
-		assertEquals(RiTa.singularize("buses"), "bus");
-		assertEquals(RiTa.singularize("happiness"), "happiness");
+		eq(RiTa.singularize("gases"), "gas");
+		eq(RiTa.singularize("buses"), "bus");
+		eq(RiTa.singularize("happiness"), "happiness");
 
-		assertEquals(RiTa.singularize("crises"), "crisis");
-		assertEquals(RiTa.singularize("theses"), "thesis");
-		assertEquals(RiTa.singularize("apotheses"), "apothesis");
-		assertEquals(RiTa.singularize("stimuli"), "stimulus");
-		assertEquals(RiTa.singularize("alumni"), "alumnus");
-		assertEquals(RiTa.singularize("corpora"), "corpus");
+		eq(RiTa.singularize("crises"), "crisis");
+		eq(RiTa.singularize("theses"), "thesis");
+		eq(RiTa.singularize("apotheses"), "apothesis");
+		eq(RiTa.singularize("stimuli"), "stimulus");
+		eq(RiTa.singularize("alumni"), "alumnus");
+		eq(RiTa.singularize("corpora"), "corpus");
 
-		assertEquals("man", RiTa.singularize("men"));
-		assertEquals("woman", RiTa.singularize("women"));
-		assertEquals("congressman", RiTa.singularize("congressmen"));
-		assertEquals("alderman", RiTa.singularize("aldermen"));
-		assertEquals("freshman", RiTa.singularize("freshmen"));
-		assertEquals("fireman", RiTa.singularize("firemen"));
-		assertEquals("grandchild", RiTa.singularize("grandchildren"));
-		assertEquals("menu", RiTa.singularize("menus"));
-		assertEquals("guru", RiTa.singularize("gurus"));
+		eq("man", RiTa.singularize("men"));
+		eq("woman", RiTa.singularize("women"));
+		eq("congressman", RiTa.singularize("congressmen"));
+		eq("alderman", RiTa.singularize("aldermen"));
+		eq("freshman", RiTa.singularize("freshmen"));
+		eq("fireman", RiTa.singularize("firemen"));
+		eq("grandchild", RiTa.singularize("grandchildren"));
+		eq("menu", RiTa.singularize("menus"));
+		eq("guru", RiTa.singularize("gurus"));
 
-		assertEquals("", RiTa.singularize(""));
-		assertEquals("hardness", RiTa.singularize("hardness"));
-		assertEquals("shortness", RiTa.singularize("shortness"));
-		assertEquals("dreariness", RiTa.singularize("dreariness"));
-		assertEquals("unwillingness", RiTa.singularize("unwillingness"));
-		assertEquals("deer", RiTa.singularize("deer"));
-		assertEquals("fish", RiTa.singularize("fish"));
-		assertEquals("ooze", RiTa.singularize("ooze"));
+		eq("", RiTa.singularize(""));
+		eq("hardness", RiTa.singularize("hardness"));
+		eq("shortness", RiTa.singularize("shortness"));
+		eq("dreariness", RiTa.singularize("dreariness"));
+		eq("unwillingness", RiTa.singularize("unwillingness"));
+		eq("deer", RiTa.singularize("deer"));
+		eq("fish", RiTa.singularize("fish"));
+		eq("ooze", RiTa.singularize("ooze"));
 
-		assertEquals("ooze", RiTa.singularize("ooze"));
-		assertEquals("enterprise", RiTa.singularize("enterprises"));
-		assertEquals("treatise", RiTa.singularize("treatises"));
-		assertEquals("house", RiTa.singularize("houses"));
-		assertEquals("chemise", RiTa.singularize("chemises"));
+		eq("ooze", RiTa.singularize("ooze"));
+		eq("enterprise", RiTa.singularize("enterprises"));
+		eq("treatise", RiTa.singularize("treatises"));
+		eq("house", RiTa.singularize("houses"));
+		eq("chemise", RiTa.singularize("chemises"));
 
-		assertEquals("aquatics", RiTa.singularize("aquatics"));
-		assertEquals("mechanics", RiTa.singularize("mechanics"));
-		assertEquals("quarter", RiTa.singularize("quarters"));
+		eq("aquatics", RiTa.singularize("aquatics"));
+		eq("mechanics", RiTa.singularize("mechanics"));
+		eq("quarter", RiTa.singularize("quarters"));
 
 	}
 
@@ -179,9 +179,9 @@ public class AnalyzerTests {
 				"accomplices", "accomplice"
 		};
 		for (int i = 0; i < tests.length; i += 2) {
-			//System.out.println("singular: " + tests[i]);
-			//System.out.println("plural: " + RiTa.pluralize(tests[i + 1]));
-			assertEquals(tests[i], RiTa.pluralize(tests[i + 1]));
+			// System.out.println("singular: " + tests[i]);
+			// System.out.println("plural: " + RiTa.pluralize(tests[i + 1]));
+			eq(tests[i], RiTa.pluralize(tests[i + 1]));
 		}
 
 		// uncountable
@@ -189,112 +189,127 @@ public class AnalyzerTests {
 				"turf", "macaroni", "spaghetti", "potpourri", "electrolysis"
 		};
 		for (int i = 0; i < tests.length; i++) {
-			assertEquals(tests[i], RiTa.pluralize(tests[i]));
+			eq(tests[i], RiTa.pluralize(tests[i]));
 		}
 
-		assertEquals("blondes", RiTa.pluralize("blonde"));
-		assertEquals("eyes", RiTa.pluralize("eye"));
-		assertEquals("blondes", RiTa.pluralize("blond"));
+		eq("blondes", RiTa.pluralize("blonde"));
+		eq("eyes", RiTa.pluralize("eye"));
+		eq("blondes", RiTa.pluralize("blond"));
 
-		assertEquals("dogs", RiTa.pluralize("dog"));
-		assertEquals("feet", RiTa.pluralize("foot"));
-		assertEquals("men", RiTa.pluralize("man"));
+		eq("dogs", RiTa.pluralize("dog"));
+		eq("feet", RiTa.pluralize("foot"));
+		eq("men", RiTa.pluralize("man"));
 
-		assertEquals("beautifuls", RiTa.pluralize("beautiful"));
-		assertEquals("teeth", RiTa.pluralize("tooth"));
-		assertEquals("cakes", RiTa.pluralize("cake"));
-		assertEquals("kisses", RiTa.pluralize("kiss"));
-		assertEquals("children", RiTa.pluralize("child"));
+		eq("beautifuls", RiTa.pluralize("beautiful"));
+		eq("teeth", RiTa.pluralize("tooth"));
+		eq("cakes", RiTa.pluralize("cake"));
+		eq("kisses", RiTa.pluralize("kiss"));
+		eq("children", RiTa.pluralize("child"));
 
-		assertEquals("randomwords", RiTa.pluralize("randomword"));
-		assertEquals("lice", RiTa.pluralize("louse"));
+		eq("randomwords", RiTa.pluralize("randomword"));
+		eq("lice", RiTa.pluralize("louse"));
 
-		assertEquals("sheep", RiTa.pluralize("sheep"));
-		assertEquals("shrimps", RiTa.pluralize("shrimp"));
-		assertEquals("series", RiTa.pluralize("series"));
-		assertEquals("mice", RiTa.pluralize("mouse"));
+		eq("sheep", RiTa.pluralize("sheep"));
+		eq("shrimps", RiTa.pluralize("shrimp"));
+		eq("series", RiTa.pluralize("series"));
+		eq("mice", RiTa.pluralize("mouse"));
 
-		assertEquals("", RiTa.pluralize(""));
+		eq("", RiTa.pluralize(""));
 
-		assertEquals(RiTa.pluralize("tomato"), "tomatoes");
-		assertEquals(RiTa.pluralize("toe"), "toes");
+		eq(RiTa.pluralize("tomato"), "tomatoes");
+		eq(RiTa.pluralize("toe"), "toes");
 
-		assertEquals(RiTa.pluralize("deer"), "deer");
-		assertEquals(RiTa.pluralize("ox"), "oxen");
+		eq(RiTa.pluralize("deer"), "deer");
+		eq(RiTa.pluralize("ox"), "oxen");
 
-		assertEquals(RiTa.pluralize("tobacco"), "tobacco");
-		assertEquals(RiTa.pluralize("cargo"), "cargo");
-		assertEquals(RiTa.pluralize("golf"), "golf");
-		assertEquals(RiTa.pluralize("grief"), "grief");
-		assertEquals(RiTa.pluralize("wildlife"), "wildlife");
-		assertEquals(RiTa.pluralize("taxi"), "taxis");
-		assertEquals(RiTa.pluralize("Chinese"), "Chinese");
-		assertEquals(RiTa.pluralize("bonsai"), "bonsai");
+		eq(RiTa.pluralize("tobacco"), "tobacco");
+		eq(RiTa.pluralize("cargo"), "cargo");
+		eq(RiTa.pluralize("golf"), "golf");
+		eq(RiTa.pluralize("grief"), "grief");
+		eq(RiTa.pluralize("wildlife"), "wildlife");
+		eq(RiTa.pluralize("taxi"), "taxis");
+		eq(RiTa.pluralize("Chinese"), "Chinese");
+		eq(RiTa.pluralize("bonsai"), "bonsai");
 
-		assertEquals(RiTa.pluralize("whiz"), "whizzes");
-		assertEquals(RiTa.pluralize("prognosis"), "prognoses");
-		assertEquals(RiTa.pluralize("gas"), "gases");
-		assertEquals(RiTa.pluralize("bus"), "buses");
+		eq(RiTa.pluralize("whiz"), "whizzes");
+		eq(RiTa.pluralize("prognosis"), "prognoses");
+		eq(RiTa.pluralize("gas"), "gases");
+		eq(RiTa.pluralize("bus"), "buses");
 
-		assertEquals("crises", RiTa.pluralize("crisis"));
-		assertEquals("theses", RiTa.pluralize("thesis"));
-		assertEquals("apotheses", RiTa.pluralize("apothesis"));
-		assertEquals("stimuli", RiTa.pluralize("stimulus"));
-		assertEquals("alumni", RiTa.pluralize("alumnus"));
-		assertEquals("corpora", RiTa.pluralize("corpus"));
-		assertEquals("menus", RiTa.pluralize("menu"));
+		eq("crises", RiTa.pluralize("crisis"));
+		eq("theses", RiTa.pluralize("thesis"));
+		eq("apotheses", RiTa.pluralize("apothesis"));
+		eq("stimuli", RiTa.pluralize("stimulus"));
+		eq("alumni", RiTa.pluralize("alumnus"));
+		eq("corpora", RiTa.pluralize("corpus"));
+		eq("menus", RiTa.pluralize("menu"));
 
-		assertEquals("hardness", RiTa.pluralize("hardness"));
-		assertEquals("shortness", RiTa.pluralize("shortness"));
-		assertEquals("dreariness", RiTa.pluralize("dreariness"));
-		assertEquals("unwillingness", RiTa.pluralize("unwillingness"));
-		assertEquals("deer", RiTa.pluralize("deer"));
-		assertEquals("fish", RiTa.pluralize("fish"));
-		assertEquals("moose", RiTa.pluralize("moose"));
+		eq("hardness", RiTa.pluralize("hardness"));
+		eq("shortness", RiTa.pluralize("shortness"));
+		eq("dreariness", RiTa.pluralize("dreariness"));
+		eq("unwillingness", RiTa.pluralize("unwillingness"));
+		eq("deer", RiTa.pluralize("deer"));
+		eq("fish", RiTa.pluralize("fish"));
+		eq("moose", RiTa.pluralize("moose"));
 
-		assertEquals("aquatics", RiTa.pluralize("aquatics"));
-		assertEquals("mechanics", RiTa.pluralize("mechanics"));
+		eq("aquatics", RiTa.pluralize("aquatics"));
+		eq("mechanics", RiTa.pluralize("mechanics"));
+	}
+	
+	@Test
+	public void testComputePhones() {
+		String syllables = RiTa.syllables("cloze");
+		System.out.println(syllables);
+		eq(syllables, "k-l-ow-z");
+	}
+
+	@Test
+	public void testSyllablesLts() {
+		String syllables = RiTa.syllables("cloze");
+		System.out.println(syllables);
+		eq(syllables, "k-l-ow-z");
+	}
+
+	@Test
+	public void testAnalyzeLts() {
+		// failing bc of testComputePhones (above)
+		Map<String, String> feats = RiTa.analyze("cloze");
+		eq(feats.get("pos"), "nn");
+		eq(feats.get("tokens"), "cloze");
+		eq(feats.get("syllables"), "k-l-ow-z");
 	}
 
 	@Test
 	public void testAnalyze() {
 
+		Map<String, String> feats;
+
 		// analyze()
-
 		Map<String, String> hm = new HashMap<String, String>();
-
-		hm.put("tokens", "");
 		hm.put("pos", "");
+		hm.put("phones", "");
+		hm.put("tokens", "");
 		hm.put("stresses", "");
-		hm.put("phonemes", "");
 		hm.put("syllables", "");
 
-		// hm = Collections.unmodifiableMap(hm);
-		//System.out.println(RiTa.analyze(""));
+		// System.out.println(RiTa.analyze(""));
 		assertEquals(RiTa.analyze(""), hm);
 
-		Map<String, String> feats;
 		feats = RiTa.analyze("clothes");
-		assertEquals(feats.get("pos"), "nns");
-		assertEquals(feats.get("tokens"), "clothes");
-		assertEquals(feats.get("syllables"), "k-l-ow-dh-z");
+
+		eq(feats.get("pos"), "nns");
+		eq(feats.get("tokens"), "clothes");
+		eq(feats.get("syllables"), "k-l-ow-dh-z");
 
 		feats = RiTa.analyze("the clothes");
-		assertEquals(feats.get("pos"), "dt nns");
-		assertEquals(feats.get("tokens"), "the clothes");
-		assertEquals(feats.get("syllables"), "dh-ah k-l-ow-dh-z");
+
+		eq(feats.get("pos"), "dt nns");
+		eq(feats.get("tokens"), "the clothes");
+		eq(feats.get("syllables"), "dh-ah k-l-ow-dh-z");
 
 		feats = RiTa.analyze("chevrolet");
-		assertEquals(feats.get("tokens"), "chevrolet");
-		assertEquals(feats.get("syllables"), "sh-eh-v/r-ow/l-ey");
-
-		// analyze(lts)
-
-		feats = RiTa.analyze("cloze");
-		assertEquals(feats.get("pos"), "nn");
-		assertEquals(feats.get("tokens"), "cloze");
-		assertEquals(feats.get("syllables"), "k-l-ow-z");
-
+		eq(feats.get("tokens"), "chevrolet");
+		eq(feats.get("syllables"), "sh-eh-v/r-ow/l-ey");
 	}
 
 	@Test
@@ -304,35 +319,35 @@ public class AnalyzerTests {
 
 		result = RiTa.stresses("");
 		answer = "";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("The emperor had no clothes on");
 		answer = "0 1/0/0 1 1 1 1";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("The emperor had no clothes on.");
 		answer = "0 1/0/0 1 1 1 1 .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("The emperor had no clothes on. The King is fat.");
 		answer = "0 1/0/0 1 1 1 1 . 0 1 1 1 .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("to preSENT, to exPORT, to deCIDE, to beGIN");
 		answer = "1 1/0 , 1 1/0 , 1 0/1 , 1 0/1";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("to present, to export, to decide, to begin");
 		answer = "1 1/0 , 1 1/0 , 1 0/1 , 1 0/1";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.stresses("The dog ran faster than the other dog.  But the other dog was prettier.");
 		answer = "0 1 1 1/0 1 0 1/0 1 . 1 0 1/0 1 1 1/0/0 .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
-		assertEquals(RiTa.stresses("chevrolet"), "0/0/1");
-		assertEquals(RiTa.stresses("women"), "1/0");
-		assertEquals(RiTa.stresses("genuine"), "1/0/0");
+		eq(RiTa.stresses("chevrolet"), "0/0/1");
+		eq(RiTa.stresses("women"), "1/0");
+		eq(RiTa.stresses("genuine"), "1/0/0");
 
 	}
 
@@ -343,47 +358,47 @@ public class AnalyzerTests {
 
 		result = RiTa.phones("");
 		answer = "";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("The");
 		answer = "dh-ah";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("said");
 		answer = "s-eh-d";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("The.");
 		answer = "dh-ah .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("The boy jumped over the wild dog.");
 		answer = "dh-ah b-oy jh-ah-m-p-t ow-v-er dh-ah w-ay-l-d d-ao-g .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("The boy ran to the store.");
 		answer = "dh-ah b-oy r-ae-n t-uw dh-ah s-t-ao-r .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("The dog ran faster than the other dog.  But the other dog was prettier.");
 		answer = "dh-ah d-ao-g r-ae-n f-ae-s-t-er dh-ae-n dh-ah ah-dh-er d-ao-g . b-ah-t dh-ah ah-dh-er d-ao-g w-aa-z p-r-ih-t-iy-er .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("flowers");
 		answer = "f-l-aw-er-z";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("quiche");
 		answer = "k-iy-sh";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.phones("mice");
 		answer = "m-ay-s";
-		assertEquals(result, answer);
+		eq(result, answer);
 
-		assertEquals(RiTa.phones("chevrolet"), "sh-eh-v-r-ow-l-ey");
-		assertEquals(RiTa.phones("women"), "w-ih-m-eh-n");
-		assertEquals(RiTa.phones("genuine"), "jh-eh-n-y-uw-w-ah-n");
+		eq(RiTa.phones("chevrolet"), "sh-eh-v-r-ow-l-ey");
+		eq(RiTa.phones("women"), "w-ih-m-eh-n");
+		eq(RiTa.phones("genuine"), "jh-eh-n-y-uw-w-ah-n");
 
 	}
 
@@ -391,36 +406,40 @@ public class AnalyzerTests {
 	public void testSyllables() {
 		// syllables()
 
-		assertEquals(RiTa.syllables("clothes"), "k-l-ow-dh-z");
+		eq(RiTa.syllables("clothes"), "k-l-ow-dh-z");
 
-		assertEquals(RiTa.syllables(""), "");
-		assertEquals(RiTa.syllables("chevrolet"), "sh-eh-v/r-ow/l-ey");
+		eq(RiTa.syllables(""), "");
+		eq(RiTa.syllables("chevrolet"), "sh-eh-v/r-ow/l-ey");
 
-		assertEquals(RiTa.syllables("women"), "w-ih/m-eh-n");
-		assertEquals(RiTa.syllables("genuine"), "jh-eh-n/y-uw/w-ah-n");
+		eq(RiTa.syllables("women"), "w-ih/m-eh-n");
+		eq(RiTa.syllables("genuine"), "jh-eh-n/y-uw/w-ah-n");
 
 		String input, expected;
 
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
-		assertEquals(RiTa.syllables(input), expected);
+		eq(RiTa.syllables(input), expected);
 
 		input = "The dog ran faster than the other dog. But the other dog was prettier.";
 		expected = "dh-ah d-ao-g r-ae-n f-ae/s-t-er dh-ae-n dh-ah ah/dh-er d-ao-g . b-ah-t dh-ah ah/dh-er d-ao-g w-aa-z p-r-ih/t-iy/er .";
-		assertEquals(RiTa.syllables(input), expected);
+		eq(RiTa.syllables(input), expected);
 
 		input = "The dog ran faster than the other dog. But the other dog was prettier.";
 		expected = "dh-ah d-ao-g r-ae-n f-ae/s-t-er dh-ae-n dh-ah ah/dh-er d-ao-g . b-ah-t dh-ah ah/dh-er d-ao-g w-aa-z p-r-ih/t-iy/er .";
-		assertEquals(RiTa.syllables(input), expected);
+		eq(RiTa.syllables(input), expected);
 
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
-		assertEquals(RiTa.syllables(input), expected);
+		eq(RiTa.syllables(input), expected);
 
 		// syllables(lts)
 		RiTa.SILENCE_LTS = true; // TODO : not implemented yet?
-		assertEquals(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
+		eq(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
 
+	}
+
+	static void eq(String a, String b) {
+		assertEquals(b, a);
 	}
 }

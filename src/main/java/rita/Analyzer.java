@@ -3,64 +3,56 @@ package rita;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Analyzer
-{
-	public Map<String,String> analyze(String text)
-	{
-		String[] stressyls;
-		String[] ltsPhones;
-		String phones;
-		boolean useRaw;
-		String phonemes = " ",
-				syllables = " ",
-				stresses = " ",
-				slash = "/",
-				delim = "-";
+public class Analyzer {
+
+	public static final String SLASH = "/";
+	public static final String DELIM = "-";
+
+	public Map<String, String> analyze(String text) {
 
 		Map<String, String> features = new HashMap<String, String>();
+		String phones = "", syllables = "", stresses = "";
 
-		String[] words = RiTa.tokenize(text);
-		String[] tags = RiTa.pos(text);
+		String[] words = RiTa.tokenize(text), tags = RiTa.pos(text);
 
-		features.put("tokens", String.join(" " , words));
-		features.put("pos", String.join(" " , tags));
+		features.put("tokens", String.join(" ", words));
+		features.put("pos", String.join(" ", tags));
 
-		for (int i = 0 , l = words.length; i < l; i++) {
+		for (int i = 0, l = words.length; i < l; i++) {
 
-			useRaw = false;
-			phones = RiTa._lexicon()._rawPhones(words[i], false);
+			boolean useRaw = false;
+			String rawPhones = RiTa._lexicon()._rawPhones(words[i], true);
 
-			if (phones.length() == 0) {
+			if (rawPhones.length() == 0) {
 
-				ltsPhones = RiTa.lts.getPhones(words[i]);
+				String[] ltsPhones = RiTa.lts.computePhones(words[i]);
 				if (ltsPhones != null && ltsPhones.length > 0) {
 
 					if (!RiTa.SILENT && !RiTa.SILENCE_LTS && words[i].matches("/[a-zA-Z]+/)")) {
 						System.out.println("[RiTa] Used LTS-rules for '" + words[i] + "'");
 					}
 
-					phones = Syllabifier.fromPhones(ltsPhones);
+					rawPhones = Syllabifier.fromPhones(ltsPhones);
 
 				} else {
-					//phones = words[i];
-					phones = words[i];
+					// phones = words[i];
+					rawPhones = words[i];
 					useRaw = true;
 				}
 			}
 
-			phonemes += (phones.replace("/[0-2]/g", "")).replace("/ /g", delim) + " ";
-			syllables += (phones.replace("/ /g", slash)).replace("/1/g", "") + " ";
+			phones += rawPhones.replaceAll("[0-2]", "").replaceAll(" ", DELIM) + " ";
+			syllables += rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
 
 			if (!useRaw) {
-				stressyls = phones.split(" ");
+				String[] stressyls = rawPhones.split(" ");
 				for (int j = 0; j < stressyls.length; j++) {
 
-					if (stressyls[j].length() ==0 || stressyls[j] == null) continue;
+					if (stressyls[j].length() == 0 || stressyls[j] == null) continue;
 
-					stresses += (stressyls[j].indexOf(RiTa.STRESSED) > -1) ?
-							RiTa.STRESSED : RiTa.UNSTRESSED;
+					stresses += (stressyls[j].indexOf(RiTa.STRESSED) > -1) ? RiTa.STRESSED : RiTa.UNSTRESSED;
 
-					if (j < stressyls.length - 1) stresses += slash;
+					if (j < stressyls.length - 1) stresses += SLASH;
 				}
 			} else {
 
@@ -70,11 +62,11 @@ public class Analyzer
 			if (!stresses.endsWith(" ")) stresses += " ";
 		}
 
-		features.put("phones", phonemes.trim());
+		features.put("phones", phones.trim());
 		features.put("stresses", stresses.trim());
 		features.put("syllables", syllables.trim());
 
-		//System.out.print("analysis features: "+features);
+		// System.out.print("analysis features: "+features);
 		return features;
 	}
 
