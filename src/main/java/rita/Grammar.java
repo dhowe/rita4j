@@ -9,16 +9,11 @@ public class Grammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	protected Map<String, Object> context;
-	public Map<String, Object> rules;
+	protected Map<String, Object> context, rules;
 	protected RiScript compiler;
 
 	public Grammar(String rules) {
 		this(rules, null);
-	}
-
-	public Grammar() {
-		this("", null);
 	}
 
 	public Grammar(String rules, Map<String, Object> context) {
@@ -39,10 +34,6 @@ public class Grammar {
 		return expand(rule, null);
 	}
 
-	public String expand() {
-		return expand("", null);
-	}
-
 	public String expand(Map<String, Object> opts) {
 		return expand(DEFAULT_RULE_NAME, opts);
 	}
@@ -50,11 +41,11 @@ public class Grammar {
 	@SuppressWarnings("unchecked")
 	public String expand(String rule, Map<String, Object> opts) {
 
-		Map<String, Object> ctx = Util.mergeMaps(this.context, this.rules);
+		Map<String, Object> ctx = Util.deepMerge(this.context, this.rules);
 		if (opts != null) {
 			Object val = opts.get("context");
 			if (val != null) {
-				ctx = Util.mergeMaps(ctx, (Map<String, Object>) val);
+				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
 			}
 		}
 		if (rule.startsWith("$")) rule = rule.substring(1);
