@@ -615,27 +615,26 @@ public class RiScriptTests {
 	@Test
 	public void testParseSelectChoices() {
 		Map<String, Object> ctx = opts();
-
+		String[] expected;
 		assertEq(RiTa.evaluate("(|)"), "");
 		assertEq(RiTa.evaluate("(a)"), "a");
 		assertEq(RiTa.evaluate("(a | a)", ctx), "a");
 
-		String[] results = { "a", "" };
+		expected = new String[]{ "a", "" };
 		String rs = RiTa.evaluate("(a | )");
-		assertTrue(Arrays.asList(results).contains(rs));
+		assertTrue(Arrays.asList(expected).contains(rs));
 
-		results[1] = "b";
+		expected = new String[]{ "a", "b" };
 		rs = RiTa.evaluate("(a | b)");
-		assertTrue(Arrays.asList(results).contains(rs));
+		assertTrue(Arrays.asList(expected).contains(rs));
 
-		results[2] = "c";
+		expected = new String[]{ "a", "b", "c" };
 		rs = RiTa.evaluate("(a | b | c)");
-		assertTrue(Arrays.asList(results).contains(rs));
+		assertTrue(Arrays.asList(expected).contains(rs));
 
-		results[3] = "d";
+		expected = new String[]{ "a", "b", "c", "d" };
 		rs = RiTa.evaluate("(a | (b | c) | d)");
-		assertTrue(Arrays.asList(results).contains(rs));
-
+		assertTrue(Arrays.asList(expected).contains(rs));
 	}
 
 	@Test

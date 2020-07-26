@@ -6,9 +6,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import rita.ChoiceState;
 import rita.Util;
 
-public class UtilTests {
+// For testing Util.java and other utility classes
+public class UtilTests { 
 
 	@Test
 	public void testMapOpts() {

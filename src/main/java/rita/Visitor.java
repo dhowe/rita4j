@@ -12,7 +12,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static final String SYM = "$";
 	private static final String EOF = "<EOF>";
-	private static final String FUNCTION = "()";
+	//private static final String FUNCTION = "()";
 
 	protected RiScript parent;
 	protected List<String> pendingSymbols;
@@ -150,24 +150,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitChoice(ChoiceContext ctx) {
 
-		// compute all options and weights
-		List<ExprContext> options = new ArrayList<ExprContext>();
-
-		List<WexprContext> wexprs = ctx.wexpr();
-		for (int i = 0; i < wexprs.size(); i++) {
-			WexprContext w = wexprs.get(i);
-			WeightContext wctx = w.weight();
-			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
-			ExprContext expr = w.expr();
-			if (expr == null) expr = emptyExpr(ctx);
-			for (int j = 0; j < weight; j++) {
-				options.add(expr);
-			}
-		}
-		if (this.trace) System.out.println("visitChoice: " + ctx.getText()
-				+ " :: " + options.size() + " opts");
-
-		ExprContext token = randomElement(options);
+		ChoiceState choiceState = new ChoiceState(this, ctx);
+		ExprContext token = choiceState.select();
 		return this.visit(token != null ? token : emptyExpr(ctx));
 	}
 

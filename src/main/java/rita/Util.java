@@ -48,12 +48,7 @@ public class Util {
 	}
 
 	public static boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
-//		boolean opt = def;
-//		if (opts != null) {
-//			Object o = opts.getOrDefault(key, def);
-//			opt = o != null && Boolean.TRUE.equals(o);
-//		}
-		return (boolean) opts.getOrDefault(key, def);
+		return (opts != null) ? (boolean) opts.getOrDefault(key, def) : def;
 	}
 
 	public static int intOpt(String key, Map<String, Object> opts) {
@@ -61,12 +56,7 @@ public class Util {
 	}
 
 	public static int intOpt(String key, Map<String, Object> opts, int def) {
-//		int opt = def;
-//		if (opts != null) {
-//			Object o = opts.getOrDefault(key, def);
-//			if (o != null) opt = (int) o;
-//		}
-		return (int) opts.getOrDefault(key, def);
+		return (opts != null) ? (int) opts.getOrDefault(key, def) : def;
 	}
 
 	public static float floatOpt(String key, Map<String, Object> opts) {
@@ -74,12 +64,8 @@ public class Util {
 	}
 
 	public static float floatOpt(String key, Map<String, Object> opts, float def) {
-//		float opt = def;
-//		if (opts != null) {
-//			Object o = opts.getOrDefault(key, def);
-//			if (o != null) opt = (float) o;
-//		}
-		return (float) opts.getOrDefault(key, def);
+		return (opts != null) ? (float) opts.getOrDefault(key, def) : def;
+
 	}
 
 	public static String strOpt(String key, Map<String, Object> opts) {
@@ -87,14 +73,7 @@ public class Util {
 	}
 
 	public static String strOpt(String key, Map<String, Object> opts, String def) {
-//		String opt = def;
-//		if (opts != null) {
-//			Object o = opts.getOrDefault(key, def);
-//			if (o != null) opt = (String) o;
-//		}
-//		return opt;
-		return (String) opts.getOrDefault(key, def);
-
+		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
 	}
 
 	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
@@ -103,12 +82,10 @@ public class Util {
 
 	@SuppressWarnings("unchecked")
 	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
-//		if (opts != null) {
-//			Object o = opts.get("ignoreCase", def);
-//			if (o != null) opt = (String) o;
-//		}
-		Object val = opts.get(key);
-		return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
+		return opts != null ? (Map<String, Object>) opts.getOrDefault(key, def) : def;
+		// if (opts == null) return def;
+		//Object val = opts.get(key);
+		//return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
 	}
 
 	public static String[] shuffle(String[] arr) { // shuffle array //TODO what is the type of second arg
