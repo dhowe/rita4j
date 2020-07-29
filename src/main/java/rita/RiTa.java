@@ -25,21 +25,16 @@ public class RiTa
 //  protected static Syllabifier syllabifier;
 //  protected static Stemmer stemmer;
     
-	public static Map<String, Function<String,String>> addTransform(String string) { 
-		RiScript.transforms.put(string, Function.identity());
+	public static Map<String, Function<String,String>> addTransform(String name, Function<String, String> func) {
+		if (func != null) {
+			RiScript.transforms.put(name, func);
+		}
+		else {
+			RiScript.transforms.remove(name);
+		}
 		return RiScript.transforms;
 	}
 	
-	public static Map<String, Function<String,String>> addTransform(String string, Function<String, String> func) {
-		RiScript.transforms.put(string, func);
-		return RiScript.transforms;
-	}
-	
-	public static Map<String, Function<String,String>> addTransform(String string, Supplier<String> func) {
-		// RiScript.transforms.put(string, func); //TODO
-		return RiScript.transforms;
-	}
-
   public static String[] alliterations(String word)
   {
     return alliterations(word, Integer.MAX_VALUE);

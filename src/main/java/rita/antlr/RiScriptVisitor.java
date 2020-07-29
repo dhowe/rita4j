@@ -65,7 +65,7 @@ public interface RiScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitChars(RiScriptParser.CharsContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link RiScriptParser#symbol}.
+	 * Visit a parse tree produced by {@link RiScriptParser#token}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */

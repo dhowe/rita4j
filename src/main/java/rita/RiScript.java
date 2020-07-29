@@ -1,7 +1,6 @@
 package rita;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
@@ -12,6 +11,7 @@ import rita.antlr.RiScriptLexer;
 import rita.antlr.RiScriptParser;
 import rita.antlr.RiScriptParser.ScriptContext;
 
+@SuppressWarnings("unchecked")
 public class RiScript {
 
 	public static final int MAX_TRIES = 100;
@@ -19,8 +19,6 @@ public class RiScript {
 	protected RiScriptLexer lexer;
 	protected RiScriptParser parser;
 	protected Visitor visitor;
-
-	protected static Map<String, Function<String, String>> transforms;
 
 	public static String eval(String input) {
 
@@ -35,21 +33,24 @@ public class RiScript {
 	public static String eval(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 		return new RiScript().evaluate(input, ctx, opts);
 	}
-	
+
 	public String evaluate(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 		boolean trace = Util.boolOpt("trace", opts);
 		boolean silent = Util.boolOpt("silent", opts);
 		boolean onepass = Util.boolOpt("singlePass", opts);
-
+		
+		if (ctx == null) ctx = new HashMap<String, Object>();
+		
 		String last = input;
-		RiScript rs = this.pushTransforms(ctx);
-		String expr = rs.lexParseVisit(input, ctx, opts);
-		if (!onepass && rs.isParseable(expr)) {
+		String expr = lexParseVisit(input, ctx, opts);
+		
+		if (trace) passInfo(ctx, last, expr, 0);
+		
+		if (!onepass && isParseable(expr)) {
 			for (int i = 0; i < RiScript.MAX_TRIES && !expr.equals(last); i++) {
 				last = expr;
-				expr = rs.lexParseVisit(expr, ctx, opts);
-				if (trace) System.out.println("\nPass#" + (i + 2) + ": " + expr
-						+ "\n-------------------------------------------------------\n");
+				expr = lexParseVisit(expr, ctx, opts);
+				if (trace) passInfo(ctx, last, expr, i + 1);
 				if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
 						+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
 			}
@@ -58,9 +59,14 @@ public class RiScript {
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
-		String result = rs.popTransforms(ctx).resolveEntities(expr);
-		if (trace) System.out.println("Result: '" + result + "'");
-		return result;
+		
+		return expr;
+	}
+
+	private void passInfo(Map<String, Object> ctx, String input, String output, int pass) {
+		System.out.println("\nPass#" + (pass + 1) + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
+				+ "\nResult:  '" + output + "'\nContext: " + (ctx != null ? ctx.toString().replaceAll("rita.RiScript\\$\\$Lambda[^,]+,", "[F],") : "{}"));
+		if (pass > 0) System.out.println("-------------------------------------------------------");
 	}
 
 	String[] preParse(String input, Map<String, Object> opts) {
@@ -87,20 +93,6 @@ public class RiScript {
 		}
 
 		return new String[] { pre, parse, post };
-	}
-
-	private RiScript pushTransforms(Map<String, Object> ctx) {
-		// TODO
-		return this;
-	}
-
-	private RiScript popTransforms(Map<String, Object> ctx) {
-		// TODO
-		return this;
-	}
-
-	private String resolveEntities(String s) {
-		return StringEscapeUtils.unescapeHtml4(s);
 	}
 
 	public CommonTokenStream lex(String input) {
@@ -168,13 +160,13 @@ public class RiScript {
 		if (parse.length() > 0) {
 			tree = this.lexParse(parts[1], opts);
 
-			if (Util.boolOpt("trace", opts)) System.out.println("preParse(" + (pre.length() > 0 ? pre : "''")
-					+ ',' + (post.length() > 0 ? post : "''") + "):");
+			if (Util.boolOpt("trace", opts) && (pre.length() > 0 || post.length() > 0))
+				System.out.println("preParse(" + (pre.length() > 0 ? pre : "''")
+						+ ',' + (post.length() > 0 ? post : "''") + "):");
 
 			result = this.createVisitor(context, opts).start(tree);
 		}
-		return (this.normalize(pre) + " " + result
-				+ " " + this.normalize(post)).trim();
+		return (this.normalize(pre) + " " + result + " " + this.normalize(post)).trim();
 	}
 
 	String normalize(String s) {
@@ -197,7 +189,7 @@ public class RiScript {
 				&& RE.test("[aeiou]", phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
-	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\\\$[A-Za-z_][A-Za-z_0-9-]*)");
+	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
 
 	public static Grammar getTransforms() {
 		// TODO Auto-generated method stub
@@ -211,12 +203,42 @@ public class RiScript {
 	public static void addTransform(String name, Function<String, String> f) {
 		// TODO Auto-generated method stub
 	}
+
+	private static final Function<String, String> articlize = s -> RiTa.articlize(s);
+	private static final Function<String, String> pluralize = s -> RiTa.pluralize(s);
+	private static final Function<String, String> quotify = s -> '"' + s + '"';
+	private static final Function<String, String> identity = s -> s;
+	private static final Function<String, String> uc = s -> s.toUpperCase();
+	private static final Function<String, String> capitalize = s -> {
+		return String.valueOf(s.charAt(0)).toUpperCase()+ s.substring(1);
+	};
 	
+	private static final Map.Entry<String, Object>[] namedFunctions = new Map.Entry[] {
+			new AbstractMap.SimpleEntry<String, Object>("articlize", articlize),
+			new AbstractMap.SimpleEntry<String, Object>("pluralize", pluralize),
+			new AbstractMap.SimpleEntry<String, Object>("capitalize", capitalize),
+			new AbstractMap.SimpleEntry<String, Object>("quotify", quotify),
+			new AbstractMap.SimpleEntry<String, Object>("ucf", capitalize),
+			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
+			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
+			new AbstractMap.SimpleEntry<String, Object>("norep", identity),
+			new AbstractMap.SimpleEntry<String, Object>("uc", uc)
+	};
+
+	public static Map<String, Function<String, String>> transforms;
+
+	static {
+		transforms = new HashMap<String, Function<String, String>>();
+		for (Map.Entry<String, Object> kv : namedFunctions) {
+			transforms.put(kv.getKey(), (Function<String, String>) kv.getValue());
+		}
+	}
+
 	public static void main(String[] args) {
 		RiScript rs = new RiScript();
 		Map<String, Object> opts = Util.opts();
 		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
-		System.out.println("\nResult: '" + s + "', opts: " + opts);
+		System.out.println("\nResult: '" + s + "', opts: " + opts+" "+transforms);
 	}
 
 }

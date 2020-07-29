@@ -1,5 +1,7 @@
 package rita;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 public class Util {
@@ -30,10 +32,76 @@ public class Util {
 			"triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl",
 			"waterworks", "waxworks", "wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics",
 			"news", "odds", "politics", "remains", "goods", "aids", "wildlife", "shall", "would", "may", "might", "ought",
-			"should", "wildlife" };
+			"should", "wildlife"
+	};
 
 	public static boolean isNode() {
 		return false;
+	}
+
+	//public Object/*String*/ invokeStatic(Class target, Method method, Object[] args) throws Throwable {
+
+	public static Object/*String*/ invokeStatic(Method method, Object... args) {
+		return invoke(null, method, args);
+	}
+
+	public static Object/*String*/ invoke(Object target, Method method, Object... args) {
+		try {
+			return method.invoke(target, args);//.toString();
+		} catch (Exception e) {
+			String msg = "Invoke error";
+			if (e instanceof java.lang.IllegalAccessException)
+				msg = "Make sure the class you are trying to "
+						+ "(dynamically) cast is publicly defined.";
+			throw new RiTaException(msg, e);
+		}
+	}
+
+	public static boolean hasProperty(Object o, String prop) {
+		return getProperty(o, prop) != null;
+	}
+
+	public static boolean hasMethod(Object o, String prop) {
+		return getMethods(o, prop).length > 0;
+	}
+
+	public static Field getProperty(Object o, String prop) {
+		Field[] fields = o.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i].getName().equals(prop)) {
+				return fields[i];
+			}
+		}
+		return null;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static Method getStatic(Class c, String name, Class... params) {
+		try {
+			return c.getDeclaredMethod(name, params);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@SuppressWarnings("rawtypes")
+	public static Method getMethod(Object o, String name, Class... params) {
+		try {
+			return o.getClass().getDeclaredMethod(name, params);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	public static Method[] getMethods(Object o, String meth) {
+		List<Method> result = new ArrayList<Method>();
+		Method[] methods = o.getClass().getDeclaredMethods();
+		for (int i = 0; i < methods.length; i++) {
+			if (methods[i].getName().equals(meth)) {
+				result.add(methods[i]);
+			}
+		}
+		return result.toArray(new Method[0]);
 	}
 
 	public static Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
@@ -158,37 +226,24 @@ public class Util {
 	}
 
 	public static Map<String, Object> opts(String key, Object val) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(key, val);
-		return data;
+		return opts(new String[] { key }, new Object[] { val });
 	}
 
 	public static Map<String, Object> opts(String key1, Object val1, String key2, Object val2) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(key1, val1);
-		data.put(key2, val2);
-		return data;
+		return opts(new String[] { key1, key2 }, new Object[] { val1, val2 });
 	}
 
 	public static Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(key1, val1);
-		data.put(key2, val2);
-		data.put(key3, val3);
-		return data;
+		return opts(new String[] { key1, key2, key3 }, new Object[] { val1, val2, val3 });
 	}
 
 	public static Map<String, Object> opts(String key1, Object val1,
 			String key2, Object val2, String key3, Object val3, String key4, Object val4) {
-		Map<String, Object> data = new HashMap<String, Object>();
-		data.put(key1, val1);
-		data.put(key2, val2);
-		data.put(key3, val3);
-		data.put(key4, val4);
-		return data;
+		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
 	}
 
 	public static Map<String, Object> opts(String[] keys, Object[] vals) {
+		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
 		Map<String, Object> data = new HashMap<String, Object>();
 		for (int i = 0; i < keys.length; i++) {
 			data.put(keys[i], vals[i]);
