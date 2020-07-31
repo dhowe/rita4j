@@ -2,6 +2,7 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import static rita.Util.opts;
 
 import java.util.*;
@@ -259,7 +260,7 @@ public class RiScriptTests {
 	public void testHandleSentences() {
 
 		Map<String, Object> ctx = opts();
-		
+
 		// Known issue in js
 		//assertEq(RiTa.evaluate("$foo=.r", ctx), "");
 		//assertEq(ctx.get("foo"), ".r");
@@ -457,14 +458,23 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void testLineBreaks() {
+		String in = "a.\n$b.";
+		String out = RiTa.evaluate(in, opts("b", "c"));
+		//System.out.println("RES: '"+out+"'");
+		assertEq(out, "a. c.");
+	}
+
+	@Test
 	public void testReuseAnAssignedVariable() {
 		Map<String, Object> ctx = opts();
 		String inp = "Once there was a girl called [$hero=(Jane | Jane)].";
 		inp += "\n$hero lived in [$home=(Neverland | Neverland)].";
 		inp += "\n$hero liked living in $home.";
-		String out = "Once there was a girl called Jane. Jane lived in Neverland. Jane liked living in Neverland.";
-
-		assertEq(RiTa.evaluate(inp, ctx), out);
+		String exp = "Once there was a girl called Jane. Jane lived in Neverland. Jane liked living in Neverland.";
+		String out = RiTa.evaluate(inp, ctx);
+		//System.out.println(out);
+		assertEq(out, exp);
 	}
 
 	@Test
@@ -640,19 +650,11 @@ public class RiScriptTests {
 
 	@Test
 	public void testParseSelectChoicesTX() {
-		//assertEq(RiTa.evaluate("(a | a).toUpperCase()"), "A");
-		assertEq(RiTa.evaluate("(a | a).up()", null, TT), "a.up()");
+		assertEq(RiTa.evaluate("(a | a).toUpperCase()"), "A");
+		assertEq(RiTa.evaluate("(a | a).up()"), "a.up()");
 		Function<String, String> up = x -> x.toUpperCase();
 		assertEq(RiTa.evaluate("(a | a).up()", opts("up", up)), "A");
-		
 		assertEq(RiTa.evaluate("$a", opts("a", 1)), "1");
-		assertEq(RiTa.evaluate("$a.b", opts("a", opts("b",1)), SPTT), "1");
-
-//		Object o = new Function<String, String>() {
-//			s -> s;
-//		};
-		//assertEq(RiTa.evaluate("(a | a).toUpperCase()", opts("to", new Function<T, R>() {
-		//x -> x.toUpperCase()}; 
 	}
 
 	@Test
@@ -666,18 +668,11 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("x (a | a | a) (b | b | b) x"), "x a b x");
 		assertEq(RiTa.evaluate("x (a | a | a)(b | b | b) x"), "x ab x");
 		assertEq(RiTa.evaluate("x (a | a) (b | b) x"), "x a b x");
-		String rs = RiTa.evaluate("(a|b)");
-		assertTrue(rs.matches("/a|b/"));
-
-		rs = RiTa.evaluate("(a|)");
-		assertTrue(rs.matches("/a?/"));
-
 		assertEq(RiTa.evaluate("(a|a)"), "a");
 
-		String[] results = { "a", "" };
-		rs = RiTa.evaluate("(|a|)");
-		assertTrue(Arrays.asList(results).contains(rs));
-
+		assertTrue(Arrays.asList("a", "b").contains(RiTa.evaluate("(a|b)")));
+		assertTrue(Arrays.asList("a", "").contains(RiTa.evaluate("(a|)")));
+		assertTrue(Arrays.asList("a", "").contains(RiTa.evaluate("(|a|)")));
 	}
 
 	@Test
@@ -808,12 +803,21 @@ public class RiScriptTests {
 
 	@Test
 	public void testObjectProperties() {
-		Map<String, Object> dog = opts();
-		dog.put("name", "spot");
-		dog.put("color", "white");
-		dog.put("hair", opts("color", "white"));
-		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.", dog), "It was a white dog.");
-		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.", dog), "It was a WHITE dog.");
+		//		Map<String, Object> dog = opts();
+		//		dog.put("name", "spot");
+		//		dog.put("color", "white");
+		//		dog.put("hair", opts("color", "white"));
+		class Hair {
+			String color = "whit";
+		}
+		class Dog {
+			String name = "Spot";
+			String color = "white";
+			Hair hair = new Hair();
+		}
+		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.", opts("dog", new Dog())), "It was a white dog.");
+		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.", opts("dog", new Dog())), "It was a WHITE dog.");
+		assertEq(RiTa.evaluate("$a.b", opts("a", opts("b", 1)), SPTT), "1");
 	}
 
 	@Test
@@ -914,14 +918,17 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");
 		assertEq(ctx.get("foo"), "");
 
-		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)",null,TT), "A");
+		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)", null, TT), "A");
 		assertEq(RiTa.evaluate("$start=$r.capitalize()\n$r=(a|a)\n$start", ctx), "A");
 	}
 
 	@Test
 	public void testTransformProperties() {
-		Map<String, Object> ctx = opts("bar", opts("ucf", "result"));
-		String rs = RiTa.evaluate("$foo=$bar.ucf\n$foo", ctx);
+		class Bar {
+			String prop = "result";
+		}
+		Map<String, Object> ctx = opts("bar", new Bar());
+		String rs = RiTa.evaluate("$foo=$bar.propx\n$foo", ctx, TT);
 		assertEq(rs, "result");
 	}
 

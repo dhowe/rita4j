@@ -84,6 +84,11 @@ public class Util {
 		}
 	}
 
+	public static final Class[] NOCLASS = new Class[0];
+	public static Method getMethod(Object o, String name) {
+		return getMethod(o, name, NOCLASS);
+	}
+	
 	@SuppressWarnings("rawtypes")
 	public static Method getMethod(Object o, String name, Class... params) {
 		try {
