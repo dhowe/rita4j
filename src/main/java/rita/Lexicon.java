@@ -5,59 +5,60 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class Lexicon // KW: Wait on this class please
+public class Lexicon
 {
-
-	private static String LEXICON_DELIM = ":";
+	private static String LEXICON_DELIM = ":", E = "";
 	private static int MAP_SIZE = 30000;
 
 	public Map<String, String[]> dict; // data
 
-	public Lexicon(String filePath) throws Exception {
+	public Lexicon(String filePath) {
 		List<String> lines = loadJSON(filePath);
-
 		if (lines == null || lines.size() < 2) {
-			throw new Exception("Problem parsing RiLexicon data files");
+			throw new RiTaException("Problem parsing lexicon files");
 		}
+		populateDict(lines);
+	}
+
+	private void populateDict(List<String> lines) {
 
 		dict = new LinkedHashMap<String, String[]>(MAP_SIZE);
 
 		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
 		{
-			String line = lines.get(i);
+			String line = lines.get(i).replaceAll("['\\[\\]]", E);
 			String[] parts = line.split(LEXICON_DELIM);
 			if (parts == null || parts.length != 2) {
-				throw new Exception("Illegal entry: " + line);
+				throw new RiTaException("Illegal entry: " + line);
 			}
-			dict.put(parts[0].replaceAll("'", "").trim(), parts[1].split(","));
+			dict.put(parts[0].trim(), parts[1].split(","));
 		}
 	}
 
-	public static List<String> loadJSON(String file) throws Exception {
+	public static List<String> loadJSON(String file) {
+
 		if (file == null) {
-			throw new Exception("No dictionary path specified!");
+			throw new RiTaException("No dictionary path specified!");
 		}
 
 		URL resource = RiTa.class.getResource(file);
 		if (resource == null) {
-			throw new Exception("Unable to load lexicon from: " + file);
+			throw new RiTaException("Unable to load lexicon from: " + file);
 		}
 
-		final Path path = Paths.get(resource.toURI());
-		final List<String> lines = Files.readAllLines(path);
-
-		// clean out the JSON formatting (TODO: optimize)
-		// String clean = data.replaceAll("["\\[\\]]", E).replaceAll(",", "|");
-
-		return lines;
+		try {
+			return Files.readAllLines(Paths.get(resource.toURI()));
+		} catch (Exception e) {
+			throw new RiTaException("Unable to read lexicon from: " + file);
+		}
 	}
 
 	public String[] alliterations(String word, int minWordLength) {
-		if (word == null || word.length() == 0) return new String[] { };
+		if (word == null || word.length() == 0) return new String[0];
 
 		word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
 
-		if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] { };
+		if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[0];
 
 		// int matchMinLength = minWordLength || 4;
 		// boolean useLTS = opts && opts.useLTS || false;
@@ -65,12 +66,12 @@ public class Lexicon // KW: Wait on this class please
 		boolean useLTS = false; // TODO: default is true or false?
 
 		ArrayList<String> resultsArrayList = new ArrayList<String>();
-		String[] results = new String[] { };
+		String[] results = new String[0];
 		String[] words = (String[]) dict.keySet().toArray(new String[dict.size()]);
 		String fss = _firstStressedSyl(word, useLTS);
 		String c1 = _firstPhone(fss);
 
-		if (c1 == null || c1.length() == 0) return new String[] { };
+		if (c1 == null || c1.length() == 0) return new String[0];
 
 		for (int i = 0; i < words.length; i++) {
 
@@ -78,7 +79,7 @@ public class Lexicon // KW: Wait on this class please
 
 			String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
 
-			if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[] { }; // ????
+			if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) return new String[0]; // ????
 
 			if (c1.equals(c2)) {
 				resultsArrayList.add(words[i]);
@@ -241,9 +242,9 @@ public class Lexicon // KW: Wait on this class please
 	public String[] similarBy(String word, Map<String, Object> opts) // TODO
 	{
 
-		if (word == null || word.length() == 0) return new String[] { };
+		if (word == null || word.length() == 0) return new String[0];
 
-		if (opts == null) return new String[] { };
+		if (opts == null) return new String[0];
 
 		if (opts.get("type") == null || opts.get("type") == "") {
 			opts.put("type", "letter");
@@ -257,18 +258,18 @@ public class Lexicon // KW: Wait on this class please
 		opts.put("type", "letter");
 		// opts.get("type") = "letter";
 		String[] simLetter = similarByType(word, opts);
-		if (simLetter.length < 1) return new String[] { };
+		if (simLetter.length < 1) return new String[0];
 
 		opts.put("type", "sound");
 		String[] simSound = similarByType(word, opts);
-		if (simSound.length < 1) return new String[] { };
+		if (simSound.length < 1) return new String[0];
 
 		return _intersect(simSound, simLetter);
 
 	}
 
 	public String[] similarByType(String word, Map<String, Object> opts) { // TODO check result against js (compareA,
-																																					// compare B)
+																																				// compare B)
 
 		int minLen = 2;
 		int preserveLength = 0;
@@ -350,13 +351,14 @@ public class Lexicon // KW: Wait on this class please
 		return s;
 	}
 
-	public String[] words(Pattern regex) {
-		return regex != null ? dict.keySet().stream().filter(word -> regex.matcher(word).matches()).toArray(String[]::new)
-				: dict.keySet().toArray(new String[0]);
+	public String[] words() {
+		return dict.keySet().toArray(new String[0]);
 	}
-
-	public static void main(String[] args) throws Exception {
-		System.out.println(new Lexicon(RiTa.DICT_PATH).words(null).length);
+	
+	public String[] words(Pattern regex) {
+		return dict.keySet().stream()
+				.filter(word -> regex.matcher(word).matches())
+				.toArray(String[]::new);
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -501,9 +503,8 @@ public class Lexicon // KW: Wait on this class please
 	String[] _posArr(String word) {
 
 		String pl = _posData(word);
-
-		if (pl == null || pl.length() == 0) return new String[] { };
-		return pl.split(" ");
+		return (pl == null || pl.length() == 0) 
+				? new String[0] : pl.split(" ");
 	}
 
 	public String _bestPos(String word) {
@@ -513,27 +514,27 @@ public class Lexicon // KW: Wait on this class please
 	}
 
 	private String[] _lookupRaw(String word) {
-		// word = word && word.toLowerCase();
-		if (word == null || word.length() == 0) return new String[] { };
-		word = word.toLowerCase();
-		// System.out.println("word : " + word);
-
-		if (dict != null) {
-			// System.out.println("dict.get(word) : " + dict.get(word));
-			return dict.get(word);
-		} else {
-			return new String[] { };
+		String[] result = null;
+		if (word != null && word.length() > 0) {
+			word = word.toLowerCase();
+			if (dict != null) {
+				result = dict.get(word);
+			}
 		}
+		return result != null ? result : new String[0];
 	}
 
+	public String _rawPhones(String word) {
+		return this._rawPhones(word, false);
+	}
+	
 	public String _rawPhones(String word, boolean noLts) {
-
-		if (RiTa.lts == null) throw new RiTaException("Null LTS");
 
 		String[] rdata = _lookupRaw(word);
 		if (rdata != null && rdata.length != 0) return rdata[0];
 
 		if (!noLts) {
+			if (RiTa.lts == null) throw new RiTaException("Null LTS");
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
@@ -541,8 +542,13 @@ public class Lexicon // KW: Wait on this class please
 						.replaceAll("\\[", "").replaceAll("'", "");
 			}
 		}
-
 		return "";
+	}
+
+	public static void main(String[] args) throws Exception {
+		Lexicon lex = new Lexicon(RiTa.DICT_PATH);
+		System.out.println(lex.dict.get("dog")[0]);
+		System.out.println(lex.dict.get("dog")[1]);
 	}
 
 }

@@ -1,8 +1,5 @@
 package rita;
 
-import static rita.Util.opts;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
@@ -10,7 +7,6 @@ import java.util.function.Function;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.*;
-import org.apache.commons.text.StringEscapeUtils;
 
 import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser;
@@ -38,8 +34,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		this.parent = parent;
 		this.context = ctx;
 		this.trace = Util.boolOpt("trace", opts);
-		this.appliedTransforms = new ArrayList<String>();
 		this.pendingSymbols = new ArrayList<String>();
+		this.appliedTransforms = new ArrayList<String>();
 		if (context == null) context = new HashMap<String, Object>();
 	}
 
@@ -49,7 +45,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		pushTransforms(this.context);
 		String result = visitScript(ctx);
 		popTransforms(this.context);
-		return resolveEntities(result);
+		return result;
 	}
 
 	public String visitScriptOff(RiScriptParser.ScriptContext ctx) {
@@ -58,23 +54,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			System.out.println(i + ") " + ctx.getChild(i).getClass() + " '" + ctx.getChild(i).getText() + "'");
 		}
 		return visitChildren(ctx);
-	}
-
-	private String resolveEntities(String s) {
-		return StringEscapeUtils.unescapeHtml4(s);
-	}
-
-	private void pushTransforms(Map<String, Object> ctx) {
-		for (String tx : RiScript.transforms.keySet()) {
-			if (!ctx.containsKey(tx)) {
-				ctx.put(tx, RiScript.transforms.get(tx));
-				this.appliedTransforms.add(tx);
-			}
-		}
-	}
-
-	private void popTransforms(Map<String, Object> ctx) {
-		for (String tx : appliedTransforms) ctx.remove(tx);
 	}
 
 	public String visitAssign(AssignContext ctx) {
@@ -92,20 +71,24 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitInline(InlineContext ctx) {
 		ExprContext token = ctx.expr(); // dup in visitAssign
 		String id = ctx.symbol().getText().replaceAll("^\\$", "");
+		
+		// first visit the token 
 		if (this.trace) System.out.println("visitInline: $"
 				+ id + "=" + this.flatten(token));
-		//passTransformsAsChildrenOf(token, ctx.transform());
-		String result = this.visit(token);
+		
+		String visited = this.visit(token);
+		
+		// add the result to the context
 		if (this.trace) System.out.println("resolveInline: $"
-				+ id + " -> '" + result + "'");
-		this.context.put(id, result);
-		result = this.applyTransforms(result, ctx.transform());
-		return result;
-	}
-
-	public String visitAssignX(AssignContext ctx) {
-		if (trace) System.out.println("visitAssign: '" + ctx.getText() + "'\t" + stack(ctx));
-		return visitChildren(ctx);
+				+ id + " -> '" + visited + "'");
+		this.context.put(id, visited);
+		
+		// finally check for transforms
+		List<TransformContext> txs = ctx.transform();
+		if (txs.size() < 1) return visited;
+		
+		String result = applyTransforms(visited, ctx.transform());
+		return result != null ? result : ctx.getText();
 	}
 
 	//	public String visitScript(ScriptContext ctx) {
@@ -123,7 +106,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitChars(CharsContext ctx) {
 		List<TransformContext> txs = siblingTransforms(ctx, true);
 		if (trace) System.out.println("visitChars: '" + ctx.getText() + "' tfs=" + flatten(txs));
-		return txs.size() > 0 ? applyTransforms(ctx.getText(), txs) : ctx.getText();
+		String result = applyTransforms(ctx.getText(), txs);
+		return  result != null ? result : ctx.getText() + flatten(txs);
 	}
 
 	public String visitChoice(ChoiceContext ctx) {
@@ -139,40 +123,59 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	// TODO: [NEXT] need to handle fails in applyTransforms()
 	// 			 should return input (x.tf() || x.tp ) if no transform succeeds
 	//
-	
-	public String visitSymbol(SymbolContext ctx) {
-		String res = ctx.getText();
-		TerminalNode tn = ctx.SYM();
-		if (tn == null) return applyTransforms("", ctx.transform());
-		String ident = tn.getText().replaceAll("^\\$", "");
 
-		if (this.pendingSymbols.contains(ident/*tn.getText()*/)) {
-			return res;
+	public String visitSymbol(SymbolContext ctx) {
+		String result = ctx.getText();
+		TerminalNode tn = ctx.SYM();
+
+		if (tn == null) { // transform on empty string
+			String applied = applyTransforms("", ctx.transform());
+			return applied != null ? applied : result;
 		}
 
 		List<TransformContext> txs = ctx.transform();
-		//String ident = tn.getText().replaceAll("^\\$", "");
-		Object def = fromContextOrDef(ident, null);
+		String ident = tn.getText().replaceAll("^\\$", "");
 
+		// already a pending symbol, save for later  ??? 
+		// shouldn't we check the context first
+		if (this.pendingSymbols.contains(ident)) {
+			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
+					+ flatten(txs) + " -> " + result);
+			return result;
+		}
+		
+		if (trace) System.out.println("visitSymbol: '"
+				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
+
+		// now check the context
+		Object def = fromContext(ident);
 		if (def != null) {
-
-			if (isPrimitive(def)) def = def.toString();
-
-			if (def instanceof String) {
-				if (this.parent.isParseable((String) def)) {
-					this.pendingSymbols.add(ident);
-				}
-				res = applyTransforms((String) def, txs);
-			} else {
-
-				res = applyObjectTransforms(def, txs);
+  
+			if (isPrimitive(def)) {
+				def = def.toString();
+			}
+			
+			if (!(def instanceof String)) {
+				throw new RuntimeException("Tx returned non-String:  " + def);
+			}
+			
+			/*if (false && this.parent.isParseable((String) def)) {
+				this.pendingSymbols.add(ident);
+				System.out.println("ADD-PENDING -> "+ident+"\tdef="+def);
+				return result;
+			}*/
+			
+			result = (String) def;
+			String applied = applyTransforms(result, txs);
+			if (applied != null) {
+				result = applied;
 			}
 		}
 
 		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + res);
+				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
 
-		return res;
+		return result;
 	}
 
 	//	private String symbolName(String t) {
@@ -188,12 +191,13 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return PRIMITIVES.contains(o.getClass());
 	}
 
-	private Object fromContextOrDef(String ident) {
-		return fromContextOrDef(ident, ident);
+	private Object fromContext(String id) {
+		String key = id.startsWith("$") ? id.substring(1) : id;
+		return context != null ? context.get(key) : null;
 	}
 
-	private Object fromContextOrDef(String ident, Object def) {
-		String key = ident.startsWith("$") ? ident.substring(1) : ident;
+	private Object fromContextOrDef(String id, Object def) {
+		String key = id.startsWith("$") ? id.substring(1) : id;
 		return context != null ? context.getOrDefault(key, def) : def;
 	}
 
@@ -220,7 +224,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public String visitTransform(TransformContext ctx) {
-		if (trace) System.out.println("visitTransform: '" + ctx.getText() + "'");
+		if (trace) System.err.println("[ERROR] visitTransform: '" + ctx.getText() + "'");
 		return "";//visitChildren(ctx);
 	}
 
@@ -272,15 +276,21 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	private String applyTransforms(String term, List<TransformContext> tfs) {
-		String raw = term + flatten(tfs);
+		if (term == null || tfs == null || tfs.size() < 1) return null;
 		String result = this.parent.normalize(term);
-		if (tfs != null) {
-			if (this.parent.isParseable(result)) {
-				System.out.println("applyTransforms.isParseable=true: '" + result + "'");
-				return raw;
-			}
+		if (this.parent.isParseable(result)) {
+			//System.out.println("applyTransforms.isParseable=true: '" + result + "'");
+			return null;
+		}
+		for (TransformContext tf : tfs) {
+			result = applyTransform(result, tf);
+		}
+		return result;
+	}
+	/*	else {
+			List results = new ArrayList();
 			for (TransformContext tf : tfs) {
-				result = applyTransform(term, tf);
+				results.add(applyObjectTransform(target, tf, original));
 			}
 		}
 		if (trace) System.out.println("applyTransforms: '"
@@ -288,9 +298,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		
 		return result;
 	}
-
-	private String applyObjectTransforms(Object term, List<TransformContext> tfs) {
-
+	
+	private applyObjectTransforms(Object term, List<TransformContext> tfs) {
+	
 		String result = "";
 		if (tfs != null) {
 			for (TransformContext tf : tfs) {
@@ -301,7 +311,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				+ term + "' -> '" + result + "'");
 		return result;
 	}
-
+	
 	private String applyObjectTransform(Object term, TransformContext tx) {
 		//System.out.println("applyObjectTransform: "+term+" tx="+tx.getText());
 		String txf = tx.getText(), raw = term + txf;
@@ -319,27 +329,31 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			System.err.println("[WARN] Unable to resolve '" + raw + "'");
 		}
 		return raw;
-	}
+	}*/
 
-	private String applyTransform(String s, TransformContext tx) {
-		System.out.println("applyTransform1: " + s + " tx=" + tx.getText());
+	// Attempts to apply transform, returns null on failure
+	private String applyTransform(String s, TransformContext tfc) {
+		
+		if (s == null || tfc == null) return null;
+		String tx = tfc.getText().replaceAll("^\\.", "");
+		
+		if (trace) System.out.println("applyTransform: '" + s + "' tf=" + tx);
+		
 		Object result = null;
-		String txf = tx.getText(), raw = s + txf;
-		txf = txf.replaceAll("^\\.", "");
-
+		
 		// check for function
-		if (txf.endsWith(Visitor.FUNCTION)) {
-			txf = txf.substring(0, txf.length() - 2);
+		if (tx.endsWith(Visitor.FUNCTION)) {
+			tx = tx.substring(0, tx.length() - 2);
 
 			// 1. Static method - no cases in Java
-			Method meth = Util.getStatic(String.class, txf, String.class);
+			Method meth = Util.getStatic(String.class, tx, String.class);
 			if (meth != null) {  // String static
 				result = Util.invokeStatic(meth, s);
 			}
 
 			// 2. Member (String) method
 			if (result == null) {
-				meth = Util.getMethod(s, txf);
+				meth = Util.getMethod(s, tx);
 				if (meth != null) { // String method
 					result = Util.invoke(s, meth);
 				}
@@ -347,9 +361,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 			// 3. Function in context
 			if (result == null) {
-				Map<String, Function<String, String>> funcs = contextFunctions();
-				if (funcs.containsKey(txf)) {
-					result = funcs.get(txf).apply(s.toString());
+				Map<String, Function<String, String>> cf = contextFunctions();
+				if (cf.containsKey(tx)) {
+					result = cf.get(tx).apply(s.toString());
 				}
 			}
 		}
@@ -357,10 +371,11 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		else {
 			throw new RuntimeException("Check Properties here");
 		}
-		if (trace) System.out.println("applyTransform: '"
+		
+		if (trace) System.out.println("resolveTransform: '"
 				+ s + "' -> '" + result + "'");
 
-		return result != null ? result.toString() : raw;
+		return result != null ? result.toString() : null;
 	}
 
 	//////////////////////////////Other/////////////////////////////////////
@@ -422,6 +437,18 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return funcs;
 	}
 
+	private void pushTransforms(Map<String, Object> ctx) {
+		for (String tx : RiScript.transforms.keySet()) {
+			if (!ctx.containsKey(tx)) {
+				ctx.put(tx, RiScript.transforms.get(tx));
+				this.appliedTransforms.add(tx);
+			}
+		}
+	}
+
+	private void popTransforms(Map<String, Object> ctx) {
+		for (String tx : appliedTransforms) ctx.remove(tx);
+	}
 	public static void main(String[] args) {
 		//Function<String, String> up = x -> x.toUpperCase();
 		//assertEq(RiTa.evaluate("(a | a).up()", opts("up", up))
@@ -432,9 +459,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		//		RiTa.evaluate("[$b=(a | a)].toUpperCase()",
 		//				opts, opts("singlePass", false, "trace", true));
 		//		System.out.println(opts.get("b"));
-		Map<String, Object> opts = opts();
-		RiTa.evaluate("[$b=(a | a)].toUpperCase()",
-				opts, opts("singlePass", true, "trace", true));
+//		Map<String, Object> opts = opts();
+//		RiTa.evaluate("[$b=(a | a)].toUpperCase()",
+//				opts, opts("singlePass", true, "trace", true));
 		//System.out.println(opts.get("b"));
+		//System.out.println(StringEscapeUtils.unescapeHtml4("&#35;"));
 	}
 }

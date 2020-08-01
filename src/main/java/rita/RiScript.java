@@ -5,7 +5,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.*;
-import org.apache.commons.text.StringEscapeUtils;
+import org.unbescape.html.HtmlEscape;
 
 import rita.antlr.RiScriptLexer;
 import rita.antlr.RiScriptParser;
@@ -61,24 +61,29 @@ public class RiScript {
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
+		
+		return resolveEntities(expr);
+	}
 
-		return expr;
+	private String resolveEntities(String s) {
+		String k = HtmlEscape.unescapeHtml(s);
+		// replace non-breaking-space char with plain space
+		return k.replaceAll(" ", " ");
 	}
 
 	String ctxStr(Map<String, Object> ctx) {
 		return (ctx != null ? ctx.toString().replaceAll("rita.RiScript\\$\\$Lambda[^,]+,", "[F],") : "{}");
 	}
-	
+
 	private void passInfo(Map<String, Object> ctx, String input, String output, int pass) {
 		System.out.println("\nPass#" + (pass + 1) + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
-				+ "\nResult:  '" + output + "'\nContext: " + ctxStr(ctx));
+				+ "\nResult:  " + output + "\nContext: " + ctxStr(ctx));
 		if (pass > 0) System.out.println("-------------------------------------------------------");
 	}
 
-	String[] preParse(String input, Map<String, Object> opts) {
+	private String[] preParse(String input, Map<String, Object> opts) {
 		String parse = input, pre = "", post = "";
 		boolean skipPreParse = Util.boolOpt("skipPreParse", opts);
-		// console.log('preParse', parse);
 		if (!skipPreParse && !RE.test("^[${]", parse)) {
 			Pattern re = Pattern.compile("[()$|{}]");
 			String[] words = input.split(" +");
@@ -97,7 +102,10 @@ public class RiScript {
 			parse = String.join(" ", Arrays.copyOfRange(words, preIdx, postIdx + 1));
 			post = String.join(" ", Arrays.copyOfRange(words, postIdx + 1, words.length));
 		}
-
+		if (Util.boolOpt("trace", opts) && parse.length() == 0) {
+			System.out.println("NO_PARSE: preParse('" +
+					(pre.length() > 0 ? pre : "") + "', '" + (post.length() > 0 ? post : "") + "'):");
+		}
 		return new String[] { pre, parse, post };
 	}
 
@@ -163,6 +171,7 @@ public class RiScript {
 		ScriptContext tree;
 		String result = "", parts[] = this.preParse(input, opts);
 		String pre = parts[0], parse = parts[1], post = parts[2];
+
 		if (parse.length() > 0) {
 			tree = this.lexParse(parts[1], opts);
 
@@ -191,24 +200,13 @@ public class RiScript {
 
 	public static String articlize(String s) {
 		String phones = RiTa.phones(s, Util.opts("silent", true));
+		//System.out.println(phones+" " + phones.substring(0,1));
 		return (phones != null && phones.length() > 0
-				&& RE.test("[aeiou]", phones.substring(0, 1)) ? "an " : "a ") + s;
+				&& RE.test("[aeiou]", phones.substring(0,1))
+				? "an " : "a ") + s;
 	}
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
-
-	public static Grammar getTransforms() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public static void removeTransform(String name) {
-		// TODO Auto-generated method stub
-	}
-
-	public static void addTransform(String name, Function<String, String> f) {
-		// TODO Auto-generated method stub
-	}
 
 	private static final Function<String, String> articlize = s -> RiTa.articlize(s);
 	private static final Function<String, String> pluralize = s -> RiTa.pluralize(s);
@@ -241,10 +239,12 @@ public class RiScript {
 	}
 
 	public static void main(String[] args) {
-		RiScript rs = new RiScript();
-		Map<String, Object> opts = Util.opts();
-		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
-		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
+		//		RiScript rs = new RiScript();
+		//		Map<String, Object> opts = Util.opts();
+		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
+		//		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
+		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
+		System.out.println(RiScript.articlize("ant"));
 	}
 
 }

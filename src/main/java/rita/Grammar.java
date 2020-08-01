@@ -125,17 +125,12 @@ public class Grammar {
 	}
 
 	public Grammar addTransform(String name, Function<String, String> f) {
-		RiScript.addTransform(name, f);
+		RiTa.addTransform(name, f);
 		return this;
 	}
 
-	public Grammar removeTransform(String name) {
-		RiScript.removeTransform(name);
-		return this;
-	}
-
-	public Grammar getTransforms() {
-		return RiScript.getTransforms();
+	public Map<String, Function<String, String>> getTransforms() {
+		return RiScript.transforms;
 	}
 
 	public static void main(String[] args) {
