@@ -1,11 +1,10 @@
 package rita;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class Tagger {
+	
 	public static final String[] ADJ = { "jj", "jjr", "jjs" };
 	public static final String[] ADV = { "rb", "rbr", "rbs", "rp" };
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
@@ -16,7 +15,113 @@ public class Tagger {
 	static Lexicon lexicon = RiTa._lexicon();
 
 	private Tagger() {
-	} // static class
+		/* static class */
+	}
+
+	////////////////////////////////////////////////////////////////////////
+
+	public static String tagInline(String words) {
+		return tagInline(words, false);
+	}
+
+	public static String tagInline(String[] words) {
+		return tagInline(words, false);
+	}
+
+	public static String tagInline(String words, Map<String, Object> opts) {
+		boolean simple = Util.boolOpt("simple", opts);
+		return tagInline(words, simple);
+	}
+
+	public static String tagInline(String[] words, Map<String, Object> opts) {
+		boolean simple = Util.boolOpt("simple", opts);
+		return tagInline(words, simple);
+	}
+
+	public static String tagInline(String words, boolean useSimpleTags) {
+		if (words == null || words.length() < 1) return "";
+		return tagInline(Tokenizer.tokenize(words), useSimpleTags);
+	}
+
+	public static String tagInline(String[] wordsArr, boolean useSimpleTags) {
+		throw new RuntimeException("Implement me");
+	}
+
+	////////////////////////////////////////////////////////////////////////
+
+	public static String[] tag(String words) {
+		return tag(words, false);
+	}
+
+	public static String[] tag(String[] words) {
+		return tag(words, false);
+	}
+
+	public static String[] tag(String words, Map<String, Object> opts) {
+		boolean simple = Util.boolOpt("simple", opts);
+		return tag(words, simple);
+	}
+
+	public static String[] tag(String[] words, Map<String, Object> opts) {
+		boolean simple = Util.boolOpt("simple", opts);
+		return tag(words, simple);
+	}
+
+	public static String[] tag(String words, boolean useSimpleTags) {
+		if (words == null || words.length() < 1) return new String[0];
+		return tag(Tokenizer.tokenize(words), useSimpleTags);
+	}
+
+	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
+		if (wordsArr == null || wordsArr.length == 0) return new String[0];
+
+		boolean dbug = false;
+
+		String[][] choices2d = new String[wordsArr.length][];
+		String[] result = new String[wordsArr.length];
+
+		for (int i = 0; i < wordsArr.length; i++) {
+			String word = wordsArr[i];
+
+			if (word.length() < 1) {
+				result[i] = "";
+				continue;
+			}
+
+			if (word.length() == 1) {
+
+				result[i] = _handleSingleLetter(word);
+				continue;
+			}
+			else {
+				choices2d[i] = posOptions(word); // all options
+				if (dbug) System.out.println(word + " " + choices2d[i].length);
+				result[i] = choices2d[i][0]; // first option
+			}
+		}
+
+		// Adjust pos according to transformation rules
+		String[] tags = _applyContext(wordsArr, result, choices2d);
+		if (dbug) System.out.println("choices2d : " + choices2d);
+		if (dbug) System.out.println(tags.length);
+		if (useSimpleTags) {
+			for (int i = 0; i < tags.length; i++) {
+				if (Arrays.asList(NOUNS).contains(tags[i]))
+					tags[i] = "n";
+				else if (Arrays.asList(VERBS).contains(tags[i]))
+					tags[i] = "v";
+				else if (Arrays.asList(ADJ).contains(tags[i]))
+					tags[i] = "a";
+				else if (Arrays.asList(ADV).contains(tags[i]))
+					tags[i] = "r";
+				else
+					tags[i] = "-"; // default: other
+			}
+			if (dbug) System.out.println("simple: " + Arrays.toString(tags));
+		}
+		if (dbug) System.out.println("Tags : " + Arrays.toString(tags));
+		return ((tags == null) ? new String[] { } : tags);
+	}
 
 	public static boolean isAdjective(String word) {
 		return checkType(word, ADJ);
@@ -58,170 +163,7 @@ public class Tagger {
 		return Arrays.asList(ADJ).contains(tag);
 	}
 
-	public static String tagInline(String words, boolean useSimpleTags) {
-		/*
-		 * if (words == null || words.length() == 0 ) return "";
-		 * 
-		 * if (words.length() != tags.length) throw new
-		 * RiTaException("Tagger: invalid state");
-		 * 
-		 * delimiter = delimiter || '/';
-		 * 
-		 * String sb = ""; for (int i = 0; i < words.length(); i++) {
-		 * 
-		 * sb += words[i]; if (!RiTa.isPunctuation(words[i])) { sb += delimiter +
-		 * tags[i]; } sb += ' '; }
-		 * 
-		 * return sb.trim();
-		 * 
-		 */
-
-		return null;
-	}
-
-	private static String[] derivePosData(String word) {
-		/*
-		 * Try for a verb or noun inflection VBD Verb, past tense VBG Verb, gerund or
-		 * present participle VBN Verb, past participle VBP Verb, non-3rd person
-		 * singular present VBZ Verb, 3rd person singular present NNS Noun, plural
-		 */
-		String[] pos;
-
-		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
-			String check = word.substring(0, word.length() - 3) + "y";
-			pos = lexicon._posArr(check);
-			if (Arrays.asList(pos).contains("vb")) {
-				String[] result = { "vbz" };
-				return result;
-			}
-
-		} else if (word.endsWith("s")) { // plural noun or vbz
-
-			List<String> result = new ArrayList<String>();
-
-			// remove suffix (s) and test (eg 'hates', 'cakes')
-			_checkPluralNounOrVerb(word.substring(0, word.length() - 1), result);
-
-			if (word.endsWith("es")) {
-
-				// remove suffix (es) and test (eg 'repossesses')
-				_checkPluralNounOrVerb(word.substring(0, word.length() - 2), result);
-
-				// singularize and test (eg 'thieves')
-				_checkPluralNounOrVerb(RiTa.singularize(word), result);
-			}
-
-			if (result.size() > 0) return result.toArray(new String[0]);
-
-		} else if (word.endsWith("ed")) { // simple past or past participle
-
-			pos = lexicon._posArr(word.substring(0, word.length() - 1));
-			if (pos.length < 1) pos = lexicon._posArr(word.substring(0, word.length() - 2));
-			if (Arrays.asList(pos).contains("vb")) {
-				return new String[] { "vbd", "vbn" }; // hate-> hated || row->rowed
-			}
-
-		} else if (word.endsWith("ing")) {
-
-			String stem = word.substring(0, word.length() - 3);
-			if (stem.length() > 0) {
-				pos = lexicon._posArr(stem);
-				if (Arrays.asList(pos).contains("vb")) {
-					return new String[] { "vbg" }; // assenting
-				} else {
-					pos = lexicon._posArr(stem + 'e'); // hate
-					if (Arrays.asList(pos).contains("vb")) {
-						return new String[] { "vbg" }; // hating
-					}
-				}
-			}
-		}
-
-		String[] result = new String[1];
-
-		// Check if this could be a plural noun form
-		if (_isLikelyPlural(word)) {
-			result[0] = "nns";
-			return result;
-		}
-
-		if (word == "the" || word == "a") {
-			result[0] = "dt";
-			return result;
-		}
-
-		// Give up with a best guess
-		if (word.endsWith("ly")) {
-			result[0] = "rb";
-		} else {
-			result[0] = word.endsWith("s") ? "nns" : "nn";
-		}
-
-		return result;
-	}
-
-	private static String[] posOptions(String word) {
-		String[] posdata = lexicon._posArr(word); // fail if no lexicon
-		// System.out.println("data : " + Arrays.toString(posdata));
-		if (posdata.length == 0) posdata = derivePosData(word);
-		return posdata;
-
-	}
-
-	public static String[] tag(String words, boolean useSimpleTags) {
-		if (words == null || words.length() < 1) return new String[0];
-		return tag(Tokenizer.tokenize(words), useSimpleTags);
-	}
-
-	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
-		if (wordsArr == null || wordsArr.length == 0) return new String[0];
-
-		boolean dbug = false;
-
-		String[][] choices2d = new String[wordsArr.length][];
-		String[] result = new String[wordsArr.length];
-
-		for (int i = 0; i < wordsArr.length; i++) {
-			String word = wordsArr[i];
-
-			if (word.length() < 1) {
-				result[i] = "";
-				continue;
-			}
-
-			if (word.length() == 1) {
-
-				result[i] = _handleSingleLetter(word);
-				continue;
-			} else {
-				choices2d[i] = posOptions(word); // all options
-				if (dbug) System.out.println(word + " " + choices2d[i].length);
-				result[i] = choices2d[i][0]; // first option
-			}
-		}
-
-		// Adjust pos according to transformation rules
-		String[] tags = _applyContext(wordsArr, result, choices2d);
-		if (dbug) System.out.println("choices2d : " + choices2d);
-		if (dbug) System.out.println(tags.length);
-		if (useSimpleTags) {
-			for (int i = 0; i < tags.length; i++) {
-				if (Arrays.asList(NOUNS).contains(tags[i]))
-					tags[i] = "n";
-				else if (Arrays.asList(VERBS).contains(tags[i]))
-					tags[i] = "v";
-				else if (Arrays.asList(ADJ).contains(tags[i]))
-					tags[i] = "a";
-				else if (Arrays.asList(ADV).contains(tags[i]))
-					tags[i] = "r";
-				else
-					tags[i] = "-"; // default: other
-			}
-			if (dbug) System.out.println("simple: " + Arrays.toString(tags));
-		}
-		if (dbug) System.out.println("Tags : " + Arrays.toString(tags));
-		return ((tags == null) ? new String[] { } : tags);
-	}
+	////////////////////////////////////////////////////////////////////////
 
 	private static String[] _applyContext(String[] words, String[] result, String[][] choices2d) {
 
@@ -233,9 +175,9 @@ public class Tagger {
 
 			String word = words[i];
 			String tag = result[i];
-			String[] resultSA = result;
+			String[] results = result;
 			// transform 1a: DT, {VBD | VBP | VB} --> DT, NN
-			if (i > 0 && (resultSA[i - 1] == "dt")) {
+			if (i > 0 && (results[i - 1] == "dt")) {
 
 				if (tag.startsWith("vb")) {
 					tag = "nn";
@@ -273,7 +215,7 @@ public class Tagger {
 			// transform 3: convert a noun to a past participle if
 			// word ends with "ed" and (following any nn or prp?)
 			if (i > 0 && tag.startsWith("n") && word.endsWith("ed") && !word.endsWith("eed")
-					&& resultSA[i - 1].matches("^(nn|prp)$")) {
+					&& results[i - 1].matches("^(nn|prp)$")) {
 				tag = "vbn";
 			}
 
@@ -290,7 +232,7 @@ public class Tagger {
 
 			// transform 6: convert a noun to a verb if the
 			// preceeding word is modal
-			if (i > 0 && tag.startsWith("nn") && resultSA[i - 1].startsWith("md")) {
+			if (i > 0 && tag.startsWith("nn") && results[i - 1].startsWith("md")) {
 				tag = "vb";
 			}
 
@@ -308,7 +250,7 @@ public class Tagger {
 			// transform 9(dch): convert plural nouns (which are also 3sg-verbs) to
 			// 3sg-verbs when following a singular noun (the dog dances, Dave dances, he
 			// dances)
-			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && resultSA[i - 1].matches("^(nn|prp|nnp)$")) {
+			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && results[i - 1].matches("^(nn|prp|nnp)$")) {
 				tag = "vbz";
 				if (dbug) _logCustom("9", word, tag);
 			}
@@ -327,7 +269,7 @@ public class Tagger {
 
 			// transform 11(dch): convert plural nouns (which are
 			// also 3sg-verbs) to 3sg-verbs when followed by adverb
-			if (i < result.length - 1 && tag.equals("nns") && resultSA[i + 1].startsWith("rb") &&
+			if (i < result.length - 1 && tag.equals("nns") && results[i + 1].startsWith("rb") &&
 					hasTag(choices2d[i], "vbz")) {
 				tag = "vbz";
 				if (dbug) _logCustom("11", word, tag);
@@ -340,7 +282,7 @@ public class Tagger {
 				// is preceded by one of the following
 				String[] options = new String[] { "nn", "prp", "cc", "nnp" };
 				List<String> list = Arrays.asList(options);
-				if (i > 0 && list.contains(resultSA[i - 1])) {
+				if (i > 0 && list.contains(results[i - 1])) {
 					// if word is ends with s or es and is "nns" and has a vb
 					if (_lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
@@ -361,17 +303,109 @@ public class Tagger {
 			// transform 13(cqx): convert a vb/ potential vb to vbp when following nns
 			// (Elephants dance, they dance)
 			if (tag.equals("vb") || (tag.equals("nn") && hasTag(choices2d[i], "vb"))) {
-				if (i > 0 && resultSA[i - 1].matches("^(nns|nnps|prp)$")) {
+				if (i > 0 && results[i - 1].matches("^(nns|nnps|prp)$")) {
 					tag = "vbp";
 					if (dbug) _logCustom("13", word, tag);
 				}
 			}
 
-			resultSA[i] = tag;
+			results[i] = tag;
 		}
 
 		return result;
+	}
 
+	private static String[] posOptions(String word) {
+		String[] posdata = lexicon._posArr(word); // fail if no lexicon
+		// System.out.println("data : " + Arrays.toString(posdata));
+		if (posdata.length == 0) posdata = derivePosData(word);
+		return posdata;
+	}
+
+	private static String[] derivePosData(String word) {
+		/*
+		 * Try for a verb or noun inflection VBD Verb, past tense VBG Verb, gerund or
+		 * present participle VBN Verb, past participle VBP Verb, non-3rd person
+		 * singular present VBZ Verb, 3rd person singular present NNS Noun, plural
+		 */
+		String[] pos;
+
+		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
+			String check = word.substring(0, word.length() - 3) + "y";
+			pos = lexicon._posArr(check);
+			if (Arrays.asList(pos).contains("vb")) {
+				String[] result = { "vbz" };
+				return result;
+			}
+
+		}
+		else if (word.endsWith("s")) { // plural noun or vbz
+
+			List<String> result = new ArrayList<String>();
+
+			// remove suffix (s) and test (eg 'hates', 'cakes')
+			_checkPluralNounOrVerb(word.substring(0, word.length() - 1), result);
+
+			if (word.endsWith("es")) {
+
+				// remove suffix (es) and test (eg 'repossesses')
+				_checkPluralNounOrVerb(word.substring(0, word.length() - 2), result);
+
+				// singularize and test (eg 'thieves')
+				_checkPluralNounOrVerb(RiTa.singularize(word), result);
+			}
+
+			if (result.size() > 0) return result.toArray(new String[0]);
+
+		}
+		else if (word.endsWith("ed")) { // simple past or past participle
+
+			pos = lexicon._posArr(word.substring(0, word.length() - 1));
+			if (pos.length < 1) pos = lexicon._posArr(word.substring(0, word.length() - 2));
+			if (Arrays.asList(pos).contains("vb")) {
+				return new String[] { "vbd", "vbn" }; // hate-> hated || row->rowed
+			}
+
+		}
+		else if (word.endsWith("ing")) {
+
+			String stem = word.substring(0, word.length() - 3);
+			if (stem.length() > 0) {
+				pos = lexicon._posArr(stem);
+				if (Arrays.asList(pos).contains("vb")) {
+					return new String[] { "vbg" }; // assenting
+				}
+				else {
+					pos = lexicon._posArr(stem + 'e'); // hate
+					if (Arrays.asList(pos).contains("vb")) {
+						return new String[] { "vbg" }; // hating
+					}
+				}
+			}
+		}
+
+		String[] result = new String[1];
+
+		// Check if this could be a plural noun form
+		if (_isLikelyPlural(word)) {
+			result[0] = "nns";
+			return result;
+		}
+
+		if (word == "the" || word == "a") {
+			result[0] = "dt";
+			return result;
+		}
+
+		// Give up with a best guess
+		if (word.endsWith("ly")) {
+			result[0] = "rb";
+		}
+		else {
+			result[0] = word.endsWith("s") ? "nns" : "nn";
+		}
+
+		return result;
 	}
 
 	private static void _logCustom(String i, String frm, String to) {

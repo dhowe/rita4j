@@ -77,7 +77,7 @@ public class LexiconTests {
 		assertTrue(RiTa.hasWord("wadly"));
 		assertTrue(RiTa.isAlliteration("wadly", "welcome"));
 
-		// Remove two entries;
+		// remove two added entries
 		lexicon.dict.remove("deg");
 		lexicon.dict.remove("wadly");
 	}
@@ -281,7 +281,6 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		hm.put("pos", "vb");
 		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
-
 	}
 
 	@Test

@@ -13332,6 +13332,7 @@ public class LetterToSound { // in-progress
 	public static String[] RULES = combine(Rules1.RULES1, Rules2.RULES2);
 
 	public static void main(String[] args) {
-		System.out.println(LetterToSound.RULES.length);
+		LetterToSound lts = new LetterToSound();
+		System.out.println(Arrays.asList(lts.computePhones("absolot")));
 	}
 }

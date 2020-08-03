@@ -139,7 +139,7 @@ public class Lexicon
 		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
 	}
 
-	public String randomWord(String pos, int numSyllabes) // TODO one argument only in rita-script
+	public String randomWord(String pos, int numSyllabes) // TODO:
 	{
 		/*
 		 * boolean pluralize = false; String words = Object.keys(dict); float ran =
@@ -250,7 +250,8 @@ public class Lexicon
 			opts.put("type", "letter");
 		}
 
-		return (opts.get("type") == "soundAndLetter") ? similarBySoundAndLetter(word, opts) : similarByType(word, opts);
+		return (opts.get("type") == "soundAndLetter") ? 
+				similarBySoundAndLetter(word, opts) : similarByType(word, opts);
 	}
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
@@ -265,12 +266,10 @@ public class Lexicon
 		if (simSound.length < 1) return new String[0];
 
 		return _intersect(simSound, simLetter);
-
 	}
 
-	public String[] similarByType(String word, Map<String, Object> opts) { // TODO check result against js (compareA,
-																																				// compare B)
-
+  // TODO check result against js (compareA, compare B)
+	public String[] similarByType(String word, Map<String, Object> opts) { 
 		int minLen = 2;
 		int preserveLength = 0;
 		int minAllowedDist = 1;
@@ -331,7 +330,6 @@ public class Lexicon
 		}
 		String[] s = (String[]) result.toArray(new String[0]);
 		return s;
-
 	}
 
 	public String[] toPhoneArray(String raw) {
@@ -538,8 +536,8 @@ public class Lexicon
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
-				return Syllabifier.fromPhones(phones)
-						.replaceAll("\\[", "").replaceAll("'", "");
+				return Syllabifier.fromPhones(phones);
+						//.replaceAll("\\[", "").replaceAll("'", "");
 			}
 		}
 		return "";
@@ -547,8 +545,10 @@ public class Lexicon
 
 	public static void main(String[] args) throws Exception {
 		Lexicon lex = new Lexicon(RiTa.DICT_PATH);
-		System.out.println(lex.dict.get("dog")[0]);
-		System.out.println(lex.dict.get("dog")[1]);
+//		System.out.println(lex.dict.get("dog")[0]);
+//		System.out.println(lex.dict.get("dog")[1]);
+//		System.out.println(lex._rawPhones("dog"));
+		System.out.println(lex._rawPhones("absolot"));
 	}
 
 }

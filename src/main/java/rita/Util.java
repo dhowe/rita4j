@@ -1,7 +1,6 @@
 package rita;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
 
 public class Util {
@@ -39,13 +38,11 @@ public class Util {
 		return false;
 	}
 
-	//public Object/*String*/ invokeStatic(Class target, Method method, Object[] args) throws Throwable {
-
-	public static Object/*String*/ invokeStatic(Method method, Object... args) {
+	public static Object invokeStatic(Method method, Object... args) {
 		return invoke(null, method, args);
 	}
 
-	public static Object/*String*/ invoke(Object target, Method method, Object... args) {
+	public static Object invoke(Object target, Method method, Object... args) {
 		try {
 			return method.invoke(target, args);//.toString();
 		} catch (Exception e) {
@@ -85,10 +82,11 @@ public class Util {
 	}
 
 	public static final Class[] NOCLASS = new Class[0];
+
 	public static Method getMethod(Object o, String name) {
 		return getMethod(o, name, NOCLASS);
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public static Method getMethod(Object o, String name, Class... params) {
 		try {
@@ -254,6 +252,22 @@ public class Util {
 			data.put(keys[i], vals[i]);
 		}
 		return data;
+	}
+
+	public static List<?> slice(List<?> arr, int from) {
+		return slice(arr, from, arr.size());
+	}
+
+	public static List<?> slice(List<?> arr, int from, int to) {
+		return arr.subList(from, to);
+	}
+	
+	public static String[] slice(String[] arr, int from) {
+		return slice(arr, from, arr.length);
+	}
+	
+	public static String[] slice(String[] arr, int from, int to) {
+		return Arrays.copyOfRange(arr, from, to);
 	}
 
 }

@@ -39,12 +39,12 @@ public class AnalyzerTests {
 				"hankies", "hanky"
 		};
 		for (int i = 0; i < tests.length; i += 2) {
-			// System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i +
-			// 1]);
+			// System.out.println("p: " + RiTa.singularize(tests[i])
+			// + " s: " + tests[i + 1]);
 			eq(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
 
-		eq(RiTa.singularize("pleae"), "pleae"); // special-cased in code
+		eq(RiTa.singularize("pleae"), "pleae"); // special-cased in code?
 		eq(RiTa.singularize("whizzes"), "whiz");
 		eq(RiTa.singularize("selves"), "self");
 		eq(RiTa.singularize("bookshelves"), "bookshelf");
@@ -270,6 +270,7 @@ public class AnalyzerTests {
 		eq(syllables, "k-l-ow-z");
 	}
 
+	
 	@Test
 	public void testAnalyzeLts() {
 		// failing bc of testComputePhones (above)
@@ -279,6 +280,8 @@ public class AnalyzerTests {
 		eq(feats.get("syllables"), "k-l-ow-z");
 	}
 
+	
+	
 	@Test
 	public void testAnalyze() {
 

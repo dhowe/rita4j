@@ -17,7 +17,7 @@ public class RiTa
   
   public static Inflector inflector;
   
-  
+ 
 //  UNCOMMENT IF/AS NEEDED:
 //  protected static Tagger tagger;
 //  protected static Pluralizer pluralizer;
@@ -470,5 +470,8 @@ public class RiTa
       "Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec." };
   public static final String[] STOP_WORDS = null; //TODO
 
+  public static void main(String[] args) {
+		System.out.println(RiTa.analyze("absolot"));
+	}
 
 }
