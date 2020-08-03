@@ -45,10 +45,10 @@ public class Analyzer {
 			String[] ltsPhones = RiTa.lts.computePhones(word);
 			if (ltsPhones != null && ltsPhones.length > 0) {
 
-				if (!RiTa.SILENT && !RiTa.SILENCE_LTS && word.matches("/[a-zA-Z]+/)")) {
+				if (!RiTa.SILENT && !RiTa.SILENCE_LTS && word.matches("[a-zA-Z]+")) {
 					System.out.println("[RiTa] Used LTS-rules for '" + word + "'");
 				}
-				rawPhones = Syllabifier.fromPhones(ltsPhones);
+				rawPhones = Util.syllablesFromPhones(ltsPhones);
 			}
 			else {
 				// phones = word;
@@ -57,8 +57,10 @@ public class Analyzer {
 			}
 		}
 
-		String phones = rawPhones.replaceAll("[0-2]", "").replaceAll(" ", DELIM) + " ";
-		String syllables = rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
+		String sp = rawPhones.replaceAll("[0-2]", "").replaceAll(" ", DELIM) + " ";
+		String phones = sp.equals("dh ") ? "dh-ah " : sp; // special case
+		String ss = rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
+		String syllables = ss.equals("dh ") ? "dh-ah " : ss;
 		String stresses = "";
 
 		if (!useRaw) {
@@ -105,7 +107,7 @@ public class Analyzer {
 						System.out.println("[RiTa] Used LTS-rules for '" + words[i] + "'");
 					}
 
-					rawPhones = Syllabifier.fromPhones(ltsPhones);
+					rawPhones = Util.syllablesFromPhones(ltsPhones);
 
 				}
 				else {

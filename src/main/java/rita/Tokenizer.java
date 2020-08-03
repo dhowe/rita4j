@@ -14,7 +14,6 @@ public class Tokenizer
   public static String untokenize(String[] words)
   {
 	  /*
-
 	    delim = delim || ' ';
 
 	    let thisPunct, lastPunct, thisQuote, lastQuote, thisComma, isLast,

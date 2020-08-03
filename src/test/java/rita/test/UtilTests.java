@@ -1,12 +1,10 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import org.junit.jupiter.api.Test;
-
-import rita.ChoiceState;
 import rita.Util;
 
 // For testing Util.java and other utility classes

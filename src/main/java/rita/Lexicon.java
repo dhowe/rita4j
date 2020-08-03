@@ -536,7 +536,7 @@ public class Lexicon
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
-				return Syllabifier.fromPhones(phones);
+				return Util.syllablesFromPhones(phones);
 						//.replaceAll("\\[", "").replaceAll("'", "");
 			}
 		}

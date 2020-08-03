@@ -2,17 +2,17 @@ package rita;
 
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public class Tagger {
-	
+
 	public static final String[] ADJ = { "jj", "jjr", "jjs" };
 	public static final String[] ADV = { "rb", "rbr", "rbs", "rp" };
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
 
-	static String[] MODALS = Util.MODALS;
-
-	static Lexicon lexicon = RiTa._lexicon();
+	private static String[] modals = Util.MODALS;
+	private static Lexicon lexicon = RiTa._lexicon();
 
 	private Tagger() {
 		/* static class */
@@ -128,7 +128,6 @@ public class Tagger {
 	}
 
 	public static boolean isAdverb(String word) {
-
 		return checkType(word, ADV);
 	}
 
@@ -187,7 +186,7 @@ public class Tagger {
 					// (NNS)
 
 					if (word.matches("^.*[^s]s$")) {
-						if (!Arrays.asList(MODALS).contains(word)) {
+						if (!Arrays.asList(modals).contains(word)) {
 							tag = "nns";
 						}
 					}
@@ -207,7 +206,7 @@ public class Tagger {
 			// transform 2: convert a noun to a number (cd) if it is
 			// all digits and/or a decimal "."
 			if (tag.startsWith("n") && choices2d[i].length != 0) {
-				if (isNumeric(word)) {
+				if (Util.isNum(word)) {
 					tag = "cd";
 				} // mods: dch (add choice check above) <---- ? >
 			}
@@ -435,14 +434,12 @@ public class Tagger {
 
 	private static String _handleSingleLetter(String c) {
 		String result = c;
-
 		if (c.equals("a") || c.equals("A"))
 			result = "dt";
 		else if (c.equals("I"))
 			result = "prp";
-		else if (isNumeric(c))
+		else if (Util.isNum(c))
 			result = "cd";
-
 		return result;
 	}
 
@@ -460,47 +457,35 @@ public class Tagger {
 		return Stemmer._checkPluralNoLex(word) || _lexHas("n", RiTa.singularize(word));
 	}
 
-	private static boolean isNumeric(String strNum) {
-		if (strNum == null) {
-			return false;
-		}
-		try {
-			Double.parseDouble(strNum);
-		} catch (NumberFormatException nfe) {
-			return false;
-		}
-		return true;
+	private static boolean checkType(String word, String[] tagArray) {
+		return Arrays.asList(posOptions(word)).stream()
+				.filter(p -> Arrays.asList(tagArray).contains(p))
+				.collect(Collectors.toList()).size() > 0;
 	}
 
-	private static boolean checkType(String word, String[] tagArray) {
+	private static boolean checkTypeOld(String word, String[] tagArray) { // remove
 
 		if (word == null || word.length() == 0) return false;
 
-		if (word.indexOf(" ") < 0) {
+		if (word.indexOf(" ") > -1) throw new RiTaException("checkType() expects single word, found: '" + word + "'");
 
-			List<String> psa = Arrays.asList(lexicon._posArr(word));
+		List<String> psa = Arrays.asList(lexicon._posArr(word));
 
-			if (psa.size() == 0) {
-				if (RiTa.LEX_WARN) { // TODO what is size() <= 1000 ??
-					Logger logger = Logger.getLogger(Tagger.class.getName());
-					logger.warning(Boolean.toString(RiTa.LEX_WARN));
-					RiTa.LEX_WARN = false; // only once
-				}
-				List<String> posT = Arrays.asList(tag(word, false));
-				if (posT.size() > 0) psa.addAll(posT);
+		if (psa.size() == 0) {
+			if (RiTa.LEX_WARN) {
+				Logger logger = Logger.getLogger(Tagger.class.getName());
+				logger.warning(Boolean.toString(RiTa.LEX_WARN));
+				RiTa.LEX_WARN = false; // only once
 			}
-			List<String> finalType = new ArrayList<String>();
-			for (String item : psa) {
-				if (Arrays.asList(tagArray).contains(item)) {
-					finalType.add(item);
-				}
-			}
-
-			// psa.forEach(p -> Arrays.asList(tagArray).stream().filter(p1 -> p.indexOf(p1)
-			// > 0).forEach(list::add));
-			return finalType.size() > 0;
+			List<String> posT = Arrays.asList(tag(word, false));
+			if (posT.size() > 0) psa.addAll(posT);
 		}
 
-		throw new RiTaException("checkType() expects single word, found: '" + word + "'");
+		return Arrays.asList(psa).stream().filter(p -> p != null)
+				.collect(Collectors.toList()).size() > 0;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Arrays.asList(Tagger.tag("Bad boy")));
 	}
 }

@@ -7,7 +7,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser.*;
 
-// TODO: update from js
+// JS: inner class in Visitor
 
 public class ChoiceState {
 
