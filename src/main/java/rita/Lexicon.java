@@ -3,10 +3,11 @@ package rita;
 import java.net.URL;
 import java.nio.file.*;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 
 public class Lexicon {
-	
+
 	private static String LEXICON_DELIM = ":", E = "";
 	private static int MAP_SIZE = 30000;
 
@@ -18,21 +19,6 @@ public class Lexicon {
 			throw new RiTaException("Problem parsing lexicon files");
 		}
 		populateDict(lines);
-	}
-
-	private void populateDict(List<String> lines) {
-
-		dict = new LinkedHashMap<String, String[]>(MAP_SIZE);
-
-		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
-		{
-			String line = lines.get(i).replaceAll("['\\[\\]]", E);
-			String[] parts = line.split(LEXICON_DELIM);
-			if (parts == null || parts.length != 2) {
-				throw new RiTaException("Illegal entry: " + line);
-			}
-			dict.put(parts[0].trim(), parts[1].split(","));
-		}
 	}
 
 	public static List<String> loadJSON(String file) {
@@ -131,9 +117,56 @@ public class Lexicon {
 		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
 	}
 
-	public String randomWord(String pos, int numSyllabes) // TODO:
+	public String randomWord(Map<String, Object> opts) // TODO:
 	{
+		int minLength = Util.intOpt("minLength", opts, 4); 
+		this.parseArgs(opts);
+		opts.put("minLength", minLength); // default to 4, not 3
+
+		String[] words = dict.keySet().toArray(new String[0]);
+		int ran = (int) Math.floor(RandGen.random(words.length));
+		for (int k = 0; k < words.length; k++) {
+			int j = (ran + k) % words.length;
+			String word = words[j];
+			String[] rdata = dict.get(word);
+			if (!this.checkCriteria(word, rdata, opts)) continue;
+			String targetPos = (String) opts.get("targetPos");
+			if (targetPos.length() > 0) return words[j]; // done if no pos
+			String result = this.matchPos(word, rdata, opts, true);
+			if (result != null) return result;
+		}
+
+		throw new RiTaException("No random word with options: " + opts);
+	}
+
+	private String matchPos(String word, String[] rdata, Map<String, Object> opts, boolean b) {
 		throw new RuntimeException("Implement me");
+	}
+
+	private boolean checkCriteria(String word, String[] rdata, Map<String, Object> opts) {
+		throw new RuntimeException("Implement me");
+	}
+
+	private void parseArgs(Map<String, Object> opts) {
+		String tpos = Util.strOpt("pos", opts, "");
+		boolean pluralize = false;
+		boolean conjugate = false;
+		if (tpos.length() > 0) {
+			pluralize = (tpos.equals("nns"));
+			conjugate = (tpos.charAt(0) == 'v' && tpos.length() > 2);
+			if (tpos.charAt(0) == 'n') tpos = "nn";
+			else if (tpos.charAt(0) == 'v') tpos = "vb";
+			else if (tpos.equals("r")) tpos = "rb";
+			else if (tpos.equals("a")) tpos = "jj";
+		}
+		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
+		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
+		opts.put("minLength", Util.intOpt("minLength", opts, 3));
+		opts.put("maxLength", Util.intOpt("maxLength", opts, Integer.MAX_VALUE));
+		opts.put("limit", Util.intOpt("limit", opts, Integer.MAX_VALUE));
+		opts.put("minDistance", pluralize);
+		opts.put("minDistance", conjugate);
+		opts.put("targetPos", tpos);
 	}
 
 	public String[] search(String theWord) // TODO
@@ -142,6 +175,8 @@ public class Lexicon {
 	}
 
 	public String[] search(String theWord, Map<String, Object> opts) {
+		
+		
 		throw new RuntimeException("Implement me");
 	}
 
@@ -319,6 +354,83 @@ public class Lexicon {
 
 	//////////////////////////////////////////////////////////////////////
 
+	public static String[] _intersect(String[] a, String[] b) {
+		// https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
+		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
+		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
+		s1.retainAll(s2);
+		return s1.toArray(new String[0]);
+	}
+
+	public String _posData(String word) {
+
+		String[] rdata = _lookupRaw(word);
+		return (rdata != null && rdata.length == 2)
+				? rdata[1].replaceAll("'", "").replaceAll("\\]", "")
+				: "";
+	}
+
+	public String _bestPos(String word) {
+
+		String[] pl = _posArr(word);
+		return (pl.length > 0) ? pl[0] : "";
+	}
+
+	public String _rawPhones(String word) {
+		return this._rawPhones(word, false);
+	}
+
+	public String _rawPhones(String word, boolean noLts) {
+
+		String[] rdata = _lookupRaw(word);
+		if (rdata != null && rdata.length != 0) return rdata[0];
+
+		if (!noLts) {
+			if (RiTa.lts == null) throw new RiTaException("Null LTS");
+
+			String[] phones = RiTa.lts.computePhones(word);
+			if (phones != null && phones.length > 0) {
+				return Util.syllablesFromPhones(phones);
+				//.replaceAll("\\[", "").replaceAll("'", "");
+			}
+		}
+		return "";
+	}
+
+	String[] _posArr(String word) {
+
+		String pl = _posData(word);
+		return (pl == null || pl.length() == 0)
+				? new String[0]
+				: pl.split(" ");
+	}
+
+	private String[] _lookupRaw(String word) {
+		String[] result = null;
+		if (word != null && word.length() > 0) {
+			word = word.toLowerCase();
+			if (dict != null) {
+				result = dict.get(word);
+			}
+		}
+		return result != null ? result : new String[0];
+	}
+
+	private void populateDict(List<String> lines) {
+
+		dict = new LinkedHashMap<String, String[]>(MAP_SIZE);
+
+		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
+		{
+			String line = lines.get(i).replaceAll("['\\[\\]]", E);
+			String[] parts = line.split(LEXICON_DELIM);
+			if (parts == null || parts.length != 2) {
+				throw new RiTaException("Illegal entry: " + line);
+			}
+			dict.put(parts[0].trim(), parts[1].split(","));
+		}
+	}
+
 	private boolean _isVowel(String c) {
 
 		return c != null && c.length() > 0 && RiTa.VOWELS.contains(c);
@@ -328,21 +440,6 @@ public class Lexicon {
 
 		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
 				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
-	}
-
-	private String _firstPhone(String rawPhones) {
-		if (rawPhones == null || rawPhones.length() == 0) return "";
-		String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
-		if (phones != null) return phones[0];
-		return ""; // return null?
-	}
-
-	public static String[] _intersect(String[] a, String[] b) {
-		// https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
-		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
-		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
-		s1.retainAll(s2);
-		return s1.toArray(new String[0]);
 	}
 
 	private String _lastStressedPhoneToEnd(String word) {
@@ -423,58 +520,11 @@ public class Lexicon {
 		return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
 	}
 
-	public String _posData(String word) {
-
-		String[] rdata = _lookupRaw(word);
-		return (rdata != null && rdata.length == 2)
-				? rdata[1].replaceAll("'", "").replaceAll("\\]", "")
-				: "";
-	}
-
-	String[] _posArr(String word) {
-
-		String pl = _posData(word);
-		return (pl == null || pl.length() == 0)
-				? new String[0]
-				: pl.split(" ");
-	}
-
-	public String _bestPos(String word) {
-
-		String[] pl = _posArr(word);
-		return (pl.length > 0) ? pl[0] : "";
-	}
-
-	private String[] _lookupRaw(String word) {
-		String[] result = null;
-		if (word != null && word.length() > 0) {
-			word = word.toLowerCase();
-			if (dict != null) {
-				result = dict.get(word);
-			}
-		}
-		return result != null ? result : new String[0];
-	}
-
-	public String _rawPhones(String word) {
-		return this._rawPhones(word, false);
-	}
-
-	public String _rawPhones(String word, boolean noLts) {
-
-		String[] rdata = _lookupRaw(word);
-		if (rdata != null && rdata.length != 0) return rdata[0];
-
-		if (!noLts) {
-			if (RiTa.lts == null) throw new RiTaException("Null LTS");
-
-			String[] phones = RiTa.lts.computePhones(word);
-			if (phones != null && phones.length > 0) {
-				return Util.syllablesFromPhones(phones);
-				//.replaceAll("\\[", "").replaceAll("'", "");
-			}
-		}
-		return "";
+	private String _firstPhone(String rawPhones) {
+		if (rawPhones == null || rawPhones.length() == 0) return "";
+		String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+		if (phones != null) return phones[0];
+		return ""; // return null?
 	}
 
 	public static void main(String[] args) throws Exception {

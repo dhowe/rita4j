@@ -1,48 +1,91 @@
 package rita;
 
+import java.util.*;
+
 public class RandGen {
 
-	public static int[] randomOrdering(int num) {
-		/*
-		 * let o = Array.from(Array(num).keys()); for (let j, x, i = o.length; i; j =
-		 * parseInt(Math.random() * i), x = o[--i], o[i] = o[j], o[j] = x) {
-		 */ /* shuffle */ // }
-		// return o;
-		return null;
+	private static Random generator;
+	static {
+		generator = new Random(System.currentTimeMillis());
 	}
 
-	public static float random(float... f) {
-		/*
-		 * let crand = randomFloat(); if (!arguments.length) return crand; if
-		 * (Array.isArray(arguments[0])) { return arguments[0][Math.floor(crand *
-		 * arguments[0].length)]; } return arguments.length === 1 ? crand * arguments[0]
-		 * : crand * (arguments[1] - arguments[0]) + arguments[0];
-		 */
-		return -1;
+	private RandGen() {
+	}
+
+	public static int randomInt() {
+		return generator.nextInt();
+	}
+
+	public static final float random() {
+		return generator.nextFloat();
+	}
+
+	public static final float random(float high) {
+		if (high == 0 || high != high) return 0;
+		float value = 0;
+		do {
+			value = generator.nextFloat() * high;
+		} while (value == high);
+		return value;
+	}
+
+	public static final float random(float low, float high) {
+		if (low >= high) return low;
+		float diff = high - low, value = 0;
+		do {
+			value = random(diff) + low;
+		} while (value == high);
+		return value;
+	}
+
+	public static int[] randomOrdering(int num) {
+		int[] a = new int[num];
+		for (int i = 0; i < num; ++i) {
+			a[i] = i;
+		}
+		return a;
+	}
+
+	public static final <T> T randomItem(T[] arr) {
+		return arr[(int) Math.floor(random() * arr.length)];
+		//return typeof func === 'function' ? func(item) : item;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static <T> T randomItem(Collection<T> c) {
+		return (T) randomItem(c.toArray());  // TODO: needs testing
+	}
+	
+	public static final float randomItem(float[] arr) {
+		return arr[(int) Math.floor(random() * arr.length)];
+	}
+
+	public static final boolean randomItem(boolean[] arr) {
+		return arr[(int) Math.floor(random() * arr.length)];
+	}
+
+	public static final int randomItem(int[] arr) {
+		return arr[(int) Math.floor(random() * arr.length)];
+	}
+
+	public static final double randomItem(double[] arr) {
+		return arr[(int) Math.floor(random() * arr.length)];
 	}
 
 	public static void seed(int s) {
-		/*
-		 * this.mt[0] = s >>> 0; for (this.mti = 1; this.mti < this.N; this.mti++) { let
-		 * s = this.mt[this.mti - 1] ^ (this.mt[this.mti - 1] >>> 30); this.mt[this.mti]
-		 * = (((((s & 0xffff0000) >>> 16) * 1812433253) << 16) + (s & 0x0000ffff) *
-		 * 1812433253) + this.mti; this.mt[this.mti] >>>= 0; }
-		 */
+		generator = new Random(s);
 	}
 
 	public static double[] ndist(double[] weights, double t) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Implement me");
 	}
 
 	public static int pselect(double sm) {
-		// TODO Auto-generated method stub
-		return 0;
+		throw new RuntimeException("Implement me");
 	}
 
 	public static double[] ndist(double[] ds) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new RuntimeException("Implement me");
 	}
 
 }

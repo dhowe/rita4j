@@ -1,7 +1,6 @@
 package rita;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
@@ -16,7 +15,6 @@ public class RiTa
   protected static LetterToSound lts;
   
   public static Inflector inflector;
-  
  
 //  UNCOMMENT IF/AS NEEDED:
 //  protected static Tagger tagger;
@@ -39,12 +37,10 @@ public class RiTa
   {
     return alliterations(word, Integer.MAX_VALUE);
   }
-
   public static String[] alliterations(String word, int minWordLength)
   {
     return _lexicon().alliterations(word, minWordLength);
   }
-
   public static String[] alliterations(String word, Map<String, Object> opts)
   {
     return alliterations(word, Util.intOpt("minWordLength", opts, Integer.MAX_VALUE));
@@ -64,7 +60,6 @@ public class RiTa
   {
     return concordance(text, word, null);
   }
-
   public static Map<String, String> concordance(String text, String word, Map<String, Object> opts) //TODO
   {
     return concorder.concordance(text, word, opts);
@@ -77,7 +72,7 @@ public class RiTa
 
   public static String env()
   {
-    return Util.isNode() ? NODE : JS;
+    return "Java";
   }
 
   public static boolean hasWord(String word)
@@ -89,12 +84,10 @@ public class RiTa
   {
     return isAbbreviation(input, false);
   }
-
   public static boolean isAbbreviation(String input, Map<String, Object> opts)
   {
     return isAbbreviation(input, Util.boolOpt("ignoreCase", opts));
   }
-
   public static boolean isAbbreviation(String input, boolean ignoreCase)
   {
 	  if(input == null) return false;
@@ -116,7 +109,6 @@ public class RiTa
   {
     return _lexicon().isAlliteration(word1, word2, false);//TODO default?
   }
-  
   public static boolean isAlliteration(String word1, String word2, boolean useLTS)
   {
     return _lexicon().isAlliteration(word1, word2, useLTS); 
@@ -141,7 +133,6 @@ public class RiTa
   {
     return _lexicon().isRhyme(word1, word2, false);//TODO default?
   }
-  
   public static boolean isRhyme(String word1, String word2, boolean useLTS)
   {
     return _lexicon().isRhyme(word1, word2, useLTS);
@@ -156,7 +147,6 @@ public class RiTa
   {
     return concorder.kwic(text, word);
   }
-
   public static String[] kwic(String text, String word, Map<String, Object> opts) //parameter mismatch
   {
     return kwic(text, word);
@@ -171,7 +161,6 @@ public class RiTa
   {
     return RiTa.phones(text, null);
   }
-  
   public static String phones(String text, Map<String, Object> opts)
   {
     return _analyzer().analyze(text).get("phones");
@@ -181,46 +170,41 @@ public class RiTa
   {
     return posInline(text, Util.boolOpt("simple", opts));
   }
-
   public static String posInline(String text)
   {
     return posInline(text, false);
   }
-
   public static String posInline(String text, boolean useSimpleTags)
   {
     return Tagger.tagInline(text, useSimpleTags);
   }
   
+  public static String[] pos(String text)
+  {
+    return pos(text, false);
+  }
   public static String[] pos(String text, Map<String, Object> opts)
   {
     return pos(text, Util.boolOpt("simple", opts));
   }
-
-  public static String[] pos(String text)
+  public static String[] pos(String text, boolean useSimpleTags)
   {
-    return pos(text, false);
+    return Tagger.tag(text, useSimpleTags);
   }
   
   public static String[] pos(String[] text, Map<String, Object> opts)
   {
     return pos(text, Util.boolOpt("simple", opts));
   }
-
   public static String[] pos(String[] text)
   {
     return pos(text, false);
   }
-
   public static String[] pos(String[] text, boolean useSimpleTags)
   {
     return Tagger.tag(text, useSimpleTags);
   }
-  
-  public static String[] pos(String text, boolean useSimpleTags)
-  {
-    return Tagger.tag(text, useSimpleTags);
-  }
+
 
   public static String pluralize(String word)
   {
@@ -232,10 +216,36 @@ public class RiTa
     return Conjugator.presentParticiple(verb);
   }
   
-  public static float random(float num) //TODO need verify
+  public static float random()
   {
-    return RandGen.random(num);
+    return RandGen.random();
   }
+  public static float random(float max)
+  {
+    return RandGen.random(max);
+  }
+  public static float random(float min, float max)
+  {
+    return RandGen.random(min, max);
+  }
+  public static <T> T random(T[] type) {
+    return (T) RandGen.randomItem(type);
+  }
+  public static <T> T random(Collection<T> c) {
+    return (T) RandGen.randomItem(c);
+  }
+	public static final float random(float[] arr) {
+		return RandGen.randomItem(arr);
+	}
+	public static final boolean random(boolean[] arr) {
+		return RandGen.randomItem(arr);
+	}
+	public static final int random(int[] arr) {
+		return RandGen.randomItem(arr);
+	}
+	public static final double random(double[] arr) {
+		return RandGen.randomItem(arr);
+	}
 
   public static int[] randomOrdering(int num)
   {
@@ -249,29 +259,25 @@ public class RiTa
 
   public static String randomWord(Map<String, Object> opts)
   {
-    return randomWord(Util.strOpt("pos", opts));
+    return _lexicon().randomWord(opts);
   }
-
   public static String randomWord(String pos)
   {
-    return randomWord(pos, -1);
+    return randomWord(Util.opts("pos", pos));
   }
-
   public static String randomWord(int syllables)
   {
-    return randomWord(null, syllables);
+    return randomWord(Util.opts("numSyllables", syllables));
   }
-
   public static String randomWord(String pos, int syllables)
   {
-    return _lexicon().randomWord(pos, syllables);
+    return randomWord(Util.opts("pos", pos, "numSyllables", syllables));
   }
 
   public static String[] rhymes(String word)
   {
     return _lexicon().rhymes(word);
   }
-  
   public static String[] rhymes(String word, Map<String, Object> opts)
   {
     return _lexicon().rhymes(word, opts);
@@ -281,12 +287,10 @@ public class RiTa
   {
     return RiTa.evaluate(word, null);
   }
-
   public static String evaluate(String word, Map<String, Object> opts)
   {
     return RiScript.eval(word, opts);
   }
-  
   public static String evaluate(String word, Map<String, Object> ctx, Map<String, Object> opts)
   {
     return RiScript.eval(word, ctx, opts);
@@ -294,7 +298,7 @@ public class RiTa
 
   public static String stresses(String text)
   {
-	return _analyzer().analyze(text).get("stresses");
+  	return _analyzer().analyze(text).get("stresses");
   }
 
   public static String syllables(String text)
@@ -455,9 +459,6 @@ public class RiTa
   public static final int BARE_INFINITIVE = 4;
   public static final int SUBJUNCTIVE = 5;
 
-  public static final String JS = "js";
-  public static final String NODE = "node";
-  public static final String BROWSER = "browser";
   public static final String STRESSED = "1";
   public static final String UNSTRESSED = "0";
   public static final String VOWELS = "aeiou";
