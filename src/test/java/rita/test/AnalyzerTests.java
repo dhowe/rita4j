@@ -257,21 +257,6 @@ public class AnalyzerTests {
 	}
 	
 	@Test
-	public void testComputePhones() {
-		String syllables = RiTa.syllables("cloze");
-		//System.out.println(syllables);
-		eq(syllables, "k-l-ow-z");
-	}
-
-	@Test
-	public void testSyllablesLts() {
-		String syllables = RiTa.syllables("cloze");
-		//System.out.println(syllables);
-		eq(syllables, "k-l-ow-z");
-	}
-
-	
-	@Test
 	public void testAnalyzeLts() {
 		// failing bc of testComputePhones (above)
 		Map<String, String> feats = RiTa.analyze("cloze");
@@ -279,8 +264,6 @@ public class AnalyzerTests {
 		eq(feats.get("tokens"), "cloze");
 		eq(feats.get("syllables"), "k-l-ow-z");
 	}
-
-	
 	
 	@Test
 	public void testAnalyze() {
@@ -434,12 +417,9 @@ public class AnalyzerTests {
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
 		eq(RiTa.syllables(input), expected);
-	}
-	
-	@Test
-	public void testLtsSyllables() { // FAILING
+		
 		RiTa.SILENCE_LTS = true; // TODO : why ??
-		System.out.println(RiTa.syllables("The Laggin Dragon"));
+		//System.out.println(RiTa.syllables("The Laggin Dragon"));
 		eq(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
 	}

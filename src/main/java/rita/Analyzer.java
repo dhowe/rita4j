@@ -74,16 +74,14 @@ public class Analyzer {
 			}
 		}
 		else {
-
 			stresses += word;
 		}
 
 		if (!stresses.endsWith(" ")) stresses += " ";
-
 		return new String[] { phones, stresses, syllables };
 	}
 
-	public Map<String, String> analyzeX(String text) {
+	/*public Map<String, String> analyzeX(String text) {
 
 		Map<String, String> features = new HashMap<String, String>();
 		String phones = "", syllables = "", stresses = "";
@@ -145,7 +143,7 @@ public class Analyzer {
 
 		// System.out.print("analysis features: "+features);
 		return features;
-	}
+	}*/
 	
 	public static void main(String[] args) {
 		System.out.println(Tagger.tag("dog"));

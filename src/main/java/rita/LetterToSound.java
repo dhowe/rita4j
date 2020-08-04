@@ -34,6 +34,7 @@ public class LetterToSound { // in-progress
 		if (word == null || word.length() < 1 || RiTa.isPunctuation(word)) {
 			return null;
 		}
+    word = word.toLowerCase();
 
 		List<String> phoneList = new ArrayList<String>();
 		State currentState;
@@ -13333,6 +13334,6 @@ public class LetterToSound { // in-progress
 
 	public static void main(String[] args) {
 		LetterToSound lts = new LetterToSound();
-		System.out.println(Arrays.asList(lts.computePhones("absolot")));
+		System.out.println(Arrays.asList(lts.computePhones("Laggin")));
 	}
 }
