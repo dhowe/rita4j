@@ -137,11 +137,11 @@ public class Inflector {
 		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
 	}
 
-	public boolean isPlural(String word) {
+	public static final boolean isPlural(String word) {
 		return isPlural(word, false);
 	}
 	
-	public boolean isPlural(String word, boolean dbug) {
+	public static final boolean isPlural(String word, boolean dbug) {
 
 		if (word == null || word.length() < 1) return false;
 

@@ -107,10 +107,10 @@ public class LexiconTests {
 
 		for (int i = 0; i < 20; i++) {
 			String result = RiTa.randomWord(hm);
-			if (!Pluralizer.isPlural(result)) {
+			if (!Inflector.isPlural(result)) {
 				// For now, just warn here as there are too many edge cases (see #521)
 				System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result +
-						" (" + "isPlural=" + RiTa.inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result)
+						" (" + "isPlural=" + Inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result)
 						+ ")");
 			}
 			// TODO: occasional problem here, examples: beaux

@@ -12,14 +12,13 @@ public class RiTa {
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
 
-	public static Inflector inflector;
-
 	//  UNCOMMENT IF/AS NEEDED:
 	//  protected static Tagger tagger;
 	//  protected static Pluralizer pluralizer;
 	//  protected static Tokenizer tokenizer;
 	//  protected static Syllabifier syllabifier;
 	//  protected static Stemmer stemmer;
+	//	protected static Inflector inflector;
 
 	public static Map<String, Function<String, String>> addTransform(String name, Function<String, String> func) {
 		if (func != null) {

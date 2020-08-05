@@ -603,7 +603,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 
 			res1 = RiTa.singularize(testPairs[i], Util.opts("dbug", dbug));
 			res2 = RiTa.pluralize(testPairs[i + 1], Util.opts("dbug", dbug));
-			res3 = RiTa.inflector.isPlural(testPairs[i], dbug);
+			res3 = Inflector.isPlural(testPairs[i], dbug);
 
 			// singularize
 			assertEquals(testPairs[i + 1], res1, "FAIL: singularize(" + testPairs[i]

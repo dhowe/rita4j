@@ -76,7 +76,7 @@ public class Lexicon {
 			return false;
 		}
 		word = word.length() > 0 ? word.toLowerCase() : "";
-		return Pluralizer.isPlural(word);
+		return Inflector.isPlural(word);
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean useLTS) {
