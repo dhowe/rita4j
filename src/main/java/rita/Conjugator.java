@@ -701,12 +701,11 @@ public class Conjugator {
 		form = RiTa.NORMAL;
 	}
 
-	public String conjugate(String word, Map<String, Object> opts) {
-		if (word == null || word.length() == 0) return "";
-
-		if (opts.size() == 0) return word;
-
-		// --------------------- handle args ---------------------
+	public String conjugate(String verb, Map<String, Object> opts) {
+		if (verb == null || verb.length() == 0) {
+			throw new RiTaException("conjugate requires a verb");
+		}
+		if (opts == null || opts.size() == 0) return verb;
 
 		reset();
 
@@ -722,7 +721,7 @@ public class Conjugator {
 
 		// ----------------------- start --------------------------
 
-		String v = word.toLowerCase(); // handle to-be forms
+		String v = verb.toLowerCase(); // handle to-be forms
 
 		String[] c = { "am", "are", "is", "was", "were" };
 		List<String> list = Arrays.asList(c);

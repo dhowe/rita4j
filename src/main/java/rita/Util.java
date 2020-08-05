@@ -31,13 +31,13 @@ public class Util {
 
 	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L171
 	static String syllablesFromPhones(String[] input) {
-		
+
 		boolean dbug = false;
 
 		// returned data structure
 		List<List<List<String>>> syllables = new ArrayList<List<List<String>>>();
 		//String[][] syllables = new String[input.length][2];
-		
+
 		List<String> internuclei = new ArrayList<String>();
 		//String[] internuclei = new String[0];
 
@@ -50,7 +50,7 @@ public class Util {
 		for (int i = 0; i < sylls.length; i++) {
 
 			String stress = "";
-			String phoneme = sylls[i].trim(); 
+			String phoneme = sylls[i].trim();
 			if (phoneme.length() == 0) continue;
 
 			String last = phoneme.substring(phoneme.length() - 1);
@@ -67,7 +67,7 @@ public class Util {
 				// Split the consonants seen since the last nucleus into coda and onset.
 				String[] coda = null, onset = null;
 
-				// Make the largest onset we can. The 'split' variable marks the break point.
+				// Make the largest onset we can. The "split" variable marks the break point.
 				for (int split = 0; split < internuclei.size() + 1; split++) {
 
 					coda = Util.slice(internuclei, 0, split).toArray(new String[0]);
@@ -76,10 +76,10 @@ public class Util {
 					if (dbug) System.out.println("  " + split + ") onset=" + String.join(":", onset) +
 							"  coda=" + String.join(":", coda) + "  inter=" + String.join(":", internuclei));
 
-					// If we are looking at a valid onset, or if we're at the start of the word
-					// (in which case an invalid onset is better than a coda that doesn't follow
-					// a nucleus), or if we've gone through all of the onsets and we didn't find
-					// any that are valid, then split the nonvowels we've seen at this location.
+					// If we are looking at a valid onset, or if we"re at the start of the word
+					// (in which case an invalid onset is better than a coda that doesn"t follow
+					// a nucleus), or if we"ve gone through all of the onsets and we didn"t find
+					// any that are valid, then split the nonvowels we"ve seen at this location.
 					boolean isOnset = isOnset(String.join(" ", onset));
 					if (isOnset || syllables.size() == 0 || onset.length == 0) {
 						if (dbug) System.out.println("  break " + phoneme);
@@ -88,7 +88,7 @@ public class Util {
 				}
 
 				// Tack the coda onto the coda of the last syllable.
-				// Can't do it if this is the first syllable.
+				// Can"t do it if this is the first syllable.
 				if (syllables.size() > 0) {
 					syllables.get(syllables.size() - 1).get(3).addAll(Arrays.asList(coda));
 					if (dbug) {
@@ -397,42 +397,49 @@ public class Util {
 		return Arrays.asList(Onsets).contains(phone);
 	}
 
-	public static final String[] MODALS = { "asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos",
-			"cognoscenti", "clippers", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows",
-			/* "gas", */ "graffiti", "herpes", "innings", "lens", "means", "measles", "mews", "mumps", "news", "pathos",
-			"pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series", "shears",
-			"species", "tuna", "acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics",
-			"dialectics", "deer", "dynamics", "ethics", "harmonics", /* "happiness", "hardness", "shortness", */ "heroics",
-			"mechanics", "metrics", "ooze", "optics", /* "people", */ "physics", "polemics", "pyrotechnics", "quadratics",
-			/* "quarters", */ "salespeople", "statistics", "tactics", "tropics", "bengalese", "bengali", "bonsai", "booze",
-			"cellulose", "mess", "moose", "burmese", "chinese", "colossus", "congolese", "discus", "electrolysis", "emphasis",
-			"expertise", "flu", "fructose", "gauze", "glucose", "grease", "guyanese", "haze", "incense", "japanese",
-			"lebanese", "malaise", "mayonnaise", "maltese", "music", "money", "menopause", "merchandise", "olympics",
-			"overuse", "paradise", "poise", "polymerase", "portuguese", "prose", "recompense", "remorse", "repose",
-			"senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese", "suspense", "swiss", "taiwanese",
-			"vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus", "asparagus",
-			"barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp",
-			"catfish", "chassis", "clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish",
-			"crayfish", "crossroads", "cuttlefish", "deer", "dice", "dogfish", "doings", "dory", "downstairs", "eldest",
-			"earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder", "fowl", "fry", "fries",
-			"works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz",
-			"horsepower", "goods", "hovercraft", "ironworks", "kilohertz", "ling", "shrimp", "swine", "lungfish", "mackerel",
-			"macaroni", "means", "megahertz", "moorfowl", "moorgame", "mullet", "nepalese", "offspring", "pants", "patois",
-			"pekinese", "perch", "pickerel", "pike", "potpourri", "precis", "quid", "rand", "rendezvous", "roach", "salmon",
-			"samurai", "series", "seychelles", "shad", "sheep", "shellfish", "smelt", "spaghetti", "spacecraft", "species",
-			"starfish", "stockfish", "sunfish", "superficies", "sweepstakes", "smallpox", "swordfish", "tennis", "tobacco",
-			"triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl",
-			"waterworks", "waxworks", "wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics",
-			"news", "odds", "politics", "remains", "goods", "aids", "wildlife", "shall", "would", "may", "might", "ought",
-			"should", "wildlife"
-	};
-	
+	////////////////////////////////////////////////////////////////////////
+
+	public static final String[] MODALS = { "abalone", "asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos", "cognoscenti",
+			"clippers", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows", /*"gas",*/ "graffiti", "herpes", "innings", "lens", "means",
+			"measles", "mews", "mumps", "news", "pathos", "pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series",
+			"shears", "species", "tuna", "acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics", "dialectics", "deer",
+			"dynamics", "ethics", "harmonics", /*"happiness", "hardness", "shortness",*/ "heroics", "mechanics", "metrics", "ooze", "optics",
+			/*"people",*/ "physics", "polemics", "pyrotechnics", "quadratics", /*"quarters",*/ "salespeople", "statistics", "tactics", "tropics",
+			"bengalese", "bengali", "bonsai", "booze", "cellulose", "mess", "moose", "burmese", "chinese", "colossus", "congolese", "discus",
+			"electrolysis", "emphasis", "expertise", "flu", "fructose", "gauze", "glucose", "grease", "guyanese", "haze", "incense", "japanese", "lebanese",
+			"malaise", "mayonnaise", "maltese", "music", "money", "menopause", "merchandise", "olympics", "overuse", "paradise", "poise", "polymerase",
+			"portuguese", "prose", "recompense", "remorse", "repose", "senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese",
+			"suspense", "swiss", "taiwanese", "vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus",
+			"asparagus", "barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp", "catfish", "chassis",
+			"clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish", "crayfish", "crossroads", "cuttlefish", "deer", "dice",
+			"dogfish", "doings", "dory", "downstairs", "eldest", "earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder",
+			"fowl", "fry", "fries", "works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz",
+			"horsepower", "goods", "hovercraft", "ironworks", "kilohertz", "ling", "shrimp", "swine", "lungfish", "mackerel", "macaroni", "means",
+			"megahertz", "moorfowl", "moorgame", "mullet", "nepalese", "offspring", "pants", "patois", "pekinese", "perch", "pickerel", "pike", "potpourri",
+			"precis", "quid", "rand", "rendezvous", "roach", "salmon", "samurai", "series", "seychelles", "shad", "sheep", "shellfish", "smelt",
+			"spaghetti", "spacecraft", "species", "starfish", "stockfish", "sunfish", "superficies", "sweepstakes", "smallpox", "swordfish", "tennis",
+			"tobacco", "triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl", "waterworks", "waxworks",
+			"wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics", "news", "odds", "politics", "remains", "goods", "aids",
+			"wildlife", "shall", "would", "may", "might", "ought", "should", "wildlife" };
+
+	public static final String[] MASS_NOUNS = { "acne", "admiration", "advice", "air", "anger", "anticipation", "assistance", "awareness", "bacon",
+			"baggage", "blood", "bravery", "chess", "clay", "clothing", "coal", "compliance", "comprehension", "confusion", "consciousness", "cream",
+			"darkness", "diligence", "dust", "education", "electrolysis", "empathy", "enthusiasm", "envy", "equality", "equipment", "evidence", "feedback",
+			"fitness", "flattery", "foliage", "fun", "furniture", "garbage", "gold", "gossip", "grammar", "gratitude", "gravel", "guilt", "happiness",
+			"hardware", "hate", "hay", "health", "heat", "help", "hesitation", "homework", "honesty", "honor/honour", "hospitality", "hostility",
+			"humanity", "humility", "ice", "immortality", "independence", "information", "integrity", "intimidation", "jargon", "jealousy", "jewelry",
+			"justice", "knowledge", "literacy", "logic", "luck", "lumber", "luggage", "mail", "management", "merchandise", "milk", "morale", "mud", "music",
+			"nonsense", "oppression", "optimism", "oxygen", "participation", "pay", "peace", "people", "salespeople", "perseverance", "pessimism",
+			"pneumonia", "poetry", "police", "pride", "privacy", "propaganda", "public", "punctuation", "recovery", "rice", "rust", "satisfaction", "shame",
+			"sheep", "slang", "software", "spaghetti", "stamina", "starvation", "steam", "steel", "stuff", "support", "sweat", "thunder", "timber", "toil",
+			"traffic", "training", "trash", "understanding", "valor", "vehemence", "violence", "warmth", "waste", "weather", "wheat", "wisdom", "work" };
+
 	private static final String[] Consonants = { "b", "ch", "d", "dh", "f", "g", "hh", "jh", "k", "l", "m",
 			"n", "ng", "p", "r", "s", "sh", "t", "th", "v", "w", "y", "z", "zh" };
-	
+
 	private static final String[] Vowels = { "aa", "ae", "ah", "ao", "aw", "ax", "ay", "eh", "er", "ey", "ih",
 			"iy", "ow", "oy", "uh", "uw" };
-	
+
 	private static final String[] Onsets = { "p", "t", "k", "b", "d", "g", "f", "v", "th", "dh", "s", "z",
 			"sh", "ch", "jh", "m", "n", "r", "l", "hh", "w", "y", "p r", "t r",
 			"k r", "b r", "d r", "g r", "f r", "th r", "sh r", "p l", "k l", "b l",
@@ -440,7 +447,7 @@ public class Util {
 			"s f", "s m", "s n", "g w", "sh w", "s p r", "s p l", "s t r", "s k r",
 			"s k w", "s k l", "th w", "zh", "p y", "k y", "b y", "f y", "hh y",
 			"v y", "th y", "m y", "s p y", "s k y", "g y", "hh w", "" };
-	
+
 	private static final String[] Digits = { "z-ih-r-ow", "w-ah-n", "t-uw", "th-r-iy", "f-ao-r", "f-ay-v",
 			"s-ih-k-s", "s-eh1-v-ax-n", "ey-t", "n-ih-n" }; // ?
 

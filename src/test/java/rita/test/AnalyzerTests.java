@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-public class AnalyzerTests {
+public class AnalyzerTests { // NOT IN SYNC WITH JS
 
 	@Test
 	public void testSingularize() {
@@ -255,7 +255,7 @@ public class AnalyzerTests {
 		eq("aquatics", RiTa.pluralize("aquatics"));
 		eq("mechanics", RiTa.pluralize("mechanics"));
 	}
-	
+
 	@Test
 	public void testAnalyzeLts() {
 		// failing bc of testComputePhones (above)
@@ -264,7 +264,7 @@ public class AnalyzerTests {
 		eq(feats.get("tokens"), "cloze");
 		eq(feats.get("syllables"), "k-l-ow-z");
 	}
-	
+
 	@Test
 	public void testAnalyze() {
 
@@ -417,11 +417,207 @@ public class AnalyzerTests {
 		input = "The emperor had no clothes on.";
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
 		eq(RiTa.syllables(input), expected);
-		
+
 		RiTa.SILENCE_LTS = true; // TODO : why ??
 		//System.out.println(RiTa.syllables("The Laggin Dragon"));
 		eq(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
+	}
+
+	@Test
+	public void testNumberPairs() {
+
+		String[] testPairs = {
+				"dazes", "daze",
+				"hives", "hive",
+				"dives", "dive",
+				"octopuses", "octopus",
+				"abalone", "abalone",
+				"wildlife", "wildlife",
+				"media", "medium",
+				"millennia", "millennium",
+				"consortia", "consortium",
+				"concerti", "concerto",
+				"septa", "septum",
+				"termini", "terminus",
+				"larvas", "larva",
+				"vertebras", "vertebra",
+				"hooves", "hoof",
+				"thieves", "thief",
+				"rabbis", "rabbi",
+				"flu", "flu",
+				"safaris", "safari",
+				"sheaves", "sheaf",
+				"uses", "use",
+				"pinches", "pinch",
+				"hankies", "hanky",
+				"spoofs", "spoof",
+				"proofs", "proof",
+				"roofs", "roof",
+				"disbeliefs", "disbelief",
+				"beliefs", "belief",
+				"indices", "index",
+				"accomplices", "accomplice",
+				"catharses", "catharsis",
+				"prognoses", "prognosis",
+				"whizzes", "whiz",
+				"selves", "self",
+				"bookshelves", "bookshelf",
+				"wheezes", "wheeze",
+				"diagnoses", "diagnosis",
+				"minutiae", "minutia",
+				"blondes", "blonde",
+				"eyes", "eye",
+				"swine", "swine",
+				"cognoscenti", "cognoscenti",
+				"bonsai", "bonsai",
+				"taxis", "taxi",
+				"chiefs", "chief",
+				"monarchs", "monarch",
+				"lochs", "loch",
+				"stomachs", "stomach",
+				"Chinese", "Chinese",
+				"people", "person",
+				"humans", "human",
+				"germans", "german",
+				"romans", "roman",
+				"memoranda", "memorandum",
+				"data", "datum",
+				"geese", "goose",
+				"femurs", "femur",
+				"appendices", "appendix",
+				"theses", "thesis",
+				"alumni", "alumnus",
+				"solos", "solo",
+				"music", "music",
+				"oxen", "ox",
+				"solos", "solo",
+				"music", "music",
+				"money", "money",
+				"beef", "beef",
+				"tobacco", "tobacco",
+				"cargo", "cargo",
+				"golf", "golf",
+				"grief", "grief",
+				"cakes", "cake",
+				"tomatoes", "tomato",
+				"photos", "photo",
+				"smallpox", "smallpox",
+				"toes", "toe",
+				"series", "series",
+				"oxen", "ox",
+				"men", "man",
+				"mice", "mouse",
+				"lice", "louse",
+				"children", "child",
+				"gases", "gas",
+				"buses", "bus",
+				"happiness", "happiness",
+				"crises", "crisis",
+				"theses", "thesis",
+				"apotheses", "apothesis",
+				"stimuli", "stimulus",
+				"alumni", "alumnus",
+				"corpora", "corpus",
+				"dogs", "dog",
+				"feet", "foot",
+				"teeth", "tooth",
+				"kisses", "kiss",
+				"deer", "deer",
+				"sheep", "sheep",
+				"shrimp", "shrimp",
+				"men", "man",
+				"women", "woman",
+				"congressmen", "congressman",
+				"aldermen", "alderman",
+				"freshmen", "freshman",
+				"firemen", "fireman",
+				"grandchildren", "grandchild",
+				"menus", "menu",
+				"gurus", "guru",
+				"hardness", "hardness",
+				"shortness", "shortness",
+				"dreariness", "dreariness",
+				"unwillingness", "unwillingness",
+				"fish", "fish",
+				"ooze", "ooze",
+				"enterprises", "enterprise",
+				"treatises", "treatise",
+				"houses", "house",
+				"chemises", "chemise",
+				"aquatics", "aquatics",
+				"mechanics", "mechanics",
+				"quarters", "quarter",
+				"motifs", "motif",
+				"alumni", "alumnus",
+				"turf", "turf",
+				"macaroni", "macaroni",
+				"spaghetti", "spaghetti",
+				"potpourri", "potpourri",
+				"electrolysis", "electrolysis",
+				"eyes", "eye",
+				"teeth", "tooth",
+				"cakes", "cake",
+				"kisses", "kiss",
+				"lice", "louse",
+				"series", "series",
+				"crises", "crisis",
+				"theses", "thesis",
+				"apotheses", "apothesis",
+				"stimuli", "stimulus",
+				"alumni", "alumnus",
+				"corpora", "corpus",
+				"menus", "menu",
+				"hardness", "hardness",
+				"shortness", "shortness",
+				"dreariness", "dreariness",
+				"unwillingness", "unwillingness",
+				"moose", "moose",
+				"toes", "toe",
+				"tobacco", "tobacco",
+				"cargo", "cargo",
+				"golf", "golf",
+				"grief", "grief",
+				"taxis", "taxi",
+				"bonsai", "bonsai",
+				"lives", "life",
+				"additives", "additive",
+				"epochs", "epoch",
+				"ranchs", "ranch",
+				"alcoves", "alcove",
+				"goddesses", "goddess",
+				"tresses", "tress",
+				"murderesses", "murderess",
+				"memories", "memory",
+				"corpora", "corpus",
+				"stimuli", "stimulus",
+				"theses", "thesis"
+		};
+
+		String res1, res2;
+		boolean res3, dbug = false;
+
+		for (int i = 0; i < testPairs.length; i += 2) {
+
+			if (dbug) console.log(testPairs[i] + "/" + testPairs[i + 1]);
+
+			res1 = RiTa.singularize(testPairs[i], Util.opts("dbug", dbug));
+			res2 = RiTa.pluralize(testPairs[i + 1], Util.opts("dbug", dbug));
+			res3 = RiTa.inflector.isPlural(testPairs[i], dbug);
+
+			// singularize
+			assertEquals(testPairs[i + 1], res1, "FAIL: singularize(" + testPairs[i]
+					+ ") was " + res1 + ", but expected " + testPairs[i + 1] + "\n        "
+					+ "pluralize(" + testPairs[i + 1] + ") was " + res2 + "\n\n");
+
+			// pluralize
+			assertEquals(res2, testPairs[i], "FAIL: pluralize(" + testPairs[i + 1]
+					+ ") was " + res2 + ", but expected " + testPairs[i] + "\n        "
+					+ "singularize(" + testPairs[i] + ") was " + res1 + "\n\n");
+
+			// isPlural
+			assertTrue(res3, "FAIL: isPlural(" + testPairs[i] + ") was false\n\n");
+		}
 	}
 
 	static void eq(String a, String b) {

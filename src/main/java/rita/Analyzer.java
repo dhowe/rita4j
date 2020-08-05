@@ -8,8 +8,8 @@ public class Analyzer {
 	public static final String SLASH = "/";
 	public static final String DELIM = "-";
 
-	public Map<String, String> analyze(String map) {
-		return this.analyze(map, null);
+	public Map<String, String> analyze(String text) {
+		return this.analyze(text, null);
 	}
 
 	public Map<String, String> analyze(String text, Map<String, Object> opts) {
