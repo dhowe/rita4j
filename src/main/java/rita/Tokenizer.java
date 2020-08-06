@@ -1,142 +1,184 @@
 package rita;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Tokenizer
-{
+public class Tokenizer {
+	private static Pattern splitter = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
+	private static String delim = "___";
 
-  public static String[] sentences(String text, Pattern regex)
-  {
-    // TODO Auto-generated method stub
-    return null;
-  }
+	public static String[] sentences(String text, Pattern pattern) {
+		if (text == null || text.length() == 0) return new String[] { text };
+		if (pattern == null) pattern = splitter;
 
-  public static String untokenize(String[] words)
-  {
-	  /*
-	    delim = delim || ' ';
+		String clean = text.replaceAll("(\r?\n)+", " ");
+		List<String> allMatches = new ArrayList<String>();
 
-	    let thisPunct, lastPunct, thisQuote, lastQuote, thisComma, isLast,
-	      lastComma, lastEndWithS, punct = /^[,\.\;\:\?\!\)""“”\u2019‘`']+$/,
-	      dbug = 0,
-	      quotes = /^[\(""“”\u2019‘`']+$/,
-	      squotes = /^[\u2019‘`']+$/,
-	      apostrophes = /^[\u2019']+$/,
-	      afterQuote = false,
-	      withinQuote = arr.length && quotes.test(arr[0]),
-	      result = arr[0] || '',
-	      midSentence = false;
+		Matcher m = pattern.matcher(escapeAbbrevs(clean));
+		while (m.find()) {
+			allMatches.add(m.group());
+		}
+		String[] arr = allMatches.toArray(new String[0]);
+		if (arr == null || arr.length == 0)
+			return new String[] { text };
+		else
+			return unescapeAbbrevs(arr);
 
-	    for (let i = 1; i < arr.length; i++) {
+	}
 
-	      if (!arr[i]) continue;
+	private static String[] unescapeAbbrevs(String[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = arr[i].replaceAll(delim, ".");
+		}
+		return arr;
+	}
 
-	      thisComma = arr[i] === ',';
-	      thisPunct = punct.test(arr[i]);
-	      thisQuote = quotes.test(arr[i]);
-	      lastComma = arr[i - 1] === ',';
-	      lastPunct = punct.test(arr[i - 1]);
-	      lastQuote = quotes.test(arr[i - 1]);
-	      lastEndWithS = arr[i - 1].charAt(arr[i - 1].length - 1) === 's';
-	      isLast = (i == arr.length - 1);
+	private static String escapeAbbrevs(String text) {
 
-	      if (thisQuote) {
+		String[] abbrevs = RiTa.ABBREVIATIONS;
+		for (int i = 0; i < abbrevs.length; i++) {
+			String abv = abbrevs[i];
+			int idx = text.indexOf(abv);
+			while (idx > -1) {
+				System.out.print(abv);
+				text = text.replace(abv, abv.replace(".", delim));
+				idx = text.indexOf(abv);
+			}
+		}
+		return text;
+	}
 
-	        if (withinQuote) {
+	public static String untokenize(String[] arr) {
+		return untokenize(arr, " ");
+	}
 
-	          // no-delim, mark quotation done
-	          afterQuote = true;
-	          withinQuote = false;
-	        } else if (!(apostrophes.test(arr[i]) && lastEndWithS)) {
-	          withinQuote = true;
-	          afterQuote = false;
-	          result += delim;
-	        }
+	public static String untokenize(String[] arr, String delim) {
+		int dbug = 0;
 
-	      } else if (afterQuote && !thisPunct) {
+		boolean thisPunct, lastPunct, thisQuote, lastQuote, thisComma, isLast,
+				lastComma, lastEndWithS, withinQuote = false;
 
-	        result += delim;
-	        afterQuote = false;
+		String punct = "^[,.;:?!)\"\"“”\u2019‘`']+$",
+				quotes = "^[(\"\"“”\u2019‘`']+$",
+				squotes = "^[\u2019‘`']+$",
+				apostrophes = "^[\u2019']+$";
 
-	      } else if (lastQuote && thisComma) {
+		if (arr.length > 0) {
+			withinQuote = Pattern.matches(quotes, arr[0]);
+		}
+		System.out.println(withinQuote);
 
-	        midSentence = true;
+		String result = arr.length > 0 ? arr[0] : "";
 
-	      } else if (midSentence && lastComma) {
+		boolean afterQuote = false, midSentence = false;
 
-	        result += delim;
-	        midSentence = false;
+		for (int i = 1; i < arr.length; i++) {
 
-	      } else if ((!thisPunct && !lastQuote) || (!isLast && thisPunct && lastPunct)) {
+			if (arr[i] == null) continue;
 
-	        result += delim;
-	      }
+			thisComma = arr[i] == ",";
+			thisPunct = Pattern.matches(punct, arr[i]);
+			thisQuote = Pattern.matches(quotes, arr[i]);
+			lastComma = arr[i - 1] == ",";
+			lastPunct = Pattern.matches(punct, arr[i - 1]);
+			lastQuote = Pattern.matches(quotes, arr[i - 1]);
+			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's';
+			isLast = (i == arr.length - 1);
 
-	      result += arr[i]; // add to result
+			if (thisQuote) {
 
-	      if (thisPunct && !lastPunct && !withinQuote && squotes.test(arr[i])) {
+				if (withinQuote) {
+					// no-delim, mark quotation done
+					afterQuote = true;
+					withinQuote = false;
 
-	        result += delim; // fix to #477
-	      }
-	    }
+				} else if (!(Pattern.matches(apostrophes, arr[i]) && lastEndWithS)) {
+					withinQuote = true;
+					afterQuote = false;
+					result += delim;
 
-	    return Util.trim(result);
-	 
-	  }
-	  */
-	  return null;
-  }
+				}
 
-  public static String[] tokenize(String words)
-  {
-	  if (words == null || words.length() == 0) return new String[] {""};
+			} else if (afterQuote && !thisPunct) {
 
-	    //if (regex) return words.split(regex); //TODO check this param
+				result += delim;
+				afterQuote = false;
 
-	  //Javascript to java regex converted from https://regex101.com/
-	    words = words.trim(); // ???
-	    words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
-	    words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
+			} else if (lastQuote && thisComma) {
 
-	    
-	    words = words.replaceAll("([\\\\?!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
-	    words = words.replaceAll("\\\\.\\\\.\\\\.", " ... ");
-	    words = words.replaceAll("\\\\s+", " ");
-	    words = words.replaceAll(",([^0-9])", " , $1");
-	    words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\\\s*$", "$1 $2$3 ");
-	    words = words.replaceAll("([\\[\\](){}<>])", " $1 ");
-	    words = words.replaceAll("--", " -- ");
-	    words = words.replaceAll("$", " ");
-	    words = words.replaceAll("^", " ");
-	    words = words.replaceAll("([^'])' | '", "$1 \' ");
-	    words = words.replaceAll(" \\\\u2018", " \u2018 ");
-	    words = words.replaceAll("'([SMD]) ", " \'$1 ");
-	    
+				midSentence = true;
 
-	    if (RiTa.SPLIT_CONTRACTIONS) {
+			} else if (midSentence && lastComma) {
 
-	      words = words.replaceAll("([Cc])an['’]t", "$1an not");
-	      words = words.replaceAll("([Dd])idn['’]t", "$1id not");
-	      words = words.replaceAll("([CcWw])ouldn['’]t", "$1ould not");
-	      words = words.replaceAll("([Ss])houldn['’]t", "$1hould not");
-	      words = words.replaceAll(" ([Ii])t['’]s", " $1t is");
-	      words = words.replaceAll("n['’]t ", " not ");
-	      words = words.replaceAll("['’]ve ", " have ");
-	      words = words.replaceAll("['’]re ", " are ");
-	    }
+				result += delim;
+				midSentence = false;
 
-	    // "Nicole I. Kidman" gets tokenized as "Nicole I . Kidman"
-	    words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
-	    words = words.replaceAll("\\\\s+", " ");
-	    words = words.replaceAll("^\\\\s+", "");
+			} else if ((!thisPunct && !lastQuote) || (!isLast && thisPunct && lastPunct)) {
 
-	    words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
-	    words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
+				result += delim;
+			}
 
-	    words = words.trim();
+			result += arr[i]; // add to result
 
-	    return words.split("\\s+");
-	    
-  }
+			if (thisPunct && !lastPunct && !withinQuote && Pattern.matches(squotes, arr[i])) {
+
+				result += delim; // fix to #477
+			}
+		}
+
+		return result.trim();
+	}
+
+	public static String[] tokenize(String words) {
+		if (words == null || words.length() == 0) return new String[] { "" };
+
+		// if (regex) return words.split(regex); //TODO check this param
+
+		// Javascript to java regex converted from https://regex101.com/
+		words = words.trim(); // ???
+		words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
+		words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
+
+		words = words.replaceAll("([\\\\?!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
+		words = words.replaceAll("\\\\.\\\\.\\\\.", " ... ");
+		words = words.replaceAll("\\\\s+", " ");
+		words = words.replaceAll(",([^0-9])", " , $1");
+		words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\\\s*$", "$1 $2$3 ");
+		words = words.replaceAll("([\\[\\](){}<>])", " $1 ");
+		words = words.replaceAll("--", " -- ");
+		words = words.replaceAll("$", " ");
+		words = words.replaceAll("^", " ");
+		words = words.replaceAll("([^'])' | '", "$1 \' ");
+		words = words.replaceAll(" \u2018", " \u2018 ");
+		words = words.replaceAll("'([SMD]) ", " \'$1 ");
+
+		if (RiTa.SPLIT_CONTRACTIONS) {
+
+			words = words.replaceAll("([Cc])an['’]t", "$1an not");
+			words = words.replaceAll("([Dd])idn['’]t", "$1id not");
+			words = words.replaceAll("([CcWw])ouldn['’]t", "$1ould not");
+			words = words.replaceAll("([Ss])houldn['’]t", "$1hould not");
+			words = words.replaceAll(" ([Ii])t['’]s", " $1t is");
+			words = words.replaceAll("n['’]t ", " not ");
+			words = words.replaceAll("['’]ve ", " have ");
+			words = words.replaceAll("['’]re ", " are ");
+		}
+
+		// "Nicole I. Kidman" gets tokenized as "Nicole I . Kidman"
+		words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
+		words = words.replaceAll("\\\\s+", " ");
+		words = words.replaceAll("^\\\\s+", "");
+
+		words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
+		words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
+
+		words = words.trim();
+
+		return words.split("\\s+");
+
+	}
 
 }
