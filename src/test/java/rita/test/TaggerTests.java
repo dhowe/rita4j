@@ -2,6 +2,7 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -70,6 +71,7 @@ public class TaggerTests {
 
 		assertArrayEquals(RiTa.pos("He rowed the boat"), new String[] { "prp", "vbd", "dt", "nn" });
 		assertArrayEquals(RiTa.pos("He has rowed the boat"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
+		
 	}
 
 	@Test
@@ -480,7 +482,7 @@ public class TaggerTests {
 		assertTrue(RiTa.isVerb("swam"));
 		assertTrue(RiTa.isVerb("walked"));
 		assertTrue(RiTa.isVerb("costed"));
-		assertTrue(RiTa.isVerb("satisties"));
+		assertTrue(RiTa.isVerb("satisfies"));
 		assertTrue(RiTa.isVerb("falsifies"));
 		assertTrue(RiTa.isVerb("beautifies"));
 		assertTrue(RiTa.isVerb("repossesses"));
@@ -515,8 +517,10 @@ public class TaggerTests {
 		// n
 		assertTrue(!RiTa.isVerb("dolls"));
 		assertTrue(!RiTa.isVerb("frogs"));
-		assertTrue(!RiTa.isVerb("flowers"));
-		assertTrue(!RiTa.isVerb("ducks"));
+		
+		// ok
+		assertTrue(RiTa.isVerb("flowers"));
+		assertTrue(RiTa.isVerb("ducks"));
 
 		// adv
 		assertTrue(!RiTa.isVerb("truthfully"));
@@ -527,14 +531,14 @@ public class TaggerTests {
 		assertTrue(!RiTa.isVerb("excitedly"));
 		assertTrue(!RiTa.isVerb("energetically"));
 
-		assertTrue(!RiTa.isVerb("hates"));
-		assertTrue(!RiTa.isVerb("hated"));
-		assertTrue(!RiTa.isVerb("hating"));
-		assertTrue(!RiTa.isVerb("dancing"));
+		assertTrue(RiTa.isVerb("hates"));
+		assertTrue(RiTa.isVerb("hated"));
+		assertTrue(RiTa.isVerb("hating"));
+		assertTrue(RiTa.isVerb("dancing"));
 
-		assertTrue(!RiTa.isVerb("hates"));
-		assertTrue(!RiTa.isVerb("hated"));
-		assertTrue(!RiTa.isVerb("ridden"));
+		assertTrue(RiTa.isVerb("hates"));
+		assertTrue(RiTa.isVerb("hated"));
+		assertTrue(RiTa.isVerb("ridden"));
 
 	}
 

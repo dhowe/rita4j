@@ -43,8 +43,21 @@ public class Tagger {
 		return tagInline(Tokenizer.tokenize(words), useSimpleTags);
 	}
 
-	public static String tagInline(String[] wordsArr, boolean useSimpleTags) {
-		throw new RuntimeException("Implement me");
+	public static String tagInline(String[] words, boolean useSimpleTags) {
+		  if (words == null || words.length == 0) return "";
+		    String[] tags = tag(words, useSimpleTags);
+		    if (words.length != tags.length) throw new RuntimeException("Tagger: invalid state:" + Arrays.toString(words));
+
+		    String delimiter = "/";
+		    String sb = "";
+		    for (int i = 0; i < words.length; i++) {
+		      sb += words[i];
+		      if (!RiTa.isPunctuation(words[i])) {
+		        sb += delimiter + tags[i];
+		      }
+		      sb += ' ';
+		    }
+		    return sb.trim();
 	}
 
 	////////////////////////////////////////////////////////////////////////
@@ -75,7 +88,7 @@ public class Tagger {
 	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
 		if (wordsArr == null || wordsArr.length == 0) return new String[0];
 
-		boolean dbug = false;
+		boolean dbug = true;
 
 		String[][] choices2d = new String[wordsArr.length][];
 		String[] result = new String[wordsArr.length];
@@ -167,7 +180,7 @@ public class Tagger {
 	private static String[] _applyContext(String[] words, String[] result, String[][] choices2d) {
 
 		// console.log("ac(" + words + "," + result + "," + choices2d + ")");
-		boolean dbug = false;
+		boolean dbug = true;
 
 		// Apply transformations
 		for (int i = 0, l = words.length; i < l; i++) {
@@ -225,7 +238,7 @@ public class Tagger {
 
 			// transform 5: convert a common noun (NN or NNS) to a
 			// adjective if it ends with "al", special-case for mammal
-			if (tag.startsWith("nn") && word.endsWith("al") && !word.equals("mammal")) {
+			if (word.length() > 4 && tag.startsWith("nn") && word.endsWith("al") && !word.equals("mammal")) {
 				tag = "jj";
 			}
 
@@ -234,6 +247,12 @@ public class Tagger {
 			if (i > 0 && tag.startsWith("nn") && results[i - 1].startsWith("md")) {
 				tag = "vb";
 			}
+			
+			//transform 7(dch): convert a vb to vbn when following vbz/'has'  (She has ridden, He has rode)
+		    if (tag == "vbd" && i > 0 && result[i - 1].matches("^(vbz)$")) {
+		        tag = "vbn";
+		        if (dbug) _logCustom("7", word, tag);
+		    }
 
 			// transform 8: convert a common noun to a present
 			// participle verb (i.e., a gerund)
@@ -330,8 +349,10 @@ public class Tagger {
 		String[] pos;
 
 		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
+			
 			String check = word.substring(0, word.length() - 3) + "y";
 			pos = lexicon._posArr(check);
+			
 			if (Arrays.asList(pos).contains("vb")) {
 				String[] result = { "vbz" };
 				return result;
