@@ -88,7 +88,7 @@ public class Tagger {
 	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
 		if (wordsArr == null || wordsArr.length == 0) return new String[0];
 
-		boolean dbug = true;
+		boolean dbug = false;
 
 		String[][] choices2d = new String[wordsArr.length][];
 		String[] result = new String[wordsArr.length];
@@ -180,7 +180,7 @@ public class Tagger {
 	private static String[] _applyContext(String[] words, String[] result, String[][] choices2d) {
 
 		// console.log("ac(" + words + "," + result + "," + choices2d + ")");
-		boolean dbug = true;
+		boolean dbug = false;
 
 		// Apply transformations
 		for (int i = 0, l = words.length; i < l; i++) {

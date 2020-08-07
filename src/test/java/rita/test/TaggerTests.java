@@ -2,7 +2,6 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,7 +70,7 @@ public class TaggerTests {
 
 		assertArrayEquals(RiTa.pos("He rowed the boat"), new String[] { "prp", "vbd", "dt", "nn" });
 		assertArrayEquals(RiTa.pos("He has rowed the boat"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
-		
+
 	}
 
 	@Test
@@ -80,7 +79,7 @@ public class TaggerTests {
 		String[] result, answer, resultArr, answerArr;
 		String txt;
 
-		assertArrayEquals(RiTa.pos(""), new String[] { });
+		assertArrayEquals(RiTa.pos(""), new String[] {});
 		assertArrayEquals(RiTa.pos("freed"), new String[] { "jj" });
 		assertArrayEquals(RiTa.pos("biped"), new String[] { "nn" });
 		assertArrayEquals(RiTa.pos("greed"), new String[] { "nn" });
@@ -167,8 +166,8 @@ public class TaggerTests {
 
 		txt = "The dog ran faster than the other dog.  But the other dog was prettier.";
 		result = RiTa.pos(txt);
-		answer = new String[] { "dt", "nn", "vbd", "rbr", "in", "dt", "jj", "nn", ".", "cc", "dt", "jj", "nn", "vbd", "jjr",
-				"." };
+		answer = new String[] { "dt", "nn", "vbd", "rbr", "in", "dt", "jj", "nn", ".", "cc", "dt", "jj", "nn", "vbd",
+				"jjr", "." };
 		assertArrayEquals(result, answer);
 
 		// Tests for verb conjugation
@@ -202,8 +201,8 @@ public class TaggerTests {
 		assertArrayEquals(RiTa.pos("I am outnumbering you"), new String[] { "prp", "vbp", "vbg", "prp" });
 		assertArrayEquals(RiTa.pos("I have outnumbered you"), new String[] { "prp", "vbp", "vbd", "prp" });
 
-		String[] checks = new String[] { "emphasis", "stress", "discus", "colossus", "fibrosis", "digitalis", "pettiness",
-				"mess", "cleanliness", "orderliness", "bronchitis", "preparedness", "highness" };
+		String[] checks = new String[] { "emphasis", "stress", "discus", "colossus", "fibrosis", "digitalis",
+				"pettiness", "mess", "cleanliness", "orderliness", "bronchitis", "preparedness", "highness" };
 		for (int i = 0, j = checks.length; i < j; i++) {
 			// if (RiTa.pos(checks[i])[0] !== "nn")
 			// console.log(checks[i] + ": " + RiTa.pos(checks[i])[0]);
@@ -216,7 +215,7 @@ public class TaggerTests {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
-		assertArrayEquals(RiTa.pos("", hm), new String[] { });
+		assertArrayEquals(RiTa.pos("", hm), new String[] {});
 		assertArrayEquals(RiTa.pos("biped", hm), new String[] { "n" });
 		assertArrayEquals(RiTa.pos("creed", hm), new String[] { "n" });
 		assertArrayEquals(RiTa.pos("weed", hm), new String[] { "n" });
@@ -517,7 +516,7 @@ public class TaggerTests {
 		// n
 		assertTrue(!RiTa.isVerb("dolls"));
 		assertTrue(!RiTa.isVerb("frogs"));
-		
+
 		// ok
 		assertTrue(RiTa.isVerb("flowers"));
 		assertTrue(RiTa.isVerb("ducks"));
