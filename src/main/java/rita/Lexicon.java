@@ -52,7 +52,9 @@ public class Lexicon {
 
 		// only allow consonant inputs
 		if (Util.contains(RiTa.VOWELS, theWord.charAt(0))) {
-			if (!silent && !RiTa.SILENT) console.warn("Expects a word starting with a consonant, got: " + theWord);
+			if (!silent && !RiTa.SILENT) {
+				console.warn("Expects a word starting with a consonant, got: " + theWord);
+			}
 			return EA;
 		}
 
@@ -64,7 +66,9 @@ public class Lexicon {
 
 		// make sure we parsed first phoneme
 		if (phone == null) {
-			if (!silent && !RiTa.SILENT) console.warn("Failed parsing first phone in '" + theWord + "'");
+			if (!silent && !RiTa.SILENT) {
+				console.warn("Failed parsing first phone in '" + theWord + "'");
+			}
 			return EA;
 		}
 
@@ -73,7 +77,7 @@ public class Lexicon {
 			String word = words[i];
 			String[] rdata = dict.get(word);
 			// check word length and syllables 
-			if (word == theWord || !this.checkCriteria(word, rdata, opts)) {
+			if (word.equals(theWord) || !this.checkCriteria(word, rdata, opts)) {
 				continue;
 			}
 			if (targetPos.length() > 0) {
@@ -89,59 +93,35 @@ public class Lexicon {
 	}
 
 	public boolean hasWord(String word) {
-		if (word == null || word.length() > 1) return false;
-		return Inflector.isPlural(word.toLowerCase());
+		return (word != null && word.length() > 0)
+				? Inflector.isPlural(word.toLowerCase())
+				: false;
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean noLts) {
-		if (word1 == null || word2 == null) return false; 
+		if (word1 == null || word2 == null) return false;
 		if (word1.length() == 0 || word2.length() == 0) return false;
+
 		String c1 = _firstPhone(_firstStressedSyl(word1, noLts));
 		String c2 = _firstPhone(_firstStressedSyl(word2, noLts));
+
 		return c1.length() > 0 && c2.length() > 0
 				&& !_isVowel(c1.charAt(0)) && c1.equals(c2);
 	}
 
 	public boolean isRhyme(String word1, String word2, boolean noLts) {
 
-		if (word1 == null || word2 == null) {
-			return false;
-		}
-		
-		if (word1.toUpperCase().equals(word2.toUpperCase())) {
-			return false;
-		}
+		if (word1 == null || word2 == null) return false;
+		if (word1.toUpperCase().equals(word2.toUpperCase())) return false;
 
 		String phones1 = _rawPhones(word1, noLts);
 		String phones2 = _rawPhones(word2, noLts);
-
 		if (phones2 == phones1) return false;
 
 		String p1 = _lastStressedVowelPhonemeToEnd(word1, noLts);
 		String p2 = _lastStressedVowelPhonemeToEnd(word2, noLts);
 
 		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
-	}
-
-	public String randomWord(Map<String, Object> opts)
-	{
-		int minLength = Util.intOpt("minLength", opts, 4);
-		opts = this.parseArgs(opts);
-		opts.put("minLength", minLength); // default to 4, not 3
-
-		String[] words = dict.keySet().toArray(EA);
-		int ran = (int) Math.floor(RandGen.random(words.length));
-		for (int k = 0; k < words.length; k++) {
-			int j = (ran + k) % words.length;
-			String word = words[j];
-			String[] rdata = dict.get(word);
-			if (!this.checkCriteria(word, rdata, opts)) continue;
-			String targetPos = (String) opts.get("targetPos");
-			if (targetPos.length() > 0) return words[j]; // done if no pos
-			String result = this.matchPos(word, rdata, opts, true);
-			if (result != null) return result;
-		}
-		throw new RiTaException("No random word with options: " + opts);
 	}
 
 	private String matchPos(String word, String[] rdata, Map<String, Object> opts) {
@@ -156,6 +136,7 @@ public class Lexicon {
 		int numSyllables = (int) opts.get("numSyllables");
 		boolean pluralize = (boolean) opts.get("pluralize");
 		boolean conjugate = (boolean) opts.get("conjugate");
+
 		if (strict) {
 			if (!targetPos.equals(rdata[1].split(" ")[0])) {
 				return null;
@@ -222,8 +203,7 @@ public class Lexicon {
 		return w.endsWith("ness")
 				|| w.endsWith("ism")
 				|| pos.indexOf("vbg") > 0
-				|| Arrays.stream(Util.MASS_NOUNS).anyMatch("s"::equals);
-		//Util.MASS_NOUNS.contains(w);
+				|| Util.contains(Util.MASS_NOUNS, w);
 	}
 
 	private boolean checkCriteria(String word, String[] rdata, Map<String, Object> opts) {
@@ -353,42 +333,18 @@ public class Lexicon {
 		}
 		return result;
 	}
-
-	public String[] rhymes(String theWord) {
-		return this.rhymes(theWord, null);
-	}
-
-	public String[] rhymes(String theWord, Map<String, Object> opts) {
-		if (theWord == null || theWord.length() == 0) return EA;
-
-		String word = theWord.toLowerCase();
-
-		ArrayList<String> results = new ArrayList<String>();
-		String[] words = dict.keySet().toArray(EA);
-		String p = _lastStressedPhoneToEnd(word);
-		for (int i = 0; i < words.length; i++) {
-
-			if (words[i] == word) continue;
-
-			String w = dict.get(words[i])[0];
-			w = w.replaceAll("'", E).replaceAll("\\[", E);
-			if (w.endsWith(p)) results.add((words[i]));
-		}
-
-		return results.toArray(EA);
-	}
-
-	public String[] similarBy(String word, Map<String, Object> opts) // TODO
-	{
-		if (word == null || word.length() == 0) return EA;
-		if (opts == null) return EA;
-		if (opts.get("type") == null || opts.get("type") == E) {
-			opts.put("type", "letter");
-		}
-		return (opts.get("type") == "soundAndLetter")
-				? similarBySoundAndLetter(word, opts)
-				: similarByType(word, opts);
-	}
+	//
+	//	public String[] similarBy(String word, Map<String, Object> opts) // TODO
+	//	{
+	//		if (word == null || word.length() == 0) return EA;
+	//		if (opts == null) return EA;
+	//		if (opts.get("type") == null || opts.get("type") == E) {
+	//			opts.put("type", "letter");
+	//		}
+	//		return (opts.get("type") == "soundAndLetter")
+	//				? similarBySoundAndLetter(word, opts)
+	//				: similarByType(word, opts);
+	//	}
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
@@ -404,8 +360,129 @@ public class Lexicon {
 		return _intersect(simSound, simLetter);
 	}
 
-	// TODO check result against js (compareA, compare B)
-	public String[] similarByType(String word, Map<String, Object> opts) {
+	public String randomWord(Map<String, Object> opts) {
+
+		int minLength = Util.intOpt("minLength", opts, 4);
+		opts = this.parseArgs(opts);
+		opts.put("minLength", minLength); // default to 4, not 3
+
+		String tpos = (String) opts.get("targetPos");
+		String[] words = dict.keySet().toArray(EA);
+		int ran = (int) Math.floor(RandGen.random(words.length));
+		for (int k = 0; k < words.length; k++) {
+			int j = (ran + k) % words.length;
+			String word = words[j];
+			String[] rdata = dict.get(word);
+			if (!this.checkCriteria(word, rdata, opts)) continue;
+			if (tpos.length() == 0) return words[j]; // done if no pos
+			String result = this.matchPos(word, rdata, opts, true);
+			if (result != null) return result;
+		}
+		throw new RiTaException("No random word with options: " + opts);
+	}
+
+	public String[] rhymes(String theWord) {
+		return this.rhymes(theWord, null);
+	}
+
+	public String[] rhymes(String theWord, Map<String, Object> opts) {
+
+		opts = this.parseArgs(opts);
+
+		int limit = Util.intOpt("limit", opts);
+		String tpos = Util.strOpt("targetPos", opts);
+
+		if (theWord == null || theWord.length() == 0) return EA;
+
+		String phone = this._lastStressedPhoneToEnd(theWord);
+		if (phone == null) return EA;
+
+		ArrayList<String> result = new ArrayList<String>();
+		String[] words = dict.keySet().toArray(EA);
+		for (int i = 0; i < words.length; i++) {
+			String word = words[i];
+			String[] rdata = dict.get(word);
+
+			// check word length and syllables 
+			if (word.equals(theWord) || !this.checkCriteria(word, rdata, opts)) {
+				continue;
+			}
+
+			if (tpos.length() > 0) {
+				word = this.matchPos(word, rdata, opts);
+				if (word == null) continue;
+			}
+
+			// check for the rhyme
+			if (rdata[0].endsWith(phone)) result.add(word);
+			if (result.size() >= limit) break;
+		}
+
+		return result.toArray(EA);
+	}
+
+	public String[] similarByType(String theWord, Map<String, Object> opts) {
+		opts = this.parseArgs(opts);
+
+    String type = Util.strOpt("type", opts);
+    boolean sound = type.equals("sound");
+		int limit = Util.intOpt("limit", opts);
+		int minDist = Util.intOpt("minDistance", opts);
+		String tpos = Util.strOpt("targetPos", opts);
+		
+		
+		
+    String input = theWord.toLowerCase();
+    String variations = input+"||"+input + "s||"+ input + "es";
+    String[] phonesA = null, words = dict.keySet().toArray(EA);
+    
+    if (sound) {
+    	phonesA = this.toPhoneArray(this._rawPhones(input));
+    	if (phonesA == null) return EA;
+    }
+
+		ArrayList<String> result = new ArrayList<String>();
+		int minVal = Integer.MAX_VALUE;
+    for (int i = 0; i < words.length; i++) {
+      String word = words[i];
+			String[] rdata = dict.get(word);
+      if (!this.checkCriteria(word, rdata, opts)) continue;
+      if (variations.contains(word)) continue;
+
+      if (tpos.length() > 0) {
+        word = this.matchPos(word, rdata, opts);
+        if (word == null) continue;
+      }
+
+      int med = -1;
+      String[] phonesB;
+      if (sound) {
+      	phonesB = rdata[0].replaceAll("1", "")
+      			.replaceAll(" ", "-").split("-");
+      	med = minEditDist(phonesA, phonesB);
+      }
+      else {
+      	med = minEditDist(input, word);
+      }
+
+      // found something even closer
+      if (med >= minDist && med < minVal) {
+        minVal = med;
+        result = new ArrayList<String>();
+        result.add(word);
+      }
+      // another best to add
+      else if (med == minVal) {
+        result.add(word);
+      }
+      if (result.size() == limit) break;
+    }
+    
+    return result.toArray(EA);
+	}
+
+	/* TODO check result against js (compareA, compare B)
+	public String[] similarByTypeX(String word, Map<String, Object> opts) {
 		int minLen = 2;
 		int preserveLength = 0;
 		int minAllowedDist = 1;
@@ -466,7 +543,7 @@ public class Lexicon {
 		}
 		String[] s = (String[]) result.toArray(EA);
 		return s;
-	}
+	}*/
 
 	public String[] toPhoneArray(String raw) {
 		ArrayList<String> result = new ArrayList<String>();
@@ -668,6 +745,53 @@ public class Lexicon {
 			if (phones != null) return phones[0];
 		}
 		return E; // return null?
+	}
+
+	private static int minEditDist(String source, String target) {
+		return minEditDist(source.split(""), target.split(""));
+	}
+	
+	private static int minEditDist(String[] source, String[] target) {
+
+		int i, j;
+
+		int cost; // cost
+		String sI; // ith character of s
+		String tJ; // jth character of t
+		int[][] matrix = new int[source.length + 1][target.length + 1];
+		// Step 1 ----------------------------------------------
+
+		for (i = 0; i <= source.length; i++) {
+			// System.out.println(i);
+			matrix[i][0] = i;
+		}
+
+		for (j = 0; j <= target.length; j++) {
+			matrix[0][j] = j;
+		}
+
+		// Step 2 ----------------------------------------------
+
+		for (i = 1; i <= source.length; i++) {
+			sI = source[i - 1];
+
+			// Step 3 --------------------------------------------
+
+			for (j = 1; j <= target.length; j++) {
+				tJ = target[j - 1];
+
+				// Step 4 ------------------------------------------
+
+				cost = (sI == tJ) ? 0 : 1;
+
+				// Step 5 ------------------------------------------
+				matrix[i][j] = Math.min(Math.min(matrix[i - 1][j] + 1,
+						matrix[i][j - 1] + 1), matrix[i - 1][j - 1] + cost);
+			}
+		}
+
+		// Step 6 ----------------------------------------------
+		return matrix[source.length][target.length];
 	}
 
 	public static void main(String[] args) throws Exception {

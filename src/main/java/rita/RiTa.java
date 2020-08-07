@@ -11,6 +11,11 @@ public class RiTa {
 	protected static Concorder concorder;
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
+	
+	static {
+		concorder = new Concorder();
+		conjugator = new Conjugator();
+	}
 
 	//  UNCOMMENT IF/AS NEEDED:
 	//  protected static Tagger tagger;

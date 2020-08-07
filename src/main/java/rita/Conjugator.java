@@ -3,11 +3,10 @@ package rita;
 import java.util.*;
 
 public class Conjugator {
+
 	private static final String CONS = "[bcdfghjklmnpqrstvwxyz]";
 	private static final String ANY_STEM = "^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$";
 	private static final String VERBAL_PREFIX = "((be|with|pre|un|over|re|mis|under|out|up|fore|for|counter|co|sub)(-?))";
-
-	// ???
 	private static final String[] MODALS = { "shall", "would", "may", "might", "ought", "should" };
 
 	private static final RE[] ING_FORM_RULES = {
@@ -727,10 +726,8 @@ public class Conjugator {
 		List<String> list = Arrays.asList(c);
 		if (list.contains(v)) v = "be";
 
-		String actualModal = null;
+		String verbForm, frontVG = v, actualModal = null;
 		ArrayList<String> conjs = new ArrayList<String>();
-		String verbForm;
-		String frontVG = v;
 
 		if (form == RiTa.INFINITIVE) {
 			actualModal = "to";
@@ -768,10 +765,12 @@ public class Conjugator {
 
 				// !@# not yet implemented! ??? WHAT?
 				conjs.add(pp);
-			} else if (interrogative && frontVG != "be" && conjs.size() < 1) {
+			}
+			else if (interrogative && frontVG != "be" && conjs.size() < 1) {
 
 				conjs.add(frontVG);
-			} else {
+			}
+			else {
 
 				verbForm = verbForm(frontVG, tense, person, number);
 				conjs.add(verbForm);
@@ -779,15 +778,14 @@ public class Conjugator {
 		}
 
 		// add modal, and we're done
-		if (actualModal != null) {
-			conjs.add(actualModal);
-		}
+		if (actualModal != null) conjs.add(actualModal);
 
 		// !@# test this
 		Optional<String> os = conjs.stream().reduce((acc, cur) -> cur + " " + acc);
 		// String s = conjs.reduce((acc, cur) => cur + ' ' + acc);
+
 		String s = os.get();
-		if (s.endsWith("peted")) throw new RiTaException("Unexpected output: ");
+		if (s.endsWith("peted")) throw new RiTaException("Unexpected output: " + s);
 
 		return s.trim();
 	}
@@ -875,7 +873,8 @@ public class Conjugator {
 
 			return checkRules(PRESENT_TENSE_RULESET, theVerb);
 
-		} else if (theVerb == "be") {
+		}
+		else if (theVerb == "be") {
 
 			if (number == RiTa.SINGULAR) {
 
@@ -891,7 +890,8 @@ public class Conjugator {
 					return "is";
 				}
 
-			} else {
+			}
+			else {
 				return "are";
 			}
 		}

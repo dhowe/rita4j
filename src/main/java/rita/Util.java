@@ -297,48 +297,6 @@ public class Util {
 		return newArray;
 	}
 
-	public static int minEditDist(String[] source, String[] target) {
-
-		int i, j;
-
-		int cost; // cost
-		String sI; // ith character of s
-		String tJ; // jth character of t
-		int[][] matrix = new int[source.length + 1][target.length + 1];
-		// Step 1 ----------------------------------------------
-
-		for (i = 0; i <= source.length; i++) {
-			// System.out.println(i);
-			matrix[i][0] = i;
-		}
-
-		for (j = 0; j <= target.length; j++) {
-			matrix[0][j] = j;
-		}
-
-		// Step 2 ----------------------------------------------
-
-		for (i = 1; i <= source.length; i++) {
-			sI = source[i - 1];
-
-			// Step 3 --------------------------------------------
-
-			for (j = 1; j <= target.length; j++) {
-				tJ = target[j - 1];
-
-				// Step 4 ------------------------------------------
-
-				cost = (sI == tJ) ? 0 : 1;
-
-				// Step 5 ------------------------------------------
-				matrix[i][j] = Math.min(Math.min(matrix[i - 1][j] + 1, matrix[i][j - 1] + 1), matrix[i - 1][j - 1] + cost);
-			}
-		}
-
-		// Step 6 ----------------------------------------------
-		return matrix[source.length][target.length];
-	}
-
 	public static Map<String, Object> opts() {
 		return new HashMap<String, Object>();
 	}
@@ -454,16 +412,19 @@ public class Util {
 	public static boolean contains(Object[] s, String t) {
 		return Arrays.asList(s).contains(t);
 	}
+
 	public static boolean contains(Object[] s, char c) {
 		return contains(s, Character.toString(c));
 	}
+
 	public static boolean contains(String s, String t) {
 		return s.contains(t);
 	}
+
 	public static boolean contains(String s, char c) {
 		return contains(s, Character.toString(c));
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(syllablesFromPhones(new String[] { }));
 	}
