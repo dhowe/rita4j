@@ -7,7 +7,6 @@ For JavaScript, see [this repo](https://github.com/dhowe/rita2js) and/or [try th
 ```
 $ git clone https://github.com/dhowe/rita2.git
 $ cd rita2
-$ git checkout maven        # tmp
 $ mvn install -D skipTests  # should see "BUILD SUCCESS"
 ```
 The project requires a minimum version of Java 8 and Maven 3.6 to build.
