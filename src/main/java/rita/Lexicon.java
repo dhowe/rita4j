@@ -9,7 +9,8 @@ import java.util.regex.Pattern;
 public class Lexicon {
 
 	private static int MAP_SIZE = 30000;
-	private static String LEXICON_DELIM = ":", E = "";
+	private static String EA[] = { }, E = "";
+	private static String DELIM = ":";
 
 	public Map<String, String[]> dict; // data
 
@@ -39,91 +40,96 @@ public class Lexicon {
 		}
 	}
 
-	public String[] alliterations(String word, int minWordLength) {
+	public String[] alliterations(String theWord, Map<String, Object> opts) {
 
-		if (word == null || word.length() == 0) return new String[0];
+		if (theWord == null || theWord.length() == 0) return EA;
 
-		word = word.contains(" ") ? word.substring(0, word.indexOf(" ")) : word;
+		opts = this.parseArgs(opts);
 
-		if (RiTa.VOWELS.contains(Character.toString(word.charAt(0)))) {
-			return new String[0];
+		int limit = Util.intOpt("limit", opts);
+		boolean silent = Util.boolOpt("silent", opts);
+		String targetPos = Util.strOpt("targetPos", opts);
+
+		// only allow consonant inputs
+		if (Util.contains(RiTa.VOWELS, theWord.charAt(0))) {
+			if (!silent && !RiTa.SILENT) console.warn("Expects a word starting with a consonant, got: " + theWord);
+			return EA;
 		}
 
-		// int matchMinLength = minWordLength || 4;
-		// boolean useLTS = opts && opts.useLTS || false;
+		String fss = this._firstStressedSyl(theWord, false);
+		if (fss == null) return EA;
 
-		boolean useLTS = false; // TODO: default is true or false?
+		String phone = this._firstPhone(fss);
+		ArrayList<String> result = new ArrayList<>();
 
-		ArrayList<String> results = new ArrayList<String>();
-		String[] words = (String[]) dict.keySet().toArray(new String[dict.size()]);
-		String fss = _firstStressedSyl(word, useLTS);
-		String c1 = _firstPhone(fss);
+		// make sure we parsed first phoneme
+		if (phone == null) {
+			if (!silent && !RiTa.SILENT) console.warn("Failed parsing first phone in '" + theWord + "'");
+			return EA;
+		}
 
-		if (c1 == null || c1.length() == 0) return new String[0];
-
+		String[] words = dict.keySet().toArray(EA);
 		for (int i = 0; i < words.length; i++) {
-			if (words[i].length() < minWordLength) continue;
-			String c2 = _firstPhone(_firstStressedSyl(words[i], useLTS));
-			if (c1.equals(c2)) results.add(words[i]);
+			String word = words[i];
+			String[] rdata = dict.get(word);
+			// check word length and syllables 
+			if (word == theWord || !this.checkCriteria(word, rdata, opts)) {
+				continue;
+			}
+			if (targetPos.length() > 0) {
+				word = this.matchPos(word, rdata, opts);
+				if (word == null) continue;
+			}
+			String c2 = this._firstPhone(this._firstStressedSyl(word));
+			if (phone == c2) result.add(word);
+			if (result.size() >= limit) break;
 		}
 
-		return Util.shuffle(results.toArray(new String[0])); // TODO
-		// return null;
+		return result.toArray(EA);
 	}
 
 	public boolean hasWord(String word) {
-		if (word == null) {
-			return false;
-		}
-		word = word.length() > 0 ? word.toLowerCase() : "";
-		return Inflector.isPlural(word);
+		if (word == null || word.length() > 1) return false;
+		return Inflector.isPlural(word.toLowerCase());
 	}
 
-	public boolean isAlliteration(String word1, String word2, boolean useLTS) {
-		if (word1 == null || word2 == null || word1.length() == 0 || word2.length() == 0) {
-			return false;
-		}
-
-		if (word1.indexOf(" ") > -1 || word2.indexOf(" ") > -1) {
-			throw new IllegalArgumentException("isAlliteration expects single words only");
-		}
-
-		String c1 = _firstPhone(_firstStressedSyl(word1, useLTS));
-		String c2 = _firstPhone(_firstStressedSyl(word2, useLTS));
-
-		if (c1.length() > 0 && c2.length() > 0) {
-			if (_isVowel(Character.toString(c1.charAt(0))) || _isVowel(Character.toString(c2.charAt(0)))) {
-				return false;
-			}
-		}
-
-		return c1.length() > 0 && c2.length() > 0 && c1 == c2;
+	public boolean isAlliteration(String word1, String word2, boolean noLts) {
+		if (word1 == null || word2 == null) return false; 
+		if (word1.length() == 0 || word2.length() == 0) return false;
+		String c1 = _firstPhone(_firstStressedSyl(word1, noLts));
+		String c2 = _firstPhone(_firstStressedSyl(word2, noLts));
+		return c1.length() > 0 && c2.length() > 0
+				&& !_isVowel(c1.charAt(0)) && c1.equals(c2);
 	}
 
-	public boolean isRhyme(String word1, String word2, boolean useLTS) {
+	public boolean isRhyme(String word1, String word2, boolean noLts) {
 
-		if (word1 == null || word2 == null || word1.toUpperCase() == word2.toUpperCase()) {
+		if (word1 == null || word2 == null) {
+			return false;
+		}
+		
+		if (word1.toUpperCase().equals(word2.toUpperCase())) {
 			return false;
 		}
 
-		String phones1 = _rawPhones(word1, useLTS);
-		String phones2 = _rawPhones(word2, useLTS);
+		String phones1 = _rawPhones(word1, noLts);
+		String phones2 = _rawPhones(word2, noLts);
 
 		if (phones2 == phones1) return false;
 
-		String p1 = _lastStressedVowelPhonemeToEnd(word1, useLTS);
-		String p2 = _lastStressedVowelPhonemeToEnd(word2, useLTS);
+		String p1 = _lastStressedVowelPhonemeToEnd(word1, noLts);
+		String p2 = _lastStressedVowelPhonemeToEnd(word2, noLts);
 
 		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
 	}
 
-	public String randomWord(Map<String, Object> opts) // TODO:
+	public String randomWord(Map<String, Object> opts)
 	{
 		int minLength = Util.intOpt("minLength", opts, 4);
 		opts = this.parseArgs(opts);
 		opts.put("minLength", minLength); // default to 4, not 3
 
-		String[] words = dict.keySet().toArray(new String[0]);
+		String[] words = dict.keySet().toArray(EA);
 		int ran = (int) Math.floor(RandGen.random(words.length));
 		for (int k = 0; k < words.length; k++) {
 			int j = (ran + k) % words.length;
@@ -135,11 +141,15 @@ public class Lexicon {
 			String result = this.matchPos(word, rdata, opts, true);
 			if (result != null) return result;
 		}
-
 		throw new RiTaException("No random word with options: " + opts);
 	}
 
-	private String matchPos(String word, String[] rdata, Map<String, Object> opts, boolean strict) {
+	private String matchPos(String word, String[] rdata, Map<String, Object> opts) {
+		return this.matchPos(word, rdata, opts, false);
+	}
+
+	private String matchPos(String word, String[] rdata,
+			Map<String, Object> opts, boolean strict) {
 
 		String pos = (String) opts.get("pos");
 		String targetPos = (String) opts.get("targetPos");
@@ -235,7 +245,7 @@ public class Lexicon {
 	}
 
 	private Map<String, Object> parseArgs(Map<String, Object> opts) {
-		String tpos = Util.strOpt("pos", opts, "");
+		String tpos = Util.strOpt("pos", opts, E);
 		boolean pluralize = false;
 		boolean conjugate = false;
 		if (tpos.length() > 0) {
@@ -264,26 +274,26 @@ public class Lexicon {
 
 	public String[] search(String regex, Map<String, Object> opts) {
 
-		String[] words = dict.keySet().toArray(new String[0]);
+		String[] words = dict.keySet().toArray(EA);
 		if (regex == null) return words;
 
-		String type = Util.strOpt("type", opts, "");
+		String type = Util.strOpt("type", opts, E);
 		int limit = Util.intOpt("limit", opts);
 
 		if (type.equals("stresses")) {
 			// if we have a stress string without slashes
 			// add them to the regex pattern
 			if (RE.test("^[01]+$", regex)) {
-				regex = String.join("/", regex.split(""));
+				regex = String.join("/", regex.split(E));
 			}
 		}
 		if (RE.test("^/.*/$", regex)) {
-			regex = regex.substring(1, regex.length()-1);
+			regex = regex.substring(1, regex.length() - 1);
 		}
-		System.out.println("re: "+regex);
+
 		Pattern re = Pattern.compile(regex);
 		opts = this.parseArgs(opts);
-		console.log(opts);
+		//console.log(opts);
 
 		ArrayList<String> result = new ArrayList<String>();
 		boolean tmp = RiTa.SILENCE_LTS;
@@ -291,9 +301,6 @@ public class Lexicon {
 
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
-			if (word.equals("abalone")) {
-				console.log("1) '"+word+"' "+RiTa.stresses(word)+"' "+RE.test(re, RiTa.stresses(word)));
-			}
 			String[] rdata = dict.get(word);
 			if (!this.checkCriteria(word, rdata, opts)) continue;
 			if (((String) opts.get("targetPos")).length() > 0) {
@@ -302,9 +309,6 @@ public class Lexicon {
 			}
 			if (type.equals("stresses")) {
 				String stresses = RiTa.stresses(word);
-				if (word.startsWith("abalone")) {
-					System.out.println("2) '"+word+"' "+RiTa.stresses(word)+"' "+RE.test(re, RiTa.stresses(word))+"\n");
-				}
 				if (RE.test(re, stresses)) result.add(word);
 			}
 			if (type.equals("phones")) {
@@ -315,8 +319,9 @@ public class Lexicon {
 			}
 			if (limit > 0 && result.size() >= limit) break;
 		}
+
 		RiTa.SILENCE_LTS = tmp;
-		return result.toArray(new String[0]);
+		return result.toArray(EA);
 	}
 
 	public String[] soundsLike(String word) {
@@ -328,11 +333,25 @@ public class Lexicon {
 	}
 
 	public String[] soundsLike(String word, Map<String, Object> opts) {
-		throw new RuntimeException("Implement me");
+		String[] result = EA;
+		if (word != null && word.length() > 0) {
+			if (opts == null) opts = new HashMap<>();
+			opts.put("type", "sound");
+			result = Util.boolOpt("matchSpelling", opts)
+					? this.similarBySoundAndLetter(word, opts)
+					: this.similarByType(word, opts);
+		}
+		return result;
 	}
 
 	public String[] spellsLike(String word, Map<String, Object> opts) {
-		throw new RuntimeException("Implement me");
+		String[] result = EA;
+		if (word != null && word.length() > 0) {
+			if (opts == null) opts = new HashMap<>();
+			opts.put("type", "letter");
+			result = this.similarByType(word, opts);
+		}
+		return result;
 	}
 
 	public String[] rhymes(String theWord) {
@@ -340,30 +359,30 @@ public class Lexicon {
 	}
 
 	public String[] rhymes(String theWord, Map<String, Object> opts) {
-		if (theWord == null || theWord.length() == 0) return new String[0];
+		if (theWord == null || theWord.length() == 0) return EA;
 
 		String word = theWord.toLowerCase();
 
 		ArrayList<String> results = new ArrayList<String>();
-		String[] words = dict.keySet().toArray(new String[0]);
+		String[] words = dict.keySet().toArray(EA);
 		String p = _lastStressedPhoneToEnd(word);
 		for (int i = 0; i < words.length; i++) {
 
 			if (words[i] == word) continue;
 
 			String w = dict.get(words[i])[0];
-			w = w.replaceAll("'", "").replaceAll("\\[", "");
+			w = w.replaceAll("'", E).replaceAll("\\[", E);
 			if (w.endsWith(p)) results.add((words[i]));
 		}
 
-		return results.toArray(new String[0]);
+		return results.toArray(EA);
 	}
 
 	public String[] similarBy(String word, Map<String, Object> opts) // TODO
 	{
-		if (word == null || word.length() == 0) return new String[0];
-		if (opts == null) return new String[0];
-		if (opts.get("type") == null || opts.get("type") == "") {
+		if (word == null || word.length() == 0) return EA;
+		if (opts == null) return EA;
+		if (opts.get("type") == null || opts.get("type") == E) {
 			opts.put("type", "letter");
 		}
 		return (opts.get("type") == "soundAndLetter")
@@ -376,11 +395,11 @@ public class Lexicon {
 		opts.put("type", "letter");
 		// opts.get("type") = "letter";
 		String[] simLetter = similarByType(word, opts);
-		if (simLetter.length < 1) return new String[0];
+		if (simLetter.length < 1) return EA;
 
 		opts.put("type", "sound");
 		String[] simSound = similarByType(word, opts);
-		if (simSound.length < 1) return new String[0];
+		if (simSound.length < 1) return EA;
 
 		return _intersect(simSound, simLetter);
 	}
@@ -407,8 +426,8 @@ public class Lexicon {
 		variations.add(input + "s");
 		variations.add(input + "es");
 
-		boolean useLTS = false; // TODO _rawPhones second param has to be removed?
-		String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, useLTS))
+		boolean noLts = false; // TODO _rawPhones second param has to be removed?
+		String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, noLts))
 				: new String[] { input });
 
 		for (int i = 0; i < words.size(); i++) {
@@ -420,7 +439,7 @@ public class Lexicon {
 				continue;
 			}
 
-			String[] compareB = toPhoneArray(dict.get(entry)[0].replaceAll("'", "").replaceAll("\\[", ""));
+			String[] compareB = toPhoneArray(dict.get(entry)[0].replaceAll("'", E).replaceAll("\\[", E));
 
 			for (int j = 0; j < compareA.length; j++) {
 				// System.out.print("Compare A " + compareA[j]);
@@ -445,17 +464,17 @@ public class Lexicon {
 				result.add(entry);
 			}
 		}
-		String[] s = (String[]) result.toArray(new String[0]);
+		String[] s = (String[]) result.toArray(EA);
 		return s;
 	}
 
 	public String[] toPhoneArray(String raw) {
 		ArrayList<String> result = new ArrayList<String>();
-		String sofar = "";
+		String sofar = E;
 		for (int i = 0; i < raw.length(); i++) {
 			if (raw.charAt(i) == ' ' || raw.charAt(i) == '-') {
 				result.add(sofar);
-				sofar = "";
+				sofar = E;
 			}
 			else if (raw.charAt(i) != '1' && raw.charAt(i) != '0') {
 				sofar += raw.charAt(i);
@@ -463,12 +482,12 @@ public class Lexicon {
 		}
 		result.add(sofar);
 
-		String[] s = result.toArray(new String[0]);
+		String[] s = result.toArray(EA);
 		return s;
 	}
 
 	public String[] words() {
-		return dict.keySet().toArray(new String[0]);
+		return dict.keySet().toArray(EA);
 	}
 
 	public String[] words(Pattern regex) {
@@ -484,21 +503,21 @@ public class Lexicon {
 		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
 		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
 		s1.retainAll(s2);
-		return s1.toArray(new String[0]);
+		return s1.toArray(EA);
 	}
 
 	public String _posData(String word) {
 
 		String[] rdata = _lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
-				? rdata[1].replaceAll("'", "").replaceAll("\\]", "")
-				: "";
+				? rdata[1].replaceAll("'", E).replaceAll("\\]", E)
+				: E;
 	}
 
 	public String _bestPos(String word) {
 
 		String[] pl = _posArr(word);
-		return (pl.length > 0) ? pl[0] : "";
+		return (pl.length > 0) ? pl[0] : E;
 	}
 
 	public String _rawPhones(String word) {
@@ -508,25 +527,27 @@ public class Lexicon {
 	public String _rawPhones(String word, boolean noLts) {
 
 		String[] rdata = _lookupRaw(word);
-		if (rdata != null && rdata.length != 0) return rdata[0];
+		if (rdata != null && rdata.length != 0) {
+			return rdata[0];
+		}
 
-		if (!noLts) {
+		if (!noLts) { // check lts otherwise
 			if (RiTa.lts == null) throw new RiTaException("Null LTS");
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
 				return Util.syllablesFromPhones(phones);
-				//.replaceAll("\\[", "").replaceAll("'", "");
+				//.replaceAll("\\[", E).replaceAll("'", E);
 			}
 		}
-		return "";
+		return E;
 	}
 
 	String[] _posArr(String word) {
 
 		String pl = _posData(word);
 		return (pl == null || pl.length() == 0)
-				? new String[0]
+				? EA
 				: pl.split(" ");
 	}
 
@@ -538,7 +559,7 @@ public class Lexicon {
 				result = dict.get(word);
 			}
 		}
-		return result != null ? result : new String[0];
+		return result != null ? result : EA;
 	}
 
 	private void populateDict(List<String> lines) {
@@ -548,11 +569,11 @@ public class Lexicon {
 		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
 		{
 			String line = lines.get(i).replaceAll("[\"'\\[\\]]", E);
-			String[] parts = line.split(LEXICON_DELIM);
+			String[] parts = line.split(DELIM);
 			if (parts == null || parts.length != 2) {
 				throw new RiTaException("Illegal entry: " + line);
 			}
-			
+
 			dict.put(parts[0].trim(), parts[1].split(","));
 			//if (i < 10) System.out.println(parts[0].trim()
 			// +": "+parts[1].split(",")[0]);
@@ -560,12 +581,14 @@ public class Lexicon {
 	}
 
 	private boolean _isVowel(String c) {
+		return c != null && RiTa.VOWELS.contains(c);
+	}
 
-		return c != null && c.length() > 0 && RiTa.VOWELS.contains(c);
+	private boolean _isVowel(char c) {
+		return Util.contains(RiTa.VOWELS, c);
 	}
 
 	private boolean _isConsonant(String p) {
-
 		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
 				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
 	}
@@ -574,14 +597,14 @@ public class Lexicon {
 		return _lastStressedPhoneToEnd(word, false);
 	}
 
-	private String _lastStressedPhoneToEnd(String word, boolean useLTS) {
+	private String _lastStressedPhoneToEnd(String word, boolean noLts) {
 
-		if (word == null || word.length() == 0) return ""; // return null?
+		if (word == null || word.length() == 0) return E; // return null?
 
-		String raw = _rawPhones(word, useLTS);
-		if (raw == null || raw.length() == 0) return ""; // return null?
+		String raw = _rawPhones(word, noLts);
+		if (raw == null || raw.length() == 0) return E; // return null?
 		int idx = raw.lastIndexOf(RiTa.STRESSED);
-		if (idx < 0) return ""; // return null?
+		if (idx < 0) return E; // return null?
 		char c = raw.charAt(--idx);
 		while (c != '-' && c != ' ') {
 			if (--idx < 0) {
@@ -592,16 +615,16 @@ public class Lexicon {
 		return raw.substring(idx + 1);
 	}
 
-	private String _lastStressedVowelPhonemeToEnd(String word, boolean useLTS) {
+	private String _lastStressedVowelPhonemeToEnd(String word, boolean noLts) {
 
-		if (word == null || word.length() == 0) return ""; // return null?
+		if (word == null || word.length() == 0) return E; // return null?
 
-		String raw = _lastStressedPhoneToEnd(word, useLTS);
-		if (raw == null || raw.length() == 0) return ""; // return null?
+		String raw = _lastStressedPhoneToEnd(word, noLts);
+		if (raw == null || raw.length() == 0) return E; // return null?
 
 		String[] syllables = raw.split(" ");
 		String lastSyllable = syllables[syllables.length - 1];
-		lastSyllable = lastSyllable.replace("[^a-z-1 ]", "");
+		lastSyllable = lastSyllable.replace("[^a-z-1 ]", E);
 
 		int idx = -1;
 		for (int i = 0; i < lastSyllable.length(); i++) {
@@ -615,12 +638,16 @@ public class Lexicon {
 		return lastSyllable.substring(idx);
 	}
 
-	private String _firstStressedSyl(String word, boolean useLTS) {
+	private String _firstStressedSyl(String word) {
+		return _firstStressedSyl(word, false);
+	}
 
-		String raw = _rawPhones(word, useLTS);
-		if (raw == "" || raw == null) return ""; // return null?
+	private String _firstStressedSyl(String word, boolean noLts) {
+
+		String raw = _rawPhones(word, noLts);
+		if (raw == E || raw == null) return E; // return null?
 		int idx = raw.indexOf(RiTa.STRESSED);
-		if (idx < 0) return ""; // no stresses... return null?
+		if (idx < 0) return E; // no stresses... return null?
 		char c = raw.charAt(--idx);
 		while (c != ' ') {
 			if (--idx < 0) {
@@ -636,10 +663,11 @@ public class Lexicon {
 	}
 
 	private String _firstPhone(String rawPhones) {
-		if (rawPhones == null || rawPhones.length() == 0) return "";
-		String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
-		if (phones != null) return phones[0];
-		return ""; // return null?
+		if (rawPhones != null && rawPhones.length() > 0) {
+			String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
+			if (phones != null) return phones[0];
+		}
+		return E; // return null?
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -648,8 +676,8 @@ public class Lexicon {
 		//		System.out.println(lex.dict.get("dog")[1]);
 		//		System.out.println(lex._rawPhones("dog"));
 		//System.out.println(lex._rawPhones("absolot"));
-//		Pattern re = Pattern.compile("phant");
-//		System.out.println(RE.test(re, "elephantine"));
+		//		Pattern re = Pattern.compile("phant");
+		//		System.out.println(RE.test(re, "elephantine"));
 	}
 
 }

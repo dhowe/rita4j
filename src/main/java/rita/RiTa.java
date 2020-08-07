@@ -31,15 +31,15 @@ public class RiTa {
 	}
 
 	public static String[] alliterations(String word) {
-		return alliterations(word, Integer.MAX_VALUE);
+		return alliterations(word, 0);
 	}
 
 	public static String[] alliterations(String word, int minWordLength) {
-		return _lexicon().alliterations(word, minWordLength);
+		return alliterations(word, Util.opts("minLength", minWordLength));
 	}
 
 	public static String[] alliterations(String word, Map<String, Object> opts) {
-		return alliterations(word, Util.intOpt("minWordLength", opts, Integer.MAX_VALUE));
+		return _lexicon().alliterations(word, opts);
 	}
 
 	public static Map<String, String> analyze(String word) {
@@ -191,11 +191,11 @@ public class RiTa {
 	public static String pluralize(String word) {
 		return pluralize(word, null);
 	}
-	
+
 	public static String pluralize(String word, Map<String, Object> opts) {
 		return Inflector.pluralize(word, opts);
 	}
-	
+
 	public static String presentParticiple(String verb) {
 		return Conjugator.presentParticiple(verb);
 	}
@@ -319,7 +319,7 @@ public class RiTa {
 	public static String singularize(String word) {
 		return singularize(word, null);
 	}
-	
+
 	public static String singularize(String word, Map<String, Object> opts) {
 		return Inflector.singularize(word, opts);
 	}

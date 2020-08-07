@@ -21,7 +21,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void randomWord() {
+	public void testRandomWord() {
 		String result;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "xxx");
@@ -471,10 +471,11 @@ if (1==1)return;
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("cat");
-		assertTrue(result.length > 2000);
+		
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));
 		}
+		assertTrue(result.length > 2000);
 
 		result = RiTa.alliterations("dog");
 		assertTrue(result.length > 1000);

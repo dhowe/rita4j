@@ -451,6 +451,19 @@ public class Util {
 	private static final String[] Digits = { "z-ih-r-ow", "w-ah-n", "t-uw", "th-r-iy", "f-ao-r", "f-ay-v",
 			"s-ih-k-s", "s-eh1-v-ax-n", "ey-t", "n-ih-n" }; // ?
 
+	public static boolean contains(Object[] s, String t) {
+		return Arrays.asList(s).contains(t);
+	}
+	public static boolean contains(Object[] s, char c) {
+		return contains(s, Character.toString(c));
+	}
+	public static boolean contains(String s, String t) {
+		return s.contains(t);
+	}
+	public static boolean contains(String s, char c) {
+		return contains(s, Character.toString(c));
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(syllablesFromPhones(new String[] { }));
 	}
