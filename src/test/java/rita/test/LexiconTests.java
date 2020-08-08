@@ -464,6 +464,7 @@ public class LexiconTests {
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("#$%^&*");
+		console.log(result);
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("umbrella");

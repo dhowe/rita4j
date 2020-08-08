@@ -43,7 +43,7 @@ public class Analyzer {
 		// TODO: add cache
 
 		// if its a plural, check the singular
-		if (rawPhones.length() == 0 && word.endsWith("s")) {
+		if (rawPhones == null && word.endsWith("s")) {
 
 			String sing = RiTa.singularize(word);
 			rawPhones = RiTa._lexicon()._rawPhones(sing, true);
@@ -53,7 +53,7 @@ public class Analyzer {
 		// TODO: what about verb forms here??
 
 		// now use the lts engine
-		if (rawPhones.length() == 0) {
+		if (rawPhones == null) {
 
 			String[] ltsPhones = RiTa.lts.computePhones(word);
 			if (ltsPhones != null && ltsPhones.length > 0) {

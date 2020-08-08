@@ -780,11 +780,8 @@ public class Conjugator {
 		// add modal, and we're done
 		if (actualModal != null) conjs.add(actualModal);
 
-		// !@# test this
-		Optional<String> os = conjs.stream().reduce((acc, cur) -> cur + " " + acc);
-		// String s = conjs.reduce((acc, cur) => cur + ' ' + acc);
-
-		String s = os.get();
+		String s = conjs.stream().reduce("", (acc, cur) -> cur + " " + acc);
+		
 		if (s.endsWith("peted")) throw new RiTaException("Unexpected output: " + s);
 
 		return s.trim();

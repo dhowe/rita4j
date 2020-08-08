@@ -121,7 +121,7 @@ public class Lexicon {
 		String p1 = _lastStressedVowelPhonemeToEnd(word1, noLts);
 		String p2 = _lastStressedVowelPhonemeToEnd(word2, noLts);
 
-		return p1.length() > 0 && p2.length() > 0 && p1.equals(p2);
+		return p1 != null && p2 != null && p1.equals(p2);
 	}
 
 	private String matchPos(String word, String[] rdata, Map<String, Object> opts) {
@@ -617,7 +617,7 @@ public class Lexicon {
 				//.replaceAll("\\[", E).replaceAll("'", E);
 			}
 		}
-		return E;
+		return null;
 	}
 
 	String[] _posArr(String word) {
@@ -681,12 +681,12 @@ public class Lexicon {
 
 	private String _lastStressedPhoneToEnd(String word, boolean noLts) {
 
-		if (word == null || word.length() == 0) return E; // return null?
+		if (word == null || word.length() == 0) return null;
 
 		String raw = _rawPhones(word, noLts);
-		if (raw == null || raw.length() == 0) return E; // return null?
+		if (raw == null || raw.length() == 0) return null;
 		int idx = raw.lastIndexOf(RiTa.STRESSED);
-		if (idx < 0) return E; // return null?
+		if (idx < 0) return null;
 		char c = raw.charAt(--idx);
 		while (c != '-' && c != ' ') {
 			if (--idx < 0) {
@@ -699,10 +699,10 @@ public class Lexicon {
 
 	private String _lastStressedVowelPhonemeToEnd(String word, boolean noLts) {
 
-		if (word == null || word.length() == 0) return E; // return null?
+		if (word == null || word.length() == 0) return null;
 
 		String raw = _lastStressedPhoneToEnd(word, noLts);
-		if (raw == null || raw.length() == 0) return E; // return null?
+		if (raw == null || raw.length() == 0) return null;
 
 		String[] syllables = raw.split(" ");
 		String lastSyllable = syllables[syllables.length - 1];
@@ -727,9 +727,9 @@ public class Lexicon {
 	private String _firstStressedSyl(String word, boolean noLts) {
 
 		String raw = _rawPhones(word, noLts);
-		if (raw == E || raw == null) return E; // return null?
+		if (raw == E || raw == null) return null;
 		int idx = raw.indexOf(RiTa.STRESSED);
-		if (idx < 0) return E; // no stresses... return null?
+		if (idx < 0) return null;
 		char c = raw.charAt(--idx);
 		while (c != ' ') {
 			if (--idx < 0) {
@@ -749,7 +749,7 @@ public class Lexicon {
 			String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
 			if (phones != null) return phones[0];
 		}
-		return E; // return null?
+		return null;
 	}
 
 	private static int minEditDist(String source, String target) {
