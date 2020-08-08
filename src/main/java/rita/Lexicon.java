@@ -58,7 +58,7 @@ public class Lexicon {
 			return EA;
 		}
 
-		String fss = this._firstStressedSyl(theWord, false);
+		String fss = this._firstStressedSyl(theWord);
 		if (fss == null) return EA;
 
 		String phone = this._firstPhone(fss);
@@ -85,7 +85,7 @@ public class Lexicon {
 				if (word == null) continue;
 			}
 			String c2 = this._firstPhone(this._firstStressedSyl(word));
-			if (phone == c2) result.add(word);
+			if (phone.equals(c2)) result.add(word);
 			if (result.size() >= limit) break;
 		}
 
@@ -116,7 +116,7 @@ public class Lexicon {
 
 		String phones1 = _rawPhones(word1, noLts);
 		String phones2 = _rawPhones(word2, noLts);
-		if (phones2 == phones1) return false;
+		if (phones2.equals(phones1)) return false;
 
 		String p1 = _lastStressedVowelPhonemeToEnd(word1, noLts);
 		String p2 = _lastStressedVowelPhonemeToEnd(word2, noLts);
@@ -236,7 +236,7 @@ public class Lexicon {
 			else if (tpos.equals("r")) tpos = "rb";
 			else if (tpos.equals("a")) tpos = "jj";
 		}
-		if (opts == null) opts = new HashMap<String, Object>();
+		if (opts == null) opts = new HashMap<>();
 		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
 		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
 		opts.put("minLength", Util.intOpt("minLength", opts, 3));
@@ -338,10 +338,10 @@ public class Lexicon {
 	//	{
 	//		if (word == null || word.length() == 0) return EA;
 	//		if (opts == null) return EA;
-	//		if (opts.get("type") == null || opts.get("type") == E) {
+	//		if (opts.get("type") == null || opts.get("type").equals(E)) {
 	//			opts.put("type", "letter");
 	//		}
-	//		return (opts.get("type") == "soundAndLetter")
+	//		return (opts.get("type").equals("soundAndLetter"))
 	//				? similarBySoundAndLetter(word, opts)
 	//				: similarByType(word, opts);
 	//	}
@@ -397,7 +397,7 @@ public class Lexicon {
 		String phone = this._lastStressedPhoneToEnd(theWord);
 		if (phone == null) return EA;
 
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<String> result = new ArrayList<>();
 		String[] words = dict.keySet().toArray(EA);
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
@@ -424,61 +424,59 @@ public class Lexicon {
 	public String[] similarByType(String theWord, Map<String, Object> opts) {
 		opts = this.parseArgs(opts);
 
-    String type = Util.strOpt("type", opts);
-    boolean sound = type.equals("sound");
+		String type = Util.strOpt("type", opts);
+		boolean sound = type.equals("sound");
 		int limit = Util.intOpt("limit", opts);
 		int minDist = Util.intOpt("minDistance", opts);
 		String tpos = Util.strOpt("targetPos", opts);
-		
-		
-		
-    String input = theWord.toLowerCase();
-    String variations = input+"||"+input + "s||"+ input + "es";
-    String[] phonesA = null, words = dict.keySet().toArray(EA);
-    
-    if (sound) {
-    	phonesA = this.toPhoneArray(this._rawPhones(input));
-    	if (phonesA == null) return EA;
-    }
+
+		String input = theWord.toLowerCase();
+		String variations = input + "||" + input + "s||" + input + "es";
+		String[] phonesA = null, words = dict.keySet().toArray(EA);
+
+		if (sound) {
+			phonesA = this.toPhoneArray(this._rawPhones(input));
+			if (phonesA == null) return EA;
+		}
 
 		ArrayList<String> result = new ArrayList<String>();
 		int minVal = Integer.MAX_VALUE;
-    for (int i = 0; i < words.length; i++) {
-      String word = words[i];
+		for (int i = 0; i < words.length; i++) {
+			String word = words[i];
 			String[] rdata = dict.get(word);
-      if (!this.checkCriteria(word, rdata, opts)) continue;
-      if (variations.contains(word)) continue;
+			if (!this.checkCriteria(word, rdata, opts)) continue;
+			if (variations.contains(word)) continue;
 
-      if (tpos.length() > 0) {
-        word = this.matchPos(word, rdata, opts);
-        if (word == null) continue;
-      }
+			if (tpos.length() > 0) {
+				word = this.matchPos(word, rdata, opts);
+				if (word == null) continue;
+			}
 
-      int med = -1;
-      String[] phonesB;
-      if (sound) {
-      	phonesB = rdata[0].replaceAll("1", "")
-      			.replaceAll(" ", "-").split("-");
-      	med = minEditDist(phonesA, phonesB);
-      }
-      else {
-      	med = minEditDist(input, word);
-      }
+			int med = -1;
+			String[] phonesB;
+			if (sound) {
+				phonesB = rdata[0].replaceAll("1", "")
+						.replaceAll(" ", "-").split("-");
+				med = minEditDist(phonesA, phonesB);
+			}
+			else {
+				med = minEditDist(input, word);
+			}
 
-      // found something even closer
-      if (med >= minDist && med < minVal) {
-        minVal = med;
-        result = new ArrayList<String>();
-        result.add(word);
-      }
-      // another best to add
-      else if (med == minVal) {
-        result.add(word);
-      }
-      if (result.size() == limit) break;
-    }
-    
-    return result.toArray(EA);
+			// found something even closer
+			if (med >= minDist && med < minVal) {
+				minVal = med;
+				result = new ArrayList<String>();
+				result.add(word);
+			}
+			// another best to add
+			else if (med == minVal) {
+				result.add(word);
+			}
+			if (result.size() == limit) break;
+		}
+
+		return result.toArray(EA);
 	}
 
 	/* TODO check result against js (compareA, compare B)
@@ -486,38 +484,38 @@ public class Lexicon {
 		int minLen = 2;
 		int preserveLength = 0;
 		int minAllowedDist = 1;
-
+	
 		if (!opts.isEmpty()) {
 			minLen = (int) ((opts.containsValue("minimumWordLen")) ? opts.get("minimumWordLen") : 2);
 			preserveLength = (int) ((opts.containsValue("preserveLength")) ? opts.get("preserveLength") : 0);
 			minAllowedDist = (int) ((opts.containsValue("minAllowedDistance")) ? opts.get("minAllowedDistance") : 1);
 		}
-
+	
 		ArrayList<String> result = new ArrayList<String>();
 		int minVal = Integer.MAX_VALUE;
 		String input = word.toLowerCase();
-
+	
 		ArrayList<String> words = new ArrayList<String>(dict.keySet());
 		ArrayList<String> variations = new ArrayList<String>();
 		variations.add(input);
 		variations.add(input + "s");
 		variations.add(input + "es");
-
+	
 		boolean noLts = false; // TODO _rawPhones second param has to be removed?
 		String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, noLts))
 				: new String[] { input });
-
+	
 		for (int i = 0; i < words.size(); i++) {
-
+	
 			String entry = words.get(i);
-
+	
 			if ((entry.length() < minLen) || preserveLength > 0 && (entry.length() != input.length())
 					|| variations.contains(entry)) {
 				continue;
 			}
-
+	
 			String[] compareB = toPhoneArray(dict.get(entry)[0].replaceAll("'", E).replaceAll("\\[", E));
-
+	
 			for (int j = 0; j < compareA.length; j++) {
 				// System.out.print("Compare A " + compareA[j]);
 			}
@@ -525,16 +523,16 @@ public class Lexicon {
 			for (int j = 0; j < compareB.length; j++) {
 				// System.out.println(" ,Compare B " + compareB[j]);
 			}
-
+	
 			int med = Util.minEditDist(compareA, compareB);
-
+	
 			// found something even closer
 			if (med >= minAllowedDist && med < minVal) {
 				minVal = med;
 				result.add(entry);
 				// console.log("BEST(" + med + ")" + entry + " -> " + phonesArr);
 			}
-
+	
 			// another best to add
 			else if (med == minVal) {
 				// console.log("TIED(" + med + ")" + entry + " -> " + phonesArr);
@@ -657,14 +655,19 @@ public class Lexicon {
 		}
 	}
 
-	private boolean _isVowel(String c) {
-		return c != null && RiTa.VOWELS.contains(c);
-	}
 
 	private boolean _isVowel(char c) {
 		return Util.contains(RiTa.VOWELS, c);
 	}
+	
+	private boolean _isVowel(String c) {
+		return c != null && RiTa.VOWELS.contains(c);
+	}
 
+	private boolean _isConsonant(char c) {
+		return _isConsonant(Character.toString(c));
+	}
+	
 	private boolean _isConsonant(String p) {
 		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
 				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
@@ -750,7 +753,7 @@ public class Lexicon {
 	private static int minEditDist(String source, String target) {
 		return minEditDist(source.split(""), target.split(""));
 	}
-	
+
 	private static int minEditDist(String[] source, String[] target) {
 
 		int i, j;
@@ -782,7 +785,7 @@ public class Lexicon {
 
 				// Step 4 ------------------------------------------
 
-				cost = (sI == tJ) ? 0 : 1;
+				cost = (sI.equals(tJ)) ? 0 : 1;
 
 				// Step 5 ------------------------------------------
 				matrix[i][j] = Math.min(Math.min(matrix[i - 1][j] + 1,

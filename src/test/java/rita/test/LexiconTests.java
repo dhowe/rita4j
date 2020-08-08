@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import rita.*;
 
 public class LexiconTests {
-	
+
 	// TODO: use Util.opts() instead of creating Maps
 
 	@Test
@@ -224,30 +224,30 @@ public class LexiconTests {
 	public void testSearchWithPos() {
 		String[] res;
 		Map<String, Object> hm = new HashMap<String, Object>();
-//		hm.put("type", "stresses");
-//		hm.put("limit", 5);
-//		hm.put("pos", "n");
-//		assertArrayEquals(RiTa.search("010", hm),
-//				new String[] { "abalone", "abandonment", "abatement", "abbreviation", "abdomen" });
-//
-//		hm.put("numSyllables", 3);
-//		assertArrayEquals(RiTa.search("010", hm),
-//				new String[] { "abatement", "abdomen", "abduction", "abeyance", "abortion" });
-//
-//		hm.clear();
-//		hm.put("type", "phones");
-//		hm.put("limit", 3);
-//		hm.put("pos", "n");
-//		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "elephant", "infant", "infantry" });
-//
-//		hm.put("numSyllables", 2);
-//		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "infant" });
-//
-//		hm.clear();
-//		hm.put("type", "phones");
-//		hm.put("limit", 5);
-//		hm.put("pos", "v");
-//		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
+		//		hm.put("type", "stresses");
+		//		hm.put("limit", 5);
+		//		hm.put("pos", "n");
+		//		assertArrayEquals(RiTa.search("010", hm),
+		//				new String[] { "abalone", "abandonment", "abatement", "abbreviation", "abdomen" });
+		//
+		//		hm.put("numSyllables", 3);
+		//		assertArrayEquals(RiTa.search("010", hm),
+		//				new String[] { "abatement", "abdomen", "abduction", "abeyance", "abortion" });
+		//
+		//		hm.clear();
+		//		hm.put("type", "phones");
+		//		hm.put("limit", 3);
+		//		hm.put("pos", "n");
+		//		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "elephant", "infant", "infantry" });
+		//
+		//		hm.put("numSyllables", 2);
+		//		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "infant" });
+		//
+		//		hm.clear();
+		//		hm.put("type", "phones");
+		//		hm.put("limit", 5);
+		//		hm.put("pos", "v");
+		//		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
 
 		hm.clear();
 		hm.put("type", "stresses");
@@ -258,8 +258,7 @@ public class LexiconTests {
 		assertArrayEquals(res,
 				new String[] { "abalone", "abandonments", "abatements", "abbreviations", "abdomens" });
 
-		
-if (1==1)return;
+		if (1 == 1) return;
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
@@ -388,12 +387,13 @@ if (1==1)return;
 
 	@Test
 	public void testAlliterationsNumSyllables() {
-		Map<String, Object> hm = new HashMap<String, Object>();
-		hm.put("minLength", 1);
-		hm.put("numSyllables", 7);
-
-		String[] result = RiTa.alliterations("cat", hm);
-		assertArrayEquals(result, new String[] { "electrocardiogram", "electromechanical", "telecommunications" });
+		
+		String[] result = RiTa.alliterations("cat", 
+				Util.opts("minLength", 1, "numSyllables", 7));
+		
+		assertArrayEquals(result, new String[] {
+				"electrocardiogram", "electromechanical", "telecommunications"
+		});
 
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));
@@ -471,7 +471,7 @@ if (1==1)return;
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("cat");
-		
+
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));
 		}
