@@ -8,53 +8,53 @@ public class console {
   public static void warn(Collection l) {
     int i = 0;
     if (l == null || l.size() < 1) {
-      System.out.println("[]");
+      System.err.println("[]");
       return;
     }
     for (Iterator it = l.iterator(); it.hasNext(); i++)
-      System.out.println(i + ") '" + it.next() + "'");
+      System.err.println(i + ") '" + it.next() + "'");
   }
 
   public static void warn(int[] l) {
     if (l == null || l.length < 1) {
-      System.out.println("[]");
+      System.err.println("[]");
       return;
     }
     for (int j = 0; j < l.length; j++)
-      System.out.println(j + ") '" + l[j] + "'");
+      System.err.println(j + ") '" + l[j] + "'");
   }
 
   public static void warn(float[] l) {
     if (l == null || l.length < 1) {
-      System.out.println("[]");
+      System.err.println("[]");
       return;
     }
     for (int j = 0; j < l.length; j++)
-      System.out.println(j + ") '" + l[j] + "'");
+      System.err.println(j + ") '" + l[j] + "'");
   }
 
   public static void warn(Object[] l) {
     if (l == null) {
-      System.out.println("null");
+      System.err.println("null");
       return;
     }
     if (l.length < 1) {
-      System.out.println("[]");
+      System.err.println("[]");
       return;
     }
     for (int j = 0; j < l.length; j++)
-      System.out.println(j + ") '" + l[j] + "'");
+      System.err.println(j + ") '" + l[j] + "'");
   }
 
   @SuppressWarnings("rawtypes")
   public static void warn(Map l) {
     if (l == null || l.size() < 1) {
-      System.out.println("[]");
+      System.err.println("[]");
       return;
     }
     for (Iterator it = l.keySet().iterator(); it.hasNext();) {
       Object key = it.next(), val = l.get(key);
-      System.out.println(key + "='" + val + "'");
+      System.err.println(key + "='" + val + "'");
     }
   }
 
@@ -63,9 +63,14 @@ public class console {
       warn((Object[]) l);
       return;
     }
-    System.out.println(l);
+    System.err.println(l);
   }
   
+	public static void warn() {
+		System.err.println();
+	}
+	
+	///////////////////////////////////////////////////////
   
   @SuppressWarnings("rawtypes")
   public static void log(Collection l) {
@@ -128,9 +133,12 @@ public class console {
     }
     System.out.println(l);
   }
-  
+
+	public static void log() {
+		System.out.println();
+	}
+	
   public static void main(String[] args) {
     console.log("Hello");
   }
-
 }

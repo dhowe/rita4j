@@ -282,11 +282,13 @@ public class Lexicon {
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);
+			
 			if (!this.checkCriteria(word, rdata, opts)) continue;
 			if (((String) opts.get("targetPos")).length() > 0) {
 				word = matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
+			
 			if (type.equals("stresses")) {
 				String stresses = RiTa.stresses(word);
 				if (RE.test(re, stresses)) result.add(word);
@@ -756,12 +758,12 @@ public class Lexicon {
 
 	private static int minEditDist(String[] source, String[] target) {
 
-		int i, j;
-
-		int cost; // cost
+		int i, j, cost;
 		String sI; // ith character of s
 		String tJ; // jth character of t
+		
 		int[][] matrix = new int[source.length + 1][target.length + 1];
+		
 		// Step 1 ----------------------------------------------
 
 		for (i = 0; i <= source.length; i++) {
@@ -798,7 +800,8 @@ public class Lexicon {
 	}
 
 	public static void main(String[] args) throws Exception {
-		Lexicon lex = new Lexicon(RiTa.DICT_PATH);
+		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
+		console.log(RiTa.stresses("abatements"));
 		//		System.out.println(lex.dict.get("dog")[0]);
 		//		System.out.println(lex.dict.get("dog")[1]);
 		//		System.out.println(lex._rawPhones("dog"));

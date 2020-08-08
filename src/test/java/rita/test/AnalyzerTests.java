@@ -66,7 +66,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq(RiTa.singularize("Chinese"), "Chinese");
 
 		eq(RiTa.singularize("people"), "person");
-		eq(RiTa.singularize("monies"), "money");
+		eq(RiTa.singularize("money"), "money");
 		eq(RiTa.singularize("vertebrae"), "vertebra");
 		eq(RiTa.singularize("humans"), "human");
 		eq(RiTa.singularize("germans"), "german");
@@ -102,7 +102,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq("randomword", RiTa.singularize("randomwords"));
 		eq("deer", RiTa.singularize("deer"));
 		eq("sheep", RiTa.singularize("sheep"));
-		eq("shrimp", RiTa.singularize("shrimps"));
+		eq("shrimp", RiTa.singularize("shrimp"));
 
 		eq(RiTa.singularize("tomatoes"), "tomato");
 		eq(RiTa.singularize("photos"), "photo");
@@ -170,7 +170,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 				"larvae", "larva",
 				"vertebrae", "vertebra",
 				"memorabilia", "memorabilium",
-				"sheafs", "sheaf",
+				"sheaves", "sheaf",
 				"spoofs", "spoof",
 				"proofs", "proof",
 				"roofs", "roof",
@@ -210,7 +210,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq("lice", RiTa.pluralize("louse"));
 
 		eq("sheep", RiTa.pluralize("sheep"));
-		eq("shrimps", RiTa.pluralize("shrimp"));
+		eq("shrimp", RiTa.pluralize("shrimp"));
 		eq("series", RiTa.pluralize("series"));
 		eq("mice", RiTa.pluralize("mouse"));
 
@@ -255,6 +255,204 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq("aquatics", RiTa.pluralize("aquatics"));
 		eq("mechanics", RiTa.pluralize("mechanics"));
 	}
+	
+	
+	@Test
+	public void testSingularPluralPairs() {
+
+    String[] testPairs = {
+      "dazes", "daze",
+      "hives", "hive",
+      "dives", "dive",
+      "octopuses", "octopus",
+      "abalone", "abalone",
+      "wildlife", "wildlife",
+      "media", "medium",
+      "millennia", "millennium",
+      "consortia", "consortium",
+      "concerti", "concerto",
+      "septa", "septum",
+      "termini", "terminus",
+      "larvae", "larva",
+      "minutiae", "minutia",
+      "vertebrae", "vertebra",
+      "hooves", "hoof",
+      "thieves", "thief",
+      "rabbis", "rabbi",
+      "flu", "flu",
+      "safaris", "safari",
+      "sheaves", "sheaf",
+      "uses", "use",
+      "pinches", "pinch",
+      "hankies", "hanky",
+      "spoofs", "spoof",
+      "proofs", "proof",
+      "roofs", "roof",
+      "disbeliefs", "disbelief",
+      "beliefs", "belief",
+      "indices", "index",
+      "accomplices", "accomplice",
+      "catharses", "catharsis",
+      "prognoses", "prognosis",
+      "whizzes", "whiz",
+      "selves", "self",
+      "bookshelves", "bookshelf",
+      "wheezes", "wheeze",
+      "diagnoses", "diagnosis",
+      "minutiae", "minutia",
+      "blondes", "blonde",
+      "eyes", "eye",
+      "swine", "swine",
+      "cognoscenti", "cognoscenti",
+      "bonsai", "bonsai",
+      "taxis", "taxi",
+      "chiefs", "chief",
+      "monarchs", "monarch",
+      "lochs", "loch",
+      "stomachs", "stomach",
+      "Chinese", "Chinese",
+      "people", "person",
+      "humans", "human",
+      "germans", "german",
+      "romans", "roman",
+      "memoranda", "memorandum",
+      "data", "datum",
+      "geese", "goose",
+      "femurs", "femur",
+      "appendices", "appendix",
+      "theses", "thesis",
+      "alumni", "alumnus",
+      "solos", "solo",
+      "music", "music",
+      "oxen", "ox",
+      "solos", "solo",
+      "music", "music",
+      "money", "money",
+      "beef", "beef",
+      "tobacco", "tobacco",
+      "cargo", "cargo",
+      "golf", "golf",
+      "grief", "grief",
+      "cakes", "cake",
+      "tomatoes", "tomato",
+      "photos", "photo",
+      "smallpox", "smallpox",
+      "toes", "toe",
+      "series", "series",
+      "oxen", "ox",
+      "men", "man",
+      "mice", "mouse",
+      "lice", "louse",
+      "children", "child",
+      "gases", "gas",
+      "buses", "bus",
+      "happiness", "happiness",
+      "crises", "crisis",
+      "theses", "thesis",
+      "apotheses", "apothesis",
+      "stimuli", "stimulus",
+      "alumni", "alumnus",
+      "corpora", "corpus",
+      "dogs", "dog",
+      "feet", "foot",
+      "teeth", "tooth",
+      "kisses", "kiss",
+      "deer", "deer",
+      "sheep", "sheep",
+      "shrimp", "shrimp",
+      "men", "man",
+      "women", "woman",
+      "congressmen", "congressman",
+      "aldermen", "alderman",
+      "freshmen", "freshman",
+      "firemen", "fireman",
+      "grandchildren", "grandchild",
+      "menus", "menu",
+      "gurus", "guru",
+      "hardness", "hardness",
+      "shortness", "shortness",
+      "dreariness", "dreariness",
+      "unwillingness", "unwillingness",
+      "fish", "fish",
+      "ooze", "ooze",
+      "enterprises", "enterprise",
+      "treatises", "treatise",
+      "houses", "house",
+      "chemises", "chemise",
+      "aquatics", "aquatics",
+      "mechanics", "mechanics",
+      "quarters", "quarter",
+      "motifs", "motif",
+      "alumni", "alumnus",
+      "turf", "turf",
+      "macaroni", "macaroni",
+      "spaghetti", "spaghetti",
+      "potpourri", "potpourri",
+      "electrolysis", "electrolysis",
+      "eyes", "eye",
+      "teeth", "tooth",
+      "cakes", "cake",
+      "kisses", "kiss",
+      "lice", "louse",
+      "series", "series",
+      "crises", "crisis",
+      "theses", "thesis",
+      "apotheses", "apothesis",
+      "stimuli", "stimulus",
+      "alumni", "alumnus",
+      "corpora", "corpus",
+      "menus", "menu",
+      "hardness", "hardness",
+      "shortness", "shortness",
+      "dreariness", "dreariness",
+      "unwillingness", "unwillingness",
+      "moose", "moose",
+      "toes", "toe",
+      "tobacco", "tobacco",
+      "cargo", "cargo",
+      "golf", "golf",
+      "grief", "grief",
+      "taxis", "taxi",
+      "bonsai", "bonsai",
+      "lives", "life",
+      "additives", "additive",
+      "epochs", "epoch",
+      "ranchs", "ranch",
+      "alcoves", "alcove",
+      "goddesses", "goddess",
+      "tresses", "tress",
+      "murderesses", "murderess",
+      "memories", "memory",
+      "corpora", "corpus",
+      "stimuli", "stimulus",
+      "theses", "thesis"
+    };
+
+    String res1, res2; 
+    boolean res3, dbug = false;
+
+    for (int i = 0; i < testPairs.length; i += 2) {
+
+      if (dbug) console.log(testPairs[i] + "/" + testPairs[i + 1]);
+
+      res1 = Inflector.singularize(testPairs[i], Util.opts("dbug", dbug));
+      res2 = Inflector.pluralize(testPairs[i + 1], Util.opts("dbug", dbug));
+      res3 = Inflector.isPlural(testPairs[i], dbug);
+
+      // singularize
+      eq(res1, testPairs[i + 1], "FAIL: singularize(" + testPairs[i]
+        + ") was " + res1 + ", but expected " + testPairs[i + 1] + "\n        "
+        + "pluralize(" + testPairs[i + 1] + ") was " + res2 + "\n\n");
+
+      // pluralize
+      eq(res2, testPairs[i], "FAIL: pluralize(" + testPairs[i + 1]
+        + ") was " + res2 + ", but expected " + testPairs[i] + "\n        "
+        + "singularize(" + testPairs[i] + ") was " + res1 + "\n\n");
+
+      // isPlural
+      assertTrue(res3, "FAIL: isPlural(" + testPairs[i] + ") was false\n\n");
+    }
+  }
 
 	@Test
 	public void testAnalyzeLts() {
@@ -297,7 +495,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq(feats.get("tokens"), "chevrolet");
 		eq(feats.get("syllables"), "sh-eh-v/r-ow/l-ey");
 	}
-
+	
 	@Test
 	public void testStresses() {
 
@@ -333,6 +531,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 
 		eq(RiTa.stresses("chevrolet"), "0/0/1");
 		eq(RiTa.stresses("women"), "1/0");
+		eq(RiTa.stresses("abatements"), "0/1/0", "abatements");
 		eq(RiTa.stresses("genuine"), "1/0/0");
 
 	}
@@ -424,203 +623,11 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		RiTa.SILENCE_LTS = false;
 	}
 
-	@Test
-	public void testNumberPairs() {
-
-		String[] testPairs = {
-				"dazes", "daze",
-				"hives", "hive",
-				"dives", "dive",
-				"octopuses", "octopus",
-				"abalone", "abalone",
-				"wildlife", "wildlife",
-				"media", "medium",
-				"millennia", "millennium",
-				"consortia", "consortium",
-				"concerti", "concerto",
-				"septa", "septum",
-				"termini", "terminus",
-				"larvas", "larva",
-				"vertebras", "vertebra",
-				"hooves", "hoof",
-				"thieves", "thief",
-				"rabbis", "rabbi",
-				"flu", "flu",
-				"safaris", "safari",
-				"sheaves", "sheaf",
-				"uses", "use",
-				"pinches", "pinch",
-				"hankies", "hanky",
-				"spoofs", "spoof",
-				"proofs", "proof",
-				"roofs", "roof",
-				"disbeliefs", "disbelief",
-				"beliefs", "belief",
-				"indices", "index",
-				"accomplices", "accomplice",
-				"catharses", "catharsis",
-				"prognoses", "prognosis",
-				"whizzes", "whiz",
-				"selves", "self",
-				"bookshelves", "bookshelf",
-				"wheezes", "wheeze",
-				"diagnoses", "diagnosis",
-				"minutiae", "minutia",
-				"blondes", "blonde",
-				"eyes", "eye",
-				"swine", "swine",
-				"cognoscenti", "cognoscenti",
-				"bonsai", "bonsai",
-				"taxis", "taxi",
-				"chiefs", "chief",
-				"monarchs", "monarch",
-				"lochs", "loch",
-				"stomachs", "stomach",
-				"Chinese", "Chinese",
-				"people", "person",
-				"humans", "human",
-				"germans", "german",
-				"romans", "roman",
-				"memoranda", "memorandum",
-				"data", "datum",
-				"geese", "goose",
-				"femurs", "femur",
-				"appendices", "appendix",
-				"theses", "thesis",
-				"alumni", "alumnus",
-				"solos", "solo",
-				"music", "music",
-				"oxen", "ox",
-				"solos", "solo",
-				"music", "music",
-				"money", "money",
-				"beef", "beef",
-				"tobacco", "tobacco",
-				"cargo", "cargo",
-				"golf", "golf",
-				"grief", "grief",
-				"cakes", "cake",
-				"tomatoes", "tomato",
-				"photos", "photo",
-				"smallpox", "smallpox",
-				"toes", "toe",
-				"series", "series",
-				"oxen", "ox",
-				"men", "man",
-				"mice", "mouse",
-				"lice", "louse",
-				"children", "child",
-				"gases", "gas",
-				"buses", "bus",
-				"happiness", "happiness",
-				"crises", "crisis",
-				"theses", "thesis",
-				"apotheses", "apothesis",
-				"stimuli", "stimulus",
-				"alumni", "alumnus",
-				"corpora", "corpus",
-				"dogs", "dog",
-				"feet", "foot",
-				"teeth", "tooth",
-				"kisses", "kiss",
-				"deer", "deer",
-				"sheep", "sheep",
-				"shrimp", "shrimp",
-				"men", "man",
-				"women", "woman",
-				"congressmen", "congressman",
-				"aldermen", "alderman",
-				"freshmen", "freshman",
-				"firemen", "fireman",
-				"grandchildren", "grandchild",
-				"menus", "menu",
-				"gurus", "guru",
-				"hardness", "hardness",
-				"shortness", "shortness",
-				"dreariness", "dreariness",
-				"unwillingness", "unwillingness",
-				"fish", "fish",
-				"ooze", "ooze",
-				"enterprises", "enterprise",
-				"treatises", "treatise",
-				"houses", "house",
-				"chemises", "chemise",
-				"aquatics", "aquatics",
-				"mechanics", "mechanics",
-				"quarters", "quarter",
-				"motifs", "motif",
-				"alumni", "alumnus",
-				"turf", "turf",
-				"macaroni", "macaroni",
-				"spaghetti", "spaghetti",
-				"potpourri", "potpourri",
-				"electrolysis", "electrolysis",
-				"eyes", "eye",
-				"teeth", "tooth",
-				"cakes", "cake",
-				"kisses", "kiss",
-				"lice", "louse",
-				"series", "series",
-				"crises", "crisis",
-				"theses", "thesis",
-				"apotheses", "apothesis",
-				"stimuli", "stimulus",
-				"alumni", "alumnus",
-				"corpora", "corpus",
-				"menus", "menu",
-				"hardness", "hardness",
-				"shortness", "shortness",
-				"dreariness", "dreariness",
-				"unwillingness", "unwillingness",
-				"moose", "moose",
-				"toes", "toe",
-				"tobacco", "tobacco",
-				"cargo", "cargo",
-				"golf", "golf",
-				"grief", "grief",
-				"taxis", "taxi",
-				"bonsai", "bonsai",
-				"lives", "life",
-				"additives", "additive",
-				"epochs", "epoch",
-				"ranchs", "ranch",
-				"alcoves", "alcove",
-				"goddesses", "goddess",
-				"tresses", "tress",
-				"murderesses", "murderess",
-				"memories", "memory",
-				"corpora", "corpus",
-				"stimuli", "stimulus",
-				"theses", "thesis"
-		};
-
-		String res1, res2;
-		boolean res3, dbug = false;
-
-		for (int i = 0; i < testPairs.length; i += 2) {
-
-			if (dbug) console.log(testPairs[i] + "/" + testPairs[i + 1]);
-
-			res1 = RiTa.singularize(testPairs[i], Util.opts("dbug", dbug));
-			res2 = RiTa.pluralize(testPairs[i + 1], Util.opts("dbug", dbug));
-			res3 = Inflector.isPlural(testPairs[i], dbug);
-
-			// singularize
-			assertEquals(testPairs[i + 1], res1, "FAIL: singularize(" + testPairs[i]
-					+ ") was " + res1 + ", but expected " + testPairs[i + 1] + "\n        "
-					+ "pluralize(" + testPairs[i + 1] + ") was " + res2 + "\n\n");
-
-			// pluralize
-			assertEquals(res2, testPairs[i], "FAIL: pluralize(" + testPairs[i + 1]
-					+ ") was " + res2 + ", but expected " + testPairs[i] + "\n        "
-					+ "singularize(" + testPairs[i] + ") was " + res1 + "\n\n");
-
-			// isPlural
-			assertTrue(res3, "FAIL: isPlural(" + testPairs[i] + ") was false\n\n");
-		}
+	static void eq(String a, String b) {
+		eq(a, b, "");
 	}
 
-	static void eq(String a, String b) {
-		assertEquals(b, a);
+	static void eq(String a, String b, String msg) {
+		assertEquals(b, a, msg);
 	}
 }

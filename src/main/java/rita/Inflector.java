@@ -38,8 +38,7 @@ public class Inflector {
 			new RE("geese", 4, "oose"),
 			new RE("^concerti$", 1, "o"),
 			new RE("people$", 4, "rson"),
-			//new RE("^(minuti)a$", 0, 'e'),
-			new RE("^(minuti)ae$", 1),
+			new RE("^(vertebr|larv|minuti)ae$", 1),
 			new RE("^oxen", 2),
 			new RE("esses$", 2),
 			new RE("(treatises|chemises)$", 1),
@@ -53,18 +52,41 @@ public class Inflector {
 			new RE("^(monarch|loch|stomach|epoch|ranch)$", 0, "s"),
 			new RE("^(piano|photo|solo|ego|tobacco|cargo|taxi)$", 0, "s"),
 			new RE("(chief|proof|ref|relief|roof|belief|spoof|golf|grief)$", 0, "s"),
-			new RE("^(appendix|index|matrix|apex|cortex)$", 2, "ices"), new RE("^concerto$", 1, "i"), new RE("^prognosis", 2, "es"),
-			new RE("[bcdfghjklmnpqrstvwxyz]o$", 0, "es"), new RE("[bcdfghjklmnpqrstvwxyz]y$", 1, "ies"), new RE("^ox$", 0, "en"),
-			new RE("^(stimul|alumn|termin)us$", 2, "i"), new RE("^corpus$", 2, "ora"), new RE("(xis|sis)$", 2, "es"),
+			new RE("^(appendix|index|matrix|apex|cortex)$", 2, "ices"), 
+			new RE("^concerto$", 1, "i"), 
+			new RE("^prognosis", 2, "es"),
+			new RE("[bcdfghjklmnpqrstvwxyz]o$", 0, "es"), 
+			new RE("[bcdfghjklmnpqrstvwxyz]y$", 1, "ies"), 
+			new RE("^ox$", 0, "en"),
+			new RE("^(stimul|alumn|termin)us$", 2, "i"), 
+			new RE("^corpus$", 2, "ora"), 
+			new RE("(xis|sis)$", 2, "es"),
 			//new RE("(ness)$", 0, "es"),
-			new RE("whiz$", 0, "zes"), new RE("motif$", 0, "s"), new RE("[lraeiou]fe$", 2, "ves"), new RE("[lraeiou]f$", 1, "ves"),
-			new RE("(eu|eau)$", 0, "x"), new RE("(man|woman)$", 2, "en"), new RE("person$", 4, "ople"), new RE("^meninx|phalanx$", 1, "ges"),
-			new RE("schema$", 0, "ta"), new RE("^(bus|gas)$", 0, "es"), new RE("child$", 0, "ren"),
-			//new RE("^(vertebr|larv|minuti)ae$", 1),
-			new RE("^(minuti)a$", 0, "e"), new RE("^(maharaj|raj|myn|mull)a$", 0, "hs"), new RE("^aide-de-camp$", 8, "s-de-camp"),
-			new RE("^weltanschauung$", 0, "en"), new RE("^lied$", 0, "er"), new RE("^tooth$", 4, "eeth"), new RE("^[lm]ouse$", 4, "ice"),
-			new RE("^foot$", 3, "eet"), new RE("goose", 4, "eese"), new RE("^(co|no)$", 0, "'s"), new RE("^blond$", 0, "es"), new RE("^datum", 2, "a"),
-			new RE("([a-z]+osis|[a-z]+itis|[a-z]+ness)$", 0), new RE("([zsx]|ch|sh)$", 0, "es"), // note: words ending in 's' otfen hit here, add 'es'
+			new RE("whiz$", 0, "zes"), 
+			new RE("motif$", 0, "s"), 
+			new RE("[lraeiou]fe$", 2, "ves"), 
+			new RE("[lraeiou]f$", 1, "ves"),
+			new RE("(eu|eau)$", 0, "x"), 
+			new RE("(man|woman)$", 2, "en"), 
+			new RE("person$", 4, "ople"), 
+			new RE("^meninx|phalanx$", 1, "ges"),
+			new RE("schema$", 0, "ta"), 
+			new RE("^(bus|gas)$", 0, "es"), 
+			new RE("child$", 0, "ren"),
+			new RE("^(vertebr|larv|minuti)a$", 0, "e"), 
+			new RE("^(maharaj|raj|myn|mull)a$", 0, "hs"), 
+			new RE("^aide-de-camp$", 8, "s-de-camp"),
+			new RE("^weltanschauung$", 0, "en"), 
+			new RE("^lied$", 0, "er"), 
+			new RE("^tooth$", 4, "eeth"), 
+			new RE("^[lm]ouse$", 4, "ice"),
+			new RE("^foot$", 3, "eet"), 
+			new RE("goose", 4, "eese"), 
+			new RE("^(co|no)$", 0, "'s"), 
+			new RE("^blond$", 0, "es"), 
+			new RE("^datum", 2, "a"),
+			new RE("([a-z]+osis|[a-z]+itis|[a-z]+ness)$", 0), 
+			new RE("([zsx]|ch|sh)$", 0, "es"), // note: words ending in 's' otfen hit here, add 'es'
 			new RE("^(medi|millenni|consorti|sept|memorabili)um$", 2, "a"),
 			new RE("^(memorandum|bacterium|curriculum|minimum|maximum|referendum|spectrum|phenomenon|criterion)$", 2, "a"), // Latin stems
 			DEFAULT_PLURAL_RULE
@@ -140,56 +162,56 @@ public class Inflector {
 	public static final boolean isPlural(String word) {
 		return isPlural(word, false);
 	}
-	
+
 	public static final boolean isPlural(String word, boolean dbug) {
 
 		if (word == null || word.length() < 1) return false;
 
-    word = word.toLowerCase();
+		word = word.toLowerCase();
 
 		if (Arrays.asList(MODALS).contains(word)) {
 			return true;
 		}
 
-    String sing = RiTa.singularize(word);
-    Map<String, String[]> dict = RiTa._lexicon().dict;
-    String[] pos, data = dict.get(sing);
+		String sing = RiTa.singularize(word);
+		Map<String, String[]> dict = RiTa._lexicon().dict;
+		String[] pos, data = dict.get(sing);
 
-    // Is singularized form is in lexicon as 'nn'?
-    if (data != null && data.length == 2) {
-      pos = data[1].split(" ");
-      if (Arrays.asList(pos).contains("nn")) return true;
-    }
+		// Is singularized form is in lexicon as 'nn'?
+		if (data != null && data.length == 2) {
+			pos = data[1].split(" ");
+			if (Arrays.asList(pos).contains("nn")) return true;
+		}
 
-    // A general modal form? (for example, ends in 'ness')
-    if (word.endsWith("ness") && sing.equals(RiTa.pluralize(word))) {
-      return true;
-    }
+		// A general modal form? (for example, ends in 'ness')
+		if (word.endsWith("ness") && sing.equals(RiTa.pluralize(word))) {
+			return true;
+		}
 
-    // Is word without final 's in lexicon as 'nn'?
-    if (word.endsWith("s")) {
-      data = dict.get(word.substring(0, word.length() - 1));
-      if (data != null && data.length == 2) {
-        pos = data[1].split(" ");
-        for (int i = 0; i < pos.length; i++) {
-          if (Arrays.asList(pos).contains("nn")) return true;
-        }
-      }
-    }
+		// Is word without final 's in lexicon as 'nn'?
+		if (word.endsWith("s")) {
+			data = dict.get(word.substring(0, word.length() - 1));
+			if (data != null && data.length == 2) {
+				pos = data[1].split(" ");
+				for (int i = 0; i < pos.length; i++) {
+					if (Arrays.asList(pos).contains("nn")) return true;
+				}
+			}
+		}
 
-    if (RE.test(DEFAULT_IS_PLURAL,word)) return true;
+		if (RE.test(DEFAULT_IS_PLURAL, word)) return true;
 
-    RE[] rules = SINGULAR_RULES;
-    for (int i = 0; i < rules.length; i++) {
-    	RE rule = rules[i];
-      if (rule.applies(word)) {
-        if (dbug) console.log(word + " hit -> "+ rule);
-        return true;
-      }
-    }
+		RE[] rules = SINGULAR_RULES;
+		for (int i = 0; i < rules.length; i++) {
+			RE rule = rules[i];
+			if (rule.applies(word)) {
+				if (dbug) console.log(word + " hit -> " + rule);
+				return true;
+			}
+		}
 
-    if (dbug) console.log("isPlural: no rules hit for '" + word+"'");
+		if (dbug) console.log("isPlural: no rules hit for '" + word + "'");
 
-    return false;
-  }
+		return false;
+	}
 }
