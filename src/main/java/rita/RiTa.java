@@ -392,7 +392,7 @@ public class RiTa {
 		return new Markov(n);
 	}
 
-	private static Analyzer _analyzer() {
+	static Analyzer _analyzer() {
 		if (analyzer == null) {
 			RiTa._lexicon();
 			RiTa.analyzer = new Analyzer();

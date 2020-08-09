@@ -52,9 +52,9 @@ public class Lexicon {
 
 		// only allow consonant inputs
 		if (Util.contains(RiTa.VOWELS, theWord.charAt(0))) {
-			if (!silent && !RiTa.SILENT) {
-				console.warn("Expects a word starting with a consonant, got: " + theWord);
-			}
+			if (!silent && !RiTa.SILENT) console.warn(
+					"Expected a word starting with a consonant,"
+							+ " but got '" + theWord + "'");
 			return EA;
 		}
 
@@ -81,7 +81,7 @@ public class Lexicon {
 				continue;
 			}
 			if (targetPos.length() > 0) {
-				word = this.matchPos(word, rdata, opts);
+				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
 			String c2 = this._firstPhone(this._firstStressedSyl(word));
@@ -124,10 +124,6 @@ public class Lexicon {
 		return p1 != null && p2 != null && p1.equals(p2);
 	}
 
-	private String matchPos(String word, String[] rdata, Map<String, Object> opts) {
-		return this.matchPos(word, rdata, opts, false);
-	}
-
 	private String matchPos(String word, String[] rdata,
 			Map<String, Object> opts, boolean strict) {
 
@@ -154,7 +150,7 @@ public class Lexicon {
 			if (isMassNoun(word, rdata[1])) return null;
 			result = RiTa.pluralize(word);
 		}
-		if (conjugate) { // inflect
+		else if (conjugate) { // inflect
 			result = reconjugate(word, pos);
 		}
 
@@ -179,10 +175,7 @@ public class Lexicon {
 		    VBP 	Verb, non-3rd person singular present
 		    VBZ 	Verb, 3rd person singular present */
 		case "vbd":
-			return RiTa.conjugate(word, Util.opts(
-					"number", RiTa.SINGULAR,
-					"person", RiTa.FIRST_PERSON,
-					"tense", RiTa.PAST_TENSE));
+			return RiTa.conjugate(word, S1P_PAST);
 		case "vbg":
 			return RiTa.presentParticiple(word);
 		case "vbn":
@@ -190,14 +183,21 @@ public class Lexicon {
 		case "vbp":
 			return word;// RiTa.conjugate(word); // no args
 		case "vbz":
-			return RiTa.conjugate(word, Util.opts(
-					"number", RiTa.SINGULAR,
-					"person", RiTa.THIRD_PERSON,
-					"tense", RiTa.PRESENT_TENSE));
+			return RiTa.conjugate(word, S3P_PRES);
 		default:
 			throw new RiTaException("Unexpected pos: " + pos);
 		}
 	}
+
+	private static final Map<String, Object> S1P_PAST = Util.opts(
+			"number", RiTa.SINGULAR,
+			"person", RiTa.FIRST_PERSON,
+			"tense", RiTa.PAST_TENSE);
+
+	private static final Map<String, Object> S3P_PRES = Util.opts(
+			"number", RiTa.SINGULAR,
+			"person", RiTa.THIRD_PERSON,
+			"tense", RiTa.PRESENT_TENSE);
 
 	private boolean isMassNoun(String w, String pos) {
 		return w.endsWith("ness")
@@ -271,6 +271,7 @@ public class Lexicon {
 			regex = regex.substring(1, regex.length() - 1);
 		}
 
+		Analyzer analyzer = RE.test("(stresses|phones)", type) ? RiTa._analyzer() : null;
 		Pattern re = Pattern.compile(regex);
 		opts = this.parseArgs(opts);
 		//console.log(opts);
@@ -282,19 +283,20 @@ public class Lexicon {
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);
-			
+
 			if (!this.checkCriteria(word, rdata, opts)) continue;
 			if (((String) opts.get("targetPos")).length() > 0) {
 				word = matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
-			
+
 			if (type.equals("stresses")) {
-				String stresses = RiTa.stresses(word);
+				String stresses = analyzer.analyzeWord(word)[1];
 				if (RE.test(re, stresses)) result.add(word);
 			}
 			if (type.equals("phones")) {
-				if (RE.test(re, RiTa.phones(word))) result.add(word);
+				String phones = analyzer.analyzeWord(word)[0];
+				if (RE.test(re, phones)) result.add(word);
 			}
 			else {
 				if (RE.test(re, word)) result.add(word);
@@ -411,7 +413,7 @@ public class Lexicon {
 			}
 
 			if (tpos.length() > 0) {
-				word = this.matchPos(word, rdata, opts);
+				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
 
@@ -450,7 +452,7 @@ public class Lexicon {
 			if (variations.contains(word)) continue;
 
 			if (tpos.length() > 0) {
-				word = this.matchPos(word, rdata, opts);
+				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
 
@@ -568,6 +570,7 @@ public class Lexicon {
 	}
 
 	public String[] words(Pattern regex) {
+		if (regex == null) return dict.keySet().toArray(EA);
 		return dict.keySet().stream()
 				.filter(word -> regex.matcher(word).matches())
 				.toArray(String[]::new);
@@ -657,11 +660,10 @@ public class Lexicon {
 		}
 	}
 
-
 	private boolean _isVowel(char c) {
 		return Util.contains(RiTa.VOWELS, c);
 	}
-	
+
 	private boolean _isVowel(String c) {
 		return c != null && RiTa.VOWELS.contains(c);
 	}
@@ -669,7 +671,7 @@ public class Lexicon {
 	private boolean _isConsonant(char c) {
 		return _isConsonant(Character.toString(c));
 	}
-	
+
 	private boolean _isConsonant(String p) {
 		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
 				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
@@ -761,9 +763,9 @@ public class Lexicon {
 		int i, j, cost;
 		String sI; // ith character of s
 		String tJ; // jth character of t
-		
+
 		int[][] matrix = new int[source.length + 1][target.length + 1];
-		
+
 		// Step 1 ----------------------------------------------
 
 		for (i = 0; i <= source.length; i++) {

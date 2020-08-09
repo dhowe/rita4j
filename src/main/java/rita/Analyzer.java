@@ -35,7 +35,11 @@ public class Analyzer {
 		return features;
 	}
 
-	private String[] analyzeWord(String word, Map<String, Object> opts) {
+	public String[] analyzeWord(String word) {
+		return this.analyzeWord(word, null);
+	}
+	
+	public String[] analyzeWord(String word, Map<String, Object> opts) {
 
 		boolean useRaw = false;
 		String rawPhones = RiTa._lexicon()._rawPhones(word, true);
