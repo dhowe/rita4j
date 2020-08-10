@@ -125,7 +125,7 @@ public class ConjugatorTests {
 		s = new String[] { "swim", "need", "open" };
 		a = new String[] { "swims", "needs", "opens" };
 
-		args.clear();
+		args = new HashMap<String, Object>();
 		args.put("tense", RiTa.PRESENT_TENSE);
 		args.put("number", RiTa.SINGULAR);
 		args.put("person", RiTa.THIRD_PERSON);
