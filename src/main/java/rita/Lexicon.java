@@ -337,18 +337,6 @@ public class Lexicon {
 		}
 		return result;
 	}
-	//
-	//	public String[] similarBy(String word, Map<String, Object> opts) // TODO
-	//	{
-	//		if (word == null || word.length() == 0) return EA;
-	//		if (opts == null) return EA;
-	//		if (opts.get("type") == null || opts.get("type").equals(E)) {
-	//			opts.put("type", "letter");
-	//		}
-	//		return (opts.get("type").equals("soundAndLetter"))
-	//				? similarBySoundAndLetter(word, opts)
-	//				: similarByType(word, opts);
-	//	}
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
@@ -483,70 +471,6 @@ public class Lexicon {
 		return result.toArray(EA);
 	}
 
-	/* TODO check result against js (compareA, compare B)
-	public String[] similarByTypeX(String word, Map<String, Object> opts) {
-		int minLen = 2;
-		int preserveLength = 0;
-		int minAllowedDist = 1;
-	
-		if (!opts.isEmpty()) {
-			minLen = (int) ((opts.containsValue("minimumWordLen")) ? opts.get("minimumWordLen") : 2);
-			preserveLength = (int) ((opts.containsValue("preserveLength")) ? opts.get("preserveLength") : 0);
-			minAllowedDist = (int) ((opts.containsValue("minAllowedDistance")) ? opts.get("minAllowedDistance") : 1);
-		}
-	
-		ArrayList<String> result = new ArrayList<String>();
-		int minVal = Integer.MAX_VALUE;
-		String input = word.toLowerCase();
-	
-		ArrayList<String> words = new ArrayList<String>(dict.keySet());
-		ArrayList<String> variations = new ArrayList<String>();
-		variations.add(input);
-		variations.add(input + "s");
-		variations.add(input + "es");
-	
-		boolean noLts = false; // TODO _rawPhones second param has to be removed?
-		String[] compareA = (opts.get("type") == "sound" ? toPhoneArray(_rawPhones(input, noLts))
-				: new String[] { input });
-	
-		for (int i = 0; i < words.size(); i++) {
-	
-			String entry = words.get(i);
-	
-			if ((entry.length() < minLen) || preserveLength > 0 && (entry.length() != input.length())
-					|| variations.contains(entry)) {
-				continue;
-			}
-	
-			String[] compareB = toPhoneArray(dict.get(entry)[0].replaceAll("'", E).replaceAll("\\[", E));
-	
-			for (int j = 0; j < compareA.length; j++) {
-				// System.out.print("Compare A " + compareA[j]);
-			}
-			// System.out.print(" compareA[j] ");
-			for (int j = 0; j < compareB.length; j++) {
-				// System.out.println(" ,Compare B " + compareB[j]);
-			}
-	
-			int med = Util.minEditDist(compareA, compareB);
-	
-			// found something even closer
-			if (med >= minAllowedDist && med < minVal) {
-				minVal = med;
-				result.add(entry);
-				// console.log("BEST(" + med + ")" + entry + " -> " + phonesArr);
-			}
-	
-			// another best to add
-			else if (med == minVal) {
-				// console.log("TIED(" + med + ")" + entry + " -> " + phonesArr);
-				result.add(entry);
-			}
-		}
-		String[] s = (String[]) result.toArray(EA);
-		return s;
-	}*/
-
 	public String[] toPhoneArray(String raw) {
 		ArrayList<String> result = new ArrayList<String>();
 		String sofar = E;
@@ -560,9 +484,7 @@ public class Lexicon {
 			}
 		}
 		result.add(sofar);
-
-		String[] s = result.toArray(EA);
-		return s;
+		return result.toArray(EA);
 	}
 
 	public String[] words() {
@@ -591,13 +513,13 @@ public class Lexicon {
 		String[] rdata = _lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
 				? rdata[1].replaceAll("'", E).replaceAll("\\]", E)
-				: E;
+				: null;
 	}
 
 	public String _bestPos(String word) {
 
 		String[] pl = _posArr(word);
-		return (pl.length > 0) ? pl[0] : E;
+		return (pl.length > 0) ? pl[0] : null;
 	}
 
 	public String _rawPhones(String word) {
@@ -624,11 +546,8 @@ public class Lexicon {
 	}
 
 	String[] _posArr(String word) {
-
 		String pl = _posData(word);
-		return (pl == null || pl.length() == 0)
-				? EA
-				: pl.split(" ");
+		return (pl != null) ? pl.split(" ") : EA;
 	}
 
 	private String[] _lookupRaw(String word) {
@@ -691,9 +610,7 @@ public class Lexicon {
 		if (idx < 0) return null;
 		char c = raw.charAt(--idx);
 		while (c != '-' && c != ' ') {
-			if (--idx < 0) {
-				return raw; // single-stressed syllable
-			}
+			if (--idx < 0) return raw; // single-stressed syllable
 			c = raw.charAt(idx);
 		}
 		return raw.substring(idx + 1);

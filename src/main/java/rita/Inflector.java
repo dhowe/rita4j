@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 
 public class Inflector {
 
-	private static final String[] MODALS = Util.MODALS;
+	private static final String[] MASS_NOUNS = Util.MASS_NOUNS;
 	private static final int SINGULARIZE = 1, PLURALIZE = 2;
 	private static final Pattern DEFAULT_IS_PLURAL = Pattern.compile("(ae|ia|s)$");
 	private static final RE DEFAULT_SINGULAR_RULE = new RE("^.*s$", 1);
@@ -92,50 +92,14 @@ public class Inflector {
 			DEFAULT_PLURAL_RULE
 	};
 
-	/*
-		public static String pluralize(String word) {
-			//System.out.println("word : "+ word);
-			if (word == null || word.length() == 0) return "";
-	
-			if (Arrays.stream(MODALS).anyMatch(word.toLowerCase()::equals)) return word;
-	
-			RE[] rules = PLURAL_RULES; //TODO
-			for (int i = 0; i < rules.length; i++) {
-				if (rules[i].applies(word.toLowerCase())) {
-					return rules[i].fire(word);
-				}
-			}
-	
-			return DEFAULT_PLURAL_RULE.fire(word);
-		}
-	
-		public static String singularize(String word) {
-	
-			if (word == null || word.length() == 0) return "";
-	
-			if (Arrays.stream(MODALS).anyMatch(word.toLowerCase()::equals)) return word;
-	
-			RE[] rules = SINGULAR_RULES; //TODO
-			int i = rules.length;
-	
-			while (i-- > 0) {
-				if (rules[i].applies(word.toLowerCase())) {
-					return rules[i].fire(word);
-				}
-	
-			}
-	
-			return RiTa.stem(word);
-		}
-	*/
 	private static final String adjustNumber(String word, int type, boolean dbug) {
 
 		if (word == null || word.length() < 1) return "";
 
 		String check = word.toLowerCase();
 
-		if (Arrays.asList(MODALS).contains(check)) {
-			if (dbug) console.log(word + " hit MODALS");
+		if (Arrays.asList(MASS_NOUNS).contains(check)) {
+			if (dbug) console.log(word + " hit MASS_NOUNS");
 			return word;
 		}
 
@@ -151,10 +115,18 @@ public class Inflector {
 		return word;
 	}
 
+	public static final String singularize(String word) {
+		return singularize(word, null);
+	}
+	
 	public static final String singularize(String word, Map<String, Object> opts) {
 		return adjustNumber(word, SINGULARIZE, Util.boolOpt("dbug", opts));
 	}
 
+	public static final String pluralize(String word) {
+		return pluralize(word, null);
+	}
+	
 	public static final String pluralize(String word, Map<String, Object> opts) {
 		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
 	}
@@ -169,7 +141,7 @@ public class Inflector {
 
 		word = word.toLowerCase();
 
-		if (Arrays.asList(MODALS).contains(word)) {
+		if (Arrays.asList(MASS_NOUNS).contains(word)) {
 			return true;
 		}
 

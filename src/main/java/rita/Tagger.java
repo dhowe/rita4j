@@ -11,7 +11,7 @@ public class Tagger {
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
 
-	private static String[] modals = Util.MODALS;
+	private static String[] massNouns = Util.MASS_NOUNS;
 	private static Lexicon lexicon = RiTa._lexicon();
 
 	private Tagger() {
@@ -199,7 +199,7 @@ public class Tagger {
 					// (NNS)
 
 					if (word.matches("^.*[^s]s$")) {
-						if (!Arrays.asList(modals).contains(word)) {
+						if (!Arrays.asList(massNouns).contains(word)) {
 							tag = "nns";
 						}
 					}

@@ -28,7 +28,7 @@ public class RiScriptTests {
 	public void testCustomRegexes() {
 		String expr = "The $foo\ndog.";
 		assertTrue(RE.test("\\$[A-Za-z_]", expr));
-		System.out.println(expr);
+		//System.out.println(expr);
 	}
 
 	@Test
@@ -385,7 +385,7 @@ public class RiScriptTests {
 				RiTa.evaluate("[$foo=(hi | hi)] there", ctx));
 */
 		String exp = "A dog is a mammal";
-		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", ctx, TT), "B");
+		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", ctx), "B");
 
 		assertEq(RiTa.evaluate("[$stored=(a | a)] dog is a mammal", ctx), exp.toLowerCase());
 		assertEq(ctx.get("stored"), "a");
@@ -927,7 +927,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");
 		assertEq(ctx.get("foo"), "");
 
-		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)", null, TT), "A");
+		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)", null), "A");
 		assertEq(RiTa.evaluate("$start=$r.capitalize()\n$r=(a|a)\n$start", ctx), "A");
 	}
 
@@ -938,7 +938,7 @@ public class RiScriptTests {
 			String prop = "result";
 		}
 		Map<String, Object> ctx = opts("bar", new Bar());
-		String rs = RiTa.evaluate("$foo=$bar.propx\n$foo", ctx, TT);
+		String rs = RiTa.evaluate("$foo=$bar.propx\n$foo", ctx);
 		assertEq(rs, "result");
 	}
 
@@ -968,7 +968,7 @@ public class RiScriptTests {
 				"$noun = (woman | woman)",
 				"$verb = shoots",
 				"$start") + "\n";
-		String rs = RiTa.evaluate(script, ctx, TT);
+		String rs = RiTa.evaluate(script, ctx);
 		assertEq(rs, "the woman shoots the woman.");
 	}
 
@@ -995,7 +995,7 @@ public class RiScriptTests {
 	public void testDecodeHTMLEntities() {
 		assertEq(RiTa.evaluate("The &num; symbol"), "The # symbol");
 		assertEq(RiTa.evaluate("The &#x00023; symbol"), "The # symbol");
-		assertEq(RiTa.evaluate("The &#35; symbol", null, TT), "The # symbol");
+		assertEq(RiTa.evaluate("The &#35; symbol", null), "The # symbol");
 	  assertEq(RiTa.evaluate("The&num;symbol"), "The#symbol");
 
 		String[] arr = { "&lsqb;", "&lbrack;", "&#x0005B;", "&#91;" };

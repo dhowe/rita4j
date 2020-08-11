@@ -13,7 +13,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class AnalyzerTests { // NOT IN SYNC WITH JS
-
+		
 	@Test
 	public void testSingularize() {
 

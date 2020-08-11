@@ -6,6 +6,7 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
@@ -104,25 +105,32 @@ public class LexiconTests {
 	public void testRandomWordNNS() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "nns");
+		//Map<String, Object> bad = new HashMap<String, Object>();
 
-		for (int i = 0; i < 20; i++) {
-			String result = RiTa.randomWord(hm);
-			if (!Inflector.isPlural(result)) {
+		for (int i = 0; i < 1000; i++) {
+			String plural = RiTa.randomWord(hm);
+			if (!Inflector.isPlural(plural)) {
 				// For now, just warn here as there are too many edge cases (see #521)
-				System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result +
-						" (" + "isPlural=" + Inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result)
-						+ ")");
+				System.err.println("Pluralize/Singularize problem: randomWord(nns) was "
+						+ plural + " (" + "isPlural=" + Inflector.isPlural(plural) +
+						"), singularized is " + RiTa.singularize(plural) + ")");
 			}
 			// TODO: occasional problem here, examples: beaux
 
-			//No vbg, No -ness, -ism
-			String pos = RiTa._lexicon()._posData(result); //private
-			assertTrue(pos.length() > 0);
+			// No vbg, No -ness, -ism
+			String sing = Inflector.singularize(plural, null);
+			String pos = RiTa._lexicon()._posData(sing);
+			//if (pos == null) System.out.println("FAIL:" + plural + "/" + sing + ": " + pos);
+			//if (pos == null) bad.put(plural, sing);
+			assertTrue(pos != null);
 			assertTrue(pos.indexOf("vbg") < 0);
-			assertTrue(!result.endsWith("ness"));
-			assertTrue(!result.endsWith("isms"));
+			assertTrue(!plural.endsWith("ness"));
+			assertTrue(!plural.endsWith("isms"));
 		}
-
+//		for (Iterator<Entry<String,Object>> it = bad.entrySet().iterator(); it.hasNext();) {
+//			Entry<String, Object> e = it.next();
+//			System.out.println("\""+e.getKey()+"\", \""+e.getValue()+"\",");
+//		}
 	}
 
 	@Test
@@ -464,10 +472,9 @@ public class LexiconTests {
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("#$%^&*");
-		console.log(result);
 		assertTrue(result.length < 1);
 
-		result = RiTa.alliterations("umbrella");
+		result = RiTa.alliterations("umbrella", Util.opts("silent", true));
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("cat");
@@ -475,7 +482,7 @@ public class LexiconTests {
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));
 		}
-		assertTrue(result.length > 2000);
+		assertTrue(result.length > 1000);
 
 		result = RiTa.alliterations("dog");
 		assertTrue(result.length > 1000);
@@ -485,16 +492,16 @@ public class LexiconTests {
 
 		Map<String, Object> hm = new HashMap<String, Object>();
 
-		hm.put("matchMinLength", 15);
+		hm.put("minLength", 15);
 
 		result = RiTa.alliterations("dog", hm);
-		assertTrue(result.length > 0 && result.length < 5); // , "got length=" + result.length
+		assertTrue(result.length > 0 && result.length < 5, "got length=" + result.length);
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "dog")); // , "FAIL1: " + result[i]
 		}
 
 		hm.clear();
-		hm.put("matchMinLength", 16);
+		hm.put("minLength", 16);
 
 		result = RiTa.alliterations("cat", hm);
 		assertTrue(result.length > 0 && result.length < 15);

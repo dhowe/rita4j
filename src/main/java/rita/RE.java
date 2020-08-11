@@ -41,19 +41,14 @@ public class RE {
 	}
 
 	public boolean applies(String word) {
-		word = word.trim();
-		regex = regex.reset(word);
-		return regex.find();
+		return regex.reset(word.trim()).find();
 	}
 
 	public String fire(String word) {
-		word = word.trim();
-		String t = truncate(word);
-		return t + suffix;
+		return truncate(word.trim()) + suffix;
 	}
 
-	public boolean analyse(String word) {
-
+	public boolean analyze(String word) {
 		return (suffix != "" && word.endsWith(suffix));
 	}
 
@@ -62,7 +57,7 @@ public class RE {
 		if (offset == 0) return word;
 
 		StringBuffer buffer = new StringBuffer(word);
-		int i = 1;
+		int i = 1;  // substring?
 		while (i <= offset) {
 			buffer.deleteCharAt(buffer.length() - 1);
 			i++;
