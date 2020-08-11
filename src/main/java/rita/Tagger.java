@@ -334,7 +334,7 @@ public class Tagger {
 	}
 
 	private static String[] posOptions(String word) {
-		String[] posdata = lexicon._posArr(word); // fail if no lexicon
+		String[] posdata = lexicon.posArr(word); // fail if no lexicon
 		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
 		return posdata;
@@ -351,7 +351,7 @@ public class Tagger {
 		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
 			
 			String check = word.substring(0, word.length() - 3) + "y";
-			pos = lexicon._posArr(check);
+			pos = lexicon.posArr(check);
 			
 			if (Arrays.asList(pos).contains("vb")) {
 				String[] result = { "vbz" };
@@ -380,8 +380,8 @@ public class Tagger {
 		}
 		else if (word.endsWith("ed")) { // simple past or past participle
 
-			pos = lexicon._posArr(word.substring(0, word.length() - 1));
-			if (pos.length < 1) pos = lexicon._posArr(word.substring(0, word.length() - 2));
+			pos = lexicon.posArr(word.substring(0, word.length() - 1));
+			if (pos.length < 1) pos = lexicon.posArr(word.substring(0, word.length() - 2));
 			if (Arrays.asList(pos).contains("vb")) {
 				return new String[] { "vbd", "vbn" }; // hate-> hated || row->rowed
 			}
@@ -391,12 +391,12 @@ public class Tagger {
 
 			String stem = word.substring(0, word.length() - 3);
 			if (stem.length() > 0) {
-				pos = lexicon._posArr(stem);
+				pos = lexicon.posArr(stem);
 				if (Arrays.asList(pos).contains("vb")) {
 					return new String[] { "vbg" }; // assenting
 				}
 				else {
-					pos = lexicon._posArr(stem + 'e'); // hate
+					pos = lexicon.posArr(stem + 'e'); // hate
 					if (Arrays.asList(pos).contains("vb")) {
 						return new String[] { "vbg" }; // hating
 					}
@@ -439,7 +439,7 @@ public class Tagger {
 	}
 
 	private static boolean _lexHas(String pos, String word) {
-		String[] tags = lexicon._posArr(word);
+		String[] tags = lexicon.posArr(word);
 		if (tags.length < 1) return false;
 		for (int j = 0; j < tags.length; j++) {
 			if (pos.equals(tags[j])) return true;
@@ -465,7 +465,7 @@ public class Tagger {
 	}
 
 	private static void _checkPluralNounOrVerb(String stem, List<String> result) {
-		List<String> pos = Arrays.asList(lexicon._posArr(stem));
+		List<String> pos = Arrays.asList(lexicon.posArr(stem));
 		if (pos.size() > 0) {
 			if (pos.contains("nn")) result.add("nns"); // ?? any case
 			if (pos.contains("vb")) result.add("vbz");
@@ -490,7 +490,7 @@ public class Tagger {
 
 		if (word.indexOf(" ") > -1) throw new RiTaException("checkType() expects single word, found: '" + word + "'");
 
-		List<String> psa = Arrays.asList(lexicon._posArr(word));
+		List<String> psa = Arrays.asList(lexicon.posArr(word));
 
 		if (psa.size() == 0) {
 			if (RiTa.LEX_WARN) {

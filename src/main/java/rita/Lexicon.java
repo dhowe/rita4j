@@ -58,10 +58,10 @@ public class Lexicon {
 			return EA;
 		}
 
-		String fss = this._firstStressedSyl(theWord);
+		String fss = this.firstStressedSyl(theWord);
 		if (fss == null) return EA;
 
-		String phone = this._firstPhone(fss);
+		String phone = this.firstPhone(fss);
 		ArrayList<String> result = new ArrayList<>();
 
 		// make sure we parsed first phoneme
@@ -84,7 +84,7 @@ public class Lexicon {
 				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
 			}
-			String c2 = this._firstPhone(this._firstStressedSyl(word));
+			String c2 = this.firstPhone(this.firstStressedSyl(word));
 			if (phone.equals(c2)) result.add(word);
 			if (result.size() >= limit) break;
 		}
@@ -102,11 +102,11 @@ public class Lexicon {
 		if (word1 == null || word2 == null) return false;
 		if (word1.length() == 0 || word2.length() == 0) return false;
 
-		String c1 = _firstPhone(_firstStressedSyl(word1, noLts));
-		String c2 = _firstPhone(_firstStressedSyl(word2, noLts));
+		String c1 = firstPhone(firstStressedSyl(word1, noLts));
+		String c2 = firstPhone(firstStressedSyl(word2, noLts));
 
 		return c1.length() > 0 && c2.length() > 0
-				&& !_isVowel(c1.charAt(0)) && c1.equals(c2);
+				&& !isVowel(c1.charAt(0)) && c1.equals(c2);
 	}
 
 	public boolean isRhyme(String word1, String word2, boolean noLts) {
@@ -114,12 +114,12 @@ public class Lexicon {
 		if (word1 == null || word2 == null) return false;
 		if (word1.toUpperCase().equals(word2.toUpperCase())) return false;
 
-		String phones1 = _rawPhones(word1, noLts);
-		String phones2 = _rawPhones(word2, noLts);
+		String phones1 = rawPhones(word1, noLts);
+		String phones2 = rawPhones(word2, noLts);
 		if (phones2.equals(phones1)) return false;
 
-		String p1 = _lastStressedVowelPhonemeToEnd(word1, noLts);
-		String p2 = _lastStressedVowelPhonemeToEnd(word2, noLts);
+		String p1 = lastStressedVowelPhonemeToEnd(word1, noLts);
+		String p2 = lastStressedVowelPhonemeToEnd(word2, noLts);
 
 		return p1 != null && p2 != null && p1.equals(p2);
 	}
@@ -340,8 +340,10 @@ public class Lexicon {
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
+    int actualLimit = Util.intOpt("limit", opts, Integer.MAX_VALUE);
+    opts.put("limit", Integer.MAX_VALUE);
+
 		opts.put("type", "letter");
-		// opts.get("type") = "letter";
 		String[] simLetter = similarByType(word, opts);
 		if (simLetter.length < 1) return EA;
 
@@ -349,7 +351,8 @@ public class Lexicon {
 		String[] simSound = similarByType(word, opts);
 		if (simSound.length < 1) return EA;
 
-		return _intersect(simSound, simLetter);
+		String[] result = intersect(simSound, simLetter);
+		return Arrays.copyOfRange(result, 0, Math.min(result.length, actualLimit));
 	}
 
 	public String randomWord(Map<String, Object> opts) {
@@ -386,7 +389,7 @@ public class Lexicon {
 
 		if (theWord == null || theWord.length() == 0) return EA;
 
-		String phone = this._lastStressedPhoneToEnd(theWord);
+		String phone = this.lastStressedPhoneToEnd(theWord);
 		if (phone == null) return EA;
 
 		ArrayList<String> result = new ArrayList<>();
@@ -427,7 +430,7 @@ public class Lexicon {
 		String[] phonesA = null, words = dict.keySet().toArray(EA);
 
 		if (sound) {
-			phonesA = this.toPhoneArray(this._rawPhones(input));
+			phonesA = this.toPhoneArray(this.rawPhones(input));
 			if (phonesA == null) return EA;
 		}
 
@@ -500,7 +503,7 @@ public class Lexicon {
 
 	//////////////////////////////////////////////////////////////////////
 
-	public static String[] _intersect(String[] a, String[] b) {
+	public static String[] intersect(String[] a, String[] b) {
 		// https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
 		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
 		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
@@ -508,27 +511,27 @@ public class Lexicon {
 		return s1.toArray(EA);
 	}
 
-	public String _posData(String word) {
+	public String posData(String word) {
 
-		String[] rdata = _lookupRaw(word);
+		String[] rdata = lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
 				? rdata[1].replaceAll("'", E).replaceAll("\\]", E)
 				: null;
 	}
 
-	public String _bestPos(String word) {
+	public String bestPos(String word) {
 
-		String[] pl = _posArr(word);
+		String[] pl = posArr(word);
 		return (pl.length > 0) ? pl[0] : null;
 	}
 
-	public String _rawPhones(String word) {
-		return this._rawPhones(word, false);
+	public String rawPhones(String word) {
+		return this.rawPhones(word, false);
 	}
 
-	public String _rawPhones(String word, boolean noLts) {
+	public String rawPhones(String word, boolean noLts) {
 
-		String[] rdata = _lookupRaw(word);
+		String[] rdata = lookupRaw(word);
 		if (rdata != null && rdata.length != 0) {
 			return rdata[0];
 		}
@@ -545,12 +548,12 @@ public class Lexicon {
 		return null;
 	}
 
-	String[] _posArr(String word) {
-		String pl = _posData(word);
+	String[] posArr(String word) {
+		String pl = posData(word);
 		return (pl != null) ? pl.split(" ") : EA;
 	}
 
-	private String[] _lookupRaw(String word) {
+	private String[] lookupRaw(String word) {
 		String[] result = null;
 		if (word != null && word.length() > 0) {
 			word = word.toLowerCase();
@@ -579,32 +582,32 @@ public class Lexicon {
 		}
 	}
 
-	private boolean _isVowel(char c) {
+	private boolean isVowel(char c) {
 		return Util.contains(RiTa.VOWELS, c);
 	}
 
-	private boolean _isVowel(String c) {
+	private boolean isVowel(String c) {
 		return c != null && RiTa.VOWELS.contains(c);
 	}
 
-	private boolean _isConsonant(char c) {
-		return _isConsonant(Character.toString(c));
+	private boolean isConsonant(char c) {
+		return isConsonant(Character.toString(c));
 	}
 
-	private boolean _isConsonant(String p) {
+	private boolean isConsonant(String p) {
 		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
 				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
 	}
 
-	private String _lastStressedPhoneToEnd(String word) {
-		return _lastStressedPhoneToEnd(word, false);
+	private String lastStressedPhoneToEnd(String word) {
+		return lastStressedPhoneToEnd(word, false);
 	}
 
-	private String _lastStressedPhoneToEnd(String word, boolean noLts) {
+	private String lastStressedPhoneToEnd(String word, boolean noLts) {
 
 		if (word == null || word.length() == 0) return null;
 
-		String raw = _rawPhones(word, noLts);
+		String raw = rawPhones(word, noLts);
 		if (raw == null || raw.length() == 0) return null;
 		int idx = raw.lastIndexOf(RiTa.STRESSED);
 		if (idx < 0) return null;
@@ -616,11 +619,11 @@ public class Lexicon {
 		return raw.substring(idx + 1);
 	}
 
-	private String _lastStressedVowelPhonemeToEnd(String word, boolean noLts) {
+	private String lastStressedVowelPhonemeToEnd(String word, boolean noLts) {
 
 		if (word == null || word.length() == 0) return null;
 
-		String raw = _lastStressedPhoneToEnd(word, noLts);
+		String raw = lastStressedPhoneToEnd(word, noLts);
 		if (raw == null || raw.length() == 0) return null;
 
 		String[] syllables = raw.split(" ");
@@ -639,13 +642,13 @@ public class Lexicon {
 		return lastSyllable.substring(idx);
 	}
 
-	private String _firstStressedSyl(String word) {
-		return _firstStressedSyl(word, false);
+	private String firstStressedSyl(String word) {
+		return firstStressedSyl(word, false);
 	}
 
-	private String _firstStressedSyl(String word, boolean noLts) {
+	private String firstStressedSyl(String word, boolean noLts) {
 
-		String raw = _rawPhones(word, noLts);
+		String raw = rawPhones(word, noLts);
 		if (raw == E || raw == null) return null;
 		int idx = raw.indexOf(RiTa.STRESSED);
 		if (idx < 0) return null;
@@ -663,7 +666,7 @@ public class Lexicon {
 		return idx < 0 ? firstToEnd : firstToEnd.substring(0, idx);
 	}
 
-	private String _firstPhone(String rawPhones) {
+	private String firstPhone(String rawPhones) {
 		if (rawPhones != null && rawPhones.length() > 0) {
 			String[] phones = rawPhones.split(RiTa.PHONEME_BOUNDARY);
 			if (phones != null) return phones[0];

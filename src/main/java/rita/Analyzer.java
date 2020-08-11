@@ -42,7 +42,7 @@ public class Analyzer {
 	public String[] analyzeWord(String word, Map<String, Object> opts) {
 
 		boolean useRaw = false;
-		String rawPhones = RiTa._lexicon()._rawPhones(word, true);
+		String rawPhones = RiTa._lexicon().rawPhones(word, true);
 
 		// TODO: add cache
 
@@ -50,7 +50,7 @@ public class Analyzer {
 		if (rawPhones == null && word.endsWith("s")) {
 
 			String sing = RiTa.singularize(word);
-			rawPhones = RiTa._lexicon()._rawPhones(sing, true);
+			rawPhones = RiTa._lexicon().rawPhones(sing, true);
 			if (rawPhones != null) rawPhones += "-z"; // add 's' phone
 		}
 		

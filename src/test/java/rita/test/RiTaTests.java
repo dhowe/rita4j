@@ -54,7 +54,7 @@ public class RiTaTests {
 		int[] ro = RiTa.randomOrdering(2);
 		Arrays.sort(ro);
 		assertArrayEquals(ro, result2);
-		// expect(RiTa.randomOrdering(['a'])).eql(['a']);
+		// expect(RiTa.randomOrdering(['a'])).	['a']);
 		// expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
 	}
 

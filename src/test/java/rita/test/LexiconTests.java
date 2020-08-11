@@ -119,7 +119,7 @@ public class LexiconTests {
 
 			// No vbg, No -ness, -ism
 			String sing = Inflector.singularize(plural, null);
-			String pos = RiTa._lexicon()._posData(sing);
+			String pos = RiTa._lexicon().posData(sing);
 			//if (pos == null) System.out.println("FAIL:" + plural + "/" + sing + ": " + pos);
 			//if (pos == null) bad.put(plural, sing);
 			assertTrue(pos != null);
@@ -127,10 +127,10 @@ public class LexiconTests {
 			assertTrue(!plural.endsWith("ness"));
 			assertTrue(!plural.endsWith("isms"));
 		}
-//		for (Iterator<Entry<String,Object>> it = bad.entrySet().iterator(); it.hasNext();) {
-//			Entry<String, Object> e = it.next();
-//			System.out.println("\""+e.getKey()+"\", \""+e.getValue()+"\",");
-//		}
+		//		for (Iterator<Entry<String,Object>> it = bad.entrySet().iterator(); it.hasNext();) {
+		//			Entry<String, Object> e = it.next();
+		//			System.out.println("\""+e.getKey()+"\", \""+e.getValue()+"\",");
+		//		}
 	}
 
 	@Test
@@ -143,7 +143,7 @@ public class LexiconTests {
 				hm.clear();
 				hm.put("pos", pos[j]);
 				String result = RiTa.randomWord(hm);
-				String best = RiTa._lexicon()._bestPos(result);// private
+				String best = RiTa._lexicon().bestPos(result);// private
 				//System.out.println(result+": "+pos[j]+" ?= "+best);
 				assertEquals(pos[j], best);
 			}
@@ -262,9 +262,9 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		hm.put("pos", "nns");
 		res = RiTa.search("010", hm);
-		//console.log(res);
+		console.log(res);
 		assertArrayEquals(res,
-				new String[] { "abalone", "abandonments", "abatements", "abbreviations", "abdomens" });
+				new String[] { "abandonments", "abatements", "abbreviations", "abdomens", "abductions" });
 
 		//if (1 == 1) return;
 
@@ -387,7 +387,7 @@ public class LexiconTests {
 	@Test
 	public void testToPhoneArray() {
 
-		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon()._rawPhones("tornado", false));
+		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon().rawPhones("tornado", false));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
 		assertArrayEquals(result, ans);
 	}
@@ -759,6 +759,34 @@ public class LexiconTests {
 
 	}
 
+	static void eql(String[] a, String[] b) {
+		eql(a, b, "");
+	}
+
+	static void eql(String[] a, String[] b, String msg) {
+		Arrays.sort(a);
+		Arrays.sort(b);// hack
+		if (msg.equals("dbug")) {
+			for (int i = 0; i < a.length; i++) {
+				System.out.println(i + ") " + a[i] + " " + b[i]);
+			}
+		}
+		assertEquals(Arrays.asList(b), Arrays.asList(a), msg);
+	}
+	
+	
+	
+	@Test
+	public void FAILING() {
+		String[] result, answer;
+		result = RiTa.soundsLike("try", Util.opts("matchSpelling", true, "limit", 3));
+		answer = new String[] { "cry", "dry", "fry" };
+		eql(result, answer);
+	}
+
+	
+	
+	
 	@Test
 	public void testSoundsLikeMatchSpelling() {
 		String[] result, answer;
@@ -767,36 +795,36 @@ public class LexiconTests {
 
 		result = RiTa.soundsLike("try", hm);
 		answer = new String[] { "cry", "dry", "fry", "pry", "tray", "wry" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 
 		hm.put("maxLength", 3);
 		result = RiTa.soundsLike("try", hm);
 		answer = new String[] { "cry", "dry", "fry", "pry", "wry" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 
 		hm.clear();
 		hm.put("matchSpelling", true);
 		hm.put("minLength", 4);
 		result = RiTa.soundsLike("try", hm);
 		answer = new String[] { "tray" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 
 		hm.clear();
 		hm.put("matchSpelling", true);
 		hm.put("limit", 3);
 		result = RiTa.soundsLike("try", hm);
 		answer = new String[] { "cry", "dry", "fry" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 
 		hm.clear();
 		hm.put("matchSpelling", true);
 		result = RiTa.soundsLike("daddy", hm);
 		answer = new String[] { "dandy", "paddy" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 
 		result = RiTa.soundsLike("banana", hm);
 		answer = new String[] { "bonanza" };
-		assertArrayEquals(result, answer);
+		eql(result, answer);
 	}
 
 	@Test
