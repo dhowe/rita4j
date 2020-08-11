@@ -66,7 +66,7 @@ public class RiTa {
 	}
 
 	public static String conjugate(String word, Map<String, Object> opts) {
-		return conjugator.conjugate(word, opts);
+		return Conjugator.conjugate(word, opts);
 	}
 
 	public static String conjugate(String word) {
