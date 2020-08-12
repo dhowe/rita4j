@@ -113,6 +113,7 @@ public class RandGen {
 	}
 
 	public static double[] ndist(double[] weights, double temp) {
+		if (temp == 0) return(ndist(weights));
 		// have temp, do softmax
 		if (temp < 0.01) temp = 0.01;
 		ArrayList<Double> probs = new ArrayList<>(); 

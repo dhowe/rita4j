@@ -11,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -397,28 +398,20 @@ public class MarkovTests {
 		rm.addText((sample));
 
 		String[] checks = { "reason", "people", "personal", "the", "is", "XXX" };
+		@SuppressWarnings("unchecked")
+		Map<String, Object>[] expected = new HashMap[6];
+		
+		expected[0] = opts("people", 1.0);
+		expected[1] = opts("lie", 1);
+		expected[2] = opts("power", 1.0);
+		expected[3] = opts("time", 0.5,"party",0.5);
+		expected[4] = opts("to", 0.3333333333333333, ".", 0.3333333333333333, "helpful", 0.3333333333333333);
+		expected[5] = opts();
 
-// TODO:
-//		 Object[] expected = new Object[] {};
-//				 [{
-//		 people: 1.0
-//		 }, {
-//		 lie: 1
-//		 }, {
-//		 power: 1.0
-//		 }, {
-//		 time: 0.5,
-//		 party: 0.5
-//		 }, {
-//		 to: 0.3333333333333333,
-//		 '.': 0.3333333333333333,
-//		 helpful: 0.3333333333333333
-//		 }, {}];
-//
-//		for (int i = 0; i < checks.length; i++) {
-//			Map<String, Object> res = rm.probabilities(checks[i]);
-//			eql(res, expected[i]);
-//		}
+		for (int i = 0; i < checks.length; i++) {
+			HashMap<String, Object> res = rm.probabilities(checks[i]);
+			eql(res, expected[i]);
+		}
 
 	}
 
@@ -427,7 +420,7 @@ public class MarkovTests {
 		Markov rm = new Markov(4);
 		rm.addText(sample2);
 
-		Map<String, Object> res = rm.probabilities("the".split(" "));
+		HashMap<String, Object> res = rm.probabilities("the".split(" "));
 		Map<String, Object> expec = opts();
 		expec.put("time", 0.5);
 		expec.put("party", 0.5);
@@ -475,10 +468,9 @@ public class MarkovTests {
 		String text = "the dog ate the boy the";
 		Markov rm = new Markov(3);
 		rm.addText(text);
-
-		assertEquals(rm.probability("the"), .5);
-		assertEquals(rm.probability("dog"), 1 / 6);
+		assertEquals(rm.probability("dog"), (double) 1 / 6);
 		assertEquals(rm.probability("cat"), 0);
+		assertEquals(rm.probability("the"), .5);
 
 		text = "the dog ate the boy that the dog found.";
 		rm = new Markov(3);
@@ -591,8 +583,8 @@ public class MarkovTests {
 
 	/* Helpers */
 
-	private void eql(Map<String, Object> a, Map<String, Object> b) {
-		assertTrue(a.equals(b));
+	private void eql(HashMap<String, Object> result, Map<String, Object> opts) {
+		assertTrue(result.equals(opts));
 	}
 
 	private String[] getAllRegexMatches(String regexPattern, String input) {

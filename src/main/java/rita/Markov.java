@@ -65,10 +65,10 @@ public class Markov {
 		// TODO: this.untokenize = opts.get("untokenize") || RiTa.untokenize;
 		return RiTa.untokenize(text);
 	}
-	
+
 	public String toString() {
-	    Node root = this.root;
-	    return root.asTree().replaceAll("\\{\\}", "");
+		Node root = this.root;
+		return root.asTree().replaceAll("\\{\\}", "");
 	}
 
 	public String[] generate() {
@@ -144,7 +144,7 @@ public class Markov {
 
 				tokens.add(next);
 				if (next.token == Markov.SE) {
-					tokens.remove(tokens.size()-1);
+					tokens.remove(tokens.size() - 1);
 					if (tokens.size() >= minLength) {
 						ArrayList<String> rawtoks = new ArrayList<>();
 						tokens.forEach(t -> rawtoks.add(t.token));
@@ -172,7 +172,7 @@ public class Markov {
 			if (tokens != null && tokens.size() >= maxLength) {
 				fail.accept("too long", ++tries);
 			}
-				
+
 		}
 
 		return result.toArray(new String[result.size()]);
@@ -225,22 +225,41 @@ public class Markov {
 		return (float) 0;
 	}
 
-	public float probability(String dataString) {
-//		float p = 0;
-//		if (dataString.length() != 0) {
-//			Node tn = this.root.child(dataString);
-//			if (tn != null)
-//				p = tn.nodeProb(true); // no meta
-//		}
-		return 0;
+	public double probability(String dataString) {
+		double p = 0;
+		if (dataString.length() != 0) {
+			Node tn = this.root.child(dataString);
+			if (tn != null)
+				p = tn.nodeProb(true); // no meta
+		}
+		return p;
 	}
 
-	public Map<String, Object> probabilities(String pathString) {
-		return null;
+	public HashMap<String, Object> probabilities(String pathString) {
+		return probabilities(this.tokenize(pathString), 0);
 	}
-
-	public Map<String, Object> probabilities(String[] pathArray) {
-		return null;
+	public HashMap<String, Object> probabilities(String pathString, double temp) {
+		return probabilities(this.tokenize(pathString), temp);
+	}
+	public HashMap<String, Object> probabilities(String[] path) {
+		return probabilities(path, 0);
+	}
+	public HashMap<String, Object> probabilities(String[] path, double temp) {
+		HashMap<String, Object> probs = new HashMap<String, Object>();
+	    Node parent = this._pathTo(path);
+	    if (parent != null) {
+	      Node[] children = parent.childNodes();
+	      ArrayList<Integer> weights = new ArrayList<>();
+			for (Node n : children) {
+				weights.add(n.count);
+			}
+			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
+			double[] pdist = RandGen.ndist(wArr, temp);
+			for (int i = 0; i < children.length; i++) {
+				probs.put(children[i].token, pdist[i]);
+			}
+	    }
+	    return probs;
 	}
 
 	////////////////////////////// end API ////////////////////////////////
@@ -253,7 +272,7 @@ public class Markov {
 
 		BiPredicate<Node, Node[]> validateMlms = (word, nodes) -> {
 			ArrayList<String> check = new ArrayList<>();
-			for (Node node: nodes) {
+			for (Node node : nodes) {
 				check.add(node.token);
 			}
 			check.add(word.token); // string
@@ -319,7 +338,8 @@ public class Markov {
 			Node node = root;
 			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
 			for (int j = 0; j < words.length; j++) {
-				if(words[j] != null) node = node.addChild(words[j]);
+				if (words[j] != null)
+					node = node.addChild(words[j]);
 			}
 		}
 	}
@@ -359,16 +379,16 @@ public class Markov {
 	public String _flatten(Node[] nodes) {
 		return "";
 	}
+
 	public String _flatten(ArrayList<Node> tokens) {
 		return _flatten(tokens.toArray(new Node[tokens.size()]));
 	}
-	
+
 	public void _logError(int tries, ArrayList<Node> toks, String msg) {
-	    if(this.trace)
-	    	System.out.println(tries + " FAIL" + (msg.length() > 0 ? "(" + msg + ")" : "") + ": " + this._flatten(toks));
+		if (this.trace)
+			System.out
+					.println(tries + " FAIL" + (msg.length() > 0 ? "(" + msg + ")" : "") + ": " + this._flatten(toks));
 	}
-	
-	
 
 	public int size() {
 		return this.root.childCount();
@@ -404,7 +424,7 @@ public class Markov {
 		public Node(String word) {
 			token = word;
 		}
-		
+
 		public Node(Node p, String word) {
 			token = word;
 			parent = p;
@@ -423,12 +443,12 @@ public class Markov {
 		public Node pselect() {
 			Node[] children = this.childNodes();
 			ArrayList<Integer> weights = new ArrayList<>();
-			for(Node n: children) {
+			for (Node n : children) {
 				weights.add(n.count);
 			}
 			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
-		    double[] pdist = RandGen.ndist(wArr);
-		    return children[RandGen.pselect(pdist)];
+			double[] pdist = RandGen.ndist(wArr);
+			return children[RandGen.pselect(pdist)];
 		}
 
 		public boolean isLeaf() {
@@ -452,7 +472,7 @@ public class Markov {
 		}
 
 		public int childCount() {
-			return childCount(false);
+			return childCount(true);
 		}
 
 		public int childCount(boolean excludeMetaTags) {
@@ -470,14 +490,17 @@ public class Markov {
 			return this.numChildren;
 		}
 
-		public float nodeProb() {
+		public double nodeProb() {
 			return nodeProb(false);
 		}
 
-		public float nodeProb(boolean excludeMetaTags) {
+		public double nodeProb(boolean excludeMetaTags) {
 			if (this.parent == null)
 				throw new RiTaException("no parent");
-			return this.count / this.parent.childCount(excludeMetaTags);
+			double result = (double) this.count / (double) this.parent.childCount(excludeMetaTags);
+			// System.out.println("C:" + this.count + " " +
+			// this.parent.childCount(excludeMetaTags) + "->" + result);
+			return result;
 		}
 
 		public Node addChild(String word) {
@@ -498,7 +521,8 @@ public class Markov {
 		}
 
 		public String toString() {
-			if (this.parent == null) return "Root";
+			if (this.parent == null)
+				return "Root";
 			BigDecimal probBigDecimal = new BigDecimal(this.nodeProb());
 			probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
 			return this.token + "(" + this.count + "/" + probBigDecimal + "%)";
@@ -518,7 +542,7 @@ public class Markov {
 				indent += "  ";
 
 			for (Node node : mn.children.values()) {
-				
+
 				if (node != null) {
 					str += indent + "'" + this.encode(node.token) + "'";
 					if (!node.isRoot()) {
@@ -528,7 +552,7 @@ public class Markov {
 					}
 					if (!node.isLeaf())
 						str += "  {";
-					
+
 					str = this.childCount() > 0 ? this.stringify(node, str, depth + 1, sort) : str + "}";
 				}
 			}
@@ -537,7 +561,7 @@ public class Markov {
 				indent += "  ";
 			return str + indent + "}";
 		}
-		
+
 		public String asTree() {
 			return asTree(false);
 		}
