@@ -69,18 +69,6 @@ public class ConjugatorTests {
 		assertEquals(RiTa.presentParticiple("bring"), "bringing");
 		assertEquals(RiTa.presentParticiple("speak"), "speaking");
 
-		assertEquals(RiTa.presentParticiple("study "), "studying");
-		// space
-		assertEquals(RiTa.presentParticiple(" study"), "studying");
-		// space
-		assertEquals(RiTa.presentParticiple("study  "), "studying");
-		// double space
-		assertEquals(RiTa.presentParticiple("  study"), "studying");
-		// double space
-		assertEquals(RiTa.presentParticiple("study    "), "studying");
-		// tab space
-		assertEquals(RiTa.presentParticiple("    study"), "studying");
-		// tab space
 		assertEquals(RiTa.presentParticiple(""), "");
 	}
 
@@ -105,23 +93,16 @@ public class ConjugatorTests {
 
 	@Test
 	public void testConjugate() {
-		// Map<String,String> args = new HashMap<>(); //TODO use Map<String,String>
-		// here?
 
-		Map<String, Object> args = new HashMap<String, Object>();
 
-		String[] s;
-		String[] a;
+		String[] s, a;
 
 		assertEquals("swum", RiTa.pastParticiple("swim"));
-		// return; //TODO also in rita-script
-
-		args.clear();
-		args.put("form", RiTa.GERUND);
-		args = Collections.unmodifiableMap(args);
-
-		assertEquals(RiTa.conjugate("be", args), "being");
-
+		
+		// Example of using opts
+		assertEquals(RiTa.conjugate("be", Util.opts("form", RiTa.GERUND)), "being");
+		
+		Map<String, Object> args = new HashMap<String, Object>();
 		s = new String[] { "swim", "need", "open" };
 		a = new String[] { "swims", "needs", "opens" };
 

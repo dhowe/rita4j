@@ -784,9 +784,6 @@ public class LexiconTests {
 		eql(result, answer);
 	}
 
-	
-	
-	
 	@Test
 	public void testSoundsLikeMatchSpelling() {
 		String[] result, answer;
