@@ -506,9 +506,10 @@ public class Lexicon {
 	public static String[] intersect(String[] a, String[] b) {
 		// https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
 		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
-		Set<String> s2 = new HashSet<String>(Arrays.asList(b));
-		s1.retainAll(s2);
-		return s1.toArray(EA);
+		s1.retainAll(Arrays.asList(b));
+		String[] result = s1.toArray(EA);
+		Arrays.sort(result);
+		return result;
 	}
 
 	public String posData(String word) {
