@@ -36,8 +36,9 @@ public class ChoiceState {
 			WeightContext wctx = w.weight();
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
-			for (int j = 0; j < weight; j++)
+			for (int j = 0; j < weight; j++) {
 				options.add(expr);
+			}
 		}
 		if (parent instanceof Visitor) {
 			Visitor v = (Visitor) parent;

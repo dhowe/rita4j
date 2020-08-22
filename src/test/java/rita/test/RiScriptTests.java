@@ -731,29 +731,23 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testTransfromsInContext() {
-		Map<String, Object> ctx = opts();
-		Function<String, String> func = s -> (s != null ? s : "B");
-		ctx.put("capB", func);
-		assertEq(RiTa.evaluate(".capB()", ctx), "B");
-		assertEq(RiTa.evaluate("(c).capB()", ctx), "c");
-		assertEq(RiTa.evaluate("(c).toUpperCase()", ctx), "C");
-	}
-
-	@Test
 	public void testNoInputTransforms() {
-		Map<String, Object> ctx = opts();
-		Function<String, String> func = (s) -> {
-			return "A";
-		};
-		ctx.put("capA", func);
-
+		
+		// set capA()
+		Function<String, String> func = (s) -> "A";
+		Map<String, Object> ctx = opts("capA", func);
 		assertEq(RiTa.evaluate(".capA()", ctx), "A");
-
-		ctx.clear();
-		RiTa.addTransform("capA", func);
-		assertEq(RiTa.evaluate(".capA()", ctx), "A");
-		RiTa.addTransform("capA", null); // remove
+		
+		// reset capA() to new function
+		func = s -> (s.length() > 0 ? s : "B");
+		ctx = opts("capA", func);
+		
+		assertEq(RiTa.evaluate(".capA()", ctx), "B");
+		assertEq(RiTa.evaluate("().capA()", ctx), "B");
+		assertEq(RiTa.evaluate("(A).capA()", ctx), "A");
+		
+		// remove capA()
+		RiTa.addTransform("capA", null); 
 	}
 
 	@Test
@@ -846,7 +840,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testTransfromsEndingWithPunc() {
+	public void testTransformsEndingWithPunc() {
 		String rs = RiTa.evaluate("(a | b).toUpperCase().");
 		String[] possibleResults = { "A.", "B." };
 		assertTrue(Arrays.asList(possibleResults).contains(rs));
