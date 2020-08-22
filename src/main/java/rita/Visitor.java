@@ -51,7 +51,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitScriptOff(RiScriptParser.ScriptContext ctx) {
 		if (trace) System.out.println("visitScript: '" + ctx.getText() + "'\t" + stack(ctx));
 		for (int i = 0; i < ctx.getChildCount(); i++) {
-			System.out.println(i + ") " + ctx.getChild(i).getClass() + " '" + ctx.getChild(i).getText() + "'");
+			System.out.println(i + ") " + ctx.getChild(i).getClass() 
+					+ " '" + ctx.getChild(i).getText() + "'");
 		}
 		return visitChildren(ctx);
 	}

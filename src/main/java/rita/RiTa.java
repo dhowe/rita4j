@@ -11,7 +11,7 @@ public class RiTa {
 	protected static Concorder concorder;
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
-	
+
 	static {
 		concorder = new Concorder();
 		conjugator = new Conjugator();
@@ -403,7 +403,6 @@ public class RiTa {
 
 	// STATICS
 	public static boolean SILENT = false;
-	//public static boolean SILENT_LTS = true; //TODO is SILENT_LTS or SILENCE_LTS?
 	public static boolean SILENCE_LTS = true;
 	public static boolean LEX_WARN = false;
 	public static boolean LTS_WARN = false;
@@ -438,13 +437,34 @@ public class RiTa {
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
 	public static final String[] FEATURES = { "TOKENS", "STRESSES", "PHONEMES", "SYLLABLES", "POS", "TEXT" };
-	public static final String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is",
-			"could", "might", "does", "are", "have" };
-	public static final String[] ABBREVIATIONS = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.",
-			"Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.",
-			"Sens.", "Sgt.", "Sr.", "St.", "a.k.a.", "c.f.", "i.e.", "e.g.", "vs.", "v.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.",
-			"Sept.", "Oct.", "Nov.", "Dec." };
-	public static final String[] STOP_WORDS = null; //TODO
+
+	public static String[] ABBREVIATIONS = {
+			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
+			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.", "Mar.",
+			"Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."
+	};
+	public static String[] QUESTIONS = {
+			"was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have"
+	};
+	public static String[] STOP_WORDS = {
+			"and", "a", "of", "in", "i", "you", "is", "to",
+			"that", "it", "for", "on", "have", "with",
+			"this", "be", "not", "are", "as", "was", "but", "or", "from",
+			"my", "at", "if", "they", "your", "all", "he", "by", "one",
+			"me", "what", "so", "can", "will", "do", "an", "about", "we", "just",
+			"would", "there", "no", "like", "out", "his", "has", "up", "more", "who",
+			"when", "don't", "some", "had", "them", "any", "their", "it's", "only",
+			"which", "i'm", "been", "other", "were", "how", "then", "now",
+			"her", "than", "she", "well", "also", "us", "very", "because",
+			"am", "here", "could", "even", "him", "into", "our", "much",
+			"too", "did", "should", "over", "want", "these", "may", "where", "most",
+			"many", "those", "does", "why", "please", "off", "going", "its", "i've",
+			"down", "that's", "can't", "you're", "didn't", "another", "around",
+			"must", "few", "doesn't", "the", "every", "yes", "each", "maybe",
+			"i'll", "away", "doing", "oh", "else", "isn't", "he's", "there's", "hi",
+			"won't", "ok", "they're", "yeah", "mine", "we're", "what's", "shall",
+			"she's", "hello", "okay", "here's", "less"
+	};
 
 	public static void main(String[] args) {
 		System.out.println(RiTa.analyze("absolot"));

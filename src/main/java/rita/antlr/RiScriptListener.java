@@ -98,12 +98,12 @@ public interface RiScriptListener extends ParseTreeListener {
 	 */
 	void exitChars(RiScriptParser.CharsContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link RiScriptParser#token}.
+	 * Enter a parse tree produced by {@link RiScriptParser#symbol}.
 	 * @param ctx the parse tree
 	 */
 	void enterSymbol(RiScriptParser.SymbolContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link RiScriptParser#token}.
+	 * Exit a parse tree produced by {@link RiScriptParser#symbol}.
 	 * @param ctx the parse tree
 	 */
 	void exitSymbol(RiScriptParser.SymbolContext ctx);

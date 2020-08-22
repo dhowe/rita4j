@@ -1,3 +1,5 @@
+
+WORK_DIR=./.antlr
 GRAMMAR_DIR=../rita2js/grammar
 DEPENDS_DIR=./target/dependency
 OUTPUT_DIR=./src/main/java/rita/antlr
@@ -31,9 +33,13 @@ fi
 CP="$DEPENDS_DIR/*:$CLASSPATH"
 #echo "$CP"
 
-java -Xmx500M -cp "$CP" org.antlr.v4.Tool -Dlanguage=Java -lib $GRAMMAR_DIR -o .grammar -visitor -Xexact-output-dir -package rita.antlr $GRAMMAR_DIR/RiScript.g4
+rm -rf $OUTPUT_DIR/*
 
-cp .antlr/*.java $OUTPUT_DIR
+java -Xmx500M -cp "$CP" org.antlr.v4.Tool -Dlanguage=Java -lib $GRAMMAR_DIR -o $WORK_DIR -visitor -Xexact-output-dir -package rita.antlr $GRAMMAR_DIR/RiScript.g4
 
-echo Compiled:
+cp $WORK_DIR/*.java $OUTPUT_DIR
+rm -rf $WORK_DIR
+
+echo
+echo 'Compiled:'
 ls $OUTPUT_DIR

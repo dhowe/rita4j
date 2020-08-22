@@ -30,18 +30,26 @@ public class RiScriptTests {
 		assertTrue(RE.test("\\$[A-Za-z_]", expr));
 		//System.out.println(expr);
 	}
-
+	
+	@Test
+	public void testSymbolsStartingWithNumbers() {
+		assertEq(RiTa.evaluate("$foo=hello\n$start=I said $foo to her\n$start", opts()), "I said hello to her");
+		assertEq(RiTa.evaluate("$1foo=hello\n$1start=I said $1foo to her\n$1start", opts()), "I said hello to her");
+		//assertEq(RiTa.evaluate("$1foo=(hello)\n$1start=I said $1foo to her\n$1start",  opts()), "I said hello to her");
+	}
+	
 	@Test
 	public void testSymbolsInContext() {
 
-		Map<String, Object> ctx = opts();
+		Map<String, Object> ctx;
+		
 		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("the $dog ate", ctx), "the terrier ate");
 
 		ctx.put("verb", "ate");
 		assertEq(RiTa.evaluate("the $dog $verb", ctx), "the terrier ate");
 
-		ctx.clear();
+		ctx = opts();
 		assertEq(RiTa.evaluate("$foo", ctx), "$foo");
 		assertEq(RiTa.evaluate("a $foo dog", ctx, ST), "a $foo dog");
 
@@ -58,19 +66,19 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("The $dog today.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the $dog.", ctx), "I ate the lab.");
 
-		ctx.clear();
+		ctx = opts();
 		assertEq(RiTa.evaluate("$foo\n", ctx), "$foo");
 		assertEq(RiTa.evaluate("a $foo\ndog", ctx), "a $foo dog");
 		ctx.put("foo", "bar");
 		assertEq(RiTa.evaluate("$foo\n", ctx), "bar");
-		ctx.clear();
-		ctx.put("dog", "terrier");
+
+		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("a $dog", ctx), "a terrier");
-		ctx.clear();
-		ctx.put("dog", "beagle");
+		
+		ctx = opts("dog", "beagle");
 		assertEq(RiTa.evaluate("I ate\nthe $dog", ctx), "I ate the beagle");
-		ctx.clear();
-		ctx.put("dog", "lab");
+
+		ctx = opts("dog", "lab");
 		assertEq(RiTa.evaluate("The $dog\ntoday.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the\n$dog.", ctx), "I ate the lab.");
 
@@ -190,13 +198,19 @@ public class RiScriptTests {
 		ctx.put("d", "c");
 		assertEq(RiTa.evaluate("$s", ctx), "c");
 	}
-
+	
 	// Assign
 	@Test
 	public void testParseAssignments() {
+		
 		Map<String, Object> ctx = opts();
+		
 		assertEq(RiTa.evaluate("$foo=a", ctx), "");
 		assertEq(ctx.get("foo"), "a");
+		
+		ctx.clear();
+		assertEq(RiTa.evaluate("$1foo=a", ctx), "");
+		assertEq(ctx.get("1foo"), "a");
 
 		ctx.clear();
 		assertEq(RiTa.evaluate("$foo=(a) b", ctx), "");
@@ -248,11 +262,11 @@ public class RiScriptTests {
 		assertEq(ctx.get("foo"), "a");
 
 		ctx.clear();
-		assertEq(RiTa.evaluate("$foo=(a | a)\n$foo", ctx), "");
+		assertEq(RiTa.evaluate("$foo=(a | a)\n$foo", ctx), "a");
 		assertEq(ctx.get("foo"), "a");
 
 		ctx.clear();
-		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", ctx), "");
+		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", ctx), "hi there");
 		assertEq(ctx.get("foo"), "hi");
 
 		ctx.clear();
@@ -512,12 +526,6 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testRiScriptInContextSymbol() {
-		Map<String, Object> ctx = opts("name", "(Dave | Dave)");
-		assertThrows(RiTaException.class, () -> RiTa.evaluate("[$stored=$name] is called $stored", ctx));
-	}
-
-	@Test
 	public void testLinebreakDefinedVariables() {
 		String res;
 		Map<String, Object> ctx = opts();
@@ -713,16 +721,13 @@ public class RiScriptTests {
 	// Transform
 	@Test
 	public void testAddTransforms() {
-		Map<String, Object> ctx = opts();
 
-		Function<String, String> func = (x) -> {
-			return "A";
-		};
-
-		int orig = RiTa.addTransform("capA", func).size();
-		assertEq(RiTa.evaluate(".capA()", ctx), "A");
-		assertEq(RiTa.evaluate("(b).capA()", ctx), "A");
-		assertEq(1, orig);
+		Function<String, String> func = (x) -> "A";
+		Map<String, Function<String, String>> txs1 = RiTa.addTransform("capA", func);
+		assertEq(RiTa.evaluate(".capA()", null), "A");
+		assertEq(RiTa.evaluate("(b).capA()", null), "A");
+		Map<String, Function<String, String>> txs2 = RiTa.addTransform("capA", null);
+		assertEq(txs1.size(), txs2.size());
 	}
 
 	@Test
@@ -781,9 +786,8 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("(a | a).capitalize()"), "A");
 		assertEq(RiTa.evaluate("The (boy | boy).toUpperCase() ate."), "The BOY ate.");
 		assertEq(RiTa.evaluate("How many (tooth | tooth).pluralize() do you have?"), "How many teeth do you have?");
-
 	}
-
+	
 	@Test
 	public void testSymbolTransforms() {
 		Map<String, Object> ctx = opts();

@@ -244,7 +244,7 @@ public class RiScript {
 		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
 		//		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
 		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
-		System.out.println(RiScript.articlize("ant"));
+		new RiScript().lex("$1foo", Util.opts("trace", true));
 	}
 
 }
