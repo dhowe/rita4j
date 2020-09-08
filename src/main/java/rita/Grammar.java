@@ -1,30 +1,52 @@
 package rita;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 public class Grammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	protected Map<String, Object> context;
+	public Map<String, Object> rules = new HashMap<String, Object>();
 
-	public Map<String, Object> rules;
+	protected Map<String, Object> context;
 	protected RiScript compiler;
 
-	public Grammar() {
-		this((String)null);
-	}
-	
-	public Grammar(String rules) {
-		this(rules, null);
+	public static Grammar fromJSON(String json) {
+		return fromJSON(json, null);
 	}
 
-	public Grammar(String rules, Map<String, Object> context) {
-		this(parseJson(rules), context);
+	public static Grammar fromJSON(String json, Map<String, Object> context) {
+		Grammar g = new Grammar();
+		if (json != null) {
+			try {
+				@SuppressWarnings("rawtypes")
+				Map map = new Gson().fromJson(json, Map.class);
+				for (Object o : map.keySet()) {
+					g.addRule((String) o, map.get(o));
+				}
+			} catch (JsonSyntaxException e) {
+				throw new RiTaException("Grammar appears to be invalid JSON"
+						+ ", please check it at http://jsonlint.com/\n" + json);
+			}
+		}
+		g.context = context;
+    return g;
+  }
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void addRule(String key, Object val) {
+		if (val instanceof String) addRule(key, (String) val);
+		else if (val instanceof String[]) addRule(key, (String[])val);
+		else if (val instanceof List) addRule(key, ((List) val).toArray(new String[0]));
+		else throw new RiTaException("Invalid rule: "+val+" type="+val.getClass().getName());
+	}
+
+	public Grammar() {
+		this(null);
 	}
 
 	public Grammar(Map<String, Object> rules) {
@@ -32,15 +54,15 @@ public class Grammar {
 	}
 
 	public Grammar(Map<String, Object> rules, Map<String, Object> context) {
-		this.rules = rules;
 		this.context = context;
 		this.compiler = new RiScript();
+		if (rules != null) this.rules = rules;
 	}
 
 	public String expand() {
 		return expand(DEFAULT_RULE_NAME, null);
 	}
-	
+
 	public String expand(String rule) {
 		return expand(rule, null);
 	}
@@ -59,9 +81,9 @@ public class Grammar {
 				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
 			}
 		}
-		
+
 		if (rule.startsWith("$")) rule = rule.substring(1);
-		
+
 		Object o = ctx.get(rule);
 		if (o == null) throw new RiTaException("Rule " + rule + " not found");
 
@@ -73,24 +95,19 @@ public class Grammar {
 		return this;
 	}
 
-	public Grammar setRules(String json) {
-		this.rules = parseJson(json);
-		return this;
-	}
-
 	private static Map<String, Object> parseJson(String rules) {
 		Map<String, Object> result = null;
-		if (rules != null) { 
+		if (rules != null) {
 			result = new HashMap<String, Object>();
 			try {
 				@SuppressWarnings("rawtypes")
 				Map map = new Gson().fromJson(rules, Map.class);
 				for (Object o : map.keySet()) {
 					String name = (String) o;
-					if (name.startsWith("$")) name = name.substring(1);						
-					result.put(name, map.get(o));
+					if (name.startsWith("$")) name = name.substring(1);
+					
 				}
-			} catch(Exception e) {
+			} catch (Exception e) {
 				throw new RiTaException("Grammar appears to be invalid JSON"
 						+ ", please check it at http://jsonlint.com/\n" + rules);
 			}
@@ -107,7 +124,6 @@ public class Grammar {
 		if (RE.test("\\|", rule) && !RE.test("^\\(.*\\)$", rule)) {
 			rule = '(' + rule + ')';
 		}
-		if (rules == null) rules = new HashMap<String, Object>();
 		this.rules.put(name, rule);
 		return this;
 	}
@@ -123,7 +139,7 @@ public class Grammar {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		rules.forEach((k, v) -> sb.append(k + ": " + v));
+		rules.forEach((k, v) -> sb.append("\"" + k + "\": \"" + v + "\""));
 		return sb.toString();
 	}
 
@@ -146,7 +162,7 @@ public class Grammar {
 
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));
-		System.out.println(new Grammar("{\"start\": \"(a | b | c)\"}"));
+		System.out.println(Grammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
 	}
 
 }

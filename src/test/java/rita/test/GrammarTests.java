@@ -20,6 +20,9 @@ public class GrammarTests {
 	String sentences3 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
 
 	String[] grammars = { sentences1, sentences2, sentences3 };
+	
+	static Map<String, Object> TT = opts("trace", true);
+
 
 	@Test
 	public void testConstructor() {
@@ -65,7 +68,7 @@ public class GrammarTests {
 		containsMultipleValues(result, opts);
 
 		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
-		//        rg = new Grammar(opts("start", rule));
+		// rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
@@ -79,20 +82,20 @@ public class GrammarTests {
 	@Test
 	public void testResolveInlines() {
 		String rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | Jill | Pete\"}";
-		Grammar rg = new Grammar(rules);
-		String rs = rg.expand(opts("trace", false));
-		String[] potentialResults = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
+		Grammar rg = Grammar.fromJSON(rules);
+		String rs = rg.expand();
+		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
 
-		assertTrue(Arrays.asList(potentialResults).contains(rs));
+		assertTrue(Arrays.asList(expected).contains(rs));
 
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\",}";
-		rs = rg.expand(opts("trace", false));
-		assertTrue(Arrays.asList(potentialResults).contains(rs));
+		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
+		rs = rg.expand();
+		assertTrue(Arrays.asList(expected).contains(rs));
 
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave | Jill | Pete\",\"Jill\": \"Dave | Jill | Pete\",\"Pete\": \"Dave | Jill | Pete\",}";
-		rg = new Grammar(rules);
-		rs = rg.expand(opts("trace", false));
-		assertTrue(Arrays.asList(potentialResults).contains(rs));
+		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave | Jill | Pete\",\"Jill\": \"Dave | Jill | Pete\",\"Pete\": \"Dave | Jill | Pete\"}";
+		rg = Grammar.fromJSON(rules);
+		rs = rg.expand();
+		assertTrue(Arrays.asList(expected).contains(rs));
 
 	}
 
@@ -100,11 +103,11 @@ public class GrammarTests {
 	public void testSetRules() {
 		Grammar rg = new Grammar();
 		assertTrue(rg.rules != null);
-		assertTrue(rg.rules.get("start") != null);
-		assertTrue(rg.rules.get("noun_phrase") != null);
+		assertTrue(rg.rules.get("start") == null);
+		assertTrue(rg.rules.get("noun_phrase") == null);
 
 		for (String g : grammars) {
-			rg.setRules(g);
+			rg = Grammar.fromJSON(g);
 			assertTrue(rg.rules != null);
 			assertTrue(rg.rules.get("start") != null);
 			assertTrue(rg.rules.get("noun_phrase") != null);
@@ -117,23 +120,14 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		assertTrue(rg.rules.get("start") != null);
-		// TODO:prob.
-		//		rg.addRule("$start", "$dog", .3);
-		assertTrue(rg.rules.get("noun_phrase") != null);
+		assertTrue(rg.rules.get("noun_phrase") == null);
 	}
 
-	@Test
-	public void testParseJsonGrammars() {
-		for (String g : grammars) {
-			System.out.println(g+"\n");
-			Grammar rg = new Grammar(g);
-		}
-	}
-
+	
 	@Test
 	public void testRemoveRules() {
 		for (String g : grammars) {
-			Grammar rg = new Grammar(g);
+			Grammar rg = Grammar.fromJSON(g);
 
 			def(rg.rules.get("start"));
 			def(rg.rules.get("noun_phrase"));
@@ -168,7 +162,7 @@ public class GrammarTests {
 
 		for (int i = 0; i < 30; i++) {
 			String res = rg.expand("$bird");
-			assertTrue(res == "hawk" || res == "crow");
+			assertTrue(res.equals("hawk") || res.equals("crow"));
 		}
 
 	}
@@ -198,7 +192,7 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void testExpandWeights() {
+	public void testExpandChoice() {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "$rule1");
 		rg.addRule("$rule1", "cat | dog | boy");
@@ -207,15 +201,12 @@ public class GrammarTests {
 		boolean found3 = false;
 		for (int i = 0; i < 30; i++) {
 			String res = rg.expand();
-			assertTrue(res == ("cat") || res == ("dog") || res == ("boy"));
-			if (res == ("cat"))
-				found1 = true;
-			else if (res == ("dog"))
-				found2 = true;
-			else if (res == ("boy")) found3 = true;
+			assertTrue(res.equals("cat") || res.equals("dog") || res.equals("boy"));
+			if (res.equals("cat")) found1 = true;
+			if (res.equals("dog")) found2 = true;
+			if (res.equals("boy")) found3 = true;
 		}
 		assertTrue(found1 && found2 && found3); // found all
-
 	}
 
 	@Test
@@ -232,9 +223,9 @@ public class GrammarTests {
 		int dogs = 0;
 		for (int i = 0; i < 30; i++) {
 			String res = rg.expand("$pet");
-			assertTrue(res == "hawk" || res == "dog", "got " + res);
-			if (res == "dog") dogs++;
-			if (res == "hawk") hawks++;
+			assertTrue(res.equals("hawk") || res.equals("dog"), "got " + res);
+			if (res.equals("dog")) dogs++;
+			if (res.equals("hawk")) hawks++;
 		}
 		assertTrue((hawks > dogs * 2), "got h=" + hawks + ", " + dogs);
 
@@ -269,7 +260,7 @@ public class GrammarTests {
 		};
 		Map<String, Object> ctx = opts("pluralise", pluralise);
 		String jsonString = "{\"start\": \"($state feeling).pluralize()\",\"state\": \"bad | bad\"}";
-		Grammar rg = new Grammar(jsonString, ctx);
+		Grammar rg = Grammar.fromJSON(jsonString, ctx);
 
 		String res = rg.expand();
 		assertEquals(res, "bad feelings");
@@ -279,14 +270,14 @@ public class GrammarTests {
 	@Test
 	public void testContextInExpand() {
 		Supplier<String> randomPosition = () -> {
-			return "jobArea jobType";
+			return "job type";
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = new Grammar(opts("start", "My .randomPosition()."));
-		assertEquals(rg.expand(context), "My jobArea jobType.");
+		assertEquals("My job type.", rg.expand(context));
 
 		rg = new Grammar(opts("stat", "My .randomPosition()."));
-		assertEquals(rg.expand("stat", context), "My jobArea jobType.");
+		assertEquals( "My job type.", rg.expand("stat", context));
 
 	}
 
@@ -297,23 +288,23 @@ public class GrammarTests {
 			return "jobArea jobType";
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
-		Grammar rg = new Grammar(rules, context);
+		Grammar rg = Grammar.fromJSON(rules, context);
 		assertEquals(rg.expand(), "My jobArea jobType.");
 	}
 
 	@Test
 	public void testSymbolTransfrom() {
-		Grammar rg = new Grammar("{\"start\": \"$tmpl\",\"tmpl\": \"$jrSr.capitalize()\",\"jrSr\": \"(junior|junior)\"}");
-		assertEquals(rg.expand(opts("trace", false)), "Junior");
+		Grammar rg = Grammar.fromJSON("{\"start\": \"$tmpl\",\"tmpl\": \"$jrSr.capitalize()\",\"jrSr\": \"(junior|junior)\"}");
+		assertEquals(rg.expand(), "Junior");
 
-		Grammar rg1 = new Grammar("{\"start\": \"$r.capitalize()\",\"r\": \"(a|a)\"}");
-		assertEquals(rg1.expand(opts("trace", false)), "A");
+		Grammar rg1 = Grammar.fromJSON("{\"start\": \"$r.capitalize()\",\"r\": \"(a|a)\"}");
+		assertEquals(rg1.expand(), "A");
 	}
 
 	@Test
 	public void testGrammarFromJSON() {
 		String s = "{ \"$start\": \"hello name\" }";
-		Grammar rg = new Grammar(s);
+		Grammar rg = Grammar.fromJSON(s);
 		String res = rg.expand();
 		assertEquals(res, "hello name");
 	}
@@ -321,41 +312,42 @@ public class GrammarTests {
 	@Test
 	public void testSpecialCharacters() {
 		String s = "{ \"$start\": \"hello &#124; name\" }";
-		Grammar rg = new Grammar(s);
+		Grammar rg = Grammar.fromJSON(s);
 		String res = rg.expand();
 		// console.log(res);
 		assertEquals(res, "hello | name");
 
 		s = "{ \"$start\": \"hello: name\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		assertEquals(res, "hello: name");
 
 		s = "{ \"$start\": \"&#8220;hello!&#8221;\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 
 		s = "{ \"$start\": \"&lt;start&gt;\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		// console.log(res);
 		assertEquals(res, "<start>");
 
 		s = "{ \"$start\": \"I don&#96;t want it.\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		// console.log(res);
 		assertEquals(res, "I don`t want it.");
 
 		s = "{ \"$start\": \"&#39;I really don&#39;t&#39;\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		assertEquals(res, "'I really don't'");
 
 		s = "{ \"$start\": \"hello | name\" }";
-		rg = new Grammar(s);
+		rg = Grammar.fromJSON(s);
 		for (int i = 0; i < 10; i++) {
 			res = rg.expand();
-			assertTrue(res == "hello" || res == "name");
+			//System.out.println(i+") "+res);
+			assertTrue(res.equals("hello") || res.equals("name"));
 		}
 	}
 
