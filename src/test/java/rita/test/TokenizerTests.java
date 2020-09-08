@@ -85,6 +85,28 @@ public class TokenizerTests {
 		output = RiTa.tokenize(input);
 		assertArrayEquals(output, expected);
 
+		input = "it cost $30";
+    expected = ["it", "cost", "$", "30"];
+    output = RiTa.tokenize(input);
+    assertArrayEquals(output, expected);
+
+    input = "calculate 2^3";
+    expected = ["calculate", "2", "^", "3"];
+    output = RiTa.tokenize(input);
+    assertArrayEquals(output, expected);
+
+    input = "30% of the students";
+    expected = ["30", "%", "of", "the", "students"];
+    output = RiTa.tokenize(input);
+    assertArrayEquals(output, expected);
+
+    input = "it's 30°C outside";
+    expected = ["it", "is", "30", "°", "C", "outside"];
+    RiTa.SPLIT_CONTRACTIONS = true;
+    output = RiTa.tokenize(input);
+    RiTa.SPLIT_CONTRACTIONS = false;
+    assertArrayEquals(output, expected);
+
 		// TODO: check Penn-Treebank tokenizer rules & add some more edge cases
 		String[] inputs = new String[] { "A simple sentence.", "that's why this is our place).", };
 		String[][] outputs = new String[][] {
@@ -227,12 +249,44 @@ public class TokenizerTests {
 		// more tests
 
 		String[] outputs = new String[] { "A simple sentence.",
-				"that's why this is our place).",
+      "that's why this is our place).",
+      "this is for semicolon; that is for else",
+      "this is for 2^3 2*3",
+      "this is for $30 and #30",
+      "this is for 30°C or 30\u2103",
+      "this is for a/b a⁄b",
+      "this is for «guillemets»",
+      "this... is… for ellipsis",
+      "this line is 'for' single ‘quotation’ mark",
+      "Katherine’s cat and John's cat",
+      "this line is for (all) [kind] {of} ⟨brackets⟩ done",
+      "this line is for the-dash",
+      "30% of the student love day-dreaming.",
+      '"that test line"',
+      "my email address is name@domin.com",
+      "it is www.google.com",
+      "that is www6.cityu.edu.hk"
 		};
 
 		String[][] inputs = new String[][] {
 				new String[] { "A", "simple", "sentence", "." },
-				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." }
+				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
+        new String[]{"this", "is", "for", "semicolon", ";", "that", "is", "for", "else"},
+        new String[]{"this", "is", "for", "2", "^", "3", "2", "*", "3"},
+        new String[]{"this", "is", "for", "$", "30", "and", "#", "30"},
+        new String[]{"this", "is", "for", "30", "°", "C", "or", "30", "\u2103"},
+        new String[]{"this", "is", "for", "a", "/", "b", "a", "⁄", "b"},
+        new String[]{"this", "is", "for", "«", "guillemets", "»"},
+        new String[]{"this", "...", "is", "…", "for", "ellipsis"},
+        new String[]{"this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark"},
+        new String[]{"Katherine", "’", "s", "cat", "and", "John", "'", "s", "cat"},
+        new String[]{"this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done"},
+        new String[]{"this", "line", "is", "for", "the", "-", "dash"},
+        new String[]{"30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "."},
+        new String[]{'"', "that", "test", "line", '"'},
+        new String[]{"my", "email", "address", "is", "name", "@", "domin", ".", "com"},
+        new String[]{"it", "is", "www", ".", "google", ".", "com"},
+        new String[]{"that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk"}
 		};
 
 		assertEquals(inputs.length, outputs.length);
