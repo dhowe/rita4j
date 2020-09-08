@@ -251,7 +251,6 @@ public class Util {
 
 	public static float floatOpt(String key, Map<String, Object> opts, float def) {
 		return (opts != null) ? (float) opts.getOrDefault(key, def) : def;
-
 	}
 
 	public static String strOpt(String key, Map<String, Object> opts) {

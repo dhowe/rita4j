@@ -1,5 +1,6 @@
 package rita;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -58,7 +59,9 @@ public class Grammar {
 				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
 			}
 		}
+		
 		if (rule.startsWith("$")) rule = rule.substring(1);
+		
 		Object o = ctx.get(rule);
 		if (o == null) throw new RiTaException("Rule " + rule + " not found");
 
@@ -75,17 +78,24 @@ public class Grammar {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	private static Map<String, Object> parseJson(String rules) {
-		if (rules == null || rules.length() == 0) return null;
-		Gson gson = new Gson();
-		Map<String, Object> rmap;
-		try {
-			return gson.fromJson(rules, Map.class);
-		} catch (Exception e) {
-			throw new RiTaException("Grammar appears to be invalid JSON"
-					+ ", please check it at http://jsonlint.com/\n" + rules);
+		Map<String, Object> result = null;
+		if (rules != null) { 
+			result = new HashMap<String, Object>();
+			try {
+				@SuppressWarnings("rawtypes")
+				Map map = new Gson().fromJson(rules, Map.class);
+				for (Object o : map.keySet()) {
+					String name = (String) o;
+					if (name.startsWith("$")) name = name.substring(1);						
+					result.put(name, map.get(o));
+				}
+			} catch(Exception e) {
+				throw new RiTaException("Grammar appears to be invalid JSON"
+						+ ", please check it at http://jsonlint.com/\n" + rules);
+			}
 		}
+		return result;
 	}
 
 	public Grammar addRule(String name, String[] rule) {
@@ -97,6 +107,7 @@ public class Grammar {
 		if (RE.test("\\|", rule) && !RE.test("^\\(.*\\)$", rule)) {
 			rule = '(' + rule + ')';
 		}
+		if (rules == null) rules = new HashMap<String, Object>();
 		this.rules.put(name, rule);
 		return this;
 	}
@@ -112,7 +123,7 @@ public class Grammar {
 
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		rules.forEach((k, v) -> sb.append(k + ':' + v));
+		rules.forEach((k, v) -> sb.append(k + ": " + v));
 		return sb.toString();
 	}
 

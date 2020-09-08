@@ -17,13 +17,13 @@ public class GrammarTests {
 
 	String sentences2 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$determiner\": [\"a\", \"the\"],\"$verb_phrase\": [\"$verb $noun_phrase\", \"$verb\"],\"$noun\": [\"woman\", \"man\"],\"$verb\": \"shoots\"}";
 
-	String sentences3 = "\"{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
+	String sentences3 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
 
 	String[] grammars = { sentences1, sentences2, sentences3 };
 
 	@Test
 	public void testConstructor() {
-		Grammar gr = new Grammar("");
+		Grammar gr = new Grammar();
 		assertTrue(gr instanceof Grammar);
 	}
 
@@ -65,7 +65,7 @@ public class GrammarTests {
 		containsMultipleValues(result, opts);
 
 		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
-//        rg = new Grammar(opts("start", rule));
+		//        rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
@@ -118,33 +118,42 @@ public class GrammarTests {
 		rg.addRule("$start", "$pet");
 		assertTrue(rg.rules.get("start") != null);
 		// TODO:prob.
-//		rg.addRule("$start", "$dog", .3);
+		//		rg.addRule("$start", "$dog", .3);
 		assertTrue(rg.rules.get("noun_phrase") != null);
+	}
+
+	@Test
+	public void testParseJsonGrammars() {
+		for (String g : grammars) {
+			System.out.println(g+"\n");
+			Grammar rg = new Grammar(g);
+		}
 	}
 
 	@Test
 	public void testRemoveRules() {
 		for (String g : grammars) {
-			Grammar rg1 = new Grammar();
-			def(rg1.rules.get("start"));
-			def(rg1.rules.get("noun_phrase"));
+			Grammar rg = new Grammar(g);
 
-			rg1.removeRule("$noun_phrase");
-			def(rg1.rules.get("noun_phrase") == null);
+			def(rg.rules.get("start"));
+			def(rg.rules.get("noun_phrase"));
 
-			rg1.removeRule("$start");
-			def(rg1.rules.get("start") == null);
+			rg.removeRule("$noun_phrase");
+			def(rg.rules.get("noun_phrase") == null);
 
-			rg1.removeRule("");
-			rg1.removeRule("bad-name");
-			rg1.removeRule(null);
+			rg.removeRule("$start");
+			def(rg.rules.get("start") == null);
+
+			rg.removeRule("");
+			rg.removeRule("bad-name");
+			rg.removeRule(null);
 		}
 	}
 
 	@Test
 	public void testBadGrammarNames() {
 		Grammar rg = new Grammar();
-//		assertThrows(RiTaException.class, () -> rg.expandFrom("wrongName"));
+		//		assertThrows(RiTaException.class, () -> rg.expandFrom("wrongName"));
 		assertThrows(RiTaException.class, () -> rg.expand());
 	}
 
@@ -178,6 +187,14 @@ public class GrammarTests {
 		rg.addRule("$start", "$pet");
 		rg.addRule("$pet", "dog");
 		assertEquals(rg.expand(), "dog");
+
+		rg = new Grammar();
+		rg.addRule("start", "ani");
+		assertEquals(rg.expand(), "ani");
+		rg = new Grammar();
+		rg.addRule("start", "$ani");
+		rg.addRule("ani", "cat");
+		assertEquals(rg.expand(), "cat");
 	}
 
 	@Test
@@ -251,7 +268,7 @@ public class GrammarTests {
 			return RiTa.pluralize(s);
 		};
 		Map<String, Object> ctx = opts("pluralise", pluralise);
-		String jsonString = "{start: '($state feeling).pluralise()',state: 'bad | bad',}";
+		String jsonString = "{\"start\": \"($state feeling).pluralize()\",\"state\": \"bad | bad\"}";
 		Grammar rg = new Grammar(jsonString, ctx);
 
 		String res = rg.expand();
@@ -291,7 +308,14 @@ public class GrammarTests {
 
 		Grammar rg1 = new Grammar("{\"start\": \"$r.capitalize()\",\"r\": \"(a|a)\"}");
 		assertEquals(rg1.expand(opts("trace", false)), "A");
+	}
 
+	@Test
+	public void testGrammarFromJSON() {
+		String s = "{ \"$start\": \"hello name\" }";
+		Grammar rg = new Grammar(s);
+		String res = rg.expand();
+		assertEquals(res, "hello name");
 	}
 
 	@Test
@@ -333,7 +357,6 @@ public class GrammarTests {
 			res = rg.expand();
 			assertTrue(res == "hello" || res == "name");
 		}
-
 	}
 
 	private void def(Object o) {

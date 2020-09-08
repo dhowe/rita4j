@@ -430,11 +430,11 @@ public class RiScriptTests {
 	public void testTransformsOfExprType() {
 
 		Map<String, Object> ctx = opts();
-		assertEq(RiTa.evaluate("$a=a\n($a).toUpperCase()", ctx), "A");
-		assertEq(RiTa.evaluate("$a=a\n($a | $a).toUpperCase()", ctx), "A");
-		assertEq(RiTa.evaluate("$a=a\n(A).toUpperCase()", ctx), "A");
-		assertEq(RiTa.evaluate("$a=(a).toUpperCase()", ctx), "");
-		assertEq(ctx.get("a"), "A");
+		assertEq(RiTa.evaluate("$a=a\n($a).toUpperCase()", ctx,TT), "A");
+//		assertEq(RiTa.evaluate("$a=a\n($a | $a).toUpperCase()", ctx), "A");
+//		assertEq(RiTa.evaluate("$a=a\n(A).toUpperCase()", ctx), "A");
+//		assertEq(RiTa.evaluate("$a=(a).toUpperCase()", ctx), "");
+//		assertEq(ctx.get("a"), "A");
 
 	}
 

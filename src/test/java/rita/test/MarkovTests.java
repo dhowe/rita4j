@@ -36,7 +36,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testRandompSelect() {
+	public void testRandomSelect() {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
@@ -59,14 +59,10 @@ public class MarkovTests {
 			double r = sum / numTests;
 			results.add(r);
 		}
-		assertEquals(results.get(i), expected[i], .1);
-		i = 1;
-		assertEquals(results.get(i), expected[i], .2);
-		i = 2;
-		assertEquals(results.get(i), expected[i], .4);
-		i = 3;
-		assertEquals(results.get(i), expected[i], 1);
-
+		
+		for (int j = 0; j < 4; j++) {
+			assertEquals(results.get(j), expected[j], .1);			
+		}
 	}
 
 	@Test
@@ -119,14 +115,14 @@ public class MarkovTests {
 		Markov rm = new Markov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
-		Object toks = rm._initSentence();
-		// TODO:_initSentence()
-//		assertEquals(toks.length, 1);
-//		assertEquals(toks[0].token, "The");
+		Object toks = rm.initSentence();
+		// TODO:initSentence()
+    // assertEquals(toks.length, 1);
+    // assertEquals(toks[0].token, "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
-		assertEquals(rm._flatten(rm._initSentence(new String[] { "I", "also" })), "I also");
+		assertEquals(rm._flatten(rm.initSentence(new String[] { "I", "also" })), "I also");
 
 	}
 
@@ -409,7 +405,7 @@ public class MarkovTests {
 		expected[5] = opts();
 
 		for (int i = 0; i < checks.length; i++) {
-			HashMap<String, Object> res = rm.probabilities(checks[i]);
+			Map<String, Object> res = rm.probabilities(checks[i]);
 			eql(res, expected[i]);
 		}
 
@@ -420,7 +416,7 @@ public class MarkovTests {
 		Markov rm = new Markov(4);
 		rm.addText(sample2);
 
-		HashMap<String, Object> res = rm.probabilities("the".split(" "));
+		Map<String, Object> res = rm.probabilities("the".split(" "));
 		Map<String, Object> expec = opts();
 		expec.put("time", 0.5);
 		expec.put("party", 0.5);
@@ -583,7 +579,7 @@ public class MarkovTests {
 
 	/* Helpers */
 
-	private void eql(HashMap<String, Object> result, Map<String, Object> opts) {
+	private void eql(Map<String, Object> result, Map<String, Object> opts) {
 		assertTrue(result.equals(opts));
 	}
 
