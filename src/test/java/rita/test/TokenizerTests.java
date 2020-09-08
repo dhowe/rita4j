@@ -86,22 +86,22 @@ public class TokenizerTests {
 		assertArrayEquals(output, expected);
 
 		input = "it cost $30";
-    expected = ["it", "cost", "$", "30"];
+    expected = new String[]{"it", "cost", "$", "30"};
     output = RiTa.tokenize(input);
     assertArrayEquals(output, expected);
 
     input = "calculate 2^3";
-    expected = ["calculate", "2", "^", "3"];
+    expected = new String[]{"calculate", "2", "^", "3"};
     output = RiTa.tokenize(input);
     assertArrayEquals(output, expected);
 
     input = "30% of the students";
-    expected = ["30", "%", "of", "the", "students"];
+    expected = new String[]{"30", "%", "of", "the", "students"};
     output = RiTa.tokenize(input);
     assertArrayEquals(output, expected);
 
     input = "it's 30°C outside";
-    expected = ["it", "is", "30", "°", "C", "outside"];
+    expected = new String[]{"it", "is", "30", "°", "C", "outside"};
     RiTa.SPLIT_CONTRACTIONS = true;
     output = RiTa.tokenize(input);
     RiTa.SPLIT_CONTRACTIONS = false;
@@ -262,7 +262,7 @@ public class TokenizerTests {
       "this line is for (all) [kind] {of} ⟨brackets⟩ done",
       "this line is for the-dash",
       "30% of the student love day-dreaming.",
-      '"that test line"',
+      "\"that test line\"",
       "my email address is name@domin.com",
       "it is www.google.com",
       "that is www6.cityu.edu.hk"
@@ -283,7 +283,7 @@ public class TokenizerTests {
         new String[]{"this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done"},
         new String[]{"this", "line", "is", "for", "the", "-", "dash"},
         new String[]{"30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "."},
-        new String[]{'"', "that", "test", "line", '"'},
+        new String[]{"\"", "that", "test", "line", "\""},
         new String[]{"my", "email", "address", "is", "name", "@", "domin", ".", "com"},
         new String[]{"it", "is", "www", ".", "google", ".", "com"},
         new String[]{"that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk"}
