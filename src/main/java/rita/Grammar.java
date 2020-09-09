@@ -149,4 +149,27 @@ public class Grammar {
 		System.out.println(new Grammar("{\"start\": \"(a | b | c)\"}"));
 	}
 
+	public boolean deepEquals(Object anotherGrammar){
+
+		if (anotherGrammar == null){
+			return false;
+		}
+
+		if (this == anotherGrammar){
+			return true;
+		}
+
+		if (anotherGrammar instanceof Grammar){
+			Grammar rg = (Grammar) anotherGrammar;
+			if (rg.rules == this.rules && rg.context == this.context && rg.compiler == this.compiler){
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+
+	}
+
 }

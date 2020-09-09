@@ -86,32 +86,58 @@ public class TokenizerTests {
 		assertArrayEquals(output, expected);
 
 		input = "it cost $30";
-    expected = new String[]{"it", "cost", "$", "30"};
-    output = RiTa.tokenize(input);
-    assertArrayEquals(output, expected);
+        expected = new String[]{"it", "cost", "$", "30"};
+        output = RiTa.tokenize(input);
+        assertArrayEquals(output, expected);
 
-    input = "calculate 2^3";
-    expected = new String[]{"calculate", "2", "^", "3"};
-    output = RiTa.tokenize(input);
-    assertArrayEquals(output, expected);
+        input = "calculate 2^3";
+        expected = new String[]{"calculate", "2", "^", "3"};
+        output = RiTa.tokenize(input);
+        assertArrayEquals(output, expected);
 
-    input = "30% of the students";
-    expected = new String[]{"30", "%", "of", "the", "students"};
-    output = RiTa.tokenize(input);
-    assertArrayEquals(output, expected);
+        input = "30% of the students";
+        expected = new String[]{"30", "%", "of", "the", "students"};
+        output = RiTa.tokenize(input);
+        assertArrayEquals(output, expected);
 
-    input = "it's 30°C outside";
-    expected = new String[]{"it", "is", "30", "°", "C", "outside"};
-    RiTa.SPLIT_CONTRACTIONS = true;
-    output = RiTa.tokenize(input);
-    RiTa.SPLIT_CONTRACTIONS = false;
-    assertArrayEquals(output, expected);
+        input = "it's 30°C outside";
+        expected = new String[]{"it", "is", "30", "°", "C", "outside"};
+        RiTa.SPLIT_CONTRACTIONS = true;
+        output = RiTa.tokenize(input);
+        RiTa.SPLIT_CONTRACTIONS = false;
+        assertArrayEquals(output, expected);
 
-		// TODO: check Penn-Treebank tokenizer rules & add some more edge cases
-		String[] inputs = new String[] { "A simple sentence.", "that's why this is our place).", };
-		String[][] outputs = new String[][] {
+        // reference :PENN treebank tokenization document :ftp://ftp.cis.upenn.edu/pub/treebank/public_html/tokenization.html
+        //            and aslo English punctuation Wiki page Latin abbreviations Wiki page
+	    String[] inputs = new String[] { "A simple sentence.", "that's why this is our place).", 
+			    "double quotes \"OK\"", //Treebank tokenization document says double quotes (") are changed to doubled single forward- and backward- quotes (`` and '') tho
+			    "face-to-face class",
+			    "\"it is strange\", said John, \"Katherine does not drink alchol.\"",
+			    "\"What?!\", John yelled.",
+			    //tests below this line don't pass
+			    "John's Katherine's Jack's Linda's students' people's",
+			    "more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co,.Ltd. Co,. Ltd. Co. Lid. Ltd.",
+			    "(testing) [brackets] {all} ⟨kinds⟩",
+			    "elipsis dots... another elipsis dots…",
+			    "double quotes \"not OK\"",
+			    "children's parents' won't gonna I'm"
+		
+	    };
+	    String[][] outputs = new String[][] {
 				new String[] { "A", "simple", "sentence", "." },
-				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." }
+				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
+				new String[] {"most",",","punctuation",";","is",".","split",":","from","!","adjoining","words","?"},
+			    new String[] {"double","quotes","\"","OK","\""},
+			    new String[] {"face-to-face","class"},
+			    new String[] {"\"","it","is","strange","\"",",","said","John",",","\"","Katherine","does","not","drink","alchol",".","\""},
+			    new String[] {"\"","What","?","!","\"",",","John","yelled","."},
+			      //test below this line don't pass
+			    new String[] {"John","'s","katherine","'s","Jack","'s","Linda","'s","students","'","people","'s"},
+			    new String[] {"more","abbreviations",":","a.m.","p.m.","Cap.","c.","et al.","etc.","P.S.","Ph.D","R.I.P","vs.","v.","Mr.","Ms.","Dr.","Pf.","Mx.","Ind.","Inc.","Corp.","Co.,Ltd","Co., Ltd","Co. Ltd.","Ltd."},
+			    new String[] {"(","testing",")","[","brackets","]","{","all","}","⟨","kinds","⟩"},//this might not need to be fix coz ⟨⟩ is rarely seen
+			    new String[] {"elipsis","dots","...","another","elipsis","dots","…"},
+			    new String[] {"double","quotes","``","not","OK","''"},
+			    new String[] {"children","'s","parents","'","wo","n't","gon","na","I","'m"}
 		};
 
 		assertEquals(inputs.length, outputs.length);
