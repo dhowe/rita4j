@@ -14,15 +14,11 @@ import rita.*;
 public class GrammarTests {
 
 	String sentences1 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"($verb | $verb $noun_phrase)\",\"$determiner\": \"(a | the)\",\"$noun\": \"(woman | man)\",\"$verb\": \"shoots\"}";
-
 	String sentences2 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$determiner\": [\"a\", \"the\"],\"$verb_phrase\": [\"$verb $noun_phrase\", \"$verb\"],\"$noun\": [\"woman\", \"man\"],\"$verb\": \"shoots\"}";
-
 	String sentences3 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
-
 	String[] grammars = { sentences1, sentences2, sentences3 };
-	
-	static Map<String, Object> TT = opts("trace", true);
 
+	static Map<String, Object> TT = opts("trace", true);
 
 	@Test
 	public void testConstructor() {
@@ -56,7 +52,7 @@ public class GrammarTests {
 	@Test
 	public void testRSeqTransform() {
 		String[] opts = { "a", "b", "c", "d" };
-		String rule = "(" + String.join("|", opts) + ").seq()";
+		String rule = "(" + String.join("|", opts) + ").rseq()";
 		Grammar rg = new Grammar(opts("start", rule));
 		ArrayList<String> result = new ArrayList<String>();
 		// console.log(rule);
@@ -65,9 +61,9 @@ public class GrammarTests {
 			// console.log(i, ':', res);
 			result.add(res);
 		}
-		containsMultipleValues(result, opts);
+		containsAll(result, opts);
 
-		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
+		rule = "(" + String.join("|", opts) + ").rseq().capitalize()";
 		// rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
@@ -76,15 +72,15 @@ public class GrammarTests {
 			result.add(res);
 		}
 		String[] opts_u = { "A", "B", "C", "D" };
-		containsMultipleValues(result, opts_u);
+		containsAll(result, opts_u);
 	}
 
 	@Test
-	public void testResolveInlines() { 
+	public void testResolveInlines() {
 		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
 		Grammar rg;
 		String rules, rs;
-		
+
 		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | Jill | Pete\"}";
 		rg = Grammar.fromJSON(rules);
 		rs = rg.expand();
@@ -125,7 +121,6 @@ public class GrammarTests {
 		assertTrue(rg.rules.get("noun_phrase") == null);
 	}
 
-	
 	@Test
 	public void testRemoveRules() {
 		for (String g : grammars) {
@@ -279,7 +274,7 @@ public class GrammarTests {
 		assertEquals("My job type.", rg.expand(context));
 
 		rg = new Grammar(opts("stat", "My .randomPosition()."));
-		assertEquals( "My job type.", rg.expand("stat", context));
+		assertEquals("My job type.", rg.expand("stat", context));
 
 	}
 
@@ -353,29 +348,35 @@ public class GrammarTests {
 		}
 	}
 
-	@Test 
-	public void testToJSONAndFromJSON(){
-		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
-		Grammar rg = new Grammar(s);
-		String jsonString = rg.toJSON();
-		Grammar rg2 = Grammar.fromJSON(jsonString);
-		assertEquals(rg.toString(), rg2.toString());
-		assertEquals(rg.deepEquals(rg2), true);
+	@Test
+	public void testJSONMethods() {
 		
+		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
+		Grammar rg = Grammar.fromJSON(s);
+		Grammar rg2 = Grammar.fromJSON(rg.toJSON());
+		assertEquals(rg.toString(), rg2.toString());
+		assertTrue(rg.equals(rg2));
+
+		for (String g : grammars) {
+			rg = Grammar.fromJSON(g);
+			rg2 = Grammar.fromJSON(rg.toJSON());
+			assertEquals(rg.toString(), rg2.toString());
+			assertTrue(rg.equals(rg2));
+		}
 	}
 
+	// return true if object is not null
 	private void def(Object o) {
 		assertTrue(o != null);
 	}
 
-	private void containsMultipleValues(ArrayList<String> arrayList, String[] members) {
+	// return true if list contains every item in array
+	private void containsAll(ArrayList<String> list, String[] array) {
 		int found = 0;
-		for (String item : members) {
-			if (arrayList.contains(item)) {
-				found++;
-			}
+		for (String item : array) {
+			if (list.contains(item)) found++;
 		}
-		assertTrue(found == members.length);
+		assertTrue(found == array.length);
 	}
 
 }

@@ -4,8 +4,7 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 
 public class Grammar {
 
@@ -103,9 +102,24 @@ public class Grammar {
 		return this;
 	}
 
+	public String toJSON() {
+		return toJSON(false);
+	}
+
+	public String toJSON(boolean pretty) {
+		return pretty ? new GsonBuilder().setPrettyPrinting()
+				.create().toJson(this.rules, Map.class)
+				: new Gson().toJson(this.rules, Map.class);
+	}
+
+	@Override
 	public String toString() {
+		return toJSON(true);
+	}
+
+	public String toStringOld() {
 		StringBuffer sb = new StringBuffer();
-		rules.forEach((k, v) -> sb.append("\"" + k + "\": \"" + v + "\""));
+		rules.forEach((k, v) -> sb.append("\"" + k + "\": \"" + v + "\","));
 		return sb.toString();
 	}
 
@@ -126,7 +140,12 @@ public class Grammar {
 		return RiScript.transforms;
 	}
 
-	/////////////////////////////////////////////////////////////////////
+	public boolean equals(Object o) {
+		return (o != null && o instanceof Grammar)
+				&& this.rules.equals(((Grammar) o).rules);
+	}
+
+	/////////////////////////// helpers ////////////////////////////
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	protected void addRule(String key, Object val) {
@@ -177,29 +196,6 @@ public class Grammar {
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));
 		System.out.println(Grammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
-	}
-
-	public boolean deepEquals(Object anotherGrammar){
-
-		if (anotherGrammar == null){
-			return false;
-		}
-
-		if (this == anotherGrammar){
-			return true;
-		}
-
-		if (anotherGrammar instanceof Grammar){
-			Grammar rg = (Grammar) anotherGrammar;
-			if (rg.rules == this.rules && rg.context == this.context && rg.compiler == this.compiler){
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-
 	}
 
 }
