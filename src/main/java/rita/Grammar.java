@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.function.Function;
 
 import com.google.gson.Gson;
@@ -10,17 +11,12 @@ public class Grammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	public Map<String, Object> rules = new HashMap<String, Object>();
-
-	protected Map<String, Object> context;
-	protected RiScript compiler;
-
 	public static Grammar fromJSON(String json) {
 		return fromJSON(json, null);
 	}
 
 	public static Grammar fromJSON(String json, Map<String, Object> context) {
-		Grammar g = new Grammar();
+		Grammar g = new Grammar(null, context);
 		if (json != null) {
 			try {
 				@SuppressWarnings("rawtypes")
@@ -33,17 +29,14 @@ public class Grammar {
 						+ ", please check it at http://jsonlint.com/\n" + json);
 			}
 		}
-		g.context = context;
-    return g;
-  }
-
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	protected void addRule(String key, Object val) {
-		if (val instanceof String) addRule(key, (String) val);
-		else if (val instanceof String[]) addRule(key, (String[])val);
-		else if (val instanceof List) addRule(key, ((List) val).toArray(new String[0]));
-		else throw new RiTaException("Invalid rule: "+val+" type="+val.getClass().getName());
+		return g;
 	}
+
+	/////////////////////////////////////////////////////////////////////////////
+
+	public Map<String, Object> rules = new HashMap<String, Object>();
+	protected Map<String, Object> context;
+	protected RiScript compiler;
 
 	public Grammar() {
 		this(null);
@@ -90,29 +83,11 @@ public class Grammar {
 		return this.compiler.evaluate((String) o, ctx, opts);
 	}
 
-	public Grammar setRules(Map<String, Object> rules) {
-		this.rules = rules;
-		return this;
-	}
-
-	private static Map<String, Object> parseJson(String rules) {
-		Map<String, Object> result = null;
-		if (rules != null) {
-			result = new HashMap<String, Object>();
-			try {
-				@SuppressWarnings("rawtypes")
-				Map map = new Gson().fromJson(rules, Map.class);
-				for (Object o : map.keySet()) {
-					String name = (String) o;
-					if (name.startsWith("$")) name = name.substring(1);
-					
-				}
-			} catch (Exception e) {
-				throw new RiTaException("Grammar appears to be invalid JSON"
-						+ ", please check it at http://jsonlint.com/\n" + rules);
-			}
+	public Grammar addRules(Map<String, Object> rules) {
+		for (Entry<String, Object> entry : rules.entrySet()) {
+			this.rules.put(entry.getKey(), entry.getValue());
 		}
-		return result;
+		return this;
 	}
 
 	public Grammar addRule(String name, String[] rule) {
@@ -126,15 +101,6 @@ public class Grammar {
 		}
 		this.rules.put(name, rule);
 		return this;
-	}
-
-	private String joinChoice(String[] opts) {
-		String res = "(";
-		for (int i = 0; i < opts.length; i++) {
-			res += opts[i].contains(" ") ? '(' + opts[i] + ')' : opts[i];
-			if (i < opts.length - 1) res += " | ";
-		}
-		return res + ")";
 	}
 
 	public String toString() {
@@ -159,6 +125,54 @@ public class Grammar {
 	public Map<String, Function<String, String>> getTransforms() {
 		return RiScript.transforms;
 	}
+
+	/////////////////////////////////////////////////////////////////////
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	protected void addRule(String key, Object val) {
+		if (val instanceof String) {
+			addRule(key, (String) val);
+		}
+		else if (val instanceof String[]) {
+			addRule(key, (String[]) val);
+		}
+		else if (val instanceof List) {
+			addRule(key, ((List) val).toArray(new String[0]));
+		}
+		else {
+			throw new RiTaException("Invalid rule: "
+					+ val + " type=" + val.getClass().getName());
+		}
+	}
+
+	private String joinChoice(String[] opts) {
+		String res = "(";
+		for (int i = 0; i < opts.length; i++) {
+			res += opts[i].contains(" ") ? '(' + opts[i] + ')' : opts[i];
+			if (i < opts.length - 1) res += " | ";
+		}
+		return res + ")";
+	}
+
+	/*private static Map<String, Object> parseJson(String rules) {
+		Map<String, Object> result = null;
+		if (rules != null) {
+			result = new HashMap<String, Object>();
+			try {
+				@SuppressWarnings("rawtypes")
+				Map map = new Gson().fromJson(rules, Map.class);
+				for (Object o : map.keySet()) {
+					String name = (String) o;
+					if (name.startsWith("$")) name = name.substring(1);
+					
+				}
+			} catch (Exception e) {
+				throw new RiTaException("Grammar appears to be invalid JSON"
+						+ ", please check it at http://jsonlint.com/\n" + rules);
+			}
+		}
+		return result;
+	}*/
 
 	public static void main(String[] args) {
 		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));

@@ -80,15 +80,18 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void testResolveInlines() {
-		String rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | Jill | Pete\"}";
-		Grammar rg = Grammar.fromJSON(rules);
-		String rs = rg.expand();
+	public void testResolveInlines() { 
 		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
-
+		Grammar rg;
+		String rules, rs;
+		
+		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | Jill | Pete\"}";
+		rg = Grammar.fromJSON(rules);
+		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
 
 		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
+		rg = Grammar.fromJSON(rules);
 		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
 
@@ -96,7 +99,6 @@ public class GrammarTests {
 		rg = Grammar.fromJSON(rules);
 		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
-
 	}
 
 	@Test
