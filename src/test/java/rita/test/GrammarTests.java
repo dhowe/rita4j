@@ -353,6 +353,17 @@ public class GrammarTests {
 		}
 	}
 
+	@Test 
+	public void testToJSONAndFromJSON(){
+		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
+		Grammar rg = new Grammar(s);
+		String jsonString = rg.toJSON();
+		Grammar rg2 = Grammar.fromJSON(jsonString);
+		assertEquals(rg.toString(), rg2.toString());
+		assertEquals(rg.deepEquals(rg2), true);
+		
+	}
+
 	private void def(Object o) {
 		assertTrue(o != null);
 	}
