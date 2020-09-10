@@ -58,13 +58,18 @@ public class Tokenizer {
 	public static String untokenize(String[] arr, String delim) {
 		int dbug = 0;
 
-		boolean thisPunct, lastPunct, thisQuote, lastQuote, thisComma, isLast,
-				lastComma, lastEndWithS, withinQuote = false;
+		boolean thisNBPunct, thisNAPunct, lastNBPunct, lastNAPunct, thisQuote, lastQuote, thisComma, isLast,
+				lastComma, lastEndWithS, nextIsS, thisLBracket, thisRBracket, lastLBracket, lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 
-		String punct = "^[,.;:?!)\"\"“”\u2019‘`']+$",
-				quotes = "^[(\"\"“”\u2019‘`']+$",
+		String  nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",//no space before the punctuation
+				naPunct = "^[\\^\\*\\$/⁄#\\-@°]+$",//no space after the punctuation
+				leftBrackets = "^[\\[\\(\\{⟨]+$",
+				rightBrackets = "^[\\)\\]\\}⟩]+$",
+				quotes = "^[(\"\"“”\u2019‘`''«»‘’]+$",
 				squotes = "^[\u2019‘`']+$",
-				apostrophes = "^[\u2019']+$";
+				apostrophes = "^[\u2019'’]+$",
+				www = "^(www[0-9]?|WWW[0-9]?)$",
+				domin = "^(com|org|edu|net|xyz|gov|int|eu|hk|tw|cn|de|ch|fr)$";
 
 		if (arr.length > 0) {
 			withinQuote = Pattern.matches(quotes, arr[0]);
@@ -73,36 +78,57 @@ public class Tokenizer {
 
 		String result = arr.length > 0 ? arr[0] : "";
 
-		boolean afterQuote = false, midSentence = false;
+		boolean afterQuote = false, midSentence = false, nextNoSpace = false;
 
 		for (int i = 1; i < arr.length; i++) {
 
 			if (arr[i] == null) continue;
 
 			thisComma = arr[i] == ",";
-			thisPunct = Pattern.matches(punct, arr[i]);
+			thisNBPunct = Pattern.matches(nbPunct, arr[i]);
+			thisNAPunct = Pattern.matches(naPunct, arr[i]);
 			thisQuote = Pattern.matches(quotes, arr[i]);
+			thisLBracket = Pattern.matches(leftBrackets, arr[i]);
+			thisRBracket = Pattern.matches(rightBrackets, arr[i]);
+			thisDomin = Pattern.matches(domin, arr[i]);
 			lastComma = arr[i - 1] == ",";
-			lastPunct = Pattern.matches(punct, arr[i - 1]);
+			lastNBPunct = Pattern.matches(nbPunct, arr[i - 1]);
+			lastNAPunct = Pattern.matches(naPunct, arr[i - 1]);
 			lastQuote = Pattern.matches(quotes, arr[i - 1]);
-			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's';
+			lastLBracket = Pattern.matches(leftBrackets, arr[i - 1]);
+			lastRBracket = Pattern.matches(rightBrackets, arr[i - 1]);
+			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's' && arr[i - 1]!= "is" && arr[i - 1] != "Is" && arr[i - 1] != "IS";
+			lastIsWWW = Pattern.matches(www, arr[i - 1]);
+			nextIsS = i == arr.length - 1 ? false : (arr[i + 1] == "s" || arr[i + 1] == "S");
 			isLast = (i == arr.length - 1);
 
-			if (thisQuote) {
+			if ((arr[i - 1] == "." && thisDomin) || nextNoSpace){
+				nextNoSpace = false;
+				result += arr[i];
+				continue;
+			} else if (arr[i] == "." && lastIsWWW){
+				nextNoSpace = true;
+			} else if (thisLBracket) {
+				result += delim;
+			} else if (lastRBracket){
+				if (!thisNBPunct && !thisLBracket){
+				  result += delim;
+				}
+			} else if (thisQuote) {
 
 				if (withinQuote) {
 					// no-delim, mark quotation done
 					afterQuote = true;
 					withinQuote = false;
 
-				} else if (!(Pattern.matches(apostrophes, arr[i]) && lastEndWithS)) {
+				} else if (!((Pattern.matches(apostrophes, arr[i]) && lastEndWithS) || (Pattern.matches(apostrophes, arr[i]) && nextIsS))) {
 					withinQuote = true;
 					afterQuote = false;
 					result += delim;
 
 				}
 
-			} else if (afterQuote && !thisPunct) {
+			} else if (afterQuote && !thisNBPunct) {
 
 				result += delim;
 				afterQuote = false;
@@ -116,14 +142,14 @@ public class Tokenizer {
 				result += delim;
 				midSentence = false;
 
-			} else if ((!thisPunct && !lastQuote) || (!isLast && thisPunct && lastPunct)) {
+			} else if ((!thisNBPunct && !lastQuote && !lastNAPunct && !lastLBracket && !thisRBracket) || (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket)) {
 
 				result += delim;
 			}
 
 			result += arr[i]; // add to result
 
-			if (thisPunct && !lastPunct && !withinQuote && Pattern.matches(squotes, arr[i])) {
+			if (thisNBPunct && !lastNBPunct && !withinQuote && Pattern.matches(squotes, arr[i]) && lastEndWithS) {
 
 				result += delim; // fix to #477
 			}
