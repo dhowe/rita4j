@@ -8,7 +8,7 @@ import rita.RiTa;
 public class TokenizerTests {
 
 	@Test
-	public void testTokenizeAndBack() { // TODO: add more tests here
+	public void testTokenizeAndBack() {
 		String[] tests = {
 				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
 				"He can't didn't couldn't shouldn't wouldn't eat.",
@@ -16,6 +16,27 @@ public class TokenizerTests {
 				"It's not that I can't.",
 				"We've found the cat.",
 				"We didn't find the cat.",
+				"face-to-face class",
+				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
+				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
+				"elipsis dots... another elipsis dots…",
+				"(testing) [brackets] {all} ⟨kinds⟩",
+				"this is for semicolon; that is for else",
+				"this is for 2^3 2*3",
+				"this is for $30 and #30",
+				"this is for 30°C or 30\u2103",
+				"this is for a/b a⁄b",
+				"this is for «guillemets»",
+				"this... is… for ellipsis",
+				"this line is 'for' single ‘quotation’ mark",
+				"Katherine’s cat and John's cat",
+				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
+				"this line is for the-dash",
+				"30% of the student love day-dreaming.",
+				"my email address is name@domin.com",
+				"it is www.google.com",
+				"that is www6.cityu.edu.hk",
+				"30% of the student will pay 30$ to decrease the temperature by 2°C"
 		};
 		for (int i = 0; i < tests.length; i++) {
 			String[] tokenized = RiTa.tokenize(tests[i]);
@@ -130,11 +151,10 @@ public class TokenizerTests {
 				"face-to-face class",
 				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
 				"\"What?!\", John yelled.",
-
-				// tests below this line don't pass
 				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
 				"(testing) [brackets] {all} ⟨kinds⟩",
 				"elipsis dots... another elipsis dots…",
+				"this line is 'for' single ‘quotation’ mark"
 		};
 
 		String[][] outputs = new String[][] {
@@ -145,12 +165,11 @@ public class TokenizerTests {
 				{ "face-to-face", "class" },
 				{ "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".", "\"" },
 				{ "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
-
-				// test below this line don't pass
 				{ "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.", "Mr.",
 						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd." },
 				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
 				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
+				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" }
 		};
 
 		assertEquals(inputs.length, outputs.length);
