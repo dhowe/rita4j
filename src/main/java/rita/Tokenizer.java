@@ -58,13 +58,18 @@ public class Tokenizer {
 	public static String untokenize(String[] arr, String delim) {
 		int dbug = 0;
 
-		boolean thisPunct, lastPunct, thisQuote, lastQuote, thisComma, isLast,
-				lastComma, lastEndWithS, withinQuote = false;
+		boolean thisNBPunct, thisNAPunct, lastNBPunct, lastNAPunct, thisQuote, lastQuote, thisComma, isLast,
+				lastComma, lastEndWithS, nextIsS, thisLBracket, thisRBracket, lastLBracket, lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 
-		String punct = "^[,.;:?!)\"\"“”\u2019‘`']+$",
-				quotes = "^[(\"\"“”\u2019‘`']+$",
+		String  nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",//no space before the punctuation
+				naPunct = "^[\\^\\*\\$/⁄#\\-@°]+$",//no space after the punctuation
+				leftBrackets = "^[\\[\\(\\{⟨]+$",
+				rightBrackets = "^[\\)\\]\\}⟩]+$",
+				quotes = "^[(\"\"“”\u2019‘`''«»‘’]+$",
 				squotes = "^[\u2019‘`']+$",
-				apostrophes = "^[\u2019']+$";
+				apostrophes = "^[\u2019'’]+$",
+				www = "^(www[0-9]?|WWW[0-9]?)$",
+				domin = "^(com|org|edu|net|xyz|gov|int|eu|hk|tw|cn|de|ch|fr)$";
 
 		if (arr.length > 0) {
 			withinQuote = Pattern.matches(quotes, arr[0]);
@@ -73,36 +78,57 @@ public class Tokenizer {
 
 		String result = arr.length > 0 ? arr[0] : "";
 
-		boolean afterQuote = false, midSentence = false;
+		boolean afterQuote = false, midSentence = false, nextNoSpace = false;
 
 		for (int i = 1; i < arr.length; i++) {
 
 			if (arr[i] == null) continue;
 
 			thisComma = arr[i] == ",";
-			thisPunct = Pattern.matches(punct, arr[i]);
+			thisNBPunct = Pattern.matches(nbPunct, arr[i]);
+			thisNAPunct = Pattern.matches(naPunct, arr[i]);
 			thisQuote = Pattern.matches(quotes, arr[i]);
+			thisLBracket = Pattern.matches(leftBrackets, arr[i]);
+			thisRBracket = Pattern.matches(rightBrackets, arr[i]);
+			thisDomin = Pattern.matches(domin, arr[i]);
 			lastComma = arr[i - 1] == ",";
-			lastPunct = Pattern.matches(punct, arr[i - 1]);
+			lastNBPunct = Pattern.matches(nbPunct, arr[i - 1]);
+			lastNAPunct = Pattern.matches(naPunct, arr[i - 1]);
 			lastQuote = Pattern.matches(quotes, arr[i - 1]);
-			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's';
+			lastLBracket = Pattern.matches(leftBrackets, arr[i - 1]);
+			lastRBracket = Pattern.matches(rightBrackets, arr[i - 1]);
+			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's' && arr[i - 1]!= "is" && arr[i - 1] != "Is" && arr[i - 1] != "IS";
+			lastIsWWW = Pattern.matches(www, arr[i - 1]);
+			nextIsS = i == arr.length - 1 ? false : (arr[i + 1] == "s" || arr[i + 1] == "S");
 			isLast = (i == arr.length - 1);
 
-			if (thisQuote) {
+			if ((arr[i - 1] == "." && thisDomin) || nextNoSpace){
+				nextNoSpace = false;
+				result += arr[i];
+				continue;
+			} else if (arr[i] == "." && lastIsWWW){
+				nextNoSpace = true;
+			} else if (thisLBracket) {
+				result += delim;
+			} else if (lastRBracket){
+				if (!thisNBPunct && !thisLBracket){
+				  result += delim;
+				}
+			} else if (thisQuote) {
 
 				if (withinQuote) {
 					// no-delim, mark quotation done
 					afterQuote = true;
 					withinQuote = false;
 
-				} else if (!(Pattern.matches(apostrophes, arr[i]) && lastEndWithS)) {
+				} else if (!((Pattern.matches(apostrophes, arr[i]) && lastEndWithS) || (Pattern.matches(apostrophes, arr[i]) && nextIsS))) {
 					withinQuote = true;
 					afterQuote = false;
 					result += delim;
 
 				}
 
-			} else if (afterQuote && !thisPunct) {
+			} else if (afterQuote && !thisNBPunct) {
 
 				result += delim;
 				afterQuote = false;
@@ -116,14 +142,14 @@ public class Tokenizer {
 				result += delim;
 				midSentence = false;
 
-			} else if ((!thisPunct && !lastQuote) || (!isLast && thisPunct && lastPunct)) {
+			} else if ((!thisNBPunct && !lastQuote && !lastNAPunct && !lastLBracket && !thisRBracket) || (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket)) {
 
 				result += delim;
 			}
 
 			result += arr[i]; // add to result
 
-			if (thisPunct && !lastPunct && !withinQuote && Pattern.matches(squotes, arr[i])) {
+			if (thisNBPunct && !lastNBPunct && !withinQuote && Pattern.matches(squotes, arr[i]) && lastEndWithS) {
 
 				result += delim; // fix to #477
 			}
@@ -139,15 +165,37 @@ public class Tokenizer {
 
 		// Javascript to java regex converted from https://regex101.com/
 		words = words.trim(); // ???
+		//save abbreviations------------
 		words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
 		words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
-
-		words = words.replaceAll("([\\\\?!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
-		words = words.replaceAll("\\\\.\\\\.\\\\.", " ... ");
-		words = words.replaceAll("\\\\s+", " ");
+		words = words.replaceAll("([Aa])[\\.]([Mm])[\\.]", "_$1$2_"); // a.m.
+		words = words.replaceAll("([Pp])[\\.]([Mm])[\\.]", "_$1$2_"); // p.m.
+		words = words.replaceAll("(Cap)[\\.]", "_Cap_"); // Cap.
+		words = words.replaceAll("([Cc])[\\.]", "_$1_"); // c.
+		words = words.replaceAll("([Ee][Tt])[\\s]([Aa][Ll])[\\.]", "_$1zzz$2_"); // et al.
+		words = words.replaceAll("(ect|ECT)[\\.]", "_$1_"); // ect.
+		words = words.replaceAll("([Pp])[\\.]([Ss])[\\.]", "_$1$2dot_"); // p.s.
+		words = words.replaceAll("([Pp])[\\.]([Ss])", "_$1$2_"); // p.s
+		words = words.replaceAll("([Pp])([Hh])[\\.]([Dd])", "_$1$2$3_");// Ph.D
+		words = words.replaceAll("([Rr])[\\.]([Ii])[\\.]([Pp])", "_$1$2$3_"); // R.I.P
+		words = words.replaceAll("([Vv])([Ss]?)[\\.]", "_$1$2_"); // vs. and v.
+		words = words.replaceAll("([Mm])([Rr]|[Ss]|[Xx])[\\.]", "_$1$2_"); // Mr. Ms. and Mx.
+		words = words.replaceAll("([Dd])([Rr])[\\.]", "_$1$2_"); // Dr.
+		words = words.replaceAll("([Pp])([Ff])[\\.]", "_$1$2_"); // Pf.
+		words = words.replaceAll("([Ii])([Nn])([Dd]|[Cc])[\\.]", "_$1$2$3_"); // Ind. and Inc.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\,][\\s]([Ll])([Tt])([Dd])[\\.]", "_$1$2dcs$3$4$5_"); // co., ltd.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\s]([Ll])([Tt])([Dd])[\\.]", "_$1$2ds$3$4$5_"); // co. ltd.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\,]([Ll])([Tt])([Dd])[\\.]", "_$1$2dc$3$4$5_"); // co.,ltd.
+		words = words.replaceAll("([Cc])([Oo])([Rr]?)([Pp]?)[\\.]", "_$1$2$3$4_"); // Co. and Corp.
+		words = words.replaceAll("([Ll])([Tt])([Dd])[\\.]", "_$1$2$3_"); // ltd.
+		
+		//------------------------------
+        words = words.replaceAll("\\.{3}", "_elipsisDDD_");
+		words = words.replaceAll("([\\?\\!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
+		words = words.replaceAll("\\s+", " ");
 		words = words.replaceAll(",([^0-9])", " , $1");
-		words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\\\s*$", "$1 $2$3 ");
-		words = words.replaceAll("([\\[\\](){}<>])", " $1 ");
+		words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\s*$", "$1 $2$3 ");
+		words = words.replaceAll("([\\[\\](){}<>⟨⟩])", " $1 ");
 		words = words.replaceAll("--", " -- ");
 		words = words.replaceAll("$", " ");
 		words = words.replaceAll("^", " ");
@@ -161,7 +209,7 @@ public class Tokenizer {
 			words = words.replaceAll("([Dd])idn['’]t", "$1id not");
 			words = words.replaceAll("([CcWw])ouldn['’]t", "$1ould not");
 			words = words.replaceAll("([Ss])houldn['’]t", "$1hould not");
-			words = words.replaceAll(" ([Ii])t['’]s", " $1t is");
+			words = words.replaceAll("([Ii])t['’]s", " $1t is");
 			words = words.replaceAll("n['’]t ", " not ");
 			words = words.replaceAll("['’]ve ", " have ");
 			words = words.replaceAll("['’]re ", " are ");
@@ -171,13 +219,45 @@ public class Tokenizer {
 		words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
 		words = words.replaceAll("\\\\s+", " ");
 		words = words.replaceAll("^\\\\s+", "");
+		words = words.replaceAll("\\^", " ^ ");
+		words = words.replaceAll("°", " ° ");
+		words = words.replaceAll("…", " … ");
+        words = words.replaceAll("_elipsisDDD_", " ... ");
+		//pop abbreviations--------------------------
 
 		words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
 		words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
+		words = words.replaceAll("_([Aa])([Mm])_", "$1.$2."); // a.m.
+		words = words.replaceAll("_([Pp])([Mm])_", "$1.$2."); // p.m.
+		words = words.replaceAll("_(Cap)_", "Cap."); // Cap.
+		words = words.replaceAll("_([Cc])_", "$1."); // c.
+		words = words.replaceAll("_([Ee][Tt])zzz([Aa][Ll])_", "$1_$2."); // et al.
+		words = words.replaceAll("_(ect|ECT)_", "$1."); // ect.
+		words = words.replaceAll("_([Pp])([Ss])dot_", "$1.$2."); // p.s.
+		words = words.replaceAll("_([Pp])([Ss])_", "$1.$2"); // p.s
+		words = words.replaceAll("_([Pp])([Hh])([Dd])_", "$1$2.$3");// Ph.D
+		words = words.replaceAll("_([Rr])([Ii])([Pp])_", "$1.$2.$3"); // R.I.P
+		words = words.replaceAll("_([Vv])([Ss]?)_", "$1$2."); // vs. and v.
+		words = words.replaceAll("_([Mm])([Rr]|[Ss]|[Xx])_", "$1$2."); // Mr. Ms. and Mx.
+		words = words.replaceAll("_([Dd])([Rr])_", "$1$2."); // Dr.
+		words = words.replaceAll("_([Pp])([Ff])_", "$1$2."); // Pf.
+		words = words.replaceAll("_([Ii])([Nn])([Dd]|[Cc])_", "$1$2$3."); // Ind. and Inc.
+		words = words.replaceAll("_([Cc])([Oo])dcs([Ll])([Tt])([Dd])_", "$1$2.,_$3$4$5."); // co., ltd.
+		words = words.replaceAll("_([Cc])([Oo])ds([Ll])([Tt])([Dd])_", "$1$2._$3$4$5."); // co. ltd.
+		words = words.replaceAll("_([Cc])([Oo])dc([Ll])([Tt])([Dd])_", "$1$2.,$3$4$5."); // co.,ltd.
+		words = words.replaceAll("_([Cc])([Oo])([Rr]?)([Pp]?)_", "$1$2$3$4."); // Co. and Corp.
+		words = words.replaceAll("_([Ll])([Tt])([Dd])_", "$1$2$3."); // ltd.
 
 		words = words.trim();
 
-		return words.split("\\s+");
+		String[] result =  words.split("\\s+");
+		for (int i = 0; i < result.length; i ++){
+			String token = result[i];
+			if (token.contains("_")){
+				result[i]  = token.replaceAll("([a-zA-Z]|[\\,\\.])_([a-zA-Z])", "$1 $2");
+			}
+		}
+		return result;
 
 	}
 
