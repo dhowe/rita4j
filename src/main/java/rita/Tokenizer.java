@@ -165,15 +165,37 @@ public class Tokenizer {
 
 		// Javascript to java regex converted from https://regex101.com/
 		words = words.trim(); // ???
+		//save abbreviations------------
 		words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
 		words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
-
-		words = words.replaceAll("([\\\\?!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
-		words = words.replaceAll("\\\\.\\\\.\\\\.", " ... ");
-		words = words.replaceAll("\\\\s+", " ");
+		words = words.replaceAll("([Aa])[\\.]([Mm])[\\.]", "_$1$2_"); // a.m.
+		words = words.replaceAll("([Pp])[\\.]([Mm])[\\.]", "_$1$2_"); // p.m.
+		words = words.replaceAll("(Cap)[\\.]", "_Cap_"); // Cap.
+		words = words.replaceAll("([Cc])[\\.]", "_$1_"); // c.
+		words = words.replaceAll("([Ee][Tt])[\\s]([Aa][Ll])[\\.]", "_$1zzz$2_"); // et al.
+		words = words.replaceAll("(ect|ECT)[\\.]", "_$1_"); // ect.
+		words = words.replaceAll("([Pp])[\\.]([Ss])[\\.]", "_$1$2dot_"); // p.s.
+		words = words.replaceAll("([Pp])[\\.]([Ss])", "_$1$2_"); // p.s
+		words = words.replaceAll("([Pp])([Hh])[\\.]([Dd])", "_$1$2$3_");// Ph.D
+		words = words.replaceAll("([Rr])[\\.]([Ii])[\\.]([Pp])", "_$1$2$3_"); // R.I.P
+		words = words.replaceAll("([Vv])([Ss]?)[\\.]", "_$1$2_"); // vs. and v.
+		words = words.replaceAll("([Mm])([Rr]|[Ss]|[Xx])[\\.]", "_$1$2_"); // Mr. Ms. and Mx.
+		words = words.replaceAll("([Dd])([Rr])[\\.]", "_$1$2_"); // Dr.
+		words = words.replaceAll("([Pp])([Ff])[\\.]", "_$1$2_"); // Pf.
+		words = words.replaceAll("([Ii])([Nn])([Dd]|[Cc])[\\.]", "_$1$2$3_"); // Ind. and Inc.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\,][\\s]([Ll])([Tt])([Dd])[\\.]", "_$1$2dcs$3$4$5_"); // co., ltd.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\s]([Ll])([Tt])([Dd])[\\.]", "_$1$2ds$3$4$5_"); // co. ltd.
+		words = words.replaceAll("([Cc])([Oo])[\\.][\\,]([Ll])([Tt])([Dd])[\\.]", "_$1$2dc$3$4$5_"); // co.,ltd.
+		words = words.replaceAll("([Cc])([Oo])([Rr]?)([Pp]?)[\\.]", "_$1$2$3$4_"); // Co. and Corp.
+		words = words.replaceAll("([Ll])([Tt])([Dd])[\\.]", "_$1$2$3_"); // ltd.
+		
+		//------------------------------
+        words = words.replaceAll("\\.{3}", "_elipsisDDD_");
+		words = words.replaceAll("([\\?\\!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
+		words = words.replaceAll("\\s+", " ");
 		words = words.replaceAll(",([^0-9])", " , $1");
-		words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\\\s*$", "$1 $2$3 ");
-		words = words.replaceAll("([\\[\\](){}<>])", " $1 ");
+		words = words.replaceAll("([^.])([.])([\\])}>\\\"'’]*)\\s*$", "$1 $2$3 ");
+		words = words.replaceAll("([\\[\\](){}<>⟨⟩])", " $1 ");
 		words = words.replaceAll("--", " -- ");
 		words = words.replaceAll("$", " ");
 		words = words.replaceAll("^", " ");
@@ -187,7 +209,7 @@ public class Tokenizer {
 			words = words.replaceAll("([Dd])idn['’]t", "$1id not");
 			words = words.replaceAll("([CcWw])ouldn['’]t", "$1ould not");
 			words = words.replaceAll("([Ss])houldn['’]t", "$1hould not");
-			words = words.replaceAll(" ([Ii])t['’]s", " $1t is");
+			words = words.replaceAll("([Ii])t['’]s", " $1t is");
 			words = words.replaceAll("n['’]t ", " not ");
 			words = words.replaceAll("['’]ve ", " have ");
 			words = words.replaceAll("['’]re ", " are ");
@@ -197,13 +219,45 @@ public class Tokenizer {
 		words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
 		words = words.replaceAll("\\\\s+", " ");
 		words = words.replaceAll("^\\\\s+", "");
+		words = words.replaceAll("\\^", " ^ ");
+		words = words.replaceAll("°", " ° ");
+		words = words.replaceAll("…", " … ");
+        words = words.replaceAll("_elipsisDDD_", " ... ");
+		//pop abbreviations--------------------------
 
 		words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
 		words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
+		words = words.replaceAll("_([Aa])([Mm])_", "$1.$2."); // a.m.
+		words = words.replaceAll("_([Pp])([Mm])_", "$1.$2."); // p.m.
+		words = words.replaceAll("_(Cap)_", "Cap."); // Cap.
+		words = words.replaceAll("_([Cc])_", "$1."); // c.
+		words = words.replaceAll("_([Ee][Tt])zzz([Aa][Ll])_", "$1_$2."); // et al.
+		words = words.replaceAll("_(ect|ECT)_", "$1."); // ect.
+		words = words.replaceAll("_([Pp])([Ss])dot_", "$1.$2."); // p.s.
+		words = words.replaceAll("_([Pp])([Ss])_", "$1.$2"); // p.s
+		words = words.replaceAll("_([Pp])([Hh])([Dd])_", "$1$2.$3");// Ph.D
+		words = words.replaceAll("_([Rr])([Ii])([Pp])_", "$1.$2.$3"); // R.I.P
+		words = words.replaceAll("_([Vv])([Ss]?)_", "$1$2."); // vs. and v.
+		words = words.replaceAll("_([Mm])([Rr]|[Ss]|[Xx])_", "$1$2."); // Mr. Ms. and Mx.
+		words = words.replaceAll("_([Dd])([Rr])_", "$1$2."); // Dr.
+		words = words.replaceAll("_([Pp])([Ff])_", "$1$2."); // Pf.
+		words = words.replaceAll("_([Ii])([Nn])([Dd]|[Cc])_", "$1$2$3."); // Ind. and Inc.
+		words = words.replaceAll("_([Cc])([Oo])dcs([Ll])([Tt])([Dd])_", "$1$2.,_$3$4$5."); // co., ltd.
+		words = words.replaceAll("_([Cc])([Oo])ds([Ll])([Tt])([Dd])_", "$1$2._$3$4$5."); // co. ltd.
+		words = words.replaceAll("_([Cc])([Oo])dc([Ll])([Tt])([Dd])_", "$1$2.,$3$4$5."); // co.,ltd.
+		words = words.replaceAll("_([Cc])([Oo])([Rr]?)([Pp]?)_", "$1$2$3$4."); // Co. and Corp.
+		words = words.replaceAll("_([Ll])([Tt])([Dd])_", "$1$2$3."); // ltd.
 
 		words = words.trim();
 
-		return words.split("\\s+");
+		String[] result =  words.split("\\s+");
+		for (int i = 0; i < result.length; i ++){
+			String token = result[i];
+			if (token.contains("_")){
+				result[i]  = token.replaceAll("([a-zA-Z]|[\\,\\.])_([a-zA-Z])", "$1 $2");
+			}
+		}
+		return result;
 
 	}
 
