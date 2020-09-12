@@ -5,8 +5,24 @@ import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
 
-
 public class TokenizerTests {
+
+	@Test
+	public void testTokenizeAndBack() { // TODO: add more tests here
+		String[] tests = {
+				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
+				"He can't didn't couldn't shouldn't wouldn't eat.",
+				"Shouldn't he eat?",
+				"It's not that I can't.",
+				"We've found the cat.",
+				"We didn't find the cat.",
+		};
+		for (int i = 0; i < tests.length; i++) {
+			String[] tokenized = RiTa.tokenize(tests[i]);
+			String untokenized = RiTa.untokenize(tokenized);
+			assertEquals(untokenized, tests[i]);
+		}
+	}
 
 	@Test
 	public void testTokenize() {
@@ -14,8 +30,7 @@ public class TokenizerTests {
 		assertArrayEquals(RiTa.tokenize(""), new String[] { "" });
 		assertArrayEquals(RiTa.tokenize("The dog"), new String[] { "The", "dog" });
 
-		String input;
-		String[] expected, output;
+		String input, expected[], output[];
 
 		input = "The student said 'learning is fun'";
 		expected = new String[] { "The", "student", "said", "'", "learning", "is", "fun", "'" };
@@ -86,66 +101,69 @@ public class TokenizerTests {
 		assertArrayEquals(output, expected);
 
 		input = "it cost $30";
-        expected = new String[]{"it", "cost", "$", "30"};
-        output = RiTa.tokenize(input);
-        assertArrayEquals(output, expected);
+		expected = new String[] { "it", "cost", "$", "30" };
+		output = RiTa.tokenize(input);
+		assertArrayEquals(output, expected);
 
-        input = "calculate 2^3";
-        expected = new String[]{"calculate", "2", "^" ,"3"};
-        output = RiTa.tokenize(input);
-        assertArrayEquals(output, expected);
+		input = "calculate 2^3";
+		expected = new String[] { "calculate", "2", "^", "3" };
+		output = RiTa.tokenize(input);
+		assertArrayEquals(output, expected);
 
-        input = "30% of the students";
-        expected = new String[]{"30", "%", "of", "the", "students"};
-        output = RiTa.tokenize(input);
-        assertArrayEquals(output, expected);
+		input = "30% of the students";
+		expected = new String[] { "30", "%", "of", "the", "students" };
+		output = RiTa.tokenize(input);
+		assertArrayEquals(output, expected);
 
-        input = "it's 30°C outside";
-        expected = new String[]{"it", "is", "30", "°", "C", "outside"};
-        RiTa.SPLIT_CONTRACTIONS = true;
-        output = RiTa.tokenize(input);
-        RiTa.SPLIT_CONTRACTIONS = false;
-        assertArrayEquals(output, expected);
+		input = "it's 30°C outside";
+		expected = new String[] { "it", "is", "30", "°", "C", "outside" };
+		RiTa.SPLIT_CONTRACTIONS = true;
+		output = RiTa.tokenize(input);
+		RiTa.SPLIT_CONTRACTIONS = false;
+		assertArrayEquals(output, expected);
 
-        // reference :PENN treebank tokenization document :ftp://ftp.cis.upenn.edu/pub/treebank/public_html/tokenization.html
-        //            and aslo English punctuation Wiki page Latin abbreviations Wiki page
-		String[] inputs = new String[] { "A simple sentence.", 
-				"that's why this is our place).", 
+		String[] inputs = new String[] {
+				"A simple sentence.",
+				"that's why this is our place).",
 				"most, punctuation; is. split: from! adjoining words?",
-			    "double quotes \"OK\"", //Treebank tokenization document says double quotes (") are changed to doubled single forward- and backward- quotes (`` and '') tho
-			    "face-to-face class",
-			    "\"it is strange\", said John, \"Katherine does not drink alchol.\"",
-			    "\"What?!\", John yelled.",
-			    //tests below this line don't pass
-			    "more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
-			    "(testing) [brackets] {all} ⟨kinds⟩",
-			    "elipsis dots... another elipsis dots…",
-		
-	    };
-	    String[][] outputs = new String[][] {
-				new String[] { "A", "simple", "sentence", "." },
-				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
-				new String[] {"most",",","punctuation",";","is",".","split",":","from","!","adjoining","words","?"},
-			    new String[] {"double","quotes","\"","OK","\""},
-			    new String[] {"face-to-face","class"},
-			    new String[] {"\"","it","is","strange","\"",",","said","John",",","\"","Katherine","does","not","drink","alchol",".","\""},
-			    new String[] {"\"","What","?","!","\"",",","John","yelled","."},
-			      //test below this line don't pass
-			    new String[] {"more","abbreviations",":","a.m.","p.m.","Cap.","c.","et al.","etc.","P.S.","Ph.D","R.I.P","vs.","v.","Mr.","Ms.","Dr.","Pf.","Mx.","Ind.","Inc.","Corp.","Co.,Ltd.","Co., Ltd.","Co. Ltd.","Ltd."},
-			    new String[] {"(","testing",")","[","brackets","]","{","all","}","⟨","kinds","⟩"},//this might not need to be fix coz ⟨⟩ is rarely seen
-			    new String[] {"elipsis","dots","...","another","elipsis","dots","…"},
+				"double quotes \"OK\"",
+				"face-to-face class",
+				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
+				"\"What?!\", John yelled.",
+
+				// tests below this line don't pass
+				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
+				"(testing) [brackets] {all} ⟨kinds⟩",
+				"elipsis dots... another elipsis dots…",
+		};
+
+		String[][] outputs = new String[][] {
+				{ "A", "simple", "sentence", "." },
+				{ "that's", "why", "this", "is", "our", "place", ")", "." },
+				{ "most", ",", "punctuation", ";", "is", ".", "split", ":", "from", "!", "adjoining", "words", "?" },
+				{ "double", "quotes", "\"", "OK", "\"" },
+				{ "face-to-face", "class" },
+				{ "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".", "\"" },
+				{ "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
+
+				// test below this line don't pass
+				{ "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.", "Mr.",
+						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd." },
+				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
+				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
 		};
 
 		assertEquals(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
-			for(int j = 0; j < RiTa.tokenize(inputs[i]).length; j ++){
-				if (j != RiTa.tokenize(inputs[i]).length -1){
-					System.out.print(RiTa.tokenize(inputs[i])[j]+"//");
-				} else {
-					System.out.println(RiTa.tokenize(inputs[i])[j]);
+			for (int j = 0; j < RiTa.tokenize(inputs[i]).length; j++) {
+				if (j != RiTa.tokenize(inputs[i]).length - 1) {
+					//System.out.print(RiTa.tokenize(inputs[i])[j] + "//");
+				}
+				else {
+					//System.out.println(RiTa.tokenize(inputs[i])[j]);
 				}
 			}
-			assertArrayEquals(RiTa.tokenize(inputs[i]), outputs[i],RiTa.tokenize(inputs[i]).toString());
+			assertArrayEquals(RiTa.tokenize(inputs[i]), outputs[i], RiTa.tokenize(inputs[i]).toString());
 		}
 
 		// contractions -------------------------
@@ -158,7 +176,8 @@ public class TokenizerTests {
 		String txt6 = "We didn't find the cat.";
 
 		RiTa.SPLIT_CONTRACTIONS = true;
-		assertArrayEquals(RiTa.tokenize(txt1), new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they", "are", "friends", "."});
+		assertArrayEquals(RiTa.tokenize(txt1),
+				new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they", "are", "friends", "." });
 		assertArrayEquals(RiTa.tokenize(txt2),
 				new String[] { "He", "can", "not", "did", "not", "could", "not", "should", "not", "would", "not", "eat", "." });
 		assertArrayEquals(RiTa.tokenize(txt3), new String[] { "Should", "not", "he", "eat", "?" });
@@ -167,7 +186,8 @@ public class TokenizerTests {
 		assertArrayEquals(RiTa.tokenize(txt6), new String[] { "We", "did", "not", "find", "the", "cat", "." });
 
 		RiTa.SPLIT_CONTRACTIONS = false;
-		assertArrayEquals(RiTa.tokenize(txt1), new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they're", "friends", "."});
+		assertArrayEquals(RiTa.tokenize(txt1),
+				new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they're", "friends", "." });
 		assertArrayEquals(RiTa.tokenize(txt2),
 				new String[] { "He", "can't", "didn't", "couldn't", "shouldn't", "wouldn't", "eat", "." });
 		assertArrayEquals(RiTa.tokenize(txt3), new String[] { "Shouldn't", "he", "eat", "?" });
@@ -276,44 +296,44 @@ public class TokenizerTests {
 		// more tests
 
 		String[] outputs = new String[] { "A simple sentence.",
-      "that's why this is our place).",
-      "this is for semicolon; that is for else",
-      "this is for 2^3 2*3",
-      "this is for $30 and #30",
-      "this is for 30°C or 30\u2103",
-      "this is for a/b a⁄b",
-      "this is for «guillemets»",
-      "this... is… for ellipsis",
-      "this line is 'for' single ‘quotation’ mark",
-      "Katherine’s cat and John's cat",
-      "this line is for (all) [kind] {of} ⟨brackets⟩ done",
-      "this line is for the-dash",
-      "30% of the student love day-dreaming.",
-      "\"that test line\"",
-      "my email address is name@domin.com",
-      "it is www.google.com",
-      "that is www6.cityu.edu.hk"
+				"that's why this is our place).",
+				"this is for semicolon; that is for else",
+				"this is for 2^3 2*3",
+				"this is for $30 and #30",
+				"this is for 30°C or 30\u2103",
+				"this is for a/b a⁄b",
+				"this is for «guillemets»",
+				"this... is… for ellipsis",
+				"this line is 'for' single ‘quotation’ mark",
+				"Katherine’s cat and John's cat",
+				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
+				"this line is for the-dash",
+				"30% of the student love day-dreaming.",
+				"\"that test line\"",
+				"my email address is name@domin.com",
+				"it is www.google.com",
+				"that is www6.cityu.edu.hk"
 		};
 
 		String[][] inputs = new String[][] {
 				new String[] { "A", "simple", "sentence", "." },
 				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
-        new String[]{"this", "is", "for", "semicolon", ";", "that", "is", "for", "else"},
-        new String[]{"this", "is", "for", "2", "^", "3", "2", "*", "3"},
-        new String[]{"this", "is", "for", "$", "30", "and", "#", "30"},
-        new String[]{"this", "is", "for", "30", "°", "C", "or", "30", "\u2103"},
-        new String[]{"this", "is", "for", "a", "/", "b", "a", "⁄", "b"},
-        new String[]{"this", "is", "for", "«", "guillemets", "»"},
-        new String[]{"this", "...", "is", "…", "for", "ellipsis"},
-        new String[]{"this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark"},
-        new String[]{"Katherine", "’", "s", "cat", "and", "John", "'", "s", "cat"},
-        new String[]{"this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done"},
-        new String[]{"this", "line", "is", "for", "the", "-", "dash"},
-        new String[]{"30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "."},
-        new String[]{"\"", "that", "test", "line", "\""},
-        new String[]{"my", "email", "address", "is", "name", "@", "domin", ".", "com"},
-        new String[]{"it", "is", "www", ".", "google", ".", "com"},
-        new String[]{"that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk"}
+				new String[] { "this", "is", "for", "semicolon", ";", "that", "is", "for", "else" },
+				new String[] { "this", "is", "for", "2", "^", "3", "2", "*", "3" },
+				new String[] { "this", "is", "for", "$", "30", "and", "#", "30" },
+				new String[] { "this", "is", "for", "30", "°", "C", "or", "30", "\u2103" },
+				new String[] { "this", "is", "for", "a", "/", "b", "a", "⁄", "b" },
+				new String[] { "this", "is", "for", "«", "guillemets", "»" },
+				new String[] { "this", "...", "is", "…", "for", "ellipsis" },
+				new String[] { "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" },
+				new String[] { "Katherine", "’", "s", "cat", "and", "John", "'", "s", "cat" },
+				new String[] { "this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done" },
+				new String[] { "this", "line", "is", "for", "the", "-", "dash" },
+				new String[] { "30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "." },
+				new String[] { "\"", "that", "test", "line", "\"" },
+				new String[] { "my", "email", "address", "is", "name", "@", "domin", ".", "com" },
+				new String[] { "it", "is", "www", ".", "google", ".", "com" },
+				new String[] { "that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" }
 		};
 
 		assertEquals(inputs.length, outputs.length);
@@ -397,6 +417,7 @@ public class TokenizerTests {
 		output = RiTa.sentences(input);
 		expected = new String[] { "\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D" };
 		assertArrayEquals(output, expected);
+
 		/*******************************************/
 
 		input = "She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"";

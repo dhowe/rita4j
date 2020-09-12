@@ -6,13 +6,18 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ *  NOTE: Based on the Penn Treebank tokenization standard, with the following differences:
+ *  In Penn, double quotes (") are changed to doubled forward and backward single quotes (`` and '')
+ */
 public class Tokenizer {
-	private static Pattern splitter = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
-	private static String delim = "___";
+	
+	private static final Pattern SPLITTER = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
+	private static final String DELIM = "___";
 
 	public static String[] sentences(String text, Pattern pattern) {
 		if (text == null || text.length() == 0) return new String[] { text };
-		if (pattern == null) pattern = splitter;
+		if (pattern == null) pattern = SPLITTER;
 
 		String clean = text.replaceAll("(\r?\n)+", " ");
 		List<String> allMatches = new ArrayList<String>();
@@ -26,29 +31,6 @@ public class Tokenizer {
 			return new String[] { text };
 		else
 			return unescapeAbbrevs(arr);
-
-	}
-
-	private static String[] unescapeAbbrevs(String[] arr) {
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = arr[i].replaceAll(delim, ".");
-		}
-		return arr;
-	}
-
-	private static String escapeAbbrevs(String text) {
-
-		String[] abbrevs = RiTa.ABBREVIATIONS;
-		for (int i = 0; i < abbrevs.length; i++) {
-			String abv = abbrevs[i];
-			int idx = text.indexOf(abv);
-			while (idx > -1) {
-				System.out.print(abv);
-				text = text.replace(abv, abv.replace(".", delim));
-				idx = text.indexOf(abv);
-			}
-		}
-		return text;
 	}
 
 	public static String untokenize(String[] arr) {
@@ -58,13 +40,16 @@ public class Tokenizer {
 	public static String untokenize(String[] arr, String delim) {
 		int dbug = 0;
 
-		boolean thisNBPunct, thisNAPunct, lastNBPunct, lastNAPunct, thisQuote, lastQuote, thisComma, isLast,
+		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote, lastQuote, thisComma, isLast,
 				lastComma, lastEndWithS, nextIsS, thisLBracket, thisRBracket, lastLBracket, lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 
-		String  nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",//no space before the punctuation
-				naPunct = "^[\\^\\*\\$/⁄#\\-@°]+$",//no space after the punctuation
-				leftBrackets = "^[\\[\\(\\{⟨]+$",
+
+		String leftBrackets = "^[\\[\\(\\{⟨]+$",
 				rightBrackets = "^[\\)\\]\\}⟩]+$",
+		    // no space before the punctuation
+		    nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",
+		    // no space after the punctuation
+				naPunct = "^[\\^\\*\\$/⁄#\\-@°]+$",
 				quotes = "^[(\"\"“”\u2019‘`''«»‘’]+$",
 				squotes = "^[\u2019‘`']+$",
 				apostrophes = "^[\u2019'’]+$",
@@ -74,7 +59,6 @@ public class Tokenizer {
 		if (arr.length > 0) {
 			withinQuote = Pattern.matches(quotes, arr[0]);
 		}
-		System.out.println(withinQuote);
 
 		String result = arr.length > 0 ? arr[0] : "";
 
@@ -86,7 +70,7 @@ public class Tokenizer {
 
 			thisComma = arr[i] == ",";
 			thisNBPunct = Pattern.matches(nbPunct, arr[i]);
-			thisNAPunct = Pattern.matches(naPunct, arr[i]);
+			//thisNAPunct = Pattern.matches(naPunct, arr[i]);
 			thisQuote = Pattern.matches(quotes, arr[i]);
 			thisLBracket = Pattern.matches(leftBrackets, arr[i]);
 			thisRBracket = Pattern.matches(rightBrackets, arr[i]);
@@ -97,52 +81,61 @@ public class Tokenizer {
 			lastQuote = Pattern.matches(quotes, arr[i - 1]);
 			lastLBracket = Pattern.matches(leftBrackets, arr[i - 1]);
 			lastRBracket = Pattern.matches(rightBrackets, arr[i - 1]);
-			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's' && arr[i - 1]!= "is" && arr[i - 1] != "Is" && arr[i - 1] != "IS";
+			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's'
+					&& arr[i - 1] != "is" && arr[i - 1] != "Is" && arr[i - 1] != "IS";
 			lastIsWWW = Pattern.matches(www, arr[i - 1]);
 			nextIsS = i == arr.length - 1 ? false : (arr[i + 1] == "s" || arr[i + 1] == "S");
 			isLast = (i == arr.length - 1);
 
-			if ((arr[i - 1] == "." && thisDomin) || nextNoSpace){
+			if ((arr[i - 1] == "." && thisDomin) || nextNoSpace) {
 				nextNoSpace = false;
 				result += arr[i];
 				continue;
-			} else if (arr[i] == "." && lastIsWWW){
+			}
+			else if (arr[i] == "." && lastIsWWW) {
 				nextNoSpace = true;
-			} else if (thisLBracket) {
+			}
+			else if (thisLBracket) {
 				result += delim;
-			} else if (lastRBracket){
-				if (!thisNBPunct && !thisLBracket){
-				  result += delim;
+			}
+			else if (lastRBracket) {
+				if (!thisNBPunct && !thisLBracket) {
+					result += delim;
 				}
-			} else if (thisQuote) {
+			}
+			else if (thisQuote) {
 
 				if (withinQuote) {
 					// no-delim, mark quotation done
 					afterQuote = true;
 					withinQuote = false;
-
-				} else if (!((Pattern.matches(apostrophes, arr[i]) && lastEndWithS) || (Pattern.matches(apostrophes, arr[i]) && nextIsS))) {
+				}
+				else if (!((Pattern.matches(apostrophes, arr[i]) && lastEndWithS)
+						|| (Pattern.matches(apostrophes, arr[i]) && nextIsS))) {
 					withinQuote = true;
 					afterQuote = false;
 					result += delim;
-
 				}
-
-			} else if (afterQuote && !thisNBPunct) {
+			}
+			else if (afterQuote && !thisNBPunct) {
 
 				result += delim;
 				afterQuote = false;
 
-			} else if (lastQuote && thisComma) {
+			}
+			else if (lastQuote && thisComma) {
 
 				midSentence = true;
 
-			} else if (midSentence && lastComma) {
+			}
+			else if (midSentence && lastComma) {
 
 				result += delim;
 				midSentence = false;
 
-			} else if ((!thisNBPunct && !lastQuote && !lastNAPunct && !lastLBracket && !thisRBracket) || (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket)) {
+			}
+			else if ((!thisNBPunct && !lastQuote && !lastNAPunct && !lastLBracket && !thisRBracket)
+					|| (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket)) {
 
 				result += delim;
 			}
@@ -159,13 +152,14 @@ public class Tokenizer {
 	}
 
 	public static String[] tokenize(String words) {
+
 		if (words == null || words.length() == 0) return new String[] { "" };
 
 		// if (regex) return words.split(regex); //TODO check this param
 
-		// Javascript to java regex converted from https://regex101.com/
-		words = words.trim(); // ???
-		//save abbreviations------------
+		words = words.trim();
+
+		// save abbreviations------------
 		words = words.replaceAll("([Ee])[.]([Gg])[.]", "_$1$2_"); // E.©G.
 		words = words.replaceAll("([Ii])[.]([Ee])[.]", "_$1$2_"); // I.E.
 		words = words.replaceAll("([Aa])[\\.]([Mm])[\\.]", "_$1$2_"); // a.m.
@@ -188,9 +182,8 @@ public class Tokenizer {
 		words = words.replaceAll("([Cc])([Oo])[\\.][\\,]([Ll])([Tt])([Dd])[\\.]", "_$1$2dc$3$4$5_"); // co.,ltd.
 		words = words.replaceAll("([Cc])([Oo])([Rr]?)([Pp]?)[\\.]", "_$1$2$3$4_"); // Co. and Corp.
 		words = words.replaceAll("([Ll])([Tt])([Dd])[\\.]", "_$1$2$3_"); // ltd.
-		
-		//------------------------------
-        words = words.replaceAll("\\.{3}", "_elipsisDDD_");
+
+		words = words.replaceAll("\\.{3}", "_elipsisDDD_");
 		words = words.replaceAll("([\\?\\!\\\"\\u201C\\\\.,;:@#$%&])", " $1 ");
 		words = words.replaceAll("\\s+", " ");
 		words = words.replaceAll(",([^0-9])", " , $1");
@@ -222,9 +215,9 @@ public class Tokenizer {
 		words = words.replaceAll("\\^", " ^ ");
 		words = words.replaceAll("°", " ° ");
 		words = words.replaceAll("…", " … ");
-        words = words.replaceAll("_elipsisDDD_", " ... ");
-		//pop abbreviations--------------------------
+		words = words.replaceAll("_elipsisDDD_", " ... ");
 
+		// restore abbreviations--------------------------
 		words = words.replaceAll("_([Ee])([Gg])_", "$1.$2."); // E.G.
 		words = words.replaceAll("_([Ii])([Ee])_", "$1.$2."); // I.E.
 		words = words.replaceAll("_([Aa])([Mm])_", "$1.$2."); // a.m.
@@ -250,15 +243,37 @@ public class Tokenizer {
 
 		words = words.trim();
 
-		String[] result =  words.split("\\s+");
-		for (int i = 0; i < result.length; i ++){
+		String[] result = words.split("\\s+");
+		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
-			if (token.contains("_")){
-				result[i]  = token.replaceAll("([a-zA-Z]|[\\,\\.])_([a-zA-Z])", "$1 $2");
+			if (token.contains("_")) {
+				result[i] = token.replaceAll("([a-zA-Z]|[\\,\\.])_([a-zA-Z])", "$1 $2");
 			}
 		}
 		return result;
+	}
 
+	//////////////////////////////////////////////////////////////////
+
+	private static String[] unescapeAbbrevs(String[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = arr[i].replaceAll(DELIM, ".");
+		}
+		return arr;
+	}
+
+	private static String escapeAbbrevs(String text) {
+
+		String[] abbrevs = RiTa.ABBREVIATIONS;
+		for (int i = 0; i < abbrevs.length; i++) {
+			String abv = abbrevs[i];
+			int idx = text.indexOf(abv);
+			while (idx > -1) {
+				text = text.replace(abv, abv.replace(".", DELIM));
+				idx = text.indexOf(abv);
+			}
+		}
+		return text;
 	}
 
 }
