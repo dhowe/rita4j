@@ -8,6 +8,18 @@ import rita.RiTa;
 public class TokenizerTests {
 
 	@Test
+	public void simplestPossibleCode(){
+		String[] sentences = new String[] {
+			"it is www.google.com",
+			"it is 'hell'"
+		};
+		System.out.println(RiTa.untokenize(RiTa.tokenize(sentences[0])));
+		// => expect output: "it is www.google.com"
+		System.out.println(RiTa.untokenize(RiTa.tokenize(sentences[1])));
+		// => expect output: "it is 'hell'"
+	}
+
+	@Test
 	public void forDebug() {
 		//calling tokenize() and untokenize() together seems to cause some werid bugs
 		//but I guess normally no one do this
@@ -258,7 +270,7 @@ public class TokenizerTests {
 				"face-to-face class",
 				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
 				"\"What?!\", John yelled.",
-				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
+				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd. Prof.",
 				"(testing) [brackets] {all} ⟨kinds⟩",
 				"elipsis dots... another elipsis dots…",
 				"this line is 'for' single ‘quotation’ mark"
@@ -273,7 +285,7 @@ public class TokenizerTests {
 				{ "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".", "\"" },
 				{ "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
 				{ "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.", "Mr.",
-						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd." },
+						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd.", "Prof." },
 				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
 				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
 				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" }
