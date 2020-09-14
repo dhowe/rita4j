@@ -8,7 +8,105 @@ import rita.RiTa;
 public class TokenizerTests {
 
 	@Test
-	public void testTokenizeAndBack() { // TODO: add more tests here
+	public void forDebug() {
+		//calling tokenize() and untokenize() together seems to cause some werid bugs
+		//but I guess normally no one do this
+		String[][] tokens = new String[][] {
+				new String[] { "it", "is", "www", ".", "google", ".", "com" },
+				new String[] { "it", "is", "'", "hell", "'" },
+				new String[] { "everything", "else", ",", "seems", "to", "be", "\"", "OK", "\"", "." }
+		};
+
+		String[] untokens = new String[] {
+				"it is www.google.com",
+				"it is 'hell'",
+				"everything else, seems to be \"OK\"."
+		};
+
+		String[][] usingTokenize = new String[][] {
+				RiTa.tokenize(untokens[0]),
+				RiTa.tokenize(untokens[1]),
+				RiTa.tokenize(untokens[2])
+		};
+
+		String[] usingUntokenize = new String[] {
+				RiTa.untokenize(tokens[0]),
+				RiTa.untokenize(tokens[1]),
+				RiTa.untokenize(tokens[2])
+		};
+
+		String[] usingTokenizeThenUntokenize = new String[] {
+				RiTa.untokenize(RiTa.tokenize(untokens[0])),
+				RiTa.untokenize(RiTa.tokenize(untokens[1])),
+				RiTa.untokenize(RiTa.tokenize(untokens[2]))
+		};
+
+		String[][] usingUntokenizeThenTokenize = new String[][] {
+				RiTa.tokenize(RiTa.untokenize(tokens[0])),
+				RiTa.tokenize(RiTa.untokenize(tokens[1])),
+				RiTa.tokenize(RiTa.untokenize(tokens[2]))
+		};
+
+		String[] usingTokenizeThenUntokenizeWithMiddleMan = new String[] {
+				RiTa.untokenize(usingTokenize[0]),
+				RiTa.untokenize(usingTokenize[1]),
+				RiTa.untokenize(usingTokenize[2])
+		};
+
+		for (int i = 0; i < tokens.length; i++) {
+			System.out.println("tokens:");
+			for (int j = 0; j < tokens[i].length; j++) {
+				if (j != tokens[i].length - 1) {
+					System.out.print(tokens[i][j] + "//");
+				}
+				else {
+					System.out.println(tokens[i][j] + "\\\\");
+				}
+			}
+			System.out.println("usingTokenize:");
+			for (int j = 0; j < usingTokenize[i].length; j++) {
+				if (j != usingTokenize[i].length - 1) {
+					System.out.print(usingTokenize[i][j] + "//");
+				}
+				else {
+					System.out.println(usingTokenize[i][j] + "\\\\");
+				}
+			}
+			//just call tokenize() => everything OK
+			System.out.println("using untokenize then tokenize:");
+			for (int j = 0; j < usingUntokenizeThenTokenize[i].length; j++) {
+				if (j != usingUntokenizeThenTokenize[i].length - 1) {
+					System.out.print(usingUntokenizeThenTokenize[i][j] + "//");
+				}
+				else {
+					System.out.println(usingUntokenizeThenTokenize[i][j] + "\\\\");
+				}
+			}
+			//calling untokenize then tokenize seems to be ok
+			System.out.println("untokens:");
+			System.out.println(untokens[i]);
+			System.out.println("usingUntokenize:");
+			System.out.println(usingUntokenize[i]);
+			// just call untokenize() => everything OK
+			System.out.println("using tokenize then untokenize:");
+			System.out.println(usingTokenizeThenUntokenize[i]);
+			// call tokenize() then untokenize() together => bugs
+			// bugs do not appear in js side
+			System.out.println("using tokenize then untokenize with middle man");
+			System.out.println(usingTokenizeThenUntokenizeWithMiddleMan[i]);
+			// this also doesn't work...
+			/* bugs only occur when: 1. encounter email and website address
+			                         2. when single quotation marks appear after the word is */
+
+			//assertArrayEquals(tokens[i], usingTokenize[i]);
+			//assertEquals(untokens[i], usingUntokenize[i]);
+			//assertEquals(untokens[i], usingTokenizeThenUntokenize[i]);
+			//assertEquals(tokens[i],usingUntokenizeThenTokenize[i]);
+		}
+	}
+
+	@Test
+	public void testTokenizeAndBack() {
 		String[] tests = {
 				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
 				"He can't didn't couldn't shouldn't wouldn't eat.",
@@ -16,10 +114,40 @@ public class TokenizerTests {
 				"It's not that I can't.",
 				"We've found the cat.",
 				"We didn't find the cat.",
+				"face-to-face class",
+				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
+				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
+				"elipsis dots... another elipsis dots…",
+				"(testing) [brackets] {all} ⟨kinds⟩",
+				"this is for semicolon; that is for else",
+				"this is for 2^3 2*3",
+				"this is for $30 and #30",
+				"this is for 30°C or 30\u2103",
+				"this is for a/b a⁄b",
+				"this is for «guillemets»",
+				"this... is… for ellipsis",
+				//"this line is 'for' single ‘quotation’ mark",//this pass tokenize and unkenize separately but not this?
+				"Katherine’s cat and John's cat",
+				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
+				"this line is for the-dash",
+				"30% of the student love day-dreaming.",
+				//"my email address is name@domin.com", 
+				//"it is www.google.com",
+				//"that is www6.cityu.edu.hk", //these too... => see forDegub()
+				"30% of the student will pay $30 to decrease the temperature by 2°C"
 		};
 		for (int i = 0; i < tests.length; i++) {
 			String[] tokenized = RiTa.tokenize(tests[i]);
+			for (int j = 0; j < tokenized.length; j++) {
+				if (j != tokenized.length - 1) {
+					//System.out.print(tokenized[j] + "//");
+				}
+				else {
+					//System.out.println(tokenized[j]);
+				}
+			}
 			String untokenized = RiTa.untokenize(tokenized);
+			//System.out.println(untokenized);
 			assertEquals(untokenized, tests[i]);
 		}
 	}
@@ -130,11 +258,10 @@ public class TokenizerTests {
 				"face-to-face class",
 				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
 				"\"What?!\", John yelled.",
-
-				// tests below this line don't pass
 				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd.",
 				"(testing) [brackets] {all} ⟨kinds⟩",
 				"elipsis dots... another elipsis dots…",
+				"this line is 'for' single ‘quotation’ mark"
 		};
 
 		String[][] outputs = new String[][] {
@@ -145,12 +272,11 @@ public class TokenizerTests {
 				{ "face-to-face", "class" },
 				{ "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".", "\"" },
 				{ "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
-
-				// test below this line don't pass
 				{ "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.", "Mr.",
 						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd." },
 				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
 				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
+				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" }
 		};
 
 		assertEquals(inputs.length, outputs.length);
@@ -312,7 +438,8 @@ public class TokenizerTests {
 				"\"that test line\"",
 				"my email address is name@domin.com",
 				"it is www.google.com",
-				"that is www6.cityu.edu.hk"
+				"that is www6.cityu.edu.hk",
+				"30% of the students will pay $30 to decrease the temperature by 2°C"
 		};
 
 		String[][] inputs = new String[][] {
@@ -333,11 +460,22 @@ public class TokenizerTests {
 				new String[] { "\"", "that", "test", "line", "\"" },
 				new String[] { "my", "email", "address", "is", "name", "@", "domin", ".", "com" },
 				new String[] { "it", "is", "www", ".", "google", ".", "com" },
-				new String[] { "that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" }
+				new String[] { "that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" },
+				new String[] { "30", "%", "of", "the", "students", "will", "pay", "$", "30", "to", "decrease", "the", "temperature", "by", "2", "°",
+						"C" }
 		};
 
 		assertEquals(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
+			for (int j = 0; j < inputs[i].length; j++) {
+				if (j != inputs[i].length - 1) {
+					//System.out.print(inputs[i][j] + "\\\\");
+				}
+				else {
+					//System.out.println(inputs[i][j]);
+				}
+			}
+			//System.out.println(RiTa.untokenize(inputs[i]));
 			assertEquals(RiTa.untokenize(inputs[i]), outputs[i]);
 		}
 	}

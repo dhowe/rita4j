@@ -7,11 +7,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *  NOTE: Based on the Penn Treebank tokenization standard, with the following differences:
- *  In Penn, double quotes (") are changed to doubled forward and backward single quotes (`` and '')
+ * NOTE: Based on the Penn Treebank tokenization standard, with the following
+ * differences:
+ * In Penn, double quotes (") are changed to doubled forward and backward single
+ * quotes (`` and '')
  */
 public class Tokenizer {
-	
+
 	private static final Pattern SPLITTER = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
 	private static final String DELIM = "___";
 
@@ -43,12 +45,11 @@ public class Tokenizer {
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote, lastQuote, thisComma, isLast,
 				lastComma, lastEndWithS, nextIsS, thisLBracket, thisRBracket, lastLBracket, lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 
-
 		String leftBrackets = "^[\\[\\(\\{⟨]+$",
 				rightBrackets = "^[\\)\\]\\}⟩]+$",
-		    // no space before the punctuation
-		    nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",
-		    // no space after the punctuation
+				// no space before the punctuation
+				nbPunct = "^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$",
+				// no space after the punctuation
 				naPunct = "^[\\^\\*\\$/⁄#\\-@°]+$",
 				quotes = "^[(\"\"“”\u2019‘`''«»‘’]+$",
 				squotes = "^[\u2019‘`']+$",
@@ -209,12 +210,13 @@ public class Tokenizer {
 		}
 
 		// "Nicole I. Kidman" gets tokenized as "Nicole I . Kidman"
-		words = words.replaceAll(" ([A-Z]) \\\\.", " $1. ");
-		words = words.replaceAll("\\\\s+", " ");
-		words = words.replaceAll("^\\\\s+", "");
+		words = words.replaceAll(" ([A-Z]) \\.", " $1. ");
+		words = words.replaceAll("\\s+", " ");
+		words = words.replaceAll("^\\s+", "");
 		words = words.replaceAll("\\^", " ^ ");
 		words = words.replaceAll("°", " ° ");
 		words = words.replaceAll("…", " … ");
+		words = words.replaceAll("([\\w])([’'])\\s", "$1 $2 ");
 		words = words.replaceAll("_elipsisDDD_", " ... ");
 
 		// restore abbreviations--------------------------
