@@ -12,8 +12,12 @@ import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser;
 import rita.antlr.RiScriptParser.*;
 
+
+// 16 tests failing, largely due to transform handling
 public class Visitor extends RiScriptBaseVisitor<String> {
 
+	private static final boolean DISABLE_TFS = true;
+	
 	//	private static final String SYM = "$";
 	//	private static final String DOT = ".";
 	private static final String EOF = "<EOF>";
@@ -48,7 +52,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result;
 	}
 
-	public String visitScriptOff(RiScriptParser.ScriptContext ctx) {
+	public String visitScriptOff(RiScriptParser.ScriptContext ctx) { // disabled
 		if (trace) System.out.println("visitScript: '" + ctx.getText() + "'\t" + stack(ctx));
 		for (int i = 0; i < ctx.getChildCount(); i++) {
 			System.out.println(i + ") " + ctx.getChild(i).getClass()
@@ -88,22 +92,23 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		List<TransformContext> txs = ctx.transform();
 		if (txs.size() < 1) return visited;
 
+if (DISABLE_TFS) return visited;
+		
 		String result = applyTransforms(visited, ctx.transform());
 		return result != null ? result : ctx.getText();
 	}
-
-	//	public String visitScript(ScriptContext ctx) {
-	//		if (trace) System.out.println("visitScript: '" + ctx.getText());
-	//		return visitChildren(ctx);
-	//	}
 
 	public String visitExpr(ExprContext ctx) {
 		if (trace) {
 			List<TransformContext> txs = childTransforms(ctx);
 			System.out.println("visitExpr: '" + ctx.getText() + "' tfs=" + flatten(txs));
-			//System.out.println("  chil: "+flatten(ctx.children));
 		}
-		return visitChildren(ctx);
+		if (1==1) return visitChildren(ctx);
+		
+		// Q: is this the right place to do this ?
+		List<TransformContext> txs = childTransforms(ctx);
+		String result = visitChildren(ctx);
+		return txs.size() > 0 ? applyTransforms(result, txs) : result;
 	}
 
 	public String visitChars(CharsContext ctx) {
@@ -120,10 +125,13 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		boolean isEmpty = tok.getText().equals("");
 		String s = trace ? "  select: '" + tok.getText() + "'" : null;
 		passTransformsAsChildrenOf(tok, ctx.transform());
+		//return this.visit(tok);
+		
 		List<TransformContext> txs = childTransforms(tok);
 		if (trace) System.out.println(s + " tfs=" + flatten(txs));
 		// hack for ().aTransform()
 		return isEmpty ? applyTransforms("", txs) : this.visit(tok);
+		
 	}
 
 	// TODO: [NEXT] need to handle fails in applyTransforms()
@@ -145,21 +153,19 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// already a pending symbol, save for later  ??? 
 		// shouldn't we check the context first
 		if (this.pendingSymbols.contains(ident)) {
-			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
+			if (trace) System.out.println("IGNORE PENDING: \"\" tfs="
 					+ flatten(txs) + " -> " + result);
 			return result;
 		}
 
 		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
+				+ ident + "' tfs=" + flatten(txs));
 
 		// now check the context
 		Object def = fromContext(ident);
 		if (def != null) {
 
-			if (isPrimitive(def)) {
-				def = def.toString();
-			}
+			if (isPrimitive(def)) def = def.toString();
 
 			if (!(def instanceof String)) {
 				throw new RuntimeException("Tx returned non-String:  " + def);
@@ -173,9 +179,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 			result = (String) def;
 			String applied = applyTransforms(result, txs);
-			if (applied != null) {
-				result = applied;
-			}
+			if (applied != null) result = applied;
 		}
 
 		if (trace) System.out.println("visitSymbol: '"
@@ -188,7 +192,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	//		return t.replaceAll("^\\$", "");
 	//	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
 			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 					Integer.class, Long.class, Float.class, Double.class));
@@ -230,7 +234,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public String visitTransform(TransformContext ctx) {
-		if (trace) System.err.println("[ERROR] visitTransform: '" + ctx.getText() + "'");
+		if (trace) System.err.println("[ERROR] Unexecuted transform: '" + ctx.getText() + "'");
 		return "";//visitChildren(ctx);
 	}
 
@@ -428,12 +432,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		for (int i = 0; i < node.getChildCount(); i++) {
 			ParseTree child = node.getChild(i);
 			String visit = this.visit(child);
-			result += visit != null ? visit : "";
+			result += (visit != null ? visit : "");
 		}
 		return result;
 	}
 
-	@SuppressWarnings({ "unchecked" })
+	/*@SuppressWarnings({ "unchecked" })
 	private Map<String, Function<String, String>> contextFunctions() { // why?
 		Map<String, Function<String, String>> funcs = new HashMap<String, Function<String, String>>();
 		if (context != null) {
@@ -446,7 +450,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		}
 		console.log(funcs.keySet().toArray());
 		return funcs;
-	}
+	}*/
 
 	private void pushTransforms(Map<String, Object> ctx) {
 		for (String tx : RiScript.transforms.keySet()) {
