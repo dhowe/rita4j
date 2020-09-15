@@ -8,10 +8,10 @@ import rita.RiTa;
 public class TokenizerTests {
 
 	@Test
-	public void simplestPossibleCode(){
+	public void simplestPossibleCode() {
 		String[] sentences = new String[] {
-			"it is www.google.com",
-			"it is 'hell'"
+				"it is www.google.com",
+				"it is 'hell'"
 		};
 		System.out.println(RiTa.untokenize(RiTa.tokenize(sentences[0])));
 		// => expect output: "it is www.google.com"
