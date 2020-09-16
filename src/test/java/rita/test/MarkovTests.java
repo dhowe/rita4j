@@ -504,14 +504,14 @@ public class MarkovTests {
 	public void testAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
-		int count = sents.length; // sentence-end tokens
+		int count = 0; // should not include <s> and <s/> coz by default Markov.size() don't count them
 		for (int i = 0; i < sents.length; i++) {
 			String[] words = RiTa.tokenize(sents[i]);
 			count += words.length;
 		}
 		rm.addText(sents);
 
-		assertEquals(rm.size(), count + sents.length);
+		assertEquals(rm.size(), count);
 
 		// TODO:
 //    String[] ss = rm.root.child(Markov.SS);
