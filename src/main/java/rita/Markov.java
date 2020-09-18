@@ -2,6 +2,9 @@ package rita;
 
 import java.util.*;
 import java.util.Comparator;
+
+import org.antlr.v4.parse.ANTLRParser.finallyClause_return;
+
 import java.math.BigDecimal;
 
 import rita.Markov.Node;
@@ -172,7 +175,16 @@ public class Markov {
 	}
 
 	public float probability(String[] dataArray) {
-		throw new RuntimeException("Implement me"); // TODO: + check tests
+		if (dataArray == null || dataArray.length == 0) {
+			return 0;
+		}
+		Node tn = this._pathTo(dataArray);
+		if (tn != null && tn.token.length() > 0) {
+			return (float) tn.nodeProb(true);
+		}
+		else {
+			return 0;
+		}
 	}
 
 	public double probability(String path) {

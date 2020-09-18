@@ -487,15 +487,22 @@ public class MarkovTests {
 	public void testProbabilityArray() {
 		Markov rm = new Markov(3);
 		rm.addText(sample);
+		float expected = 0;
 
 		String[] check = "personal power is".split(" ");
-		assertEquals(rm.probability(check), 1 / 3);
+		expected = (float) 1 / 3;
+		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
+		assertEquals(rm.probability(check), expected);
 
 		check = "personal powXer is".split(" ");
-		assertEquals(rm.probability(check), 0);
+		expected = (float) 0;
+		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
+		assertEquals(rm.probability(check), expected);
 
 		check = "someone who pretends".split(" ");
-		assertEquals(rm.probability(check), 1 / 2);
+		expected = (float) 1 / 2;
+		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
+		assertEquals(rm.probability(check), expected);
 
 		assertEquals(rm.probability(new String[] { }), 0);
 
