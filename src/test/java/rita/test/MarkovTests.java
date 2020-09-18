@@ -528,7 +528,10 @@ public class MarkovTests {
 		Markov rm = new Markov(2);
 		String exp = "ROOT { \"<s>\" [1,p=0.143] { \"The\" [1,p=1.000] } \"The\" [1,p=0.143] { \"dog\" [1,p=1.000] } \"dog\" [1,p=0.143] { \"ate\" [1,p=1.000] } \"ate\" [1,p=0.143] { \"the\" [1,p=1.000] } \"the\" [1,p=0.143] { \"cat\" [1,p=1.000] } \"cat\" [1,p=0.143] { \"</s>\" [1,p=1.000] } \"</s>\" [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
-		assertEquals(exp, rm.toString().replaceAll("\n", " ").replaceAll(" +", " "));
+		String output = rm.toString().replaceAll("\n", " ").replaceAll(" +", " ");
+		//System.out.println("exp:" + exp);
+		//System.out.println("real:" + output);
+		assertEquals(exp, output);
 	}
 
 	@Test

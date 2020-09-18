@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.*;
+import java.util.Comparator;
 import java.math.BigDecimal;
 
 import rita.Markov.Node;
@@ -17,6 +18,7 @@ public class Markov {
 
 	protected int mlm, maxAttempts = 99;
 	protected boolean trace, disableInputChecks, logDuplicates;
+	protected int treeifyTimes = 0;
 
 	public Markov(int n) {
 		this(n, null);
@@ -33,13 +35,14 @@ public class Markov {
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
 
 		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
-		if (mlm != 0 && mlm <= n) throw new RiTaException
-			("[Markov] maxLengthMatch(mlm) must be > N");
+		if (mlm != 0 && mlm <= n) throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
 	}
 
 	public String toString() {
 		Node root = this.root;
-		return root.asTree().replaceAll("\\{\\}", "");
+		System.out.println("root's children: " + this.root.children.toString() + "last words' children"
+				+ this.root.children.get(this.input.get(this.input.size() - 2)).children);// if dont visit the last word's children, and the root's children before call astree, they disappear???
+		return root.asTree(true).replaceAll("\\{\\}", "");
 	}
 
 	public String[] generate() {
@@ -72,9 +75,8 @@ public class Markov {
 			if (tokens != null && arr != null) {
 				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
 			}
-			
-			if (tokens == null) throw new RiTaException
-				("[Markov] No sentence starts with: '" + startTokens + "'");
+
+			if (tokens == null) throw new RiTaException("[Markov] No sentence starts with: '" + startTokens + "'");
 
 			while (tokens != null && tokens.size() < maxLength) {
 				Node[] tokensArray = tokens.toArray(new Node[tokens.size()]);
@@ -108,14 +110,13 @@ public class Markov {
 							fail(tokens, "is dup", ++tries);
 							break;
 						}
-						
-						if (this.trace) System.out.println
-							("-- GOOD " + sent.replaceAll(" +", " "));
-						
+
+						if (this.trace) System.out.println("-- GOOD " + sent.replaceAll(" +", " "));
+
 						result.add(sent.replaceAll(" +", " "));
 						break;
 					}
-					
+
 					fail(tokens, "too short", ++tries);
 					break;
 				}
@@ -133,9 +134,9 @@ public class Markov {
 	}
 
 	public void addText(String text, int multiplier) {
-		addText( RiTa.sentences(text), multiplier);
+		addText(RiTa.sentences(text), multiplier);
 	}
-	
+
 	public void addText(String[] sents) {
 		addText(sents, 1);
 	}
@@ -143,7 +144,7 @@ public class Markov {
 	public void addText(String[] sents, int multiplier) {
 
 		// add new tokens for each sentence start/end
-		List<String> toAdd = new ArrayList<String>(); 
+		List<String> toAdd = new ArrayList<String>();
 		List<String> tokens = new ArrayList<String>();
 		for (int k = 0; k < multiplier; k++) {
 			for (int i = 0; i < sents.length; i++) {
@@ -221,7 +222,7 @@ public class Markov {
 			throw new RiTaException("[Markov] Exceeded maxAttempts:" + t);
 		}
 	}
-	
+
 	private String[] startTokens(Map<String, Object> opts) {
 		String[] startTokens = new String[0];
 		if (opts.containsKey("startTokens")) {
@@ -233,7 +234,7 @@ public class Markov {
 		}
 		return startTokens;
 	}
-	
+
 	private boolean validateMlms(Node word, Node[] nodes) {
 		List<String> check = new ArrayList<>();
 		for (Node node : nodes) {
@@ -305,14 +306,18 @@ public class Markov {
 	}
 
 	private void _treeify(String[] tokens, Node root) {
+		int order = 0;
 		for (int i = 0; i < tokens.length; i++) {
 			Node node = root;
 			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
 			for (int j = 0; j < words.length; j++) {
-				if (words[j] != null)
-					node = node.addChild(words[j]);
+				if (words[j] != null) {
+					node = node.addChild(words[j], this.treeifyTimes + order);
+					order++;
+				}
 			}
 		}
+		this.treeifyTimes += order;
 	}
 
 	private Node _pathTo(Node[] path) {
@@ -385,6 +390,7 @@ public class Markov {
 		protected String token;
 		protected int numChildren = -1; // for cache
 		protected int count = 0;
+		protected int inputOrder = -1; // for sorting according to the input order
 
 		public Node(Node p, String word, int c) {
 			parent = p;
@@ -466,25 +472,29 @@ public class Markov {
 		}
 
 		public double nodeProb(boolean excludeMetaTags) {
-			if (this.parent == null)
+			if (this.parent == null) {
 				throw new RiTaException("no parent");
+			}
+			//System.out.println("Markov.Node.nodeProb(): node name: " + this.token + "; using" + this.count + "/"
+			//		+ this.parent.childCount(excludeMetaTags) + "; parent: " + this.parent.token);
 			double result = (double) this.count / (double) this.parent.childCount(excludeMetaTags);
 			// System.out.println("C:" + this.count + " " +
 			// this.parent.childCount(excludeMetaTags) + "->" + result);
 			return result;
 		}
 
-		public Node addChild(String word) {
-			return addChild(word, 1);
+		public Node addChild(String word, int order) {
+			return addChild(word, 1, order);
 		}
 
 		// Increments count for a child node and returns it
-		public Node addChild(String word, int count) {
+		public Node addChild(String word, int count, int order) {
 			if (children == null)
 				children = new HashMap<String, Node>();
 			Node node = this.children.get(word);
 			if (node == null) {
 				node = new Node(this, word);
+				node.inputOrder = order;
 				this.children.put(word, node);
 			}
 			node.count += count;
@@ -507,16 +517,22 @@ public class Markov {
 			String indent = "\n";
 			if (mn.children == null || mn.children.size() == 0)
 				return str;
-			// TODO:
-			// if (sort) l.sort();
+			// TODO:addsort => now sort with input order
+			ArrayList<Node> l = new ArrayList<Node>(mn.children.values());
+			if (sort) {
+				l.sort(this.ByInputOrder);
+			}
 			for (int j = 0; j < depth; j++)
 				indent += "  ";
 
-			for (Node node : mn.children.values()) {
+			for (int i = 0; i < l.size(); i++) {
 
+				Node node = l.get(i);
 				if (node != null) {
-					str += indent + "'" + this.encode(node.token) + "'";
+					str += indent + "\"" + this.encode(node.token) + "\"";
 					if (!node.isRoot()) {
+						//System.out.println(
+						//		"Markov.Node.stringify() node name: " + node.token + "; prob: " + node.nodeProb() + "; parent: " + node.parent.token);
 						BigDecimal probBigDecimal = new BigDecimal(node.nodeProb());
 						probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
 						str += " [" + node.count + ",p=" + probBigDecimal + "]";
@@ -542,7 +558,7 @@ public class Markov {
 			if (this.parent != null)
 				s += "(" + this.count + ")->";
 			s += "{";
-			System.out.println(this.childCount());
+			//System.out.println(this.childCount());
 			return this.childCount() != 0 ? stringify(this, s, 1, sort) : s + "}";
 		}
 
@@ -558,6 +574,23 @@ public class Markov {
 			return tok;
 		}
 
+		public int getInputOrder() {
+			if (!this.isRoot()) {
+				return this.inputOrder;
+			}
+			else {
+				return -1;
+			}
+		}
+
+		public Comparator<Markov.Node> ByInputOrder = new Comparator<Markov.Node>() {
+			public int compare(Markov.Node node1, Markov.Node node2) {
+				int n1 = node1.getInputOrder();
+				int n2 = node2.getInputOrder();
+
+				return n1 - n2;
+			}
+		};
 	}
 
 }

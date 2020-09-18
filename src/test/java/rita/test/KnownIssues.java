@@ -125,13 +125,21 @@ public class KnownIssues {
 	}
 
 	@Test
-	public void markovGenerateDebug(){
+	public void markovGenerateDebug() {
 		int n = 1;
 		//different bugs appear when n=1 and n=2,3,4...
 		Markov rm = new Markov(n);
 		rm.addText(longerSample);
 		//System.out.println(rm.input.toString());
 		System.out.println(rm.generate());
+	}
+
+	@Test
+	public void markovToStringBug() {
+		//not testable
+		//if do not visit (e.g, print it out to console) the value of markov.root.chlidren 
+		//and the last word's chlidren, those value kind of gone, causing problems
+		//see Markov.toString() (now is Markov.java line 43)
 	}
 
 }
