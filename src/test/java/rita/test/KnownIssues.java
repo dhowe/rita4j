@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
+import rita.Markov;
 
 // Failing tests go here until debugged
 public class KnownIssues {
@@ -176,6 +177,24 @@ public class KnownIssues {
 					+ ", but expecting " + tests[i + 1]);
 			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
+	}
+
+	@Test
+	public void markovGenerateDebug() {
+		int n = 2;
+		//different bugs appear when n=1 and n=2,3,4...
+		Markov rm = new Markov(n);
+		rm.addText("a simple sentence here.");
+		//System.out.println(rm.input.toString());
+		System.out.println(rm.generate());
+	}
+
+	@Test
+	public void markovToStringBug() {
+		//not testable
+		//if do not visit (e.g, print it out to console) the value of markov.root.chlidren 
+		//and the last word's chlidren, those value kind of gone, causing problems
+		//see Markov.toString() (now is Markov.java line 43)
 	}
 
 	public static void main(String[] args) {

@@ -398,7 +398,7 @@ public class MarkovTests {
 		Map<String, Object>[] expected = new HashMap[6];
 		
 		expected[0] = opts("people", 1.0);
-		expected[1] = opts("lie", 1);
+		expected[1] = opts("lie", 1.0);
 		expected[2] = opts("power", 1.0);
 		expected[3] = opts("time", 0.5,"party",0.5);
 		expected[4] = opts("to", 0.3333333333333333, ".", 0.3333333333333333, "helpful", 0.3333333333333333);
@@ -406,6 +406,7 @@ public class MarkovTests {
 
 		for (int i = 0; i < checks.length; i++) {
 			Map<String, Object> res = rm.probabilities(checks[i]);
+			//System.out.println("MarkovTests.testProbabilities():" + checks[i] + " expect: " + expected[i].toString() + " real: " + res.toString());
 			eql(res, expected[i]);
 		}
 
@@ -504,14 +505,14 @@ public class MarkovTests {
 	public void testAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
-		int count = sents.length; // sentence-end tokens
+		int count = 0; // should not include <s> and <s/> coz by default Markov.size() don't count them
 		for (int i = 0; i < sents.length; i++) {
 			String[] words = RiTa.tokenize(sents[i]);
 			count += words.length;
 		}
 		rm.addText(sents);
 
-		assertEquals(rm.size(), count + sents.length);
+		assertEquals(rm.size(), count);
 
 		// TODO:
 //    String[] ss = rm.root.child(Markov.SS);
@@ -528,7 +529,10 @@ public class MarkovTests {
 		Markov rm = new Markov(2);
 		String exp = "ROOT { \"<s>\" [1,p=0.143] { \"The\" [1,p=1.000] } \"The\" [1,p=0.143] { \"dog\" [1,p=1.000] } \"dog\" [1,p=0.143] { \"ate\" [1,p=1.000] } \"ate\" [1,p=0.143] { \"the\" [1,p=1.000] } \"the\" [1,p=0.143] { \"cat\" [1,p=1.000] } \"cat\" [1,p=0.143] { \"</s>\" [1,p=1.000] } \"</s>\" [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
-		assertEquals(exp, rm.toString().replaceAll("\n", " ").replaceAll(" +", " "));
+		String output = rm.toString().replaceAll("\n", " ").replaceAll(" +", " ");
+		//System.out.println("exp:" + exp);
+		//System.out.println("real:" + output);
+		assertEquals(exp, output);
 	}
 
 	@Test
