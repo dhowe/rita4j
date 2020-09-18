@@ -352,9 +352,17 @@ public class RiTa {
 	public static String[] tokenize(String text) {
 		return Tokenizer.tokenize(text);
 	}
+	
+	public static String[] tokenize(String text, String regex) {
+		return Tokenizer.tokenize(text, regex); // TODO: add tests
+	}
 
 	public static String untokenize(String[] words) {
 		return Tokenizer.untokenize(words);
+	}
+	
+	public static String untokenize(String[] words, String delim) {
+		return Tokenizer.untokenize(words, delim); // TODO: add tests
 	}
 
 	public static String[] words() {

@@ -101,7 +101,7 @@ public class console {
       System.out.println(j + ") '" + l[j] + "'");
   }
 
-  public static void log(Object[] l) {
+  public static void log(String[] l) {
     if (l == null) {
       System.out.println("null");
       return;
@@ -111,7 +111,20 @@ public class console {
       return;
     }
     for (int j = 0; j < l.length; j++)
-      System.out.println(j + ") '" + l[j] + "'");
+      System.out.println(j + ") \"" + l[j] + "\"");
+  }
+  
+  public static void log(Object... l) {
+    if (l == null) {
+      System.out.println("null");
+      return;
+    }
+    if (l.length < 1) {
+      System.out.println("[]");
+      return;
+    }
+    for (int j = 0; j < l.length; j++)
+      System.out.println(j + ") \"" + l[j] + "\"");
   }
 
   @SuppressWarnings("rawtypes")
@@ -139,6 +152,6 @@ public class console {
 	}
 	
   public static void main(String[] args) {
-    console.log("Hello");
+    console.log("Hello","b");
   }
 }
