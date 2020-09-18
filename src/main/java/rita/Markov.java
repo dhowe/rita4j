@@ -1,16 +1,14 @@
 package rita;
 
 import java.util.*;
-import java.util.Comparator;
-import java.math.BigDecimal;
-
-import rita.Markov.Node;
+import java.text.DecimalFormat;
 
 import static rita.Util.opts;
 
 public class Markov {
 
 	public static String SS = "<s>", SE = "</s>";
+	private static DecimalFormat DF = new DecimalFormat("0.000");
 
 	public int n;
 	public List<String> input = new ArrayList<>();
@@ -38,11 +36,45 @@ public class Markov {
 		if (mlm != 0 && mlm <= n) throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
 	}
 
+	public void addText(String s) {
+		addText(s, 1);
+	}
+
+	public void addText(String text, int multiplier) {
+		addText(RiTa.sentences(text), multiplier);
+	}
+
+	public void addText(String[] sents) {
+		addText(sents, 1);
+	}
+
+	public void addText(String[] sents, int multiplier) {
+
+		// add new tokens for each sentence start/end
+		List<String> toAdd = new ArrayList<String>();
+		List<String> tokens = new ArrayList<String>();
+		for (int k = 0; k < multiplier; k++) {
+			for (int i = 0; i < sents.length; i++) {
+				String[] words = RiTa.tokenize(sents[i]);
+				toAdd.clear(); // Q: is toAdd needed here?
+				toAdd.add(Markov.SS);
+				toAdd.addAll(Arrays.asList(words));
+				toAdd.add(Markov.SE);
+				tokens.addAll(toAdd);
+			}
+			this.treeify(tokens.toArray(new String[0]));
+		}
+
+		if (!this.disableInputChecks || this.mlm != 0) {
+			this.input.addAll(tokens);
+		}
+	}
+
 	public String toString() {
-		Node root = this.root;
-		System.out.println("root's children: " + this.root.children.toString() + "last words' children"
-				+ this.root.children.get(this.input.get(this.input.size() - 2)).children);// if dont visit the last word's children, and the root's children before call astree, they disappear???
-		return root.asTree(true).replaceAll("\\{\\}", "");
+		// Node root = this.root;
+		//		System.out.println("root's children: " + this.root.children.toString() + "last words' children"
+		//				+ this.root.children.get(this.input.get(this.input.size() - 2)).children);// if dont visit the last word's children, and the root's children before call astree, they disappear???
+		return this.root.asTree().replaceAll("\\{\\}", "");
 	}
 
 	public String[] generate() {
@@ -127,40 +159,6 @@ public class Markov {
 		}
 
 		return result.toArray(new String[result.size()]);
-	}
-
-	public void addText(String s) {
-		addText(s, 1);
-	}
-
-	public void addText(String text, int multiplier) {
-		addText(RiTa.sentences(text), multiplier);
-	}
-
-	public void addText(String[] sents) {
-		addText(sents, 1);
-	}
-
-	public void addText(String[] sents, int multiplier) {
-
-		// add new tokens for each sentence start/end
-		List<String> toAdd = new ArrayList<String>();
-		List<String> tokens = new ArrayList<String>();
-		for (int k = 0; k < multiplier; k++) {
-			for (int i = 0; i < sents.length; i++) {
-				String[] words = RiTa.tokenize(sents[i]);
-				toAdd.clear(); // Q: is toAdd needed here?
-				toAdd.add(Markov.SS);
-				toAdd.addAll(Arrays.asList(words));
-				toAdd.add(Markov.SE);
-				tokens.addAll(toAdd);
-			}
-			this._treeify(tokens.toArray(new String[0]));
-		}
-
-		if (!this.disableInputChecks || this.mlm != 0) {
-			this.input.addAll(tokens);
-		}
 	}
 
 	public String[] completions(String[] preArray) {
@@ -301,12 +299,24 @@ public class Markov {
 		return tokens.toArray(new Node[tokens.size()]);
 	}
 
-	private void _treeify(String[] tokens) {
-		_treeify(tokens, this.root);
+	private void treeify(String[] tokens) {
+		Node root = this.root;
+		for (int i = 0; i < tokens.length; i++) {
+			Node node = root;
+			//words = tokens.slice(i, i + this.n);
+			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
+			for (int j = 0; j < words.length; j++) {
+				if (words[j] != null) {
+					node = node.addChild(words[j]);
+				}
+			}
+		}
 	}
 
-	private void _treeify(String[] tokens, Node root) {
+	private void treeifyX(String[] tokens) {
+
 		int order = 0;
+		Node root = this.root;
 		for (int i = 0; i < tokens.length; i++) {
 			Node node = root;
 			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
@@ -384,37 +394,90 @@ public class Markov {
 		return false;
 	}
 
-	public class Node {
-		protected Map<String, Node> children;
-		protected Node parent;
-		protected String token;
-		protected int numChildren = -1; // for cache
-		protected int count = 0;
-		protected int inputOrder = -1; // for sorting according to the input order
-
-		public Node(Node p, String word, int c) {
-			parent = p;
-			token = word;
-			count = c;
+	private static String stringulate(Node mn, String str, int depth, boolean sort) {
+		String indent = "\n";
+		if (mn.children == null || mn.children.size() == 0) {
+			return str;
 		}
 
-		public Node(String word) {
-			token = word;
+		List<Node> l = new ArrayList<Node>(mn.children.values());
+		l.sort(byCount);
+
+		for (int j = 0; j < depth; j++)
+			indent += "  ";
+
+		for (int i = 0; i < l.size(); i++) {
+
+			Node node = l.get(i);
+			//if (node.token == SS || node.token == SE) continue;
+			if (node != null && node.token != null) {
+				str += indent + "'" + encode(node.token) + "'";
+				if (!node.isRoot()) {
+					String prob = DF.format(node.nodeProb());
+					str += " [" + node.count + ",p=" + prob + "]";
+				}
+				if (!node.isLeaf()) str += "  {";
+
+				str = mn.childCount() > 0 ? stringulate(node, str, depth + 1, sort) : str + "}";
+			}
+		}
+
+		indent = "\n";
+		for (int j = 0; j < depth - 1; j++)
+			indent += "  ";
+
+		return str + indent + "}";
+	}
+
+	private static String encode(String tok) {
+		if (tok != null) {
+			if (tok.equals("\n")) {
+				tok = "\\n";
+			}
+			else if (tok.equals("\r")) {
+				tok = "\\r";
+			}
+			else if (tok.equals("\t")) {
+				tok = "\\t";
+			}
+			else if (tok.equals("\r\n")) {
+				tok = "\\r\\n";
+			}
+		}
+		return tok;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
+	public class Node {
+		
+		protected Node parent;
+		protected String token;
+		protected int count = 0, numChildren = -1;
+		protected Map<String, Node> children;
+
+		Node(String word) { // for root only
+			this(null, word);
 		}
 
 		public Node(Node p, String word) {
+			this(p, word, 1); // JC: never more than one 'real' constructor
+		}
+
+		private Node(Node par, String word, int cnt) {
+			parent = par;
 			token = word;
-			parent = p;
+			count = cnt;
 		}
 
-		// Find a (direct) child node with matching token, given a word or node
+		// Find a (direct) child node with matching token
 		public Node child(Node word) {
-			String lookup = word.token;
-			return this.children.get(lookup);
+			return this.child(word.token); // JC: delegate to other method
 		}
 
-		public Node child(String w) {
-			return this.children.get(w);
+		// Find a (direct) child node with matching token
+		public Node child(String word) {
+			return this.children != null ? this.children.get(word) : null;
 		}
 
 		public Node pselect() {
@@ -441,6 +504,8 @@ public class Markov {
 		}
 
 		public Node[] childNodes(boolean sorted) {
+			if (children == null) return new Node[0];
+
 			Collection<Node> kids = this.children.values();
 			Node[] kidsArray = kids.toArray(new Node[kids.size()]);
 			// TODO:
@@ -449,21 +514,22 @@ public class Markov {
 		}
 
 		public int childCount() {
-			return childCount(true);
+			return childCount(false);
 		}
 
 		public int childCount(boolean excludeMetaTags) {
-			if (this.numChildren == -1) {
+			if (this.numChildren == -1) { // a sort of cache
 				int sum = 0;
-				if (this.children == null)
-					return 0;
+				if (this.children == null) return 0;
 				for (String k : this.children.keySet()) {
-					if (excludeMetaTags && (k == Markov.SS || k == Markov.SE))
+					if (k == null || (excludeMetaTags && (k.equals(Markov.SS) || k.equals(Markov.SE)))) {
 						continue;
+					}
 					sum += this.children.get(k).count;
 				}
 				this.numChildren = sum;
 			}
+			//System.out.println(this.token+" "+this.numChildren);
 			return this.numChildren;
 		}
 
@@ -473,7 +539,7 @@ public class Markov {
 
 		public double nodeProb(boolean excludeMetaTags) {
 			if (this.parent == null) {
-				throw new RiTaException("no parent");
+				throw new RiTaException("no parent for: " + this);
 			}
 			//System.out.println("Markov.Node.nodeProb(): node name: " + this.token + "; using" + this.count + "/"
 			//		+ this.parent.childCount(excludeMetaTags) + "; parent: " + this.parent.token);
@@ -483,121 +549,55 @@ public class Markov {
 			return result;
 		}
 
-		public Node addChild(String word, int order) {
-			return addChild(word, 1, order);
+		public Node addChild(String word) {
+			return addChild(word, 1);
 		}
 
-		// Increments count for a child node and returns it
-		public Node addChild(String word, int count, int order) {
-			if (children == null)
-				children = new HashMap<String, Node>();
+		public Node addChild(String word, int count) {
+			this.numChildren = -1; // invalidate cache
+			if (this.children == null) {
+				this.children = new HashMap<String, Node>();
+			}
 			Node node = this.children.get(word);
 			if (node == null) {
 				node = new Node(this, word);
-				node.inputOrder = order;
 				this.children.put(word, node);
 			}
-			node.count += count;
+			else {
+				node.count += count;
+			}
 			return node;
 		}
 
-		public String toString() {
-			if (this.parent == null)
-				return "Root";
-			BigDecimal probBigDecimal = new BigDecimal(this.nodeProb());
-			probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
-			return this.token + "(" + this.count + "/" + probBigDecimal + "%)";
-		}
-
-		public String stringify(Node mn, String str, int depth) {
-			return stringify(mn, str, depth, false);
-		}
-
-		public String stringify(Node mn, String str, int depth, boolean sort) {
-			String indent = "\n";
-			if (mn.children == null || mn.children.size() == 0)
-				return str;
-			// TODO:addsort => now sort with input order
-			ArrayList<Node> l = new ArrayList<Node>(mn.children.values());
-			if (sort) {
-				l.sort(this.ByInputOrder);
-			}
-			for (int j = 0; j < depth; j++)
-				indent += "  ";
-
-			for (int i = 0; i < l.size(); i++) {
-
-				Node node = l.get(i);
-				if (node != null) {
-					str += indent + "\"" + this.encode(node.token) + "\"";
-					if (!node.isRoot()) {
-						//System.out.println(
-						//		"Markov.Node.stringify() node name: " + node.token + "; prob: " + node.nodeProb() + "; parent: " + node.parent.token);
-						BigDecimal probBigDecimal = new BigDecimal(node.nodeProb());
-						probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
-						str += " [" + node.count + ",p=" + probBigDecimal + "]";
-					}
-					if (!node.isLeaf())
-						str += "  {";
-
-					str = this.childCount() > 0 ? this.stringify(node, str, depth + 1, sort) : str + "}";
-				}
-			}
-			indent = "\n";
-			for (int j = 0; j < depth - 1; j++)
-				indent += "  ";
-			return str + indent + "}";
-		}
-
 		public String asTree() {
-			return asTree(false);
-		}
-
-		public String asTree(boolean sort) {
 			String s = this.token + " ";
-			if (this.parent != null)
+			if (this.parent != null) {
 				s += "(" + this.count + ")->";
+			}
 			s += "{";
 			//System.out.println(this.childCount());
-			return this.childCount() != 0 ? stringify(this, s, 1, sort) : s + "}";
+			return this.childCount() != 0 ? stringulate(this, s, 1, true) : s + "}";
 		}
-
-		private String encode(String tok) {
-			if (tok == "\n")
-				tok = "\\n";
-			if (tok == "\r")
-				tok = "\\r";
-			if (tok == "\t")
-				tok = "\\t";
-			if (tok == "\r\n")
-				tok = "\\r\\n";
-			return tok;
+		
+		public String toString() {
+			if (this.parent == null) return "Root";
+			String prob = DF.format(this.nodeProb());
+			//			BigDecimal probBigDecimal = new BigDecimal(this.nodeProb());
+			//			probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
+			return this.token + "(" + this.count + "/" + prob + "%)";
 		}
-
-		public int getInputOrder() {
-			if (!this.isRoot()) {
-				return this.inputOrder;
-			}
-			else {
-				return -1;
-			}
-		}
-
-		public Comparator<Markov.Node> ByInputOrder = new Comparator<Markov.Node>() {
-			public int compare(Markov.Node node1, Markov.Node node2) {
-				int n1 = node1.getInputOrder();
-				int n2 = node2.getInputOrder();
-
-				return n1 - n2;
-			}
-		};
 	}
-
-}
-
-class SortByCount implements Comparator<Node> {
-	@Override
-	public int compare(Node a, Node b) {
-		return b.count - a.count;
+	
+	static final Comparator<Markov.Node> byCount = new Comparator<Markov.Node>() {
+		public int compare(Markov.Node a, Markov.Node b) {
+			return b.count != a.count ? b.count - a.count : b.token.toLowerCase().compareTo(a.token.toLowerCase());
+		}
+	};
+	
+	public static void main(String[] args) {
+		Markov rm = new Markov(2);
+		rm.addText("The");
+		System.out.println(rm.root.asTree());
 	}
 }
+
