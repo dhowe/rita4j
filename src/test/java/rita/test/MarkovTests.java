@@ -398,7 +398,7 @@ public class MarkovTests {
 		Map<String, Object>[] expected = new HashMap[6];
 		
 		expected[0] = opts("people", 1.0);
-		expected[1] = opts("lie", 1);
+		expected[1] = opts("lie", 1.0);
 		expected[2] = opts("power", 1.0);
 		expected[3] = opts("time", 0.5,"party",0.5);
 		expected[4] = opts("to", 0.3333333333333333, ".", 0.3333333333333333, "helpful", 0.3333333333333333);
@@ -406,6 +406,7 @@ public class MarkovTests {
 
 		for (int i = 0; i < checks.length; i++) {
 			Map<String, Object> res = rm.probabilities(checks[i]);
+			//System.out.println("MarkovTests.testProbabilities():" + checks[i] + " expect: " + expected[i].toString() + " real: " + res.toString());
 			eql(res, expected[i]);
 		}
 
