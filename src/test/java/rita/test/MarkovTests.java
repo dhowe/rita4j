@@ -1,12 +1,11 @@
 package rita.test;
 
-import rita.Markov;
-import rita.RiTa;
-import rita.RiTaException;
-import rita.RandGen;
 import static rita.Util.opts;
 
 import org.junit.jupiter.api.Test;
+
+import rita.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class MarkovTests {
 	String sample3 = sample + " One reason people are dishonest is to achieve power.";
 
 	@Test
-	public void testCallMarkov() {
+	public void testConstructor() {
 		Markov rm = new Markov(3);
 		assertTrue(rm != null);
 	}
@@ -59,14 +58,14 @@ public class MarkovTests {
 			double r = sum / numTests;
 			results.add(r);
 		}
-		
+
 		for (int j = 0; j < 4; j++) {
-			assertEquals(results.get(j), expected[j], .1);			
+			assertEquals(results.get(j), expected[j], .1);
 		}
 	}
 
 	@Test
-	public void testRandomndist() {
+	public void testRandGenNdist() {
 		assertThrows(RiTaException.class, () -> RandGen.ndist(new double[] { 1.0, 2, 6, -2.5, 0 }));
 
 		double[] weights = { 2, 1 };
@@ -117,8 +116,8 @@ public class MarkovTests {
 		rm.addText(txt);
 		Object toks = rm.initSentence();
 		// TODO:initSentence()
-    // assertEquals(toks.length, 1);
-    // assertEquals(toks[0].token, "The");
+		// assertEquals(toks.length, 1);
+		// assertEquals(toks[0].token, "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
@@ -150,7 +149,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testCostomTokenizer() {
+	public void testCustomTokenizer() {
 		String text = "家安春夢家安春夢！家安春夢德安春夢？家安春夢安安春夢。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
 		Map<String, Object> hm = opts();
@@ -182,7 +181,7 @@ public class MarkovTests {
 		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = rm.generate(5);
-//		System.out.println(Arrays.toString(sents));
+		//		System.out.println(Arrays.toString(sents));
 		assertEquals(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
@@ -247,7 +246,7 @@ public class MarkovTests {
 		start = "Achieving";
 		for (int i = 0; i < 5; i++) {
 			String res = rm.generate(opts("startTokens", "start"))[0];
-//			assertTrue(res instanceof String);
+			//			assertTrue(res instanceof String);
 			assertTrue(res.startsWith(start));
 		}
 
@@ -396,11 +395,11 @@ public class MarkovTests {
 		String[] checks = { "reason", "people", "personal", "the", "is", "XXX" };
 		@SuppressWarnings("unchecked")
 		Map<String, Object>[] expected = new HashMap[6];
-		
+
 		expected[0] = opts("people", 1.0);
 		expected[1] = opts("lie", 1.0);
 		expected[2] = opts("power", 1.0);
-		expected[3] = opts("time", 0.5,"party",0.5);
+		expected[3] = opts("time", 0.5, "party", 0.5);
 		expected[4] = opts("to", 0.3333333333333333, ".", 0.3333333333333333, "helpful", 0.3333333333333333);
 		expected[5] = opts();
 
@@ -522,24 +521,44 @@ public class MarkovTests {
 		assertEquals(rm.size(), count);
 
 		// TODO:
-//    String[] ss = rm.root.child(Markov.SS);
-//    String[] result = {"One", "Achieving", "For", "He", "However", "I", "Although"};
-//    assertArrayEquals(Object.keys(ss.children), result);
-//
-//    String[] se = rm.root.child(Markov.SE);
-//    assertArrayEquals(Object.keys(se.children), new String[] {Markov.SS});
+		//    String[] ss = rm.root.child(Markov.SS);
+		//    String[] result = {"One", "Achieving", "For", "He", "However", "I", "Although"};
+		//    assertArrayEquals(Object.keys(ss.children), result);
+		//
+		//    String[] se = rm.root.child(Markov.SE);
+		//    assertArrayEquals(Object.keys(se.children), new String[] {Markov.SS});
 
 	}
 
 	@Test
-	public void testToString() {
+	public void testChildCount() {
 		Markov rm = new Markov(2);
-		String exp = "ROOT { \"<s>\" [1,p=0.143] { \"The\" [1,p=1.000] } \"The\" [1,p=0.143] { \"dog\" [1,p=1.000] } \"dog\" [1,p=0.143] { \"ate\" [1,p=1.000] } \"ate\" [1,p=0.143] { \"the\" [1,p=1.000] } \"the\" [1,p=0.143] { \"cat\" [1,p=1.000] } \"cat\" [1,p=0.143] { \"</s>\" [1,p=1.000] } \"</s>\" [1,p=0.143] }";
+		assertEquals(0, rm.root.childCount());
+		
+		rm = new Markov(2);
+		rm.addText("The");
+		assertEquals(3, rm.root.childCount());
+		assertEquals(1, rm.root.child("The").childCount());
+	}
+
+		
+	@Test
+	public void testToString() {
+
+		Markov rm;
+		String exp;
+
+		rm = new Markov(2);
+    exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
+		rm.addText("The");
+		//console.log(exp +"\n"+ rm.toString().replaceAll("\n", " "));
+		assertEquals(exp, rm.toString().replaceAll("\n", " "));
+
+		rm = new Markov(2);
+    exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
-		String output = rm.toString().replaceAll("\n", " ").replaceAll(" +", " ");
-		//System.out.println("exp:" + exp);
-		//System.out.println("real:" + output);
-		assertEquals(exp, output);
+		//console.log(rm.toString());
+		assertEquals(exp, rm.toString().replaceAll("\n", " "));
 	}
 
 	@Test
@@ -584,8 +603,8 @@ public class MarkovTests {
 		rm.addText(new String[] { "I ate the dog." });
 		// TODO: fromJSON
 		// Markov copy = Markov.fromJSON(rm.toJSON());
-//		markovEquals(rm, copy);
-//		assertEquals(copy.generate(), rm.generate());
+		//		markovEquals(rm, copy);
+		//		assertEquals(copy.generate(), rm.generate());
 	}
 
 	/* Helpers */
@@ -604,19 +623,6 @@ public class MarkovTests {
 		String[] result = new String[list.size()];
 		result = list.toArray(result);
 		return result;
-	}
-
-	private void markovEquals(Markov rm, Markov copy) {
-		assertTrue(rm.equals(copy));
-		assertEquals(rm.toString(), copy.toString());
-		// TODO:root
-//		assertEquals(rm.root.toString(), copy.root.toString());
-		assertEquals(rm.input, copy.input);
-		assertEquals(rm.size(), copy.size());
-	}
-
-	public String toString() {
-		return "";
 	}
 
 }
