@@ -260,7 +260,9 @@ public class Markov {
 		double p = 0;
 		if (path.length() != 0) {
 			Node tn = this.root.child(path);
-			if (tn != null) p = tn.nodeProb(true); //true=excludeMetaTags
+			if (tn != null) {
+				p = tn.nodeProb(true);
+			} //true=excludeMetaTags
 		}
 		return p;
 	}

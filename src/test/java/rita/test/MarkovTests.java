@@ -376,8 +376,8 @@ public class MarkovTests {
 		res = rm.completions(new String[] { "to", "achieve" }, new String[] { "power" });
 		assertArrayEquals(res, new String[] { "personal" });
 
-		res = rm.completions(new String[] { "achieve" }, new String[] { "power" });
-		assertArrayEquals(res, new String[] { "personal" });
+		res = rm.completions(new String[] { "He" }, new String[] { "me" });
+		assertArrayEquals(res, new String[] { "asked" });
 
 		res = rm.completions(new String[] { "I", "did" });
 		assertArrayEquals(res, new String[] { "not", "occasionally" });
