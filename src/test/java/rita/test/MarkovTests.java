@@ -354,9 +354,9 @@ public class MarkovTests {
 		assertArrayEquals(res, new String[] { "confident" });
 
 		res = rm.completions(new String[] { "I" }); // testing the sort
-		String[] expec = { "did", "claimed", "had", "said", "could",
-				"wanted", "also", "achieved", "embarrassed"
-		};
+		String[] expec = { "did", "achieved", "also", "claimed", "could",
+				"embarrassed", "had", "said", "wanted"
+		}; // first sort by probability, then by alphabet
 		assertArrayEquals(res, expec);
 
 		res = rm.completions(new String[] { "XXX" });
@@ -405,7 +405,6 @@ public class MarkovTests {
 
 		for (int i = 0; i < checks.length; i++) {
 			Map<String, Object> res = rm.probabilities(checks[i]);
-			//System.out.println("MarkovTests.testProbabilities():" + checks[i] + " expect: " + expected[i].toString() + " real: " + res.toString());
 			eql(res, expected[i]);
 		}
 
@@ -490,17 +489,14 @@ public class MarkovTests {
 
 		String[] check = "personal power is".split(" ");
 		expected = (float) 1 / 3;
-		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
 		assertEquals(rm.probability(check), expected);
 
 		check = "personal powXer is".split(" ");
 		expected = (float) 0;
-		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
 		assertEquals(rm.probability(check), expected);
 
 		check = "someone who pretends".split(" ");
 		expected = (float) 1 / 2;
-		//System.out.println("MarkovTests.testProbabilityArray(): " + check.toString() + " real :" + rm.probability(check));
 		assertEquals(rm.probability(check), expected);
 
 		assertEquals(rm.probability(new String[] { }), 0);
@@ -511,14 +507,14 @@ public class MarkovTests {
 	public void testAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
-		int count = 0; // should not include <s> and <s/> coz by default Markov.size() don't count them
+		int count = sents.length; 
 		for (int i = 0; i < sents.length; i++) {
 			String[] words = RiTa.tokenize(sents[i]);
 			count += words.length;
 		}
 		rm.addText(sents);
 
-		assertEquals(rm.size(), count);
+		assertEquals(rm.size(), count + sents.length);
 
 		// TODO:
 		//    String[] ss = rm.root.child(Markov.SS);
