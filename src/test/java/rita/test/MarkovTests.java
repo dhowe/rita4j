@@ -507,7 +507,7 @@ public class MarkovTests {
 	public void testAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
-		int count = sents.length; 
+		int count = sents.length;
 		for (int i = 0; i < sents.length; i++) {
 			String[] words = RiTa.tokenize(sents[i]);
 			count += words.length;
@@ -530,14 +530,13 @@ public class MarkovTests {
 	public void testChildCount() {
 		Markov rm = new Markov(2);
 		assertEquals(0, rm.root.childCount());
-		
+
 		rm = new Markov(2);
 		rm.addText("The");
 		assertEquals(3, rm.root.childCount());
 		assertEquals(1, rm.root.child("The").childCount());
 	}
 
-		
 	@Test
 	public void testToString() {
 
@@ -545,13 +544,13 @@ public class MarkovTests {
 		String exp;
 
 		rm = new Markov(2);
-    exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
+		exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
 		rm.addText("The");
 		//console.log(exp +"\n"+ rm.toString().replaceAll("\n", " "));
 		assertEquals(exp, rm.toString().replaceAll("\n", " "));
 
 		rm = new Markov(2);
-    exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
+		exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
 		//console.log(rm.toString());
 		assertEquals(exp, rm.toString().replaceAll("\n", " "));
