@@ -3,6 +3,8 @@ package rita;
 import java.util.*;
 import java.util.stream.DoubleStream;
 
+import com.ibm.icu.util.TimeZone.SystemTimeZoneType;
+
 import rita.Markov.Node;
 
 public class RandGen {
@@ -117,21 +119,27 @@ public class RandGen {
 		// have temp, do softmax
 		if (temp < 0.01) temp = 0.01;
 		ArrayList<Double> probs = new ArrayList<>(); 
-		
-		double t = temp;
-		weights = DoubleStream.of(weights)
-				  .map(w -> Math.exp(w/t)).toArray(); 
-		double sum = DoubleStream.of(weights).sum();
-
+		double sum = 0;
 		for (int i = 0; i < weights.length; i++) {
-	        if (weights[i] < 0) throw new RiTaException("Weights must be positive");
-	        probs.add(Math.exp(weights[i] / temp)/sum);
-	     }
-		   
-		return probs.stream().mapToDouble(d -> d).toArray();
+			double pr = Math.exp((double) weights[i] / temp);
+			sum += pr;
+			probs.add(pr);
+		}
+		double[] result = new double[probs.size()];
+		for (int i = 0; i < probs.size(); i++) {
+			result[i] = (double) probs.get(i) / sum;
+		}
+		return result;
 	}
 
 	public static int pselect(double[] probs) {
+		double sum = 0;
+		for (int i = 0; i < probs.length; i++) {
+			sum += probs[i];
+		}
+		if (sum != 1) {
+			System.out.println("RandGen.pselect() WARNING: probs must sum to 1, was " + sum);
+		}
 		double point = randomDouble();
 		int cutoff = 0;
 	    for (int i = 0; i < probs.length - 1; ++i) {

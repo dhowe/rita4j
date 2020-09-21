@@ -55,7 +55,7 @@ public class MarkovTests {
 			for (int j = 0; j < numTests; j++) {
 				sum += RandGen.pselect(sm);
 			}
-			double r = sum / numTests;
+			double r = (double) sum / numTests;
 			results.add(r);
 		}
 
@@ -82,6 +82,27 @@ public class MarkovTests {
 
 		for (int i = 0; i < results2.length; i++) {
 			assertEquals(results2[i], expected2[i], 0.01);
+		}
+
+		double[] weights3 = { 1, 23, 2, 34, 5 };
+		double[] expected3 = { (double) 1 / 65, (double) 23 / 65, (double) 2 / 65, (double) 34 / 65, (double) 5 / 65 };
+		double[] results3 = RandGen.ndist(weights3);
+		for (int i = 0; i < results2.length; i++) {
+			assertEquals(results3[i], expected3[i], 0.01);
+		}
+
+		double[] weights4 = { 1, -1 };
+		double[] expected4 = { (double) 2.718281 / 3.086159, (double) 0.367879 / 3.086159 };
+		double[] results4 = RandGen.ndist(weights4, 1);
+		for (int i = 0; i < results4.length; i++) {
+			assertEquals(results4[i], expected4[i], 0.01);
+		}
+
+		double[] weights5 = { 1, 2, -1 };
+		double[] expected5 = { (double) 2.718281 / 10.475217, (double) 7.389056 / 10.475217, (double) 0.367879/ 10.475217 };
+		double[] results5 = RandGen.ndist(weights5, 1);
+		for (int i = 0; i < results5.length; i++) {
+			assertEquals(results5[i], expected5[i], 0.01);
 		}
 
 	}
