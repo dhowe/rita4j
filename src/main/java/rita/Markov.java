@@ -43,7 +43,12 @@ public class Markov {
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
 
 		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
-		if (mlm != 0 && mlm <= n) throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
+		if (mlm != 0 && mlm <= n) {
+			throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
+		}
+		if (!(!this.disableInputChecks || this.mlm != 0)) {
+			this.input = null;
+		}
 	}
 
 	public void addText(String s) {
