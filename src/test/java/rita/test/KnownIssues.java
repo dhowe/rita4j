@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
 import rita.Markov;
+import rita.RandGen;
 
 // Failing tests go here until debugged
 public class KnownIssues {
@@ -199,5 +200,15 @@ public class KnownIssues {
 
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
+	}
+
+	@Test
+	public void randomDoubleRangeProblem() {
+		for (int i = 0; i < 1000; i++) {
+			double res = RandGen.randomDouble();
+			if (res > 0.5) {
+				System.out.println(">0.5");
+			}
+		}
 	}
 }

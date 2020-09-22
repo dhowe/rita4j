@@ -15,7 +15,7 @@ public class RandGen {
 	}
 
 	RandGen() {
-		
+
 	}
 
 	public static int randomInt() {
@@ -45,7 +45,7 @@ public class RandGen {
 		} while (value == high);
 		return value;
 	}
-	
+
 	public static final double randomDouble() {
 		return randomInt() * (1.0 / 4294967296.0);
 	}
@@ -87,38 +87,38 @@ public class RandGen {
 	public static void seed(int s) {
 		generator = new Random(s);
 	}
-	
+
 	public static double[] ndist(int[] weights) {
 		double[] w = Arrays.stream(weights)
-				.mapToDouble(num -> (double)num)
-                .toArray();
+				.mapToDouble(num -> (double) num)
+				.toArray();
 		return ndist(w);
 	}
-	
+
 	public static double[] ndist(int[] weights, double temp) {
 		double[] w = Arrays.stream(weights)
-				.mapToDouble(num -> (double)num)
-                .toArray();
+				.mapToDouble(num -> (double) num)
+				.toArray();
 		return ndist(w, temp);
 	}
 
 	public static double[] ndist(double[] weights) {
-		ArrayList<Double> probs = new ArrayList<>(); 
+		ArrayList<Double> probs = new ArrayList<>();
 		double sum = DoubleStream.of(weights).sum();
-		
+
 		for (int i = 0; i < weights.length; i++) {
-	        if (weights[i] < 0) throw new RiTaException("Weights must be positive");
-	        probs.add(weights[i]/sum);
-	     }
-		
-		 return probs.stream().mapToDouble(d -> d).toArray();
+			if (weights[i] < 0) throw new RiTaException("Weights must be positive");
+			probs.add(weights[i] / sum);
+		}
+
+		return probs.stream().mapToDouble(d -> d).toArray();
 	}
 
 	public static double[] ndist(double[] weights, double temp) {
-		if (temp == 0) return(ndist(weights));
+		if (temp == 0) return (ndist(weights));
 		// have temp, do softmax
 		if (temp < 0.01) temp = 0.01;
-		ArrayList<Double> probs = new ArrayList<>(); 
+		ArrayList<Double> probs = new ArrayList<>();
 		double sum = 0;
 		for (int i = 0; i < weights.length; i++) {
 			double pr = Math.exp((double) weights[i] / temp);
@@ -137,16 +137,21 @@ public class RandGen {
 		for (int i = 0; i < probs.length; i++) {
 			sum += probs[i];
 		}
-		if (sum != 1) {
+		if (Math.abs((double) sum - 1) > 0.0001) {
 			System.out.println("RandGen.pselect() WARNING: probs must sum to 1, was " + sum);
 		}
-		double point = randomDouble();
-		int cutoff = 0;
-	    for (int i = 0; i < probs.length - 1; ++i) {
-	      cutoff += probs[i];
-	      if (point < cutoff) return i;
-	    }
-	    return probs.length - 1;
+		//double point = randomDouble();
+		//coz inJava nextInt() can return negetive value so the range of randomDouble() is -0.5~0.5
+		//not sure if randomDouble() randomInt() are used elsewhere so just modifidy the code here
+		double point = (double) generator.nextInt(2147483647) * (1.0 / 2147483647.0);// to generate only positive number
+		double cutoff = 0;
+		for (int i = 0; i < probs.length - 1; ++i) {
+			cutoff += probs[i];
+			if (point < cutoff) {
+				return i;
+			}
+		}
+		return probs.length - 1;
 	}
 
 }

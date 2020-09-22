@@ -39,28 +39,39 @@ public class MarkovTests {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
-		ArrayList<double[]> distrs = new ArrayList<double[]>();
-		ArrayList<Double> results = new ArrayList<Double>();
+		for (int x = 0; x < 100; x++) { // repeat 100 times
+			ArrayList<double[]> distrs = new ArrayList<double[]>();
+			ArrayList<Double> results = new ArrayList<Double>();
 
-		for (double t : temps) {
-			double[] r = RandGen.ndist(weights, t);
-			distrs.add(r);
-		}
-
-		int numTests = 100;
-		int i = 0;
-
-		for (double[] sm : distrs) {
-			int sum = 0;
-			for (int j = 0; j < numTests; j++) {
-				sum += RandGen.pselect(sm);
+			for (double t : temps) {
+				double[] r = RandGen.ndist(weights, t);
+				distrs.add(r);
 			}
-			double r = (double) sum / numTests;
-			results.add(r);
-		}
 
-		for (int j = 0; j < 4; j++) {
-			assertEquals(results.get(j), expected[j], .1);
+			int numTests = 10000;
+			double[] mathExpectation = new double[temps.length];
+
+			for (int i = 0; i < distrs.size(); i++) {
+				double[] distr = distrs.get(i);
+				double exp = 0;
+				for (int j = 0; j < distr.length; j++) {
+					exp += distr[j] * j;
+				}
+				mathExpectation[i] = exp;
+			}
+
+			for (double[] sm : distrs) {
+				int sum = 0;
+				for (int j = 0; j < numTests; j++) {
+					sum += RandGen.pselect(sm);
+				}
+				double r = (double) sum / numTests;
+				results.add(r);
+			}
+
+			for (int j = 0; j < 4; j++) {
+				assertEquals(results.get(j), mathExpectation[j], .1);
+			}
 		}
 	}
 
@@ -99,7 +110,7 @@ public class MarkovTests {
 		}
 
 		double[] weights5 = { 1, 2, -1 };
-		double[] expected5 = { (double) 2.718281 / 10.475217, (double) 7.389056 / 10.475217, (double) 0.367879/ 10.475217 };
+		double[] expected5 = { (double) 2.718281 / 10.475217, (double) 7.389056 / 10.475217, (double) 0.367879 / 10.475217 };
 		double[] results5 = RandGen.ndist(weights5, 1);
 		for (int i = 0; i < results5.length; i++) {
 			assertEquals(results5[i], expected5[i], 0.01);
