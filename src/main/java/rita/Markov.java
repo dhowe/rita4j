@@ -373,18 +373,23 @@ public class Markov {
 	protected Node[] initSentence(String[] initWith, Node root) {
 
 		List<Node> tokens = new ArrayList<>();
-
-		if (initWith.length > 0) {
-			Node st = this._pathTo(initWith, root);
-			if (st == null)
-				return null; // fail
-			while (!st.isRoot()) {
-				tokens.add(0, st);
-				st = st.parent;
-			}
+		if (initWith == null) {
+			tokens.add(root.child(Markov.SS).pselect());
 		}
 		else {
-			tokens.add(this.root.child(Markov.SS).pselect());
+			if (initWith.length > 0) {
+				Node st = this._pathTo(initWith, root);
+				if (st == null) {
+					return null;
+				}// fail
+				while (!st.isRoot()) {
+					tokens.add(0, st);
+					st = st.parent;
+				}
+			}
+			else {
+				tokens.add(this.root.child(Markov.SS).pselect());
+			}
 		}
 		return tokens.toArray(new Node[tokens.size()]);
 	}
@@ -453,7 +458,20 @@ public class Markov {
 	}
 
 	public String _flatten(Node[] nodes) {
-		return "";
+		if (nodes == null || nodes.length == 0) {
+			return "";
+		}
+		else {
+			String res = new String();
+			for (int i = 0; i < nodes.length; i++) {
+				res += nodes[i].token;
+				if (i != nodes.length - 1) {
+					res += " ";
+				}
+			}
+			return res;
+		}
+		
 	}
 
 	public String _flatten(List<Node> tokens) {

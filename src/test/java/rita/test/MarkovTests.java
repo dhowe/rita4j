@@ -146,15 +146,16 @@ public class MarkovTests {
 		Markov rm = new Markov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
-		Object toks = rm.initSentence();
-		// TODO:initSentence()
-		// assertEquals(toks.length, 1);
-		// assertEquals(toks[0].token, "The");
+		Markov.Node[] toks = rm.initSentence();
+		assertEquals(toks.length, 1);
+		assertEquals(rm._flatten(toks), "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
-		assertEquals(rm._flatten(rm.initSentence(new String[] { "I", "also" })), "I also");
-
+		toks = rm.initSentence(new String[] { "I", "also" });
+		assertEquals(toks.length, 2);
+		String a = rm._flatten(toks);
+		assertEquals(a, new String("I also"));
 	}
 
 	@Test
@@ -210,7 +211,7 @@ public class MarkovTests {
 	@Test
 	public void testGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
-		Markov rm = new Markov(4, hm);
+		Markov rm = new Markov(2, hm);
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = rm.generate(5);
 		//		System.out.println(Arrays.toString(sents));
