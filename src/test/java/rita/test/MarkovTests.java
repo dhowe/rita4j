@@ -211,7 +211,7 @@ public class MarkovTests {
 	@Test
 	public void testGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
-		Markov rm = new Markov(2, hm);
+		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = rm.generate(5);
 		//		System.out.println(Arrays.toString(sents));
@@ -609,8 +609,9 @@ public class MarkovTests {
 
 	@Test
 	public void testFailForSentenceInput() {
-		Markov rm = new Markov(4, opts("disableInputChecks", false));
+		Markov rm = new Markov(4);
 		rm.addText(new String[] { "I ate the dog." });
+		//rm.generate();
 		assertThrows(RiTaException.class, () -> rm.generate());
 	}
 

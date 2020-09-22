@@ -313,6 +313,9 @@ public class Markov {
 
 	private String[] startTokens(Map<String, Object> opts) {
 		String[] startTokens = new String[0];
+		if (opts == null) {
+			return startTokens;
+		}
 		if (opts.containsKey("startTokens")) {
 			Object st = opts.get("startTokens");
 			if (st.getClass().getName() == "java.lang.String")
