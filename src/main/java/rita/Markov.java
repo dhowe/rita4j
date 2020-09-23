@@ -1,9 +1,7 @@
 package rita;
 
 import java.util.*;
-
-import java.util.Comparator;
-import java.util.Arrays;
+import java.util.function.Function;
 
 import org.antlr.v4.parse.ANTLRParser.finallyClause_return;
 
@@ -117,25 +115,26 @@ public class Markov {
 
 		int tries = 0;
 		while (result.size() < num) {
-
 			Node[] arr = this.initSentence(startTokens);
-			if (tokens != null && arr != null) {
+			if (tokens != null && arr != null && tokens.size() == 0) {// startTokens should be add just once 
 				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
 			}
 
-			if (tokens == null) throw new RiTaException("[Markov] No sentence starts with: '" + startTokens + "'");
+			if (tokens.size() == 0) throw new RiTaException("[Markov] No sentence starts with: '" + startTokens + "'");
 
-			while (tokens != null && tokens.size() < maxLength) {
+			while (tokens.size() != 0 && tokens.size() < maxLength) {
 				Node[] tokensArray = tokens.toArray(new Node[tokens.size()]);
 				Node parent = this._pathTo(tokensArray);
 				if (parent == null || parent.isLeaf()) {
 					fail(tokens, "no parent", ++tries);
+					tokens = new ArrayList<>();// to reset tokens
 					break;
 				}
 
 				Node next = this._selectNext(parent, temp, tokensArray);
 				if (next == null) {
 					fail(tokens, "no next", ++tries);
+					tokens = new ArrayList<>();// to reset tokens
 					break; // possible if all children excluded
 				}
 
@@ -149,12 +148,14 @@ public class Markov {
 						// TODO: do we need this if checking mlm with each word? yes
 						if (isSubArrayList(rawtoks, this.input)) {
 							fail(tokens, "in input", ++tries);
+							tokens = new ArrayList<>();// to reset tokens
 							break;
 						}
 
 						String sent = this._flatten(tokens);
 						if (!allowDups && result.contains(sent)) {
 							fail(tokens, "is dup", ++tries);
+							tokens = new ArrayList<>();// to reset tokens
 							break;
 						}
 
@@ -165,11 +166,13 @@ public class Markov {
 					}
 
 					fail(tokens, "too short", ++tries);
+					tokens = new ArrayList<>();// to reset tokens
 					break;
 				}
 			}
 			if (tokens != null && tokens.size() >= maxLength) {
 				fail(tokens, "too long", ++tries);
+				tokens = new ArrayList<>();// to reset tokens
 			}
 		}
 
@@ -339,7 +342,7 @@ public class Markov {
 
 	private Node _selectNext(Node parent, double temp, Node[] tokens) {
 		// basic case: just prob. select from children
-		if (this.mlm != 0 || this.mlm > tokens.length) {
+		if (this.mlm == 0 || this.mlm > tokens.length) { //if no mlm input or tokens.length < mlm
 			return parent.pselect();
 		}
 
@@ -474,7 +477,7 @@ public class Markov {
 			}
 			return res;
 		}
-		
+
 	}
 
 	public String _flatten(List<Node> tokens) {
