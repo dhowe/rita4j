@@ -146,14 +146,15 @@ public class GrammarTests {
 		assertTrue(rg.rules.get("start") == null);
 		assertTrue(rg.rules.get("noun_phrase") == null);
 		Map<String, Object> sentenceMap1 = new HashMap<String, Object>();
-		sentenceMap1.put("$start", "$noun_phrase $verb_phrase.");
-		sentenceMap1.put("$noun_phrase", "Bule cars | Red roses");
-		sentenceMap1.put("$verb_phrase", "exist in this world");
+		sentenceMap1.put("start", "$noun_phrase $verb_phrase.");
+		sentenceMap1.put("noun_phrase", "(Bule cars | Red roses)");
+		sentenceMap1.put("verb_phrase", "exist in this world");
 
 		rg.addRules(sentenceMap1);
 		assertTrue(rg.rules != null);
 		assertTrue(rg.rules.get("start") != null);
 		assertTrue(rg.rules.get("noun_phrase") != null);
+		String str = rg.expand();
 		assertTrue(rg.expand().equals("Bule cars exist in this world.") || rg.expand().equals("Red roses exist in this world."));
 
 	}
