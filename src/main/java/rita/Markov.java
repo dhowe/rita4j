@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.*;
+import java.util.function.Function;
 import java.text.DecimalFormat;
 
 import static rita.Util.opts;
@@ -13,6 +14,8 @@ public class Markov {
 	public int n;
 	public List<String> input = new ArrayList<>();
 	public Node root;
+	public Function<String, String[]> tokenize;
+	public Function<String[], String> untokenize;
 
 	protected int mlm, maxAttempts = 99;
 	protected boolean trace, disableInputChecks, logDuplicates;
@@ -27,6 +30,20 @@ public class Markov {
 		this.n = n;
 		this.root = new Node("ROOT");
 
+		if (opts.get("tokenize") != null) {
+			this.tokenize = (Function<String, String[]>) opts.get("tokenize");
+		} else {
+			this.tokenize = (in) -> {
+				return RiTa.tokenize(in);
+			};
+		}
+		if (opts.get("untokenize") != null) {
+			this.untokenize = (Function<String[], String>) opts.get("untokenize");
+		} else {
+			this.untokenize = (in) -> {
+				return RiTa.untokenize(in);
+			};
+		}
 		this.maxAttempts = Util.intOpt("maxAttempts", opts, 99);
 		this.trace = Util.boolOpt("trace", opts);
 		this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
@@ -55,7 +72,7 @@ public class Markov {
 		List<String> tokens = new ArrayList<String>();
 		for (int k = 0; k < multiplier; k++) {
 			for (int i = 0; i < sents.length; i++) {
-				String[] words = RiTa.tokenize(sents[i]);
+				String[] words = this.tokenize.apply(sents[i]);
 				toAdd.clear(); // Q: is toAdd needed here?
 				toAdd.add(Markov.SS);
 				toAdd.addAll(Arrays.asList(words));
@@ -183,11 +200,11 @@ public class Markov {
 	}
 
 	public Map<String, Object> probabilities(String path) {
-		return probabilities(RiTa.tokenize(path), 0);
+		return probabilities(this.tokenize.apply(path), 0);
 	}
 
 	public Map<String, Object> probabilities(String path, double temp) {
-		return probabilities(RiTa.tokenize(path), temp);
+		return probabilities(this.tokenize.apply(path), temp);
 	}
 
 	public Map<String, Object> probabilities(String[] path) {
@@ -226,7 +243,7 @@ public class Markov {
 		if (opts.containsKey("startTokens")) {
 			Object st = opts.get("startTokens");
 			if (st.getClass().getName() == "java.lang.String")
-				startTokens = RiTa.tokenize((String) st);
+				startTokens = this.tokenize.apply((String) st);
 			else
 				startTokens = (String[]) st;
 		}
