@@ -79,17 +79,17 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void testRulesStartingWithNum(){
+	public void testRulesStartingWithNum() {
 		Grammar rg = new Grammar();
 		rg.addRule("start", "$1line talks too much.");
 		rg.addRule("$1line", "Dave | Jill | Pete");
 
-		String rs = rg.expand(opts("trace",0));
+		String rs = rg.expand(opts("trace", 0));
 		assertTrue(rs.equals("Dave talks too much.") || rs.equals("Jill talks too much.") || rs.equals("Pete talks too much."));
 
 		rg = new Grammar();
 		rg.addRule("1line", "Dave | Jill | Pete");
-		rs = rg.expand("1line",opts("trace",0));
+		rs = rg.expand("1line", opts("trace", 0));
 		assertTrue(rs.equals("Dave") || rs.equals("Jill") || rs.equals("Pete"));
 	}
 
@@ -140,7 +140,7 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void testAddRules(){
+	public void testAddRules() {
 		Grammar rg = new Grammar();
 		assertTrue(rg.rules != null);
 		assertTrue(rg.rules.get("start") == null);
@@ -214,14 +214,14 @@ public class GrammarTests {
 		assertEquals(str, "{\n  \"start\": \"$pet\",\n  \"pet\": \"dog\"\n}");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet | $iphone");
-		rg.addRule("$pet", "dog | cat");
 		rg.addRule("$iphone", "iphoneSE | iphone12");
+		rg.addRule("$pet", "dog | cat");
 		str = rg.toString();
-		assertEquals(str, "{\n  \"start\": \"($pet | $iphone)\",\n  \"pet\": \"(dog | cat)\",\n  \"iphone\": \"(iphoneSE | iphone12)\"\n}");
+		assertEquals(str, "{\n  \"start\": \"($pet | $iphone)\",\n  \"iphone\": \"(iphoneSE | iphone12)\",\n  \"pet\": \"(dog | cat)\"\n}");
 	}
 
 	@Test
-	public void testToStringWithArg(){
+	public void testToStringWithArg() {
 		//FUNCTION NOT IN JAVA YET
 		assertEquals(0, 1);
 		// String lb = "<br/>";
@@ -315,16 +315,16 @@ public class GrammarTests {
 		assertEquals(rg.expand(), "DOG");
 
 		rg = new Grammar();
-        rg.addRule("$start", "($pet | $animal)");
-        rg.addRule("$animal", "$pet");
-        rg.addRule("$pet", "(ant).articlize()");
-        assertEquals(rg.expand(), "an ant");
+		rg.addRule("$start", "($pet | $animal)");
+		rg.addRule("$animal", "$pet");
+		rg.addRule("$pet", "(ant).articlize()");
+		assertEquals(rg.expand(), "an ant");
 
-        rg = new Grammar();
-        rg.addRule("$start", "($pet | $animal).articlize().ucf()");
-        rg.addRule("$animal", "$pet");
-        rg.addRule("$pet", "ant");
-        assertEquals(rg.expand(), "An ant");
+		rg = new Grammar();
+		rg.addRule("$start", "($pet | $animal).articlize().ucf()");
+		rg.addRule("$animal", "$pet");
+		rg.addRule("$pet", "ant");
+		assertEquals(rg.expand(), "An ant");
 	}
 
 	@Test
@@ -435,7 +435,7 @@ public class GrammarTests {
 
 	@Test
 	public void testJSONMethods() {
-		
+
 		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
 		Grammar rg = Grammar.fromJSON(s);
 		Grammar rg2 = Grammar.fromJSON(rg.toJSON());
