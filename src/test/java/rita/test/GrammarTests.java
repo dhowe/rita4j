@@ -223,24 +223,23 @@ public class GrammarTests {
 
 	@Test
 	public void testToStringWithArg() {
-		//FUNCTION NOT IN JAVA YET
-		assertEquals(0, 1);
-		// String lb = "<br/>";
-		// Grammar rg = new Grammar();
-		// rg.addRule("$start", "pet");
-		// String str = rg.toString(lb);
-		// assertEquals(str, "{<br/>  \"start\": \"pet\"<br/>}");
-		// rg = new Grammar();
-		// rg.addRule("$start", "$pet");
-		// rg.addRule("$pet", "dog");
-		// str = rg.toString(lb);
-		// assertEquals(str, "{<br/>  \"start\": \"$pet\",<br/>  \"pet\": \"dog\"<br/>}");
-		// rg = new Grammar();
-		// rg.addRule("$start", "$pet | $iphone");
-		// rg.addRule("$pet", "dog | cat");
-		// rg.addRule("$iphone", "iphoneSE | iphone12");
-		// str = rg.toString(lb);
-		// assertEquals(str, "{<br/>  \"start\": \"($pet | $iphone)\",<br/>  \"pet\": \"(dog | cat)\",<br/>  \"iphone\": \"(iphoneSE | iphone12)\"<br/>}");
+		String lb = "<br/>";
+		Grammar rg = new Grammar();
+		rg.addRule("$start", "pet");
+		String str = rg.toString(lb);
+		assertEquals(str, "{<br/>  \"start\": \"pet\"<br/>}");
+		rg = new Grammar();
+		rg.addRule("$start", "$pet");
+		rg.addRule("$pet", "dog");
+		str = rg.toString(lb);
+		assertEquals(str, "{<br/>  \"start\": \"$pet\",<br/>  \"pet\": \"dog\"<br/>}");
+		rg = new Grammar();
+		rg.addRule("$start", "$pet | $iphone");
+		rg.addRule("$pet", "dog | cat");
+		rg.addRule("$iphone", "iphoneSE | iphone12");
+		str = rg.toString(lb);
+		assertEquals(str,
+				"{<br/>  \"start\": \"($pet | $iphone)\",<br/>  \"iphone\": \"(iphoneSE | iphone12)\",<br/>  \"pet\": \"(dog | cat)\"<br/>}");
 	}
 
 	@Test
