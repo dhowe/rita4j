@@ -113,8 +113,18 @@ public class Grammar {
 	}
 
 	@Override
-	public String toString() {
-		return toJSON(true);
+	public String toString(){
+		return this.toJSON(true);
+	}
+
+	public String toString(String lb) {
+		String raw = this.toJSON(true);
+		if (lb == null) {
+			return raw;
+		}
+		else {
+			return raw.replaceAll("\n", lb);
+		}
 	}
 
 	public String toStringOld() {
