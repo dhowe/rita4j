@@ -84,12 +84,12 @@ public class GrammarTests {
 		rg.addRule("start", "$1line talks too much.");
 		rg.addRule("$1line", "Dave | Jill | Pete");
 
-		String rs = rg.expand(opts("trace", 0));
+		String rs = rg.expand(opts("trace", false));
 		assertTrue(rs.equals("Dave talks too much.") || rs.equals("Jill talks too much.") || rs.equals("Pete talks too much."));
 
 		rg = new Grammar();
 		rg.addRule("1line", "Dave | Jill | Pete");
-		rs = rg.expand("1line", opts("trace", 0));
+		rs = rg.expand("1line", opts("trace", false));
 		assertTrue(rs.equals("Dave") || rs.equals("Jill") || rs.equals("Pete"));
 	}
 
@@ -155,7 +155,7 @@ public class GrammarTests {
 		assertTrue(rg.rules.get("start") != null);
 		assertTrue(rg.rules.get("noun_phrase") != null);
 		String str = rg.expand();
-		assertTrue(rg.expand().equals("Bule cars exist in this world.") || rg.expand().equals("Red roses exist in this world."));
+		assertTrue(str.equals("Bule cars exist in this world.") || str.equals("Red roses exist in this world."));
 
 	}
 
