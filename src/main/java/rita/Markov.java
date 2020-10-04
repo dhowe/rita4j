@@ -37,16 +37,28 @@ public class Markov {
 		this.n = n;
 		this.root = new Node("ROOT");
 
-		if (opts.get("tokenize") != null) {
-			this.tokenize = (Function<String, String[]>) opts.get("tokenize");
-		} else {
+		if (opts != null) {
+			if (opts.get("tokenize") != null) {
+				this.tokenize = (Function<String, String[]>) opts.get("tokenize");
+			}
+			else {
+				this.tokenize = (in) -> {
+					return RiTa.tokenize(in);
+				};
+			}
+			if (opts.get("untokenize") != null) {
+				this.untokenize = (Function<String[], String>) opts.get("untokenize");
+			}
+			else {
+				this.untokenize = (in) -> {
+					return RiTa.untokenize(in);
+				};
+			}
+		}
+		else {
 			this.tokenize = (in) -> {
 				return RiTa.tokenize(in);
 			};
-		}
-		if (opts.get("untokenize") != null) {
-			this.untokenize = (Function<String[], String>) opts.get("untokenize");
-		} else {
 			this.untokenize = (in) -> {
 				return RiTa.untokenize(in);
 			};
