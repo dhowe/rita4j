@@ -1,6 +1,16 @@
 package rita;
 
 import java.util.*;
+
+import java.util.Comparator;
+import java.util.Arrays;
+
+import org.antlr.v4.parse.ANTLRParser.finallyClause_return;
+
+import java.math.BigDecimal;
+
+import rita.Markov.Node;
+
 import java.text.DecimalFormat;
 
 import static rita.Util.opts;
@@ -162,22 +172,97 @@ public class Markov {
 	}
 
 	public String[] completions(String[] preArray) {
-		throw new RuntimeException("Implement me"); // TODO: + check tests
+		return completions(preArray, null);
 	}
 
 	public String[] completions(String[] preArray, String[] postArray) {
-		throw new RuntimeException("Implement me"); // TODO: + check tests
+		String[] result;
+		if (postArray != null) {
+			ArrayList<String> res = new ArrayList<String>();
+			if (preArray.length + postArray.length > this.n) {
+				throw new RiTaException(
+						"sum of preArray length and postArray length should be no bigger then n, was: " + (preArray.length + postArray.length));
+			}
+			Node tn = this._pathTo(preArray);
+			if (tn == null) {
+				System.out.println("Markov.completions() WARNING: no node found in preArray");
+				return new String[0];
+			}
+			Node[] next = tn.childNodes();
+			for (int i = 0; i < next.length; i++) {
+				ArrayList<String> atestList = new ArrayList<String>(Arrays.asList(preArray));
+				ArrayList<String> toAdd = new ArrayList<String>();
+				toAdd.add(next[i].token);
+				for (int j = 0; j < postArray.length; j++) {
+					if (!postArray[j].equals(next[i].token)) {
+						toAdd.add(postArray[j]);
+					}
+				}
+				atestList.addAll(toAdd);
+				String[] atest = new String[atestList.size()];
+				for (int j = 0; j < atestList.size(); j++) {
+					atest[j] = atestList.get(j);
+				}
+				if (this._pathTo(atest) != null) {
+					res.add(next[i].token);
+				}
+			}
+			result = new String[res.size()];
+			for (int i = 0; i < res.size(); i++) {
+				result[i] = res.get(i);
+			}
+		}
+		else {
+			Map<String, Object> pr = this.probabilities(preArray);
+			Set<String> keys = pr.keySet();
+			ArrayList<String> keysArrayList = new ArrayList<String>();
+			Iterator<String> it = keys.iterator();
+			while (it.hasNext()) {
+				String key = it.next();
+				keysArrayList.add(key);
+			}
+			Collections.sort(keysArrayList, new Comparator<String>() {
+				@Override
+				public int compare(String str1, String str2) {
+					if (pr.get(str1) instanceof Number && pr.get(str2) instanceof Number) {
+						double n1 = ((Number) pr.get(str1)).doubleValue();
+						double n2 = ((Number) pr.get(str2)).doubleValue();
+						int resInt = n2 - n1 > 0 ? 1 : -1;
+						return n1 != n2 ? resInt : str1.compareTo(str2);
+					}
+					else {
+						return 0;
+					}
+				}
+			});
+			result = new String[keysArrayList.size()];
+			for (int i = 0; i < keysArrayList.size(); i++) {
+				result[i] = keysArrayList.get(i);
+			}
+		}
+		return result;
 	}
 
 	public float probability(String[] dataArray) {
-		throw new RuntimeException("Implement me"); // TODO: + check tests
+		if (dataArray == null || dataArray.length == 0) {
+			return 0;
+		}
+		Node tn = this._pathTo(dataArray);
+		if (tn != null && tn.token.length() > 0) {
+			return (float) tn.nodeProb(true);
+		}
+		else {
+			return 0;
+		}
 	}
 
 	public double probability(String path) {
 		double p = 0;
 		if (path.length() != 0) {
 			Node tn = this.root.child(path);
-			if (tn != null) p = tn.nodeProb(true); //true=excludeMetaTags
+			if (tn != null) {
+				p = tn.nodeProb(true);
+			} //true=excludeMetaTags
 		}
 		return p;
 	}
@@ -450,7 +535,7 @@ public class Markov {
 	//////////////////////////////////////////////////////////////////////////
 
 	public class Node {
-		
+
 		protected Node parent;
 		protected String token;
 		protected int count = 0, numChildren = -1;
@@ -529,7 +614,6 @@ public class Markov {
 				}
 				this.numChildren = sum;
 			}
-			//System.out.println(this.token+" "+this.numChildren);
 			return this.numChildren;
 		}
 
@@ -541,8 +625,6 @@ public class Markov {
 			if (this.parent == null) {
 				throw new RiTaException("no parent for: " + this);
 			}
-			//System.out.println("Markov.Node.nodeProb(): node name: " + this.token + "; using" + this.count + "/"
-			//		+ this.parent.childCount(excludeMetaTags) + "; parent: " + this.parent.token);
 			double result = (double) this.count / (double) this.parent.childCount(excludeMetaTags);
 			// System.out.println("C:" + this.count + " " +
 			// this.parent.childCount(excludeMetaTags) + "->" + result);
@@ -575,10 +657,9 @@ public class Markov {
 				s += "(" + this.count + ")->";
 			}
 			s += "{";
-			//System.out.println(this.childCount());
 			return this.childCount() != 0 ? stringulate(this, s, 1, true) : s + "}";
 		}
-		
+
 		public String toString() {
 			if (this.parent == null) return "Root";
 			String prob = DF.format(this.nodeProb());
@@ -587,17 +668,22 @@ public class Markov {
 			return this.token + "(" + this.count + "/" + prob + "%)";
 		}
 	}
-	
+
 	static final Comparator<Markov.Node> byCount = new Comparator<Markov.Node>() {
 		public int compare(Markov.Node a, Markov.Node b) {
 			return b.count != a.count ? b.count - a.count : b.token.toLowerCase().compareTo(a.token.toLowerCase());
 		}
 	};
-	
+
+	// static final Comparator<String> byProb = new Comparator<String>(){
+	// 	public int compare(String a, String b) {
+	// 		return 
+	// 	}
+	// };
+
 	public static void main(String[] args) {
 		Markov rm = new Markov(2);
 		rm.addText("The");
 		System.out.println(rm.root.asTree());
 	}
 }
-
