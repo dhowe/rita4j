@@ -422,8 +422,7 @@ public class RiScriptTests {
 	public void testAssignTransforms() {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("[$stored=(a | a).toUpperCase()] dog is a mammal.", ctx), "A dog is a mammal.");
-		assertEq(RiTa.evaluate("[$stored=(a | a).toUpperCase()]\n$stored dog is a mammal.", ctx), "A dog is a mammal.");
-
+		assertEq(RiTa.evaluate("$stored=(a | a).toUpperCase()\n$stored dog is a mammal.", ctx), "A dog is a mammal.");
 	}
 
 	@Test
