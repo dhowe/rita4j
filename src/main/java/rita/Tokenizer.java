@@ -35,7 +35,7 @@ public class Tokenizer {
 	}
 
 	public static String untokenize(String[] arr, String delim) {
-	
+
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
 		boolean lastQuote, thisComma, isLast, lastComma, lastEndWithS;
 		boolean nextIsS, thisLBracket, thisRBracket, lastLBracket;
@@ -50,31 +50,31 @@ public class Tokenizer {
 
 			if (arr[i] == null) continue;
 
-			thisComma = arr[i] == ",";
+			thisComma = arr[i].equals(",");
 			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches();
 			//thisNAPunct = NA_PUNCT.matcher(arr[i]).matches();
 			thisQuote = QUOTES.matcher(arr[i]).matches();
 			thisLBracket = LEFTBRACKETS.matcher(arr[i]).matches();
 			thisRBracket = RIGHTBRACKETS.matcher(arr[i]).matches();
 			thisDomin = DOMIN.matcher(arr[i]).matches();
-			lastComma = arr[i - 1] == ",";
+			lastComma = arr[i - 1].equals(",");
 			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches();
 			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches();
 			lastQuote = QUOTES.matcher(arr[i - 1]).matches();
 			lastLBracket = LEFTBRACKETS.matcher(arr[i - 1]).matches();
 			lastRBracket = RIGHTBRACKETS.matcher(arr[i - 1]).matches();
 			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's'
-					&& arr[i - 1] != "is" && arr[i - 1] != "Is" && arr[i - 1] != "IS";
+					&& !arr[i - 1].equals("is") && !arr[i - 1].equals("Is") && !arr[i - 1].equals("IS");
 			lastIsWWW = WWW.matcher(arr[i - 1]).matches();
-			nextIsS = i == arr.length - 1 ? false : (arr[i + 1] == "s" || arr[i + 1] == "S");
+			nextIsS = i == arr.length - 1 ? false : (arr[i + 1].equals("s") || arr[i + 1].equals("S"));
 			isLast = (i == arr.length - 1);
 
-			if ((arr[i - 1] == "." && thisDomin) || nextNoSpace) {
+			if ((arr[i - 1].equals(".") && thisDomin) || nextNoSpace) {
 				nextNoSpace = false;
 				result += arr[i];
 				continue;
 			}
-			else if (arr[i] == "." && lastIsWWW) {
+			else if (arr[i].equals(".") && lastIsWWW) {
 				nextNoSpace = true;
 			}
 			else if (thisLBracket) {
@@ -132,7 +132,7 @@ public class Tokenizer {
 	public static String[] tokenize(String words) {
 		return tokenize(words, null);
 	}
-	
+
 	public static String[] tokenize(String words, String regex) {
 
 		if (words == null || words.length() == 0) {
