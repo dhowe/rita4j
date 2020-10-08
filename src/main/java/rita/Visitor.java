@@ -425,8 +425,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitChildren(RuleNode node) {
 		String result = "";
+		String nodeStr = node.getText();//to debug
 		for (int i = 0; i < node.getChildCount(); i++) {
 			ParseTree child = node.getChild(i);
+			String childStr = child.getText();//to debug
 			String visit = this.visit(child);
 			result += visit != null ? visit : "";
 		}
