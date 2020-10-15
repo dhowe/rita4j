@@ -12,6 +12,10 @@ import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser;
 import rita.antlr.RiScriptParser.*;
 
+/*
+ * Note: Transforms are always resolved AFTER the content
+ *       in the visitX method where they first appeared
+ */
 public class Visitor extends RiScriptBaseVisitor<String> {
 
 	//	private static final String SYM = "$";
@@ -49,13 +53,110 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public String visitScriptOff(RiScriptParser.ScriptContext ctx) {
-		if (trace) System.out.println("visitScript: '" + ctx.getText() + "'\t" + stack(ctx));
-		for (int i = 0; i < ctx.getChildCount(); i++) {
-			System.out.println(i + ") " + ctx.getChild(i).getClass()
-					+ " '" + ctx.getChild(i).getText() + "'");
+		if (trace) {
+			String s = "\nvisitScript: '" + ctx.getText() + "'\t" + stack(ctx) + "\n";
+			for (int i = 0; i < ctx.getChildCount(); i++) {
+				s += "  " + (i + ") " + getRuleName(ctx.getChild(i))
+						+ " '" + ctx.getChild(i).getText() + "'\n");
+			}
+			System.out.println(s);
 		}
 		return visitChildren(ctx);
 	}
+	
+	//////////////////////////// Transforms //////////////////////////////////
+
+	public String visitInline(InlineContext ctx) {
+		List<TransformContext> txs = ctx.transform();
+		ExprContext token = ctx.expr(); // duped in visitAssign
+		String id = ctx.symbol().getText().replaceAll("^\\$", "");
+
+		if (this.trace) System.out.println("visitInline: $"
+				+ id + "=" + this.flatten(token) + " tfs="+flatten(txs));
+
+		// now visit the token 
+		String visited = this.visit(token);
+
+		// add the result to the context
+		if (this.trace) System.out.println("resolveInline: $"
+				+ id + " -> '" + visited + "'");
+		this.context.put(id, visited);
+
+		// finally check for transforms
+		if (txs.size() < 1) return visited;
+
+		String result = applyTransforms(visited, ctx.transform());
+		return result != null ? result : ctx.getText();
+	}
+	
+	public String visitChoice(ChoiceContext ctx) {
+		
+		List<TransformContext> txs = ctx.transform();
+		ChoiceState choice = new ChoiceState(this, ctx);
+		//if (parent instanceof Visitor && ((Visitor) parent).trace) {
+		if (trace) System.out.println("visitChoice: '" + ctx.getText()
+					+ "' options=['" + flatten(choice.options).replaceAll("\\|", "','")
+					+ "'] tfs=" + flatten(ctx.transform()));
+		
+		// make the selection
+		ParserRuleContext tok = choice.select();
+		if (trace) System.out.println("  select: '" + tok.getText() + "'");
+		
+		// now visit the token 
+		String visited = tok.getText().equals("") ? "" : this.visit(tok);
+		if (txs.size() < 1) return visited;
+		
+		// now check for transforms
+		String result = applyTransforms(visited, txs); 
+		if (result == null) result = visited + (txs.size() == 0 ? "" : flatten(txs));
+		
+		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
+		
+		return result;
+	}
+	
+	public String visitSymbol(SymbolContext ctx) {
+		
+		List<TransformContext> txs = ctx.transform();
+		String result = ctx.getText();
+		TerminalNode tn = ctx.SYM();
+
+		if (tn == null) { // handle transform on empty string
+			String applied = applyTransforms("", txs);
+			return applied != null ? applied : result;
+		}
+
+		// get the symbol identifier
+		String ident = tn.getText().replaceAll("^\\$", "");
+
+		// if already a pending symbol, save for later
+		if (this.pendingSymbols.contains(ident)) {
+			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
+					+ flatten(txs) + " -> " + result);
+			return result;
+		}
+
+		if (trace) System.out.println("visitSymbol: '"
+				+ ident + "' tfs=" + flatten(txs));// + " -> " + result);
+
+		// now try to resolve from context
+		String resolved = fromContext(ident);
+		
+		// if it fails, give up / wait for next pass
+		if (resolved == null) return result;
+			
+		// now apply the transforms
+		String applied = applyTransforms(resolved, txs);
+		result = applied != null ? applied : resolved + flatten(txs);
+		
+
+		if (trace) System.out.println("resolveSymbol: '"
+				+ ident + " -> " + result);
+
+		return result;
+	}
+	
+	////////////////////////////////////////////////////////////////////////
 
 	public String visitAssign(AssignContext ctx) {
 		ExprContext token = ctx.expr();
@@ -68,40 +169,13 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		this.context.put(id, result);
 		return ""; // no output on vanilla assign
 	}
-
-	public String visitInline(InlineContext ctx) {
-		ExprContext token = ctx.expr(); // dup in visitAssign
-		String id = ctx.symbol().getText().replaceAll("^\\$", "");
-
-		// first visit the token 
-		if (this.trace) System.out.println("visitInline: $"
-				+ id + "=" + this.flatten(token));
-
-		String visited = this.visit(token);
-
-		// add the result to the context
-		if (this.trace) System.out.println("resolveInline: $"
-				+ id + " -> '" + visited + "'");
-		this.context.put(id, visited);
-
-		// finally check for transforms
-		List<TransformContext> txs = ctx.transform();
-		if (txs.size() < 1) return visited;
-
-		String result = applyTransforms(visited, ctx.transform());
-		return result != null ? result : ctx.getText();
-	}
-
-	//	public String visitScript(ScriptContext ctx) {
-	//		if (trace) System.out.println("visitScript: '" + ctx.getText());
-	//		return visitChildren(ctx);
-	//	}
-
-	public String visitExpr(ExprContext ctx) {
+	
+	public String visitExpr(ExprContext ctx) { // trace only
 		if (trace) {
 			List<TransformContext> txs = childTransforms(ctx);
-			System.out.println("visitExpr: '" + ctx.getText() + "' tfs=" + flatten(txs));
-			//System.out.println("  chil: "+flatten(ctx.children));
+			System.out.println("visitExpr: '" + ctx.getText() 
+				/*+"' flat='"+flatten(rcs) */+ "' tfs=" + flatten(txs));
+			//printChildren(ctx);
 		}
 		return visitChildren(ctx);
 	}
@@ -113,76 +187,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result != null ? result : ctx.getText() + flatten(txs);
 	}
 
-	public String visitChoice(ChoiceContext ctx) {
-		ChoiceState choiceState = new ChoiceState(this, ctx);
-		//System.out.println("choiceState='" + ctx.getText() + "' "+(ctx.children != null ? ctx.children.size() : 0));
-		ParserRuleContext tok = choiceState.select();
-		boolean isEmpty = tok.getText().equals("");
-		String s = trace ? "  select: '" + tok.getText() + "'" : null;
-		passTransformsAsChildrenOf(tok, ctx.transform());
-		List<TransformContext> txs = childTransforms(tok);
-		if (trace) System.out.println(s + " tfs=" + flatten(txs));
-		// hack for ().aTransform()
-		return isEmpty ? applyTransforms("", txs) : this.visit(tok);
-	}
-
 	// TODO: [NEXT] need to handle fails in applyTransforms()
 	// 			 should return input (x.tf() || x.tp ) if no transform succeeds
 	//
-
-	public String visitSymbol(SymbolContext ctx) {
-		String result = ctx.getText();
-		TerminalNode tn = ctx.SYM();
-
-		if (tn == null) { // transform on empty string
-			String applied = applyTransforms("", ctx.transform());
-			return applied != null ? applied : result;
-		}
-
-		List<TransformContext> txs = ctx.transform();
-		String ident = tn.getText().replaceAll("^\\$", "");
-
-		// already a pending symbol, save for later  ??? 
-		// shouldn't we check the context first
-		if (this.pendingSymbols.contains(ident)) {
-			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
-					+ flatten(txs) + " -> " + result);
-			return result;
-		}
-
-		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
-
-		// now check the context
-		Object def = fromContext(ident);
-		if (def != null) {
-
-			if (isPrimitive(def)) {
-				def = def.toString();
-			}
-
-			if (!(def instanceof String)) {
-				throw new RuntimeException("Tx returned non-String:  " + def);
-			}
-
-			/*if (false && this.parent.isParseable((String) def)) {
-				this.pendingSymbols.add(ident);
-				System.out.println("ADD-PENDING -> "+ident+"\tdef="+def);
-				return result;
-			}*/
-
-			result = (String) def;
-			String applied = applyTransforms(result, txs);
-			if (applied != null) {
-				result = applied;
-			}
-		}
-
-		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
-
-		return result;
-	}
 
 	//	private String symbolName(String t) {
 	//		return t.replaceAll("^\\$", "");
@@ -197,15 +204,23 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return PRIMITIVES.contains(o.getClass());
 	}
 
-	private Object fromContext(String id) {
+	private String fromContext(String id) {
 		String key = id.startsWith("$") ? id.substring(1) : id;
-		return context != null ? context.get(key) : null;
+		Object def =  context != null ? context.get(key) : null;
+		if (def != null) {
+
+			if (isPrimitive(def)) return def.toString();
+
+			if (!(def instanceof String)) throw new RuntimeException
+				("Symbol returned non-String:  " + def); // TODO: objects?
+		}
+		return (String) def;
 	}
 
-	private Object fromContextOrDef(String id, Object def) {
+	/*private Object fromContextOrDef(String id, Object def) {
 		String key = id.startsWith("$") ? id.substring(1) : id;
 		return context != null ? context.getOrDefault(key, def) : def;
-	}
+	}*/
 
 	////////////////////////////////////////////////////////////////
 
@@ -274,11 +289,19 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return txs;
 	}
 
-	private ParserRuleContext passTransformsAsChildrenOf(ParserRuleContext prc,
+	// ORIGINAL:
+	//
+	// private ParserRuleContext passTransformsAsChildrenOf(ParserRuleContext prc,
+	//			List<TransformContext> txs) {
+	//		final ParserRuleContext rc = prc != null ? prc : RuleContext.EMPTY;
+	//		if (txs != null) txs.stream().forEach(tx -> rc.addChild(tx));
+	//		return prc;
+	//	}
+
+	private void passTransformsAsChildrenOf(ParserRuleContext prc,
 			List<TransformContext> txs) {
-		final ParserRuleContext rc = prc != null ? prc : RuleContext.EMPTY;
-		if (txs != null) txs.stream().forEach(tx -> rc.addChild(tx));
-		return prc;
+		if (prc == null) throw new RuntimeException("Null ParserRuleContext");
+		if (txs != null) txs.stream().forEach(tx -> prc.addChild(tx));
 	}
 
 	private String applyTransforms(String term, List<TransformContext> tfs) {
@@ -381,14 +404,42 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		else {
 			throw new RuntimeException("Check Properties here");
 		}
-
+		
+		
 		if (trace) System.out.println("resolveTransform: '"
 				+ s + "' -> '" + result + "'");
 
 		return result != null ? result.toString() : null;
 	}
 
-	//////////////////////////////Other/////////////////////////////////////
+	////////////////////////////// Other ///////////////////////////////////
+
+	String getRuleName(RuleContext ctx) {
+		return RiScriptParser.ruleNames[ctx.getRuleIndex()];
+	}
+
+	String getRuleName(TerminalNode ctx) {
+		int type = ctx.getSymbol().getType();
+		if (type < 0) return "TerminalNode";
+		return this.parent.lexer.getRuleNames()[type];
+	}
+
+	String getRuleName(RuleNode ctx) {
+		return getRuleName(ctx.getRuleContext());
+	}
+
+//	String getRuleName(RuleContext ctx) {
+//		return ctx instanceof TerminalNode
+//				? this.parent.lexer.getRuleNames()[((TerminalNode) ctx).getSymbol().getType()]
+//				: RiScriptParser.ruleNames[ctx.getRuleIndex()];
+//	}
+
+	String getRuleName(ParseTree ctx) {
+		if (ctx instanceof TerminalNode) return getRuleName((TerminalNode) ctx);
+		if (ctx instanceof RuleNode) return getRuleName((RuleNode) ctx);
+		if (ctx instanceof RuleContext) return getRuleName((RuleContext) ctx);
+		throw new RuntimeException("fail: " + ctx.getClass().getCanonicalName());
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	String flatten(List l) {
@@ -423,17 +474,26 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return sb.toString().replaceAll(" <- $", "]");
 	}
 
+  public void printChildren(RuleContext ctx) {
+    for (int i = 0; i < ctx.getChildCount(); i++) {
+      ParseTree child = ctx.getChild(i);
+      console.log("  child[" + i + "]: '"+ child.getText()+
+        "' type=" + this.getRuleName(child));
+    }
+  }
+  
 	public String visitChildren(RuleNode node) {
 		String result = "";
-		String nodeStr = node.getText();//to debug
+		//String nodeStr = node.getText();//to debug
 		for (int i = 0; i < node.getChildCount(); i++) {
 			ParseTree child = node.getChild(i);
-			String childStr = child.getText();//to debug
+			//String childStr = child.getText();//to debug
 			String visit = this.visit(child);
 			result += visit != null ? visit : "";
 		}
 		return result;
 	}
+	
 
 	@SuppressWarnings({ "unchecked" })
 	private Map<String, Function<String, String>> contextFunctions() { // why?

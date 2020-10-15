@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.7.1
+// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class RiScriptParser extends Parser {
-	static { RuntimeMetaData.checkVersion("4.7.1", RuntimeMetaData.VERSION); }
+	static { RuntimeMetaData.checkVersion("4.8", RuntimeMetaData.VERSION); }
 
 	protected static final DFA[] _decisionToDFA;
 	protected static final PredictionContextCache _sharedContextCache =
@@ -24,20 +24,29 @@ public class RiScriptParser extends Parser {
 		RULE_script = 0, RULE_expr = 1, RULE_cexpr = 2, RULE_cond = 3, RULE_weight = 4, 
 		RULE_choice = 5, RULE_inline = 6, RULE_assign = 7, RULE_chars = 8, RULE_symbol = 9, 
 		RULE_wexpr = 10, RULE_transform = 11, RULE_op = 12;
-	public static final String[] ruleNames = {
-		"script", "expr", "cexpr", "cond", "weight", "choice", "inline", "assign", 
-		"chars", "symbol", "wexpr", "transform", "op"
-	};
+	private static String[] makeRuleNames() {
+		return new String[] {
+			"script", "expr", "cexpr", "cond", "weight", "choice", "inline", "assign", 
+			"chars", "symbol", "wexpr", "transform", "op"
+		};
+	}
+	public static final String[] ruleNames = makeRuleNames();
 
-	private static final String[] _LITERAL_NAMES = {
-		null, "'>'", "'<'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'", null, 
-		"'!'", "'*'", "'^'", "'$'", "','"
-	};
-	private static final String[] _SYMBOLIC_NAMES = {
-		null, "GT", "LT", "LP", "RP", "LB", "RB", "LCB", "RCB", "DOT", "WS", "EXC", 
-		"AST", "HAT", "DOL", "COM", "NL", "SYM", "OR", "EQ", "TF", "ENT", "INT", 
-		"OP", "CHR"
-	};
+	private static String[] makeLiteralNames() {
+		return new String[] {
+			null, "'>'", "'<'", "'('", "')'", "'['", "']'", "'{'", "'}'", "'.'", 
+			null, "'!'", "'*'", "'^'", "'$'", "','"
+		};
+	}
+	private static final String[] _LITERAL_NAMES = makeLiteralNames();
+	private static String[] makeSymbolicNames() {
+		return new String[] {
+			null, "GT", "LT", "LP", "RP", "LB", "RB", "LCB", "RCB", "DOT", "WS", 
+			"EXC", "AST", "HAT", "DOL", "COM", "NL", "SYM", "OR", "EQ", "TF", "ENT", 
+			"INT", "OP", "CHR"
+		};
+	}
+	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
 	public static final Vocabulary VOCABULARY = new VocabularyImpl(_LITERAL_NAMES, _SYMBOLIC_NAMES);
 
 	/**
@@ -87,6 +96,7 @@ public class RiScriptParser extends Parser {
 		super(input);
 		_interp = new ParserATNSimulator(this,_ATN,_decisionToDFA,_sharedContextCache);
 	}
+
 	public static class ScriptContext extends ParserRuleContext {
 		public TerminalNode EOF() { return getToken(RiScriptParser.EOF, 0); }
 		public List<ExprContext> expr() {

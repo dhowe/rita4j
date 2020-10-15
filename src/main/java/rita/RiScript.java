@@ -38,6 +38,7 @@ public class RiScript {
 	}
 
 	public String evaluate(String input, Map<String, Object> ctx, Map<String, Object> opts) {
+		
 		boolean trace = Util.boolOpt("trace", opts);
 		boolean silent = Util.boolOpt("silent", opts);
 		boolean onepass = Util.boolOpt("singlePass", opts);
@@ -47,17 +48,17 @@ public class RiScript {
 		String last = input;
 		String expr = lexParseVisit(input, ctx, opts);
 		if (trace) passInfo(ctx, last, expr, 0);
-
-		if (!onepass && isParseable(expr)) {
-			for (int i = 0; i < RiScript.MAX_TRIES && !expr.equals(last); i++) {
+		if (!onepass) {
+			for (int i = 0; isParseable(expr) && !expr.equals(last) && i < MAX_TRIES; i++) {
 				last = expr;
+				if (trace) System.out.println("\n--------------------- Pass#"+(i+2)+" ----------------------\n");
 				expr = lexParseVisit(expr, ctx, opts);
 				if (trace) passInfo(ctx, last, expr, i + 1);
 				if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
 						+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
 			}
 		}
-		// System.out.println("expr: " + expr + " " + RE.test("\\\\$[A-Za-z_]", expr));
+		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
@@ -78,7 +79,6 @@ public class RiScript {
 	private void passInfo(Map<String, Object> ctx, String input, String output, int pass) {
 		System.out.println("\nPass#" + (pass + 1) + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
 				+ "\nResult:  " + output + "\nContext: " + ctxStr(ctx));
-		if (pass > 0) System.out.println("-------------------------------------------------------");
 	}
 
 	private String[] preParse(String input, Map<String, Object> opts) {
@@ -102,9 +102,10 @@ public class RiScript {
 			parse = String.join(" ", Arrays.copyOfRange(words, preIdx, postIdx + 1));
 			post = String.join(" ", Arrays.copyOfRange(words, postIdx + 1, words.length));
 		}
-		if (Util.boolOpt("trace", opts) && parse.length() == 0) {
-			System.out.println("NO_PARSE: preParse('" +
-					(pre.length() > 0 ? pre : "") + "', '" + (post.length() > 0 ? post : "") + "'):");
+		if (false && Util.boolOpt("trace", opts) && parse.length() == 0) {
+			System.out.println("NO PARSE: preParse('" 
+					+ (pre.length() > 0 ? pre : "") + "', '" 
+					+ (post.length() > 0 ? post : "") + "'):");
 		}
 		return new String[] { pre, parse, post };
 	}
@@ -118,7 +119,6 @@ public class RiScript {
 		this.lexer = new RiScriptLexer(chars);
 		CommonTokenStream tokenStream = new CommonTokenStream(this.lexer);
 		if (Util.boolOpt("trace", opts)) {
-			System.out.println("-------------------------------------------------------");
 			tokenStream.fill();
 			int i = 0;
 			for (Token tok : tokenStream.getTokens()) {
