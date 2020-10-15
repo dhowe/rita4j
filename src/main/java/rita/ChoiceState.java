@@ -20,11 +20,11 @@ public class ChoiceState {
 	private int type, index = 0;
 	private ParserRuleContext last;
 
-	public ChoiceState(RiScriptBaseVisitor<String> visitor, ChoiceContext ctx) {
-		this(visitor, ctx, ChoiceState.SIMPLE);
+	public ChoiceState( ChoiceContext ctx) {
+		this(ctx, ChoiceState.SIMPLE);
 	}
 
-	public ChoiceState(RiScriptBaseVisitor<String> parent, ChoiceContext ctx, int type) {
+	public ChoiceState(ChoiceContext ctx, int type) {
 
 		this.type = type;
 		this.options = new ArrayList<ParserRuleContext>();
@@ -37,12 +37,6 @@ public class ChoiceState {
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
 			for (int j = 0; j < weight; j++) options.add(expr); 
-		}
-		
-		if (parent instanceof Visitor && ((Visitor) parent).trace) {
-			System.out.println("visitChoice: raw='" + ctx.getText()
-					+ "' options=['" + ((Visitor) parent).flatten(options).replaceAll("\\|", "','")
-					+ "'] tfs=" + ((Visitor) parent).flatten(ctx.transform()));
 		}
 	}
 
