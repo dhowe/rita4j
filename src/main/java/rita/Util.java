@@ -179,10 +179,13 @@ public class Util {
 		return getMethods(o, prop).length > 0;
 	}
 
+	@SuppressWarnings("rawtypes")
 	public static Object getProperty(Object o, String prop) {
+		boolean foundProp = false;
 		Field[] fields = o.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (fields[i].getName().equals(prop)) {
+				foundProp = true;
 				fields[i].setAccessible(true);
 				try {
 					return fields[i].get(o);
@@ -191,8 +194,15 @@ public class Util {
 				}
 			}
 		}
-		// we've failed - check for a map
-		return (o instanceof Map) ? ((Map)o).get(prop) : null;
+
+		if (o instanceof Map) {
+			return ((Map) o).get(prop);
+		}
+		
+		if (!foundProp) System.err.println("[WARN] Unable to find prop '" + prop
+				+ "' on " + o.getClass().getSimpleName());
+
+		return null; // fail
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

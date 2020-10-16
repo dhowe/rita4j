@@ -5,6 +5,7 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 import org.antlr.v4.runtime.*;
+import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.unbescape.html.HtmlEscape;
 
 import rita.antlr.RiScriptLexer;
@@ -38,7 +39,7 @@ public class RiScript {
 	}
 
 	public String evaluate(String input, Map<String, Object> ctx, Map<String, Object> opts) {
-		
+
 		boolean trace = Util.boolOpt("trace", opts);
 		boolean silent = Util.boolOpt("silent", opts);
 		boolean onepass = Util.boolOpt("singlePass", opts);
@@ -51,7 +52,7 @@ public class RiScript {
 		if (!onepass) {
 			for (int i = 0; isParseable(expr) && !expr.equals(last) && i < MAX_TRIES; i++) {
 				last = expr;
-				if (trace) System.out.println("\n--------------------- Pass#"+(i+2)+" ----------------------\n");
+				if (trace) System.out.println("\n--------------------- Pass#" + (i + 2) + " ----------------------\n");
 				expr = lexParseVisit(expr, ctx, opts);
 				if (trace) passInfo(ctx, last, expr, i + 1);
 				if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
@@ -62,7 +63,7 @@ public class RiScript {
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
-		
+
 		return resolveEntities(expr);
 	}
 
@@ -103,8 +104,8 @@ public class RiScript {
 			post = String.join(" ", Arrays.copyOfRange(words, postIdx + 1, words.length));
 		}
 		if (false && Util.boolOpt("trace", opts) && parse.length() == 0) {
-			System.out.println("NO PARSE: preParse('" 
-					+ (pre.length() > 0 ? pre : "") + "', '" 
+			System.out.println("NO PARSE: preParse('"
+					+ (pre.length() > 0 ? pre : "") + "', '"
 					+ (post.length() > 0 ? post : "") + "'):");
 		}
 		return new String[] { pre, parse, post };
@@ -117,6 +118,8 @@ public class RiScript {
 	public CommonTokenStream lex(String input, Map<String, Object> opts) {
 		CharStream chars = CharStreams.fromString(input);
 		this.lexer = new RiScriptLexer(chars);
+		// this.lexer.removeErrorListeners();
+		// this.lexer.addErrorListener(ParseErrorListener.INSTANCE);
 		CommonTokenStream tokenStream = new CommonTokenStream(this.lexer);
 		if (Util.boolOpt("trace", opts)) {
 			tokenStream.fill();
@@ -136,6 +139,8 @@ public class RiScript {
 
 		// create the parser
 		this.parser = new RiScriptParser(tokens);
+		this.parser.removeErrorListeners();
+		this.parser.addErrorListener(ParseErrorListener.INSTANCE);
 
 		// try the parsing
 		ScriptContext tree;
@@ -146,7 +151,9 @@ public class RiScript {
 						Arrays.asList(parser.getRuleNames())) + "\n");
 			}
 		} catch (Exception e) {
-			System.err.println("PARSER: '" + input + "'\n" + e.getMessage() + "\n");
+			if (!Util.boolOpt("silent", opts)) {
+				System.err.println("PARSER: '" + input + "'\n" + e.getMessage() + "\n");
+			}
 			throw e;
 		}
 		return tree;
@@ -202,8 +209,10 @@ public class RiScript {
 		String phones = RiTa.phones(s, Util.opts("silent", true));
 		//System.out.println(phones+" " + phones.substring(0,1));
 		return (phones != null && phones.length() > 0
-				&& RE.test("[aeiou]", phones.substring(0,1))
-				? "an " : "a ") + s;
+				&& RE.test("[aeiou]", phones.substring(0, 1))
+						? "an "
+						: "a ")
+				+ s;
 	}
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
@@ -246,5 +255,17 @@ public class RiScript {
 		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
 		new RiScript().lex("$1foo", Util.opts("trace", true));
 	}
+}
 
+class ParseErrorListener extends BaseErrorListener {
+
+	static final ParseErrorListener INSTANCE = new ParseErrorListener();
+
+	@Override
+	public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol,
+			int line, int charPositionInLine, String msg, RecognitionException e)
+			throws ParseCancellationException {
+		throw new RiTaException("ParseError: line " + line + ":"
+				+ charPositionInLine + " " + msg);
+	}
 }
