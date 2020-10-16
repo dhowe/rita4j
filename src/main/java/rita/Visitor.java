@@ -141,7 +141,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				+ ident + " tfs=" + flatten(txs));// + " -> " + result);
 
 		// now try to resolve from context
-		Object resolved = fromContext(ident);
+		Object resolved = context.get(ident);
 
 		// if it fails, give up / wait for next pass
 		if (resolved == null) {
@@ -340,11 +340,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static boolean isPrimitive(Object o) {
 		return PRIMITIVES.contains(o.getClass());
-	}
-
-	private Object fromContext(String id) {
-		String key = id.startsWith("$") ? id.substring(1) : id;
-		return context.get(key);
 	}
 
 	String getRuleName(RuleContext ctx) {

@@ -20,10 +20,6 @@ public class RiScriptTests {
 	static final Map<String, Object> SP = opts("singlePass", true);
 	static final Map<String, Object> SPTT = opts("singlePass", true, "trace", true);
 
-	static final boolean DO_CONDS = true;
-	static final boolean DO_PROPS = true;
-	static final boolean DO_LTS = true; // NEXT: WORKING HERE
-
 	@Test
 	public void testVariousTransforms() {
 		Map<String, Object> ctx = opts();
@@ -41,7 +37,6 @@ public class RiScriptTests {
 
 		ctx = opts("dog", "terrier");
 		assertEq(RiTa.evaluate("$dog.ucf()", ctx), "Terrier"); // Symbol in context
-
 	}
 
 	@Test
@@ -116,7 +111,7 @@ public class RiScriptTests {
 		assertEq(RiTa.articlize("ant"), "an ant");
 		assertEq(RiTa.articlize("honor"), "an honor");
 		assertEq(RiTa.articlize("eagle"), "an eagle");
-		if (DO_LTS) assertEq(RiTa.articlize("ermintrout"), "an ermintrout");
+		assertEq(RiTa.articlize("ermintrout"), "an ermintrout"); // LTS
 	}
 
 	@Test
@@ -169,7 +164,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testNestedContext() {
-		if (!DO_PROPS) return;
+
 		Map<String, Object> ctx = opts();
 		ctx.put("bar", opts("color", "blue"));
 		String res = RiTa.evaluate("$foo=$bar.color\n$foo", ctx);
@@ -575,7 +570,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testSymbolsFromContext() {
-		if (!DO_PROPS) return;
+
 
 		Map<String, Object> ctx = opts();
 		ctx.put("user", opts("name", "jen"));
@@ -596,7 +591,6 @@ public class RiScriptTests {
 
 	@Test
 	public void testSymbolsWithPropertyTransforms() {
-		if (!DO_PROPS) return;
 		Map<String, Object> ctx = opts();
 		ctx.put("bar", opts("color", "blue"));
 		assertEq(RiTa.evaluate("$foo=$bar.color\n$foo", ctx), "blue");
@@ -752,7 +746,7 @@ public class RiScriptTests {
 
 	//@Test
 	public void testRiTaFunctionTransforms() { // TODO: Handle called RiTa functions?
-		if (!DO_PROPS) return;
+		
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("Does $RiTa.env() equal node?", ctx,TT), "Does node equal node?");
 	}
@@ -804,7 +798,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testObjectProperties() { 
-		if (!DO_PROPS) return;
+		
 		//		Map<String, Object> dog = opts();
 		//		dog.put("name", "spot");
 		//		dog.put("color", "white");
@@ -954,7 +948,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testTransformProperties() {
-		if (!DO_PROPS) return;
+		
 		class Bar {
 			String prop = "result";
 		}
@@ -1151,7 +1145,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testBadConditionals() {
-		if (!DO_CONDS) return;
+
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
 		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<} foo", ctx, ST));
@@ -1159,7 +1153,6 @@ public class RiScriptTests {
 
 	@Test
 	public void testConditionals() {
-		if (!DO_CONDS) return;
 
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
@@ -1174,7 +1167,6 @@ public class RiScriptTests {
 
 	@Test
 	public void testFloatConditionals() {
-		if (!DO_CONDS) return;
 
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
@@ -1194,7 +1186,6 @@ public class RiScriptTests {
 
 	@Test
 	public void testMultivalConditionals() {
-		if (!DO_CONDS) return;
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
 		assertEq(RiTa.evaluate("{$a<1,$b<1} foo", ctx), "");
@@ -1208,7 +1199,7 @@ public class RiScriptTests {
 
 	@Test
 	public void testMatchingConditional() {
-		if (!DO_CONDS) return;
+
 		Map<String, Object> ctx = opts();
 		ctx.put("a", "hello");
 
@@ -1229,7 +1220,6 @@ public class RiScriptTests {
 
 	@Test
 	public void testRSMatchingConditional() {
-		if (!DO_CONDS) return;
 
 		Map<String, Object> ctx = opts();
 
