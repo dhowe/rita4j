@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import javax.management.RuntimeErrorException;
+
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.*;
@@ -67,25 +69,29 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	//////////////////////////// Transforms //////////////////////////////////
 
 	public String visitInline(InlineContext ctx) {
-		List<TransformContext> txs = ctx.transform();
+		
+		// TODO: what if the symbol is pending or needs to be pending (add test)
+		
 		ExprContext token = ctx.expr();
+		List<TransformContext> txs = ctx.transform();
 		String id = ctx.symbol().getText().replaceAll("^\\$", "");
 
 		if (this.trace) System.out.println("visitInline: $"
 				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
 
-		// now visit the token 
+		// visit the token and add result to the context
 		String visited = this.visit(token);
-
-		// add the result to the context
-		if (this.trace) System.out.println("resolveInline: $"
-				+ id + " -> '" + visited + "'");
 		this.context.put(id, visited);
 
-		// finally check for transforms
+		// apply transforms if we have them
 		if (txs.size() < 1) return visited;
-
-		String result = applyTransforms(visited, ctx.transform());
+		String applied = applyTransforms(visited, txs);
+		String result = applied != null ? applied : visited + flatten(txs);  
+		
+		if (this.trace) System.out.println("resolveInline: $"
+				+ id + " -> '" + result + "'");
+		
+		// return result or defer for later
 		return result != null ? result : ctx.getText();
 	}
 
@@ -93,24 +99,27 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		List<TransformContext> txs = ctx.transform();
 		ChoiceState choice = new ChoiceState(ctx);
-		//if (parent instanceof Visitor && ((Visitor) parent).trace) {
+    
+		// let ChoiceState = this.sequences[++this.indexer]; // TODO:
+
 		if (trace) System.out.println("visitChoice: '" + ctx.getText()
 				+ "' options=['" + flatten(choice.options).replaceAll("\\|", "','")
-				+ "'] tfs=" + flatten(ctx.transform()));
+				+ "'] tfs=" + flatten(txs));
 
 		// make the selection
 		ParserRuleContext tok = choice.select();
-		String tokStr = tok.getText();
-		if (trace) System.out.println("  select: '" + tokStr + "' [" + getRuleName(tok) + "]");
+		if (trace) System.out.println("  select: '" 
+				+ tok.getText() + "' [" + getRuleName(tok) + "]");
 
 		// now visit the token 
 		String visited = visit(tok);
-		if (txs.size() < 1) return visited;
 
 		// now check for transforms
-		String result = applyTransforms(visited, txs);
-		if (result == null) result = visited + (txs.size() == 0 ? "" : flatten(txs));
-
+		if (txs.size() < 1) return visited;
+			
+		String applied = applyTransforms(visited, txs);
+		String result = applied != null ? applied : visited + flatten(txs);  
+				
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
 		return result;
@@ -144,15 +153,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		Object resolved = context.get(ident);
 
 		// if it fails, give up / wait for next pass
-		if (resolved == null) {
-			//if (!silent) System.err.println("[WARN] Unable to resolve $" + ident);
-			return result;
-		}
+		if (resolved == null) return result;
 
-		// now apply the transforms
+		// now check for transforms
+		if (txs.size() < 1) return resolved.toString(); // Not sure about this
+		
 		String applied = applyTransforms(resolved, txs);
-		result = applied != null ? applied : resolved + flatten(txs);
-
+		result = applied != null ? applied : resolved + flatten(txs);  
+		
 		if (trace) System.out.println("resolveSymbol: '"
 				+ ident + "' -> " + result);
 
@@ -205,10 +213,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return this.visitExpr(ctx.expr());
 	}
 
-	private static final ExprContext EMPTY = new ExprContext(null, -1);
-		
-	////////////////////////////////////////////////////////////////
-
 	public String visitCond(CondContext ctx) {
 		if (trace) System.out.println("visitCond: '" + ctx.getText() + "'\t" + stack(ctx));
 		return visitChildren(ctx);
@@ -224,17 +228,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return visitChildren(ctx);
 	}
 
-	public String visitTransform(TransformContext ctx) {
-		if (trace) System.err.println("[ERROR] visitTransform: '" + ctx.getText() + "'");
-		return "";//visitChildren(ctx);
-	}
-
 	public String visitOp(OpContext ctx) {
 		if (trace) System.out.println("visitOp: '" + ctx.getText() + "'\t" + stack(ctx));
 		return visitChildren(ctx);
 	}
 
-	public String visitTerminal(TerminalNode tn) {
+	public String visitTerminal(TerminalNode tn) { 
 		String text = tn.getText();
 		if (text.equals("\n")) return " "; // why do we need this?
 		if (!text.equals(Visitor.EOF)) {
@@ -243,6 +242,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return null;
 	}
 
+	public String visitTransform(TransformContext ctx) { // should never happen
+		throw new RuntimeException("[ERROR] visitTransform: '" + ctx.getText() + "'");
+	}
+	
 	///////////////////////////// Transforms ///////////////////////////////
 
 	private String applyTransforms(Object term, List<TransformContext> tfs) {
@@ -333,6 +336,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	////////////////////////////// Other ///////////////////////////////////
 
+	private static final ExprContext EMPTY = new ExprContext(null, -1);
+	
 	@SuppressWarnings("unchecked")
 	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
 			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
@@ -393,10 +398,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		while (p != null) {
 			// compute what follows who invoked us
 			int ruleIndex = p.getRuleIndex();
-			if (ruleIndex < 0)
-				sb.append("n/a");
-			else
-				sb.append(ruleNames[ruleIndex] + " <- ");
+			sb.append(ruleIndex < 0 ? "n/a" : ruleNames[ruleIndex] + " <- ");
 			p = p.parent;
 		}
 		return sb.toString().replaceAll(" <- $", "]");
