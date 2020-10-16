@@ -192,6 +192,7 @@ public class RiScript {
 	}
 
 	String normalize(String s) {
+		//System.out.println("normalize: '" + s + "'");
 		return (s != null && s.length() > 0) ? s.replaceAll("\\r", "")
 				.replaceAll("\\\\n", "")
 				.replaceAll("\\n", " ") : "";
@@ -202,7 +203,9 @@ public class RiScript {
 	}
 
 	public boolean isParseable(String s) { // public for testing
-		return PARSEABLE_RE.matcher(s).find();
+		boolean found = PARSEABLE_RE.matcher(s).find();
+		System.out.println("FOUND: "+s+": "+found);
+		return found;
 	}
 
 	public static String articlize(String s) {
@@ -215,7 +218,7 @@ public class RiScript {
 				+ s;
 	}
 
-	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\\\(\\\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
+	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\(\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
 
 	private static final Function<String, String> articlize = s -> RiTa.articlize(s);
 	private static final Function<String, String> pluralize = s -> RiTa.pluralize(s);

@@ -182,7 +182,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("'foo'", ctx), "'foo'");
 		assertEq(RiTa.evaluate("foo\nbar", ctx), "foo bar");
 		assertEq(RiTa.evaluate("foo&#10;bar", ctx), "foo\nbar");
-		assertEq(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx), "bar baz");
+		assertEq(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx,TT), "bar baz");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz", ctx), "baz");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz\n$foo", ctx), "baz bar");
 

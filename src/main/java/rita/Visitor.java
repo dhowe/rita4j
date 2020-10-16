@@ -69,9 +69,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	//////////////////////////// Transforms //////////////////////////////////
 
 	public String visitInline(InlineContext ctx) {
-		
+
 		// TODO: what if the symbol is pending or needs to be pending (add test)
-		
+
 		ExprContext token = ctx.expr();
 		List<TransformContext> txs = ctx.transform();
 		String id = ctx.symbol().getText().replaceAll("^\\$", "");
@@ -86,11 +86,11 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// apply transforms if we have them
 		if (txs.size() < 1) return visited;
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : visited + flatten(txs);  
-		
+		String result = applied != null ? applied : visited + flatten(txs);
+
 		if (this.trace) System.out.println("resolveInline: $"
 				+ id + " -> '" + result + "'");
-		
+
 		// return result or defer for later
 		return result != null ? result : ctx.getText();
 	}
@@ -99,7 +99,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		List<TransformContext> txs = ctx.transform();
 		ChoiceState choice = new ChoiceState(ctx);
-    
+
 		// let ChoiceState = this.sequences[++this.indexer]; // TODO:
 
 		if (trace) System.out.println("visitChoice: '" + ctx.getText()
@@ -108,7 +108,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		// make the selection
 		ParserRuleContext tok = choice.select();
-		if (trace) System.out.println("  select: '" 
+		if (trace) System.out.println("  select: '"
 				+ tok.getText() + "' [" + getRuleName(tok) + "]");
 
 		// now visit the token 
@@ -116,10 +116,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		// now check for transforms
 		if (txs.size() < 1) return visited;
-			
+
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : visited + flatten(txs);  
-				
+		String result = applied != null ? applied : visited + flatten(txs);
+
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
 		return result;
@@ -153,16 +153,24 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		Object resolved = context.get(ident);
 
 		// if it fails, give up / wait for next pass
-		if (resolved == null) return result;
+		if (resolved == null) {
+			if (trace) System.out.println("resolveSymbol[1]: '"
+					+ ident + "' -> '" + result + "'");
+			return result;
+		}
 
 		// now check for transforms
-		if (txs.size() < 1) return resolved.toString(); // Not sure about this
-		
+		if (txs.size() < 1) {
+			if (trace) System.out.println("resolveSymbol[2]: '"
+					+ ident + "' -> '" + resolved.toString() + "'");
+			return resolved.toString(); // Not sure about this
+		}
+
 		String applied = applyTransforms(resolved, txs);
-		result = applied != null ? applied : resolved + flatten(txs);  
-		
-		if (trace) System.out.println("resolveSymbol: '"
-				+ ident + "' -> " + result);
+		result = applied != null ? applied : resolved + flatten(txs);
+
+		if (trace) System.out.println("resolveSymbol[3]: '"
+				+ ident + "' -> '" + result + "'");
 
 		return result;
 	}
@@ -184,7 +192,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitExpr(ExprContext ctx) { // trace only
 		if (trace) {
 			//List<TransformContext> txs = childTransforms(ctx);
-			System.out.println("visitExpr: '" + ctx.getText());// + "' tfs=" + flatten(txs));
+			System.out.println("visitExpr: '" + ctx.getText() + "'");// + "' tfs=" + flatten(txs));
 			printChildren(ctx);
 		}
 		return visitChildren(ctx);
@@ -233,7 +241,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return visitChildren(ctx);
 	}
 
-	public String visitTerminal(TerminalNode tn) { 
+	public String visitTerminal(TerminalNode tn) {
 		String text = tn.getText();
 		if (text.equals("\n")) return " "; // why do we need this?
 		if (!text.equals(Visitor.EOF)) {
@@ -245,7 +253,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitTransform(TransformContext ctx) { // should never happen
 		throw new RuntimeException("[ERROR] visitTransform: '" + ctx.getText() + "'");
 	}
-	
+
 	///////////////////////////// Transforms ///////////////////////////////
 
 	private String applyTransforms(Object term, List<TransformContext> tfs) {
@@ -303,7 +311,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 			// 3. Function in context
 			if (result == null) {
-				//Map<String, Function<String, String>> cf = contextFunctions();
 				if (this.context != null && this.context.containsKey(tx)) {
 					Object func = this.context.get(tx);
 					if (func instanceof Function) {
@@ -323,7 +330,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				}
 			}
 		}
-		// check for property ?
+		// check for property
 		else {
 			result = Util.getProperty(target, tx);
 		}
@@ -337,7 +344,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	////////////////////////////// Other ///////////////////////////////////
 
 	private static final ExprContext EMPTY = new ExprContext(null, -1);
-	
+
 	@SuppressWarnings("unchecked")
 	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
 			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
@@ -414,10 +421,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitChildren(RuleNode node) {
 		String result = "";
-		//String nodeStr = node.getText();//to debug
 		for (int i = 0; i < node.getChildCount(); i++) {
 			ParseTree child = node.getChild(i);
-			//String childStr = child.getText();//to debug
 			String visit = this.visit(child);
 			result += visit != null ? visit : "";
 		}
