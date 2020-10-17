@@ -875,6 +875,27 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void testInterleavedRseqTransforms(){
+		String[] options = { "a", "b", "c", "d" };
+		String rule = "(a | b | c | d).rseq() (a | b | c | d).rseq()";
+		RiScript rs = new RiScript();
+		ArrayList<String> res1 = new ArrayList<String>();
+		ArrayList<String> res2 = new ArrayList<String>();
+		for (int i = 0; i < options.length; i++) {
+			String res = rs.evaluate(rule, opts(), opts());
+			String[] parts = res.split(" ");
+			res1.add(parts[0]);
+			res2.add(parts[1]);
+		}
+		for (int i = 0; i < res1.size(); i ++) {
+			assertTrue(Arrays.asList(options).contains(res1.get(i)));
+		}
+		for (int i = 0; i < res2.size(); i ++) {
+			assertTrue(Arrays.asList(options).contains(res2.get(i)));
+		}
+	}
+
+	@Test
 	public void testChoiceTransforms() {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");
