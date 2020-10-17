@@ -390,6 +390,16 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("(ant).capitalize().articlize()"), "an Ant");
 	}
 
+	@Test
+	public void testTransformsOnPhrases(){
+		Map<String, Object> ctx = opts("adj", "awful");
+		assertEq(RiTa.evaluate("($adj tooth).articlize()", ctx), "an awful tooth");
+		assertEq(RiTa.evaluate("How many (bad teeth).quotify()?", opts()), "How many \"bad teeth\"?");
+		assertEq(RiTa.evaluate("(awful tooth).articlize()", opts()), "an awful tooth");
+		assertEq(RiTa.evaluate("$adj teeth", ctx), "awful teeth");
+		assertEq(RiTa.evaluate("an ($adj tooth)", ctx), "an awful tooth");
+	}
+
 	// it.only("Should handle silents", () => {
 	// assertEq(RiTa.evaluate("The $hero=blue (dog | dog)", ctx, tf),"The blue
 	// dog"); assertEq(ctx.foo,"blue"); });
