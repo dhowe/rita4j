@@ -775,9 +775,9 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testUseTransformsInContext(){
-		Function<String,String> func = (s) -> s != null ? s : "B";
-		Map<String,Object> ctx = opts("capB", func);
+	public void testUseTransformsInContext() {
+		Function<String, String> func = (s) -> s != null ? s : "B";
+		Map<String, Object> ctx = opts("capB", func);
 		assertEq(RiTa.evaluate(".capB()", ctx), "B");
 		assertEq(RiTa.evaluate("(c).capB()", ctx), "c");
 		assertEq(RiTa.evaluate("(c).toUpperCase()"), "C");
@@ -811,6 +811,23 @@ public class RiScriptTests {
 		RiScript rs = new RiScript();
 		Map<String, Object> ctx = opts();
 		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx, TT), "Does node equal node?");
+	}
+
+	@Test
+	public void testSeqTransforms() {
+		String[] options = { "a", "b", "c", "d" };
+		String rule = "(a | b | c | d).seq()";
+		RiScript rs = new RiScript();
+		for (int i = 0; i < options.length; i++) {
+			String res = rs.evaluate(rule, opts(), opts());
+			assertEq(res, options[i]);
+		}
+
+		String rule2 = "(a | b | c | d).seq().capitalize()";
+		for (int i = 0; i < options.length; i++) {
+			String res = rs.evaluate(rule2, opts(), opts());
+			assertEq(res, options[i].toUpperCase());
+		}
 	}
 
 	@Test
