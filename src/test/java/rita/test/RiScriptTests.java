@@ -10,6 +10,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestFactory;
 
 import rita.*;
 
@@ -892,6 +893,19 @@ public class RiScriptTests {
 		}
 		for (int i = 0; i < res2.size(); i ++) {
 			assertTrue(Arrays.asList(options).contains(res2.get(i)));
+		}
+	}
+
+	@Test
+	public void testNorepTransforms(){
+		String[] options = { "a", "b", "c", "d" };
+		String rule = "(a | b | c | d).noreq()";
+		RiScript rs = new RiScript();
+		String last = null;
+		for (int i = 0; i < 10; i ++) {
+			String res = rs.evaluate(rule, opts(), opts());
+			assertTrue(!res.equals(last));
+			last = res;
 		}
 	}
 
