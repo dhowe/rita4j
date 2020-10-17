@@ -126,8 +126,8 @@ public class RiScriptTests {
 		assertEq(RiTa.articlize("orange ant"), "an orange ant");
 	}
 
-	@Test 
-	public void testPluralizePhrases(){
+	@Test
+	public void testPluralizePhrases() {
 		assertEq(RiTa.evaluate("These (bad feeling).pluralize()."), "These bad feelings.");
 		assertEq(RiTa.evaluate("She (pluralize).pluralize()."), "She pluralizes.");
 	}
@@ -391,7 +391,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testTransformsOnPhrases(){
+	public void testTransformsOnPhrases() {
 		Map<String, Object> ctx = opts("adj", "awful");
 		assertEq(RiTa.evaluate("($adj tooth).articlize()", ctx), "an awful tooth");
 		assertEq(RiTa.evaluate("How many (bad teeth).quotify()?", opts()), "How many \"bad teeth\"?");
@@ -401,8 +401,8 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testDifferingAssignmentTypes(){
-		Map<String,Object> ctx = opts();
+	public void testDifferingAssignmentTypes() {
+		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("The $foo=blue (dog | dog)", ctx), "The");
 		assertEq(ctx.get("foo"), "blue dog");
 
@@ -447,10 +447,10 @@ public class RiScriptTests {
 		//if (1==1)return;
 		assertEq(RiTa.evaluate("[$foo=(hi | hi)] there", ctx), "hi there");
 		assertEq(RiTa.evaluate("[$foo=(hi | hi).ucf()] there", ctx), "Hi there");
-		
+
 		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", ctx),
 				RiTa.evaluate("[$foo=(hi | hi)] there", ctx));
-		
+
 		String exp = "A dog is a mammal";
 		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", ctx), "B");
 
@@ -500,6 +500,20 @@ public class RiScriptTests {
 		String result2 = RiTa.evaluate("[$a=$stored]", ctx);
 		assertEq(ctx.get("a"), result2);
 		assertEq(result2, ctx.get("stored"));
+	}
+
+	@Test
+	public void testAssignSilentVarToResult() {
+		Map<String, Object> ctx = opts();
+		String result = RiTa.evaluate("$stored=(a | b)", ctx);
+		assertEq(result, "");
+		result = (String) ctx.get("stored");
+		String[] expected = { "a", "b" };
+		assertTrue(Arrays.asList(expected).contains(ctx.get("stored")));
+		String result2 = RiTa.evaluate("$a=$stored", ctx);
+		assertEq(result2, "");
+		assertEq(ctx.get("a"), ctx.get("stored"));
+		assertEq(ctx.get("a"), result);
 	}
 
 	@Test
@@ -787,7 +801,7 @@ public class RiScriptTests {
 		if (!DO_PROPS) return;
 		RiScript rs = new RiScript();
 		Map<String, Object> ctx = opts();
-		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx,TT), "Does node equal node?");
+		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx, TT), "Does node equal node?");
 	}
 
 	@Test
@@ -836,7 +850,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testObjectProperties() { 
+	public void testObjectProperties() {
 		if (!DO_PROPS) return;
 		//		Map<String, Object> dog = opts();
 		//		dog.put("name", "spot");
@@ -850,13 +864,13 @@ public class RiScriptTests {
 			String color = "white";
 			Hair hair = new Hair();
 		}
-		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.", 
-				opts("dog", new Dog())), 
+		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.",
+				opts("dog", new Dog())),
 				"It was a white dog.");
 		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.", opts("dog", new Dog())), "It was a WHITE dog.");
 		assertEq(RiTa.evaluate("$a.b", opts("a", opts("b", 1)), SP), "1");
 	}
-	
+
 	@Test
 	public void testMemberProp() {
 		Map<String, Object> dog = opts();
@@ -865,7 +879,7 @@ public class RiScriptTests {
 		String expected = "Spot was a good dog.";
 		assertEq(RiTa.evaluate(input, opts("dog", dog)), expected);
 	}
-	
+
 	public void testMemberFunctions() {
 		Map<String, Object> dog = opts();
 		Supplier<String> func = () -> {
@@ -875,10 +889,10 @@ public class RiScriptTests {
 		String input = "Spot was a $dog.getColor() dog.";
 		String expected = "Spot was a red dog.";
 		assertEq(RiTa.evaluate(input, opts("dog", dog)), expected);
-		
+
 		// TODO: add test with predefined class?
 	}
-	
+
 	@Test
 	public void testMemberTransforms() {
 		Map<String, Object> dog = opts();
@@ -890,10 +904,9 @@ public class RiScriptTests {
 		String input = "$dog.name.ucf() was a $dog.getColor() dog.";
 		String expected = "Spot was a red dog.";
 		assertEq(RiTa.evaluate(input, opts("dog", dog)), expected);
-		
+
 		// TODO: add test with predefined class?
 	}
-	
 
 	@Test
 	public void testTransformsEndingWithPunc() {
@@ -909,8 +922,8 @@ public class RiScriptTests {
 		dog.put("name", "spot");
 		dog.put("color", "white");
 		dog.put("hair", opts("color", "white"));
-		assertEq(RiTa.evaluate("It was $dog.hair.color.",  opts("dog",dog)), "It was white.");
-		assertEq(RiTa.evaluate("It was $dog.color.toUpperCase()!",  opts("dog",dog)), "It was WHITE!");
+		assertEq(RiTa.evaluate("It was $dog.hair.color.", opts("dog", dog)), "It was white.");
+		assertEq(RiTa.evaluate("It was $dog.color.toUpperCase()!", opts("dog", dog)), "It was WHITE!");
 
 		Supplier<String> func = () -> {
 			return "red";
@@ -997,11 +1010,13 @@ public class RiScriptTests {
 		String rs = RiTa.evaluate("$foo=$bar.prop\n$foo", ctx);
 		assertEq(rs, "result");
 	}
-	
+
 	// TODO: Class must be publicly-defined
 	public void testTransformMethods() {
 		class Bar {
-			public String getProp() { return "result"; }
+			public String getProp() {
+				return "result";
+			}
 		}
 		Map<String, Object> ctx = opts("bar", new Bar());
 		String rs = RiTa.evaluate("$foo=$bar.getProp()\n$foo", ctx);
@@ -1202,7 +1217,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("{$a<1} foo", ctx), "");
 		assertEq(RiTa.evaluate("{$a>1} foo", ctx), "foo");
 		ctx.clear();
-		
+
 		ctx.put("a", "hello");
 		assertEq(RiTa.evaluate("{$a=hello} foo", ctx), "foo");
 		assertEq(RiTa.evaluate("{$a=goodbye} foo", ctx), "");
@@ -1283,7 +1298,7 @@ public class RiScriptTests {
 	private static void assertEq(Object a, Object b, String msg) { // swap order of args
 		assertEquals(b, a, msg);
 	}
-	
+
 	public static void main(String[] args) {
 	}
 }
