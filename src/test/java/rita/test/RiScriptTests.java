@@ -200,7 +200,7 @@ public class RiScriptTests {
 		ctx.clear();
 		ctx.put("a", "$b");
 		ctx.put("b", "(c | c)");
-		assertEq(RiTa.evaluate("$a", ctx), "c");
+		assertEq(RiTa.evaluate("$a", ctx,TT), "c");
 		assertEq(RiTa.evaluate("$k = $a\n$k", ctx), "c");
 		assertEq(RiTa.evaluate("$s = $a\n$a = $b\n$c = $d\n$d = c\n$s", ctx), "c");
 
