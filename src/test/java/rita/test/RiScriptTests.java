@@ -400,6 +400,21 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("an ($adj tooth)", ctx), "an awful tooth");
 	}
 
+	@Test
+	public void testDifferingAssignmentTypes(){
+		Map<String,Object> ctx = opts();
+		assertEq(RiTa.evaluate("The $foo=blue (dog | dog)", ctx), "The");
+		assertEq(ctx.get("foo"), "blue dog");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("The [$foo=blue] (dog | dog)", ctx), "The blue dog");
+		assertEq(ctx.get("foo"), "blue");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("The [$foo=blue (dog | dog)]", ctx), "The blue dog");
+		assertEq(ctx.get("foo"), "blue dog");
+	}
+
 	// it.only("Should handle silents", () => {
 	// assertEq(RiTa.evaluate("The $hero=blue (dog | dog)", ctx, tf),"The blue
 	// dog"); assertEq(ctx.foo,"blue"); });
