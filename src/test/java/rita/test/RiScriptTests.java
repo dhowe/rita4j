@@ -775,6 +775,15 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void testUseTransformsInContext(){
+		Function<String,String> func = (s) -> s != null ? s : "B";
+		Map<String,Object> ctx = opts("capB", func);
+		assertEq(RiTa.evaluate(".capB()", ctx), "B");
+		assertEq(RiTa.evaluate("(c).capB()", ctx), "c");
+		assertEq(RiTa.evaluate("(c).toUpperCase()"), "C");
+	}
+
+	@Test
 	public void testNoInputTransforms() {
 
 		// set capA()
