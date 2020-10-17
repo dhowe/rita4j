@@ -126,6 +126,12 @@ public class RiScriptTests {
 		assertEq(RiTa.articlize("orange ant"), "an orange ant");
 	}
 
+	@Test 
+	public void testPluralizePhrases(){
+		assertEq(RiTa.evaluate("These (bad feeling).pluralize()."), "These bad feelings.");
+		assertEq(RiTa.evaluate("She (pluralize).pluralize()."), "She pluralizes.");
+	}
+
 	@Test
 	public void testInvokeMatchingOperators() {
 		assertEq(Operator.SW.invoke("Hello", "He"), true);
@@ -1024,7 +1030,7 @@ public class RiScriptTests {
 				"$start");
 		assertEq(RiTa.evaluate(script, ctx), "woman");
 	}
-	
+
 	// Entities
 
 	@Test
