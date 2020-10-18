@@ -46,19 +46,17 @@ public class RiScript {
 
 		if (ctx == null) ctx = new HashMap<String, Object>();
 
-		String last = input;
-		String expr = lexParseVisit(input, ctx, opts);
-		if (trace) passInfo(ctx, last, expr, 0);
-		if (!onepass) {
-			for (int i = 0; isParseable(expr) && !expr.equals(last) && i < MAX_TRIES; i++) {
-				last = expr;
-				if (trace) System.out.println("\n--------------------- Pass#" + (i + 2) + " ----------------------\n");
-				expr = lexParseVisit(expr, ctx, opts);
-				if (trace) passInfo(ctx, last, expr, i + 1);
-				if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
-						+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
-			}
+		String last = null, expr = input;
+		for (int i = 0; isParseable(expr) && !expr.equals(last) && i < MAX_TRIES; i++) {
+			last = expr;
+			if (trace) System.out.println("\n--------------------- Pass#" + i + " ----------------------");
+			expr = lexParseVisit(expr, ctx, opts);
+			if (trace) passInfo(ctx, last, expr, i);
+			if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
+					+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
+			if (onepass) break;
 		}
+		
 		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
@@ -78,7 +76,7 @@ public class RiScript {
 	}
 
 	private void passInfo(Map<String, Object> ctx, String input, String output, int pass) {
-		System.out.println("\nPass#" + (pass + 1) + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
+		System.out.println("\nPass#" + pass + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
 				+ "\nResult:  " + output + "\nContext: " + ctxStr(ctx));
 	}
 
@@ -202,20 +200,17 @@ public class RiScript {
 		return new Visitor(this, context, opts);
 	}
 
-	public boolean isParseable(String s) { // public for testing
+	public boolean isParseable(String s) { // public for testing (TODO: more needed!!!)
 		boolean found = PARSEABLE_RE.matcher(s).find();
-		System.out.println("FOUND: "+s+": "+found);
+		//System.out.println("FOUND: " + s + ": " + found);
 		return found;
 	}
 
 	public static String articlize(String s) {
 		String phones = RiTa.phones(s, Util.opts("silent", true));
 		//System.out.println(phones+" " + phones.substring(0,1));
-		return (phones != null && phones.length() > 0
-				&& RE.test("[aeiou]", phones.substring(0, 1))
-						? "an "
-						: "a ")
-				+ s;
+		return (phones != null && phones.length() > 0 && RE.test("[aeiou]",
+				phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\(\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
