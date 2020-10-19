@@ -1110,6 +1110,7 @@ public class RiScriptTests {
 	}
 
 	// TODO: Class must be publicly-defined
+	@Test
 	public void testTransformMethods() {
 		class Bar {
 			public String getProp() {
@@ -1118,6 +1119,14 @@ public class RiScriptTests {
 		}
 		Map<String, Object> ctx = opts("bar", new Bar());
 		String rs = RiTa.evaluate("$foo=$bar.getProp()\n$foo", ctx);
+		assertEq(rs, "result");
+	}
+
+	@Test
+	public void testPreparse(){
+		Map<String,Object> ucf = opts("ucf", "result");
+		Map<String,Object> context = opts("bar", ucf);
+		String rs = RiTa.evaluate("$foo=$bar.ucf\n$foo", context);
 		assertEq(rs, "result");
 	}
 
@@ -1131,7 +1140,7 @@ public class RiScriptTests {
 	 */
 
 	@Test
-	public void postDefinedSymbolsWithTransforms() {
+	public void testPostDefinedSymbolsWithTransforms() {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("$foo=$bar.toLowerCase().ucf()\n$bar=BAZ\n$foo", ctx), "Baz");
 	}
