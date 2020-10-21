@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
 import rita.Markov;
+import rita.RandGen;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -252,5 +253,18 @@ public class KnownIssues {
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
 	}
+<<<<<<< HEAD
+
+	@Test
+	public void randomDoubleRangeProblem() {
+		for (int i = 0; i < 1000; i++) {
+			double res = RandGen.randomDouble();
+			if (res > 0.5) {
+				System.out.println(">0.5");
+			}
+		}
+	}
+=======
 	
+>>>>>>> 190ad4e2d450c012fca0dd9c06dd000a13a790af
 }
