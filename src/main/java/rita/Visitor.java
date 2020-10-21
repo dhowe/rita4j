@@ -3,6 +3,9 @@ package rita;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
+
+import javax.management.RuntimeErrorException;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
@@ -12,10 +15,12 @@ import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser;
 import rita.antlr.RiScriptParser.*;
 
+/*
+ * Note: Transforms are always resolved AFTER the content
+ *       in the visitX method where they first appeared
+ */
 public class Visitor extends RiScriptBaseVisitor<String> {
 
-	//	private static final String SYM = "$";
-	//	private static final String DOT = ".";
 	private static final String EOF = "<EOF>";
 	private static final String FUNCTION = "()";
 
@@ -23,7 +28,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	protected List<String> pendingSymbols;
 	protected Map<String, Object> context;
 	protected List<String> appliedTransforms;
-	protected boolean trace;
+	protected boolean trace, silent;
 
 	public Visitor(RiScript parent, Map<String, Object> ctx) {
 		this(parent, ctx, null);
@@ -34,6 +39,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		this.parent = parent;
 		this.context = ctx;
 		this.trace = Util.boolOpt("trace", opts);
+		this.silent = Util.boolOpt("silent", opts);
 		this.pendingSymbols = new ArrayList<String>();
 		this.appliedTransforms = new ArrayList<String>();
 		if (context == null) context = new HashMap<String, Object>();
@@ -49,13 +55,127 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public String visitScriptOff(RiScriptParser.ScriptContext ctx) {
-		if (trace) System.out.println("visitScript: '" + ctx.getText() + "'\t" + stack(ctx));
-		for (int i = 0; i < ctx.getChildCount(); i++) {
-			System.out.println(i + ") " + ctx.getChild(i).getClass()
-					+ " '" + ctx.getChild(i).getText() + "'");
+		if (trace) {
+			String s = "\nvisitScript: '" + ctx.getText() + "'\t" + stack(ctx) + "\n";
+			for (int i = 0; i < ctx.getChildCount(); i++) {
+				s += "  " + (i + ") " + getRuleName(ctx.getChild(i))
+						+ " '" + ctx.getChild(i).getText() + "'\n");
+			}
+			System.out.println(s);
 		}
 		return visitChildren(ctx);
 	}
+
+	//////////////////////////// Transforms //////////////////////////////////
+
+	public String visitInline(InlineContext ctx) {
+
+		// TODO: what if the symbol is pending or needs to be pending (add test)
+
+		ExprContext token = ctx.expr();
+		List<TransformContext> txs = ctx.transform();
+		String id = ctx.symbol().getText().replaceAll("^\\$", "");
+
+		if (this.trace) System.out.println("visitInline: $"
+				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
+
+		// visit the token and add result to the context
+		String visited = this.visit(token);
+		this.context.put(id, visited);
+
+		// apply transforms if we have them
+		if (txs.size() < 1) return visited;
+		String applied = applyTransforms(visited, txs);
+		String result = applied != null ? applied : visited + flatten(txs);
+
+		if (this.trace) System.out.println("resolveInline: $"
+				+ id + " -> '" + result + "'");
+
+		// return result or defer for later
+		return result != null ? result : ctx.getText();
+	}
+
+	public String visitChoice(ChoiceContext ctx) {
+
+		List<TransformContext> txs = ctx.transform();
+		ChoiceState choice = new ChoiceState(ctx);
+
+		// let ChoiceState = this.sequences[++this.indexer]; // TODO:
+
+		if (trace) System.out.println("visitChoice: '" + ctx.getText()
+				+ "' options=['" + flatten(choice.options).replaceAll("\\|", "','")
+				+ "'] tfs=" + flatten(txs));
+
+		// make the selection
+		ParserRuleContext tok = choice.select();
+		if (trace) System.out.println("  select: '"
+				+ tok.getText() + "' [" + getRuleName(tok) + "]");
+
+		// now visit the token 
+		String visited = visit(tok);
+
+		// now check for transforms
+		if (txs.size() < 1) return visited;
+
+		String applied = applyTransforms(visited, txs);
+		String result = applied != null ? applied : visited + flatten(txs);
+
+		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
+
+		return result;
+	}
+
+	public String visitSymbol(SymbolContext ctx) {
+
+		List<TransformContext> txs = ctx.transform();
+		String result = ctx.getText();
+		TerminalNode tn = ctx.SYM();
+
+		if (tn == null) { // handle transform on empty string
+			String applied = applyTransforms("", txs);
+			return applied != null ? applied : result;
+		}
+
+		// get the symbol identifier
+		String ident = tn.getText().replaceAll("^\\$", "");
+
+		// if already a pending symbol, save for later
+		if (this.pendingSymbols.contains(ident)) {
+			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
+					+ flatten(txs) + " -> " + result);
+			return result;
+		}
+
+		if (trace) System.out.println("visitSymbol: $"
+				+ ident + " tfs=" + flatten(txs));// + " -> " + result);
+
+		// now try to resolve from context
+		Object resolved = context.get(ident);
+
+		// if it fails, give up / wait for next pass
+		if (resolved == null) {
+			if (trace) System.out.println("resolveSymbol[1]: '"
+					+ ident + "' -> '" + result + "'");
+			return result;
+		}
+
+		// now check for transforms
+		if (txs.size() < 1) {
+			if (trace) System.out.println("resolveSymbol[2]: '"
+					+ ident + "' -> '" + resolved.toString() + "'");
+			return resolved.toString(); // Not sure about this
+		}
+
+		String applied = applyTransforms(resolved, txs);
+		result = applied != null ? applied : resolved + flatten(txs);
+
+		if (trace) System.out.println("resolveSymbol[3]: '"
+				+ ident + "' -> '" + result + "'");
+
+		return result;
+	}
+
+	////////////////////////////////////////////////////////////////////////
 
 	public String visitAssign(AssignContext ctx) {
 		ExprContext token = ctx.expr();
@@ -69,149 +189,36 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return ""; // no output on vanilla assign
 	}
 
-	public String visitInline(InlineContext ctx) {
-		ExprContext token = ctx.expr(); // dup in visitAssign
-		String id = ctx.symbol().getText().replaceAll("^\\$", "");
-
-		// first visit the token 
-		if (this.trace) System.out.println("visitInline: $"
-				+ id + "=" + this.flatten(token));
-
-		String visited = this.visit(token);
-
-		// add the result to the context
-		if (this.trace) System.out.println("resolveInline: $"
-				+ id + " -> '" + visited + "'");
-		this.context.put(id, visited);
-
-		// finally check for transforms
-		List<TransformContext> txs = ctx.transform();
-		if (txs.size() < 1) return visited;
-
-		String result = applyTransforms(visited, ctx.transform());
-		return result != null ? result : ctx.getText();
-	}
-
-	//	public String visitScript(ScriptContext ctx) {
-	//		if (trace) System.out.println("visitScript: '" + ctx.getText());
-	//		return visitChildren(ctx);
-	//	}
-
-	public String visitExpr(ExprContext ctx) {
+	public String visitExpr(ExprContext ctx) { // trace only
 		if (trace) {
-			List<TransformContext> txs = childTransforms(ctx);
-			System.out.println("visitExpr: '" + ctx.getText() + "' tfs=" + flatten(txs));
-			//System.out.println("  chil: "+flatten(ctx.children));
+			//List<TransformContext> txs = childTransforms(ctx);
+			System.out.println("visitExpr: '" + ctx.getText() + "'");// + "' tfs=" + flatten(txs));
+			printChildren(ctx);
 		}
 		return visitChildren(ctx);
 	}
 
 	public String visitChars(CharsContext ctx) {
-		List<TransformContext> txs = siblingTransforms(ctx, true);
-		if (trace) System.out.println("visitChars: '" + ctx.getText() + "' tfs=" + flatten(txs));
-		String result = applyTransforms(ctx.getText(), txs);
-		return result != null ? result : ctx.getText() + flatten(txs);
+		if (trace) System.out.println("visitChars: '" + ctx.getText() + "'");
+		return ctx.getText();
 	}
-
-	public String visitChoice(ChoiceContext ctx) {
-		ChoiceState choiceState = new ChoiceState(this, ctx);
-		//System.out.println("choiceState='" + ctx.getText() + "' "+(ctx.children != null ? ctx.children.size() : 0));
-		ParserRuleContext tok = choiceState.select();
-		boolean isEmpty = tok.getText().equals("");
-		String s = trace ? "  select: '" + tok.getText() + "'" : null;
-		passTransformsAsChildrenOf(tok, ctx.transform());
-		List<TransformContext> txs = childTransforms(tok);
-		if (trace) System.out.println(s + " tfs=" + flatten(txs));
-		// hack for ().aTransform()
-		return isEmpty ? applyTransforms("", txs) : this.visit(tok);
-	}
-
-	// TODO: [NEXT] need to handle fails in applyTransforms()
-	// 			 should return input (x.tf() || x.tp ) if no transform succeeds
-	//
-
-	public String visitSymbol(SymbolContext ctx) {
-		String result = ctx.getText();
-		TerminalNode tn = ctx.SYM();
-
-		if (tn == null) { // transform on empty string
-			String applied = applyTransforms("", ctx.transform());
-			return applied != null ? applied : result;
-		}
-
-		List<TransformContext> txs = ctx.transform();
-		String ident = tn.getText().replaceAll("^\\$", "");
-
-		// already a pending symbol, save for later  ??? 
-		// shouldn't we check the context first
-		if (this.pendingSymbols.contains(ident)) {
-			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
-					+ flatten(txs) + " -> " + result);
-			return result;
-		}
-
-		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
-
-		// now check the context
-		Object def = fromContext(ident);
-		if (def != null) {
-
-			if (isPrimitive(def)) {
-				def = def.toString();
-			}
-
-			if (!(def instanceof String)) {
-				throw new RuntimeException("Tx returned non-String:  " + def);
-			}
-
-			/*if (false && this.parent.isParseable((String) def)) {
-				this.pendingSymbols.add(ident);
-				System.out.println("ADD-PENDING -> "+ident+"\tdef="+def);
-				return result;
-			}*/
-
-			result = (String) def;
-			String applied = applyTransforms(result, txs);
-			if (applied != null) {
-				result = applied;
-			}
-		}
-
-		if (trace) System.out.println("visitSymbol: '"
-				+ ident + "' tfs=" + flatten(txs) + " -> " + result);
-
-		return result;
-	}
-
-	//	private String symbolName(String t) {
-	//		return t.replaceAll("^\\$", "");
-	//	}
-
-	@SuppressWarnings("unchecked")
-	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
-			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
-					Integer.class, Long.class, Float.class, Double.class));
-
-	private static boolean isPrimitive(Object o) {
-		return PRIMITIVES.contains(o.getClass());
-	}
-
-	private Object fromContext(String id) {
-		String key = id.startsWith("$") ? id.substring(1) : id;
-		return context != null ? context.get(key) : null;
-	}
-
-	private Object fromContextOrDef(String id, Object def) {
-		String key = id.startsWith("$") ? id.substring(1) : id;
-		return context != null ? context.getOrDefault(key, def) : def;
-	}
-
-	////////////////////////////////////////////////////////////////
 
 	public String visitCexpr(CexprContext ctx) {
 		if (trace) System.out.println("visitCexpr: '" + ctx.getText() + "'\t" + stack(ctx));
-		return visitChildren(ctx);
+		List<CondContext> conds = ctx.cond();
+		//"cond={" + conds.map(c => c.getText().replace(',', '')) + '}');
+		for (int i = 0; i < conds.size(); i++) {
+			CondContext cond = conds.get(i);
+			String id = cond.SYM().getText().replaceAll("^\\$", "");
+			Operator op = Operator.fromString(cond.op().getText());
+			String val = cond.chars().getText();
+			val = val.replaceAll(",$", "");
+			Object sym = this.context.get(id);
+			// TODO: not sure about toString below
+			boolean accept = sym != null ? op.invoke(sym.toString(), val) : false;
+			if (!accept) return this.visitExpr(EMPTY);
+		}
+		return this.visitExpr(ctx.expr());
 	}
 
 	public String visitCond(CondContext ctx) {
@@ -229,11 +236,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return visitChildren(ctx);
 	}
 
-	public String visitTransform(TransformContext ctx) {
-		if (trace) System.err.println("[ERROR] visitTransform: '" + ctx.getText() + "'");
-		return "";//visitChildren(ctx);
-	}
-
 	public String visitOp(OpContext ctx) {
 		if (trace) System.out.println("visitOp: '" + ctx.getText() + "'\t" + stack(ctx));
 		return visitChildren(ctx);
@@ -248,105 +250,46 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return null;
 	}
 
-	/////////////////////////////TX Funcs////////////////////////////////////////
-
-	private List<TransformContext> siblingTransforms(ParserRuleContext ctx) {
-		return siblingTransforms(ctx, false);
+	public String visitTransform(TransformContext ctx) { // should never happen
+		throw new RuntimeException("[ERROR] visitTransform: '" + ctx.getText() + "'");
 	}
 
-	private List<TransformContext> childTransforms(ParserRuleContext ctx) {
-		return ctx.getRuleContexts(TransformContext.class);
-	}
+	///////////////////////////// Transforms ///////////////////////////////
 
-	private List<TransformContext> siblingTransforms(ParserRuleContext ctx, boolean remove) {
-		ParserRuleContext parent = ctx.getParent();
-		List<TransformContext> txs = new ArrayList<TransformContext>();
-		if (parent != null) {
-			for (Iterator<ParseTree> it = parent.children.iterator(); it.hasNext();) {
-				ParseTree pt = (ParseTree) it.next();
-				//System.out.println("  C: " + pt.getText());
-				if (pt instanceof TransformContext) {
-					txs.add((TransformContext) pt);
-					if (remove) it.remove();
-				}
-			}
-		}
-		return txs;
-	}
-
-	private ParserRuleContext passTransformsAsChildrenOf(ParserRuleContext prc,
-			List<TransformContext> txs) {
-		final ParserRuleContext rc = prc != null ? prc : RuleContext.EMPTY;
-		if (txs != null) txs.stream().forEach(tx -> rc.addChild(tx));
-		return prc;
-	}
-
-	private String applyTransforms(String term, List<TransformContext> tfs) {
+	private String applyTransforms(Object term, List<TransformContext> tfs) {
 		if (term == null || tfs == null || tfs.size() < 1) return null;
-		String result = this.parent.normalize(term);
-		if (this.parent.isParseable(result)) { // save for later
-			//System.out.println("applyTransforms.isParseable=true: '" + result + "'");
-			return null;
-		}
-		for (TransformContext tf : tfs) {
-			result = applyTransform(result, tf);
-		}
-		return result;
-	}
-	/*	else {
-			List results = new ArrayList();
-			for (TransformContext tf : tfs) {
-				results.add(applyObjectTransform(target, tf, original));
+		if (tfs.size() > 1) throw new RuntimeException("Invalid # Transforms: " + tfs.size());
+
+		Object result = term;
+
+		// make sure it is resolved
+		if (term instanceof String) {
+			result = this.parent.normalize((String) term);
+			if (this.parent.isParseable((String) result)) { // save for later
+				//throw new RuntimeException("applyTransforms.isParseable=true: '" + result + "'");
+				return null;
 			}
 		}
-		if (trace) System.out.println("applyTransforms: '"
-				+ term + "' -> '" + result + "'");
-		
-		return result;
-	}
-	
-	private applyObjectTransforms(Object term, List<TransformContext> tfs) {
-	
-		String result = "";
-		if (tfs != null) {
-			for (TransformContext tf : tfs) {
-				result = applyObjectTransform(term, tf);
-			}
+
+		// NOTE: even multiple transforms show up as a single one here [TODO]
+		TransformContext tf = tfs.get(0);
+		if (tf == null) throw new RuntimeException("Null Transform: " + flatten(tfs));
+		String[] transforms = tf.getText().replaceAll("^\\.", "").split("\\.");
+		for (int i = 0; i < transforms.length; i++) {
+			result = applyTransform(result, transforms[i]);
 		}
-		if (trace) System.out.println("applyOTransforms: '"
-				+ term + "' -> '" + result + "'");
-		return result;
+
+		return result != null ? result.toString() : null;
 	}
-	
-	private String applyObjectTransform(Object term, TransformContext tx) {
-		//System.out.println("applyObjectTransform: "+term+" tx="+tx.getText());
-		String txf = tx.getText(), raw = term + txf;
-		txf = txf.replaceAll("^\\.", "");
-		Field field = Util.getProperty(term, txf);
-		try {
-			if (field == null) throw new RuntimeException("[1] prop not found");
-			field.setAccessible(true);
-			Object result = field.get(term);
-			if (!(result instanceof String)) {
-				throw new RuntimeException("[2] prop not string");
-			}
-			return (String) result;
-		} catch (Exception e) {
-			System.err.println("[WARN] Unable to resolve '" + raw + "'");
-		}
-		return raw;
-	}*/
 
 	// Attempts to apply transform, returns null on failure
-	@SuppressWarnings("unchecked")
-	private String applyTransform(String s, TransformContext tfc) {
-
-		if (s == null || tfc == null) return null;
-		String tx = tfc.getText().replaceAll("^\\.", "");
-
-		if (trace) System.out.println("applyTransform: '" + s + "' tf=" + tx);
+	private Object applyTransform(Object target, String tx) {
 
 		Object result = null;
+
+		if (trace) System.out.println("applyTransform: '" +
+				(target instanceof String ? target : target.getClass().getSimpleName())
+				+ "' tf=" + tx);
 
 		// check for function
 		if (tx.endsWith(Visitor.FUNCTION)) {
@@ -355,40 +298,88 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			// 1. Static method - no cases in Java
 			Method meth = Util.getStatic(String.class, tx, String.class);
 			if (meth != null) {  // String static
-				result = Util.invokeStatic(meth, s);
+				result = Util.invokeStatic(meth, target);
 			}
 
 			// 2. Member (String) method
 			if (result == null) {
-				meth = Util.getMethod(s, tx);
+				meth = Util.getMethod(target, tx);
 				if (meth != null) { // String method
-					result = Util.invoke(s, meth);
+					result = Util.invoke(target, meth);
 				}
 			}
 
 			// 3. Function in context
 			if (result == null) {
-				//Map<String, Function<String, String>> cf = contextFunctions();
 				if (this.context != null && this.context.containsKey(tx)) {
 					Object func = this.context.get(tx);
 					if (func instanceof Function) {
-						result = ((Function<String, String>) func).apply(s);
+						result = ((Function<String, String>) func).apply((String) target);
+					}
+				}
+			}
+
+			// 4. Function in Map
+			if (result == null && target instanceof Map) {
+				Map m = (Map) target;
+				if (m.containsKey(tx)) {
+					Object func = m.get(tx);
+					if (func instanceof Supplier) {
+						result = ((Supplier) func).get();
 					}
 				}
 			}
 		}
-		// check for property ?
+		// check for property
 		else {
-			throw new RuntimeException("Check Properties here");
+			result = Util.getProperty(target, tx);
 		}
 
 		if (trace) System.out.println("resolveTransform: '"
-				+ s + "' -> '" + result + "'");
+				+ target + "' -> '" + result + "'");
 
-		return result != null ? result.toString() : null;
+		return result;
 	}
 
-	//////////////////////////////Other/////////////////////////////////////
+	////////////////////////////// Other ///////////////////////////////////
+
+	private static final ExprContext EMPTY = new ExprContext(null, -1);
+
+	@SuppressWarnings("unchecked")
+	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
+			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
+					Integer.class, Long.class, Float.class, Double.class));
+
+	private static boolean isPrimitive(Object o) {
+		return PRIMITIVES.contains(o.getClass());
+	}
+
+	String getRuleName(RuleContext ctx) {
+		return RiScriptParser.ruleNames[ctx.getRuleIndex()];
+	}
+
+	String getRuleName(TerminalNode ctx) {
+		int type = ctx.getSymbol().getType();
+		if (type < 0) return "TerminalNode";
+		return this.parent.lexer.getRuleNames()[type];
+	}
+
+	String getRuleName(RuleNode ctx) {
+		return getRuleName(ctx.getRuleContext());
+	}
+
+	//	String getRuleName(RuleContext ctx) {
+	//		return ctx instanceof TerminalNode
+	//				? this.parent.lexer.getRuleNames()[((TerminalNode) ctx).getSymbol().getType()]
+	//				: RiScriptParser.ruleNames[ctx.getRuleIndex()];
+	//	}
+
+	String getRuleName(ParseTree ctx) {
+		if (ctx instanceof TerminalNode) return getRuleName((TerminalNode) ctx);
+		if (ctx instanceof RuleNode) return getRuleName((RuleNode) ctx);
+		if (ctx instanceof RuleContext) return getRuleName((RuleContext) ctx);
+		throw new RuntimeException("fail: " + ctx.getClass().getCanonicalName());
+	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	String flatten(List l) {
@@ -414,13 +405,18 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		while (p != null) {
 			// compute what follows who invoked us
 			int ruleIndex = p.getRuleIndex();
-			if (ruleIndex < 0)
-				sb.append("n/a");
-			else
-				sb.append(ruleNames[ruleIndex] + " <- ");
+			sb.append(ruleIndex < 0 ? "n/a" : ruleNames[ruleIndex] + " <- ");
 			p = p.parent;
 		}
 		return sb.toString().replaceAll(" <- $", "]");
+	}
+
+	public void printChildren(RuleContext ctx) {
+		for (int i = 0; i < ctx.getChildCount(); i++) {
+			ParseTree child = ctx.getChild(i);
+			console.log("  child[" + i + "]: '" + child.getText() +
+					"' [" + this.getRuleName(child) + "]");
+		}
 	}
 
 	public String visitChildren(RuleNode node) {
@@ -431,21 +427,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			result += visit != null ? visit : "";
 		}
 		return result;
-	}
-
-	@SuppressWarnings({ "unchecked" })
-	private Map<String, Function<String, String>> contextFunctions() { // why?
-		Map<String, Function<String, String>> funcs = new HashMap<String, Function<String, String>>();
-		if (context != null) {
-			for (Map.Entry<String, Object> entry : this.context.entrySet()) {
-				Object value = entry.getValue();
-				if (value instanceof Function) {
-					funcs.put(entry.getKey(), (Function<String, String>) value);
-				}
-			}
-		}
-		console.log(funcs.keySet().toArray());
-		return funcs;
 	}
 
 	private void pushTransforms(Map<String, Object> ctx) {

@@ -16,15 +16,15 @@ public class ChoiceState {
 	public static final int SEQUENCE = 4;
 	public static final int NOREPEAT = 8;
 
-	private List<ParserRuleContext> options;
+	public List<ParserRuleContext> options;
 	private int type, index = 0;
 	private ParserRuleContext last;
 
-	public ChoiceState(RiScriptBaseVisitor<String> visitor, ChoiceContext ctx) {
-		this(visitor, ctx, ChoiceState.SIMPLE);
+	public ChoiceState( ChoiceContext ctx) {
+		this(ctx, ChoiceState.SIMPLE);
 	}
 
-	public ChoiceState(RiScriptBaseVisitor<String> parent, ChoiceContext ctx, int type) {
+	public ChoiceState(ChoiceContext ctx, int type) {
 
 		this.type = type;
 		this.options = new ArrayList<ParserRuleContext>();
@@ -33,19 +33,11 @@ public class ChoiceState {
 		for (int i = 0; i < wexprs.size(); i++) {
 			WexprContext w = wexprs.get(i);
 			ParserRuleContext expr = w.expr();
-			WeightContext wctx = w.weight();
+			WeightContext wctx = w.weight(); // handle weight
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
-			for (int j = 0; j < weight; j++) {
-				options.add(expr);
-			}
+			for (int j = 0; j < weight; j++) options.add(expr); 
 		}
-		if (parent instanceof Visitor) {
-			Visitor v = (Visitor) parent;
-			if (v.trace) System.out.println("visitChoice: " + ctx.getText()
-					+ " ['" + v.flatten(options).replaceAll("\\|", "','")+"'] tfs=" + v.flatten(ctx.transform()));
-		}
-
 	}
 
 	public ParserRuleContext select() {
@@ -64,7 +56,8 @@ public class ChoiceState {
 	protected ParserRuleContext selectNoRepeat() {
 		ParserRuleContext cand = null;
 		// need to test for equality here
-		while (cand == last) cand = randomElement();
+		while (cand == last)
+			cand = randomElement();
 		return (this.last = cand);
 	}
 

@@ -91,4 +91,8 @@ public class Operator {
 		}
 		throw new RiTaException("Invalid Operator: " + op);
 	}
+	
+//	public static void main(String[] args) {
+//		new Operator(val, type);
+//	}
 }

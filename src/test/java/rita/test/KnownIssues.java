@@ -9,6 +9,20 @@ import rita.RiTa;
 import rita.Markov;
 import rita.RandGen;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static rita.Util.opts;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+import org.junit.jupiter.api.Test;
+
+import rita.*;
+
+
 // Failing tests go here until debugged
 public class KnownIssues {
 
@@ -198,9 +212,48 @@ public class KnownIssues {
 		//see Markov.toString() (now is Markov.java line 43)
 	}
 
+	@Test
+	public void transformsProblem1(){
+		//1. ($a).toUpperCase() doesn't work in java, but $a.toUpperCase() does
+		Map<String, Object> ctx = opts();
+		Map<String, Object> TT = opts("trace", true);
+		assertEquals(RiTa.evaluate("$a=a\n$a.toUpperCase()", ctx,TT), "A");
+		//ok
+		assertEquals(RiTa.evaluate("$a=a\n($a).toUpperCase()", ctx,TT), "A");
+		//fail
+		//2. fail when chose a rule in choice with transform, fail with same reason
+		assertEquals(RiTa.evaluate("$a=a\n(a | a).toUpperCase()",ctx,TT), "A");
+		//pass
+		assertEquals(RiTa.evaluate("$a=a\n($a | a).toUpperCase()",ctx,TT), "A");
+		//fail when choose $a
+		assertEquals(RiTa.evaluate("$a=a\n$b=a\n($a | $b).toUpperCase()",ctx,TT), "A");
+		assertEquals(RiTa.evaluate("($a | $a).toUpperCase()\n$a=a", ctx, TT), "A");
+		//fail
+
+		//problem at visitChildren -> choice 
+		/*
+		Pass case: 													fail case:
+		script:														script:
+		(expr (symbol $a (transform .toUpperCase())))				(expr (choice ( (wexpr (expr (symbol $a))) ) (transform .toUpperCase())))
+		log:														log:
+		visitExpr: '$a.toUpperCase()' tfs=							visitExpr: '($a).toUpperCase()' tfs=
+																	visitChoice: ($a).toUpperCase() ['$a'] tfs=.toUpperCase()
+																	  select: '$a' tfs=.toUpperCase()
+	****															visitExpr: '$a.toUpperCase()' tfs=.toUpperCase() 
+		visitSymbol: 'a' tfs=.toUpperCase() -> $a.toUpperCase()		visitSymbol: 'a' tfs= -> $a
+		applyTransform: 'a' tf=toUpperCase()						visitSymbol: 'a' tfs= -> a
+		resolveTransform: 'a' -> 'A'								[ERROR] visitTransform: '.toUpperCase()'
+		visitSymbol: 'a' tfs=.toUpperCase() -> A
+		*/
+		//seems that with choice, $a and .toUpperCase is separated
+		//in **** line tfs should equal to null?
+		//issue#53
+	}
+
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
 	}
+<<<<<<< HEAD
 
 	@Test
 	public void randomDoubleRangeProblem() {
@@ -211,4 +264,7 @@ public class KnownIssues {
 			}
 		}
 	}
+=======
+	
+>>>>>>> 190ad4e2d450c012fca0dd9c06dd000a13a790af
 }

@@ -179,14 +179,47 @@ public class Util {
 		return getMethods(o, prop).length > 0;
 	}
 
-	public static Field getProperty(Object o, String prop) {
+	@SuppressWarnings("rawtypes")
+	public static Object getProperty(Object o, String prop) {
+		boolean foundProp = false;
 		Field[] fields = o.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
 			if (fields[i].getName().equals(prop)) {
-				return fields[i];
+				foundProp = true;
+				fields[i].setAccessible(true);
+				try {
+					return fields[i].get(o);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					System.err.println("[WARN] " + e.getMessage());
+				}
 			}
 		}
-		return null;
+
+		if (o instanceof Map) {
+			return ((Map) o).get(prop);
+		}
+		
+		if (!foundProp) System.err.println("[WARN] Unable to find prop '" + prop
+				+ "' on " + o.getClass().getSimpleName());
+
+		return null; // fail
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static <T> T getProperty(Object o, String prop, T defaultVal) {
+
+		Field[] fields = o.getClass().getDeclaredFields();
+		for (int i = 0; i < fields.length; i++) {
+			if (fields[i].getName().equals(prop)) {
+				fields[i].setAccessible(true);
+				try {
+					return (T) fields[i].get(o);
+				} catch (IllegalArgumentException | IllegalAccessException e) {
+					System.err.println("[WARN] " + e.getMessage());
+				}
+			}
+		}
+		return defaultVal;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -356,7 +389,37 @@ public class Util {
 
 	////////////////////////////////////////////////////////////////////////
 
-	public static final String[] MASS_NOUNS = { "abalone", "asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos", "cognoscenti", "clippers", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows", "graffiti", "herpes", "innings", "lens", "means", "measles", "mews", "mumps", "news", "pathos", "pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series", "shears", "species", "tuna", "acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics", "dialectics", "deer", "dynamics", "ethics", "harmonics", "heroics", "mechanics", "metrics", "ooze", "optics", "physics", "polemics", "pyrotechnics", "statistics", "tactics", "tropics", "bengalese", "bengali", "bonsai", "booze", "cellulose", "mess", "moose", "burmese", "chinese", "colossus", "congolese", "discus", "electrolysis", "emphasis", "expertise", "flu", "fructose", "gauze", "glucose", "grease", "guyanese", "haze", "incense", "japanese", "lebanese", "malaise", "mayonnaise", "maltese", "music", "money", "menopause", "merchandise", "olympics", "overuse", "paradise", "poise", "potash", "portuguese", "prose", "recompense", "remorse", "repose", "senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese", "suspense", "swiss", "taiwanese", "vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus", "asparagus", "barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp", "catfish", "chassis", "clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish", "crayfish", "crossroads", "cuttlefish", "deer", "dice", "dogfish", "doings", "dory", "downstairs", "eldest", "earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder", "fowl", "fry", "fries", "works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz", "horsepower", "goods", "hovercraft", "ironworks", "kilohertz", "ling", "shrimp", "swine", "lungfish", "mackerel", "macaroni", "means", "megahertz", "moorfowl", "moorgame", "mullet", "nepalese", "offspring", "pants", "patois", "pekinese", "perch", "pickerel", "pike", "potpourri", "precis", "quid", "rand", "rendezvous", "roach", "salmon", "samurai", "series", "seychelles", "shad", "sheep", "shellfish", "smelt", "spaghetti", "spacecraft", "species", "starfish", "stockfish", "sunfish", "superficies", "sweepstakes", "smallpox", "swordfish", "tennis", "tobacco", "triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl", "waterworks", "waxworks", "wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics", "news", "odds", "politics", "remains", "goods", "aids", "wildlife", "shall", "would", "may", "might", "ought", "should", "wildlife", "acne", "admiration", "advice", "air", "anger", "anticipation", "assistance", "awareness", "bacon", "baggage", "blood", "bravery", "chess", "clay", "clothing", "coal", "compliance", "comprehension", "confusion", "consciousness", "cream", "darkness", "diligence", "dust", "education", "electrolysis", "empathy", "enthusiasm", "envy", "equality", "equipment", "evidence", "feedback", "fitness", "flattery", "foliage", "fun", "furniture", "garbage", "gold", "gossip", "grammar", "gratitude", "gravel", "guilt", "happiness", "hardware", "hate", "hay", "health", "heat", "help", "hesitation", "homework", "honesty", "honor", "honour", "hospitality", "hostility", "humanity", "humility", "ice", "immortality", "independence", "information", "integrity", "intimidation", "jargon", "jealousy", "jewelry", "justice", "knowledge", "literacy", "logic", "luck", "lumber", "luggage", "mail", "management", "merchandise", "milk", "morale", "mud", "music", "nonsense", "oppression", "optimism", "oxygen", "participation", "pay", "peace", "perseverance", "pessimism", "pneumonia", "poetry", "police", "pride", "privacy", "propaganda", "public", "punctuation", "recovery", "rice", "rust", "satisfaction", "shame", "sheep", "slang", "software", "spaghetti", "stamina", "starvation", "steam", "steel", "stuff", "support", "sweat", "thunder", "timber", "toil", "traffic", "training", "trash", "valor", "vehemence", "violence", "warmth", "waste", "weather", "wheat", "wisdom", "work"};
+	public static final String[] MASS_NOUNS = { "abalone", "asbestos", "barracks", "bathos", "breeches", "beef", "britches", "chaos", "cognoscenti",
+			"clippers", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows", "graffiti", "herpes", "innings", "lens", "means", "measles",
+			"mews", "mumps", "news", "pathos", "pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series", "shears",
+			"species", "tuna", "acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics", "dialectics", "deer", "dynamics",
+			"ethics", "harmonics", "heroics", "mechanics", "metrics", "ooze", "optics", "physics", "polemics", "pyrotechnics", "statistics", "tactics",
+			"tropics", "bengalese", "bengali", "bonsai", "booze", "cellulose", "mess", "moose", "burmese", "chinese", "colossus", "congolese", "discus",
+			"electrolysis", "emphasis", "expertise", "flu", "fructose", "gauze", "glucose", "grease", "guyanese", "haze", "incense", "japanese", "lebanese",
+			"malaise", "mayonnaise", "maltese", "music", "money", "menopause", "merchandise", "olympics", "overuse", "paradise", "poise", "potash",
+			"portuguese", "prose", "recompense", "remorse", "repose", "senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese",
+			"suspense", "swiss", "taiwanese", "vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus",
+			"asparagus", "barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp", "catfish", "chassis",
+			"clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish", "crayfish", "crossroads", "cuttlefish", "deer", "dice",
+			"dogfish", "doings", "dory", "downstairs", "eldest", "earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder",
+			"fowl", "fry", "fries", "works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz",
+			"horsepower", "goods", "hovercraft", "ironworks", "kilohertz", "ling", "shrimp", "swine", "lungfish", "mackerel", "macaroni", "means",
+			"megahertz", "moorfowl", "moorgame", "mullet", "nepalese", "offspring", "pants", "patois", "pekinese", "perch", "pickerel", "pike", "potpourri",
+			"precis", "quid", "rand", "rendezvous", "roach", "salmon", "samurai", "series", "seychelles", "shad", "sheep", "shellfish", "smelt",
+			"spaghetti", "spacecraft", "species", "starfish", "stockfish", "sunfish", "superficies", "sweepstakes", "smallpox", "swordfish", "tennis",
+			"tobacco", "triceps", "trout", "tuna", "tunafish", "turbot", "trousers", "turf", "dibs", "undersigned", "waterfowl", "waterworks", "waxworks",
+			"wildfowl", "woodworm", "yen", "aries", "pisces", "forceps", "jeans", "mathematics", "news", "odds", "politics", "remains", "goods", "aids",
+			"wildlife", "shall", "would", "may", "might", "ought", "should", "wildlife", "acne", "admiration", "advice", "air", "anger", "anticipation",
+			"assistance", "awareness", "bacon", "baggage", "blood", "bravery", "chess", "clay", "clothing", "coal", "compliance", "comprehension",
+			"confusion", "consciousness", "cream", "darkness", "diligence", "dust", "education", "electrolysis", "empathy", "enthusiasm", "envy",
+			"equality", "equipment", "evidence", "feedback", "fitness", "flattery", "foliage", "fun", "furniture", "garbage", "gold", "gossip", "grammar",
+			"gratitude", "gravel", "guilt", "happiness", "hardware", "hate", "hay", "health", "heat", "help", "hesitation", "homework", "honesty", "honor",
+			"honour", "hospitality", "hostility", "humanity", "humility", "ice", "immortality", "independence", "information", "integrity", "intimidation",
+			"jargon", "jealousy", "jewelry", "justice", "knowledge", "literacy", "logic", "luck", "lumber", "luggage", "mail", "management", "merchandise",
+			"milk", "morale", "mud", "music", "nonsense", "oppression", "optimism", "oxygen", "participation", "pay", "peace", "perseverance", "pessimism",
+			"pneumonia", "poetry", "police", "pride", "privacy", "propaganda", "public", "punctuation", "recovery", "rice", "rust", "satisfaction", "shame",
+			"sheep", "slang", "software", "spaghetti", "stamina", "starvation", "steam", "steel", "stuff", "support", "sweat", "thunder", "timber", "toil",
+			"traffic", "training", "trash", "valor", "vehemence", "violence", "warmth", "waste", "weather", "wheat", "wisdom", "work" };
 
 	private static final String[] Consonants = { "b", "ch", "d", "dh", "f", "g", "hh", "jh", "k", "l", "m",
 			"n", "ng", "p", "r", "s", "sh", "t", "th", "v", "w", "y", "z", "zh" };
