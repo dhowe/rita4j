@@ -1,30 +1,26 @@
 package rita.test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import org.junit.jupiter.api.Test;
-
-import rita.RiTa;
-import rita.Markov;
-import rita.RandGen;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static rita.Util.opts;
 
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import rita.RiTa;
 import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
 
+	@Test
+	public void symbolsInMultiwordTransforms() {
+		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
+		assertEquals("the dogs", res); 
+	}
+	
 	@Test
 	public void singularizeBugs() { // also in js
 		String[] tests = {
@@ -32,10 +28,8 @@ public class KnownIssues {
 				"universes", "universe",
 				"toothbrushes", "toothbrush",
 				"clashes", "clash",
-				"verves", "verve",
 				"addresses", "address",
 				"flashes", "flash",
-				"morasses", "morass",
 				"conclaves", "conclave",
 				"promises", "promise",
 				"spouses", "spouse",
@@ -52,7 +46,6 @@ public class KnownIssues {
 				"fetuses", "fetus",
 				"alumni", "alumnus",
 				"lighthouses", "lighthouse",
-				"onyxes", "onyx",
 				"genuses", "genus",
 				"zombies", "zombie",
 				"hearses", "hearse",
@@ -69,7 +62,6 @@ public class KnownIssues {
 				"duplexes", "duplex",
 				"missives", "missive",
 				"madhouses", "madhouse",
-				"washes", "wash",
 				"pauses", "pause",
 				"heroes", "hero",
 				"sketches", "sketch",
@@ -84,13 +76,10 @@ public class KnownIssues {
 				"abysses", "abyss",
 				"lighthouses", "lighthouse",
 				"gashes", "gash",
-				"dynamoes", "dynamo",
-				"lurches", "lurch",
 				"directives", "directive",
 				"calories", "calorie",
 				"moves", "move",
 				"expanses", "expanse",
-				"chaises", "chaise",
 				"briefcases", "briefcase",
 		};
 		for (int i = 0; i < tests.length; i += 2) {
