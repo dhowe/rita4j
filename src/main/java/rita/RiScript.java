@@ -24,6 +24,10 @@ public class RiScript {
 	protected RiScriptParser parser;
 	protected Visitor visitor;
 
+	public RiScript() {
+		this.visitor = new Visitor(this);
+	}
+
 	public static String eval(String input) {
 
 		return RiScript.eval(input, null);
@@ -38,6 +42,14 @@ public class RiScript {
 		return new RiScript().evaluate(input, ctx, opts);
 	}
 
+	public String evaluate(String input) {
+		return evaluate(input, null);
+	}
+
+	public String evaluate(String input, Map<String, Object> ctx) {
+		return evaluate(input, null, null);
+	}
+
 	public String evaluate(String input, Map<String, Object> ctx, Map<String, Object> opts) {
 
 		boolean trace = Util.boolOpt("trace", opts);
@@ -47,7 +59,7 @@ public class RiScript {
 		if (ctx == null) ctx = new HashMap<String, Object>();
 
 		String last = null, expr = input;
-		for (int i = 0; isParseable(expr) && !expr.equals(last) && i < MAX_TRIES; i++) {
+		for (int i = 0; /*isParseable(expr)&& */!expr.equals(last) && i < MAX_TRIES; i++) {
 			last = expr;
 			if (trace) System.out.println("\n--------------------- Pass#" + i + " ----------------------");
 			expr = lexParseVisit(expr, ctx, opts);
@@ -56,7 +68,7 @@ public class RiScript {
 					+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
 			if (onepass) break;
 		}
-		
+
 		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
@@ -184,25 +196,19 @@ public class RiScript {
 				System.out.println("preParse('" + (pre.length() > 0 ? pre : "")
 						+ "', '" + (post.length() > 0 ? post : "") + "'):");
 
-			result = this.createVisitor(context, opts).start(tree);
+			result = this.visitor.init(context, opts).start(tree);
 		}
 		return (this.normalize(pre) + " " + result + " " + this.normalize(post)).trim();
 	}
 
 	String normalize(String s) {
-		//System.out.println("normalize: '" + s + "'");
 		return (s != null && s.length() > 0) ? s.replaceAll("\\r", "")
 				.replaceAll("\\\\n", "")
 				.replaceAll("\\n", " ") : "";
 	}
 
-	private Visitor createVisitor(Map<String, Object> context, Map<String, Object> opts) {
-		return new Visitor(this, context, opts);
-	}
-
 	public boolean isParseable(String s) { // public for testing (TODO: more needed!!!)
 		boolean found = PARSEABLE_RE.matcher(s).find();
-		//System.out.println("FOUND: " + s + ": " + found);
 		return found;
 	}
 

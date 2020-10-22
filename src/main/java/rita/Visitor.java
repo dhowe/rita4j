@@ -22,14 +22,19 @@ import rita.antlr.RiScriptParser.*;
 public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static final String EOF = "<EOF>";
-	private static final String FUNCTION = "()";
+	static final String FUNCTION = "()";
 
+	protected int indexer;
+	protected boolean trace;
 	protected RiScript parent;
-	protected List<String> pendingSymbols;
 	protected Map<String, Object> context;
-	protected List<String> appliedTransforms;
-	protected boolean trace, silent;
+	protected Map<Integer, ChoiceState> sequences;
+	protected List<String> appliedTransforms, pendingSymbols;
 
+	public Visitor(RiScript parent) {
+		this(parent, null, null);
+	}
+	
 	public Visitor(RiScript parent, Map<String, Object> ctx) {
 		this(parent, ctx, null);
 	}
@@ -37,17 +42,23 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public Visitor(RiScript parent, Map<String, Object> ctx, Map<String, Object> opts) {
 		super();
 		this.parent = parent;
-		this.context = ctx;
+		this.sequences = new HashMap<Integer, ChoiceState>();
+		this.init(ctx, opts);
+	}
+
+	Visitor init(Map<String, Object> ctx, Map<String, Object> opts) {
 		this.trace = Util.boolOpt("trace", opts);
-		this.silent = Util.boolOpt("silent", opts);
 		this.pendingSymbols = new ArrayList<String>();
 		this.appliedTransforms = new ArrayList<String>();
-		if (context == null) context = new HashMap<String, Object>();
+		this.context = ctx != null ? ctx : new HashMap<String, Object>();		
+		return this;
 	}
+
 
 	public String start(ScriptContext ctx) {
 		if (trace) System.out.println("start: '" + ctx.getText()
 				.replaceAll("\\r?\\n", "\\\\n") + "'");
+		this.indexer = 0;
 		pushTransforms(this.context);
 		String result = visitScript(ctx);
 		popTransforms(this.context);
@@ -98,9 +109,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public String visitChoice(ChoiceContext ctx) {
 
 		List<TransformContext> txs = ctx.transform();
-		ChoiceState choice = new ChoiceState(ctx);
-
-		// let ChoiceState = this.sequences[++this.indexer]; // TODO:
+		ChoiceState choice = sequences.get(++this.indexer);
+		if (choice == null) {
+			choice = new ChoiceState(this, ctx);
+			//System.out.println("new Choise("+indexer+")");
+			if (!choice.type.equals(ChoiceState.SIMPLE)) {
+				sequences.put(choice.id, choice);
+			}
+		}
 
 		if (trace) System.out.println("visitChoice: '" + ctx.getText()
 				+ "' options=['" + flatten(choice.options).replaceAll("\\|", "','")

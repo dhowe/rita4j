@@ -7,15 +7,11 @@ import com.ibm.icu.util.TimeZone.SystemTimeZoneType;
 
 import rita.Markov.Node;
 
-public class RandGen {
+public abstract class RandGen {
 
 	private static Random generator;
 	static {
 		generator = new Random(System.currentTimeMillis());
-	}
-
-	RandGen() {
-
 	}
 
 	public static int randomInt() {
@@ -58,13 +54,66 @@ public class RandGen {
 		return a;
 	}
 
+	/////////////////////////////////////////////////////////////
+
+	@SuppressWarnings("unchecked")
+	public static final <T> List<T> randomOrdering(List<T> list) {
+		Collections.shuffle(list);
+		return list;
+	}
+
+	public static final float[] randomOrdering(float[] arr) { // hideous
+		Float[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Float[0]);
+		float[] p = new float[ro.length];
+		for(int i = 0; i < p.length; i++) p[i] = ro[i];
+		return p;
+	}
+
+	public static final boolean[] randomOrdering(boolean[] arr) {// hideous
+		Boolean[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Boolean[0]);
+		boolean[] p = new boolean[ro.length];
+		for(int i = 0; i < p.length; i++) p[i] = ro[i];
+		return p;
+	}
+	
+	public static final double[] randomOrdering(double[] arr) {// hideous
+		Double[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Double[0]);
+		double[] p = new double[ro.length];
+		for(int i = 0; i < p.length; i++) p[i] = ro[i];
+		return p;
+	}
+
+	public static final int[] randomOrdering(int[] arr) {// slightly less hideous
+		Integer[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Integer[0]);
+		return Arrays.stream(ro).mapToInt(Integer::intValue).toArray();
+	}
+
+	public static final <T> T[] randomOrdering(final T[] arr) {
+		int index;
+		Random random = new Random();
+		T[] result = Arrays.copyOf(arr, arr.length);
+		for (int i = result.length - 1; i > 0; i--) {
+			index = random.nextInt(i + 1);
+			if (index != i) swap(result, i, index);
+		}
+		return result;
+	}
+
+	private static final <T> void swap(T[] arr, int i, int j) {
+		T tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
+	}
+
+	///////////////////////////////////////////////////////////////
+
 	public static final <T> T randomItem(T[] arr) {
 		return arr[(int) Math.floor(random() * arr.length)];
 		// return typeof func === 'function' ? func(item) : item;
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T randomItem(Collection<T> c) {
+	public static final  <T> T randomItem(Collection<T> c) {
 		return (T) randomItem(c.toArray()); // TODO: needs testing
 	}
 
@@ -84,25 +133,25 @@ public class RandGen {
 		return arr[(int) Math.floor(random() * arr.length)];
 	}
 
-	public static void seed(int s) {
+	public static final void seed(int s) {
 		generator = new Random(s);
 	}
 
-	public static double[] ndist(int[] weights) {
+	public static final double[] ndist(int[] weights) {
 		double[] w = Arrays.stream(weights)
 				.mapToDouble(num -> (double) num)
 				.toArray();
 		return ndist(w);
 	}
 
-	public static double[] ndist(int[] weights, double temp) {
+	public static final double[] ndist(int[] weights, double temp) {
 		double[] w = Arrays.stream(weights)
 				.mapToDouble(num -> (double) num)
 				.toArray();
 		return ndist(w, temp);
 	}
 
-	public static double[] ndist(double[] weights) {
+	public static final double[] ndist(double[] weights) {
 		ArrayList<Double> probs = new ArrayList<>();
 		double sum = DoubleStream.of(weights).sum();
 
@@ -114,7 +163,7 @@ public class RandGen {
 		return probs.stream().mapToDouble(d -> d).toArray();
 	}
 
-	public static double[] ndist(double[] weights, double temp) {
+	public static final double[] ndist(double[] weights, double temp) {
 		if (temp == 0) return (ndist(weights));
 		// have temp, do softmax
 		if (temp < 0.01) temp = 0.01;
@@ -132,7 +181,7 @@ public class RandGen {
 		return result;
 	}
 
-	public static int pselect(double[] probs) {
+	public static final int pselect(double[] probs) {
 		double sum = 0;
 		for (int i = 0; i < probs.length; i++) {
 			sum += probs[i];
@@ -154,4 +203,9 @@ public class RandGen {
 		return probs.length - 1;
 	}
 
+	public static void main(String[] args) {
+		Integer[] ints = new Integer[] { 1, 2, 3, 4, 5, 6 };
+		Integer[] rand = randomOrdering(ints);
+		console.log(rand);
+	}
 }
