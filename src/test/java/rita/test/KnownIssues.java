@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Test;
 
 import rita.*;
 
-
 // Failing tests go here until debugged
 public class KnownIssues {
 
@@ -165,16 +164,16 @@ public class KnownIssues {
 		//1. ($a).toUpperCase() doesn't work in java, but $a.toUpperCase() does
 		Map<String, Object> ctx = opts();
 		Map<String, Object> TT = opts("trace", true);
-		assertEquals(RiTa.evaluate("$a=a\n$a.toUpperCase()", ctx,TT), "A");
+		assertEquals(RiTa.evaluate("$a=a\n$a.toUpperCase()", ctx, TT), "A");
 		//ok
-		assertEquals(RiTa.evaluate("$a=a\n($a).toUpperCase()", ctx,TT), "A");
+		assertEquals(RiTa.evaluate("$a=a\n($a).toUpperCase()", ctx, TT), "A");
 		//fail
 		//2. fail when chose a rule in choice with transform, fail with same reason
-		assertEquals(RiTa.evaluate("$a=a\n(a | a).toUpperCase()",ctx,TT), "A");
+		assertEquals(RiTa.evaluate("$a=a\n(a | a).toUpperCase()", ctx, TT), "A");
 		//pass
-		assertEquals(RiTa.evaluate("$a=a\n($a | a).toUpperCase()",ctx,TT), "A");
+		assertEquals(RiTa.evaluate("$a=a\n($a | a).toUpperCase()", ctx, TT), "A");
 		//fail when choose $a
-		assertEquals(RiTa.evaluate("$a=a\n$b=a\n($a | $b).toUpperCase()",ctx,TT), "A");
+		assertEquals(RiTa.evaluate("$a=a\n$b=a\n($a | $b).toUpperCase()", ctx, TT), "A");
 		assertEquals(RiTa.evaluate("($a | $a).toUpperCase()\n$a=a", ctx, TT), "A");
 		//fail
 
@@ -187,7 +186,7 @@ public class KnownIssues {
 		visitExpr: '$a.toUpperCase()' tfs=							visitExpr: '($a).toUpperCase()' tfs=
 																	visitChoice: ($a).toUpperCase() ['$a'] tfs=.toUpperCase()
 																	  select: '$a' tfs=.toUpperCase()
-	****															visitExpr: '$a.toUpperCase()' tfs=.toUpperCase() 
+		****															visitExpr: '$a.toUpperCase()' tfs=.toUpperCase() 
 		visitSymbol: 'a' tfs=.toUpperCase() -> $a.toUpperCase()		visitSymbol: 'a' tfs= -> $a
 		applyTransform: 'a' tf=toUpperCase()						visitSymbol: 'a' tfs= -> a
 		resolveTransform: 'a' -> 'A'								[ERROR] visitTransform: '.toUpperCase()'
@@ -199,15 +198,39 @@ public class KnownIssues {
 	}
 
 	@Test
-	public void randomDoubleRangeProblem() {
-		for (int i = 0; i < 1000; i++) {
-			double res = RandGen.randomDouble();
-			if (res > 0.5) {
-				System.out.println(">0.5");
+	public void choiceProblem() {
+		Grammar rg;
+		String res;
+		Map<String, Object> TT = opts("trace", true);
+		Function<String, String> pluralise = (s) -> {
+			s = s.trim();
+			if (s.contains(" ")) {
+				String[] words = RiTa.tokenize(s);
+				int lastIdx = words.length - 1;
+				String last = words[lastIdx];
+				words[lastIdx] = RiTa.pluralize(last);
+				return RiTa.untokenize(words);
 			}
-		}
+			return RiTa.pluralize(s);
+		};
+		Map<String, Object> ctx = opts("pluralise", pluralise);
+		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "bad"), ctx);
+		res = rg.expand(TT);
+		assertEquals(res, "bad feelings"); //pass
+		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "(bad | bad)"), ctx);
+		res = rg.expand(TT);
+		assertEquals(res, "bad feelings"); //fail
+		//seems that the choice problem still exist in some cases
+		//script: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) )) (chars   feeling) (symbol (transform .pluralise()))) <EOF>)
+		//should: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) ) (chars   feeling) (symbol (transform .pluralise())))) <EOF>) ?
+
+		//-------------using riscipt to recreate---------------
+		res = RiTa.evaluate("($a b).pluralize()\n$a=(a | a)", opts(), TT);
+		assertEquals(res, "a bs"); //fail
+		//script: (script (expr (symbol $a) (chars   b) (symbol (transform .pluralize()))) <EOF>)
+		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
-	
+
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
 	}
