@@ -160,19 +160,7 @@ public class KnownIssues {
 	}
 
 	@Test
-<<<<<<< HEAD
-	public void markovToStringBug() {
-		//not testable
-		//if do not visit (e.g, print it out to console) the value of markov.root.chlidren 
-		//and the last word's chlidren, those value kind of gone, causing problems
-		//see Markov.toString() (now is Markov.java line 43)
-	}
-
-	@Test
-	public void transformsProblem1() {
-=======
 	public void transformsProblem1(){
->>>>>>> f1ca5c116a50ad376de7f57dd20920febbcabfa0
 		//1. ($a).toUpperCase() doesn't work in java, but $a.toUpperCase() does
 		Map<String, Object> ctx = opts();
 		Map<String, Object> TT = opts("trace", true);
@@ -210,7 +198,6 @@ public class KnownIssues {
 	}
 
 	@Test
-<<<<<<< HEAD
 	public void choiceProblem() {
 		Grammar rg;
 		String res;
@@ -244,17 +231,6 @@ public class KnownIssues {
 		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
 
-=======
-	public void randomDoubleRangeProblem() {
-		for (int i = 0; i < 1000; i++) {
-			double res = RandGen.randomDouble();
-			if (res > 0.5) {
-				System.out.println(">0.5");
-			}
-		}
-	}
-	
->>>>>>> f1ca5c116a50ad376de7f57dd20920febbcabfa0
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
 	}
