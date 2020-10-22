@@ -1,30 +1,21 @@
 package rita.test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static rita.Util.opts;
 
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
-import rita.Markov;
-import rita.RandGen;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import static rita.Util.opts;
-
-import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
-import org.junit.jupiter.api.Test;
-
-import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
 
+	@Test
+	public void symbolsInMultiwordTransforms() {
+		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
+		assertEquals("the dogs", res); 
+	}
+	
 	@Test
 	public void singularizeBugs() { // also in js
 		String[] tests = {
@@ -32,10 +23,8 @@ public class KnownIssues {
 				"universes", "universe",
 				"toothbrushes", "toothbrush",
 				"clashes", "clash",
-				"verves", "verve",
 				"addresses", "address",
 				"flashes", "flash",
-				"morasses", "morass",
 				"conclaves", "conclave",
 				"promises", "promise",
 				"spouses", "spouse",
@@ -52,7 +41,6 @@ public class KnownIssues {
 				"fetuses", "fetus",
 				"alumni", "alumnus",
 				"lighthouses", "lighthouse",
-				"onyxes", "onyx",
 				"genuses", "genus",
 				"zombies", "zombie",
 				"hearses", "hearse",
@@ -69,7 +57,6 @@ public class KnownIssues {
 				"duplexes", "duplex",
 				"missives", "missive",
 				"madhouses", "madhouse",
-				"washes", "wash",
 				"pauses", "pause",
 				"heroes", "hero",
 				"sketches", "sketch",
@@ -84,13 +71,10 @@ public class KnownIssues {
 				"abysses", "abyss",
 				"lighthouses", "lighthouse",
 				"gashes", "gash",
-				"dynamoes", "dynamo",
-				"lurches", "lurch",
 				"directives", "directive",
 				"calories", "calorie",
 				"moves", "move",
 				"expanses", "expanse",
-				"chaises", "chaise",
 				"briefcases", "briefcase",
 		};
 		for (int i = 0; i < tests.length; i += 2) {
@@ -98,40 +82,6 @@ public class KnownIssues {
 					+ ", but expecting " + tests[i + 1]);
 			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
-	}
-
-	@Test
-	public void choiceProblem() {
-		Grammar rg;
-		String res;
-		Map<String, Object> TT = opts("trace", true);
-		Function<String, String> pluralise = (s) -> {
-			s = s.trim();
-			if (s.contains(" ")) {
-				String[] words = RiTa.tokenize(s);
-				int lastIdx = words.length - 1;
-				String last = words[lastIdx];
-				words[lastIdx] = RiTa.pluralize(last);
-				return RiTa.untokenize(words);
-			}
-			return RiTa.pluralize(s);
-		};
-		Map<String, Object> ctx = opts("pluralise", pluralise);
-		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "bad"), ctx);
-		res = rg.expand(TT);
-		assertEquals(res, "bad feelings"); //pass
-		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "(bad | bad)"), ctx);
-		res = rg.expand(TT);
-		assertEquals(res, "bad feelings"); //fail
-		//seems that the choice problem still exist in some cases
-		//script: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) )) (chars   feeling) (symbol (transform .pluralise()))) <EOF>)
-		//should: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) ) (chars   feeling) (symbol (transform .pluralise())))) <EOF>) ?
-
-		//-------------using riscipt to recreate---------------
-		res = RiTa.evaluate("($a b).pluralize()\n$a=(a | a)", opts(), TT);
-		assertEquals(res, "a bs"); //fail
-		//script: (script (expr (symbol $a) (chars   b) (symbol (transform .pluralize()))) <EOF>)
-		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
 
 	public static void main(String[] args) {
