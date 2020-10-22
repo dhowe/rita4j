@@ -311,11 +311,11 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (tx.endsWith(Visitor.FUNCTION)) {
 			tx = tx.substring(0, tx.length() - 2);
 
-			// 1. Static method - no cases in Java
-			Method meth = Util.getStatic(String.class, tx, String.class);
+			// 1. Static method - Java: valueOf, format, join only
+			Method meth = null;///Util.getStatic(String.class, tx, String.class);
 			if (meth != null) {  // String static
 				result = Util.invokeStatic(meth, target);
-			}
+			} // disabled
 
 			// 2. Member (String) method
 			if (result == null) {
@@ -370,6 +370,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return PRIMITIVES.contains(o.getClass());
 	}
 
+	// simplify 
 	String getRuleName(RuleContext ctx) {
 		return RiScriptParser.ruleNames[ctx.getRuleIndex()];
 	}
@@ -384,16 +385,10 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return getRuleName(ctx.getRuleContext());
 	}
 
-	//	String getRuleName(RuleContext ctx) {
-	//		return ctx instanceof TerminalNode
-	//				? this.parent.lexer.getRuleNames()[((TerminalNode) ctx).getSymbol().getType()]
-	//				: RiScriptParser.ruleNames[ctx.getRuleIndex()];
-	//	}
-
 	String getRuleName(ParseTree ctx) {
-		if (ctx instanceof TerminalNode) return getRuleName((TerminalNode) ctx);
 		if (ctx instanceof RuleNode) return getRuleName((RuleNode) ctx);
 		if (ctx instanceof RuleContext) return getRuleName((RuleContext) ctx);
+		if (ctx instanceof TerminalNode) return getRuleName((TerminalNode) ctx);
 		throw new RuntimeException("fail: " + ctx.getClass().getCanonicalName());
 	}
 

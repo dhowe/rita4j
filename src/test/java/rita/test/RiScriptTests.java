@@ -768,7 +768,8 @@ public class RiScriptTests {
 
 	@Test
 	public void testUseTransformsInContext() {
-		Function<String, String> func = (s) -> s != null ? s : "B";
+		Function<String, String> func = (s) -> s != null
+				&& s.length() > 0 ? s : "B";
 		Map<String, Object> ctx = opts("capB", func);
 		assertEq(RiTa.evaluate(".capB()", ctx), "B");
 		assertEq(RiTa.evaluate("(c).capB()", ctx), "c");
@@ -797,12 +798,12 @@ public class RiScriptTests {
 		RiTa.addTransform("capA", null);
 	}
 
-	@Test
+	/*@Test // TODO: add only if we have use cases (tokenize, untokenize?)
 	public void testRiTaFunctionTransforms() { // TODO: Handle called RiTa functions?
 		RiScript rs = new RiScript();
 		Map<String, Object> ctx = opts();
 		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx), "Does node equal node?");
-	}
+	}*/
 
 	@Test
 	public void testSeqTransforms() {
@@ -888,11 +889,11 @@ public class RiScriptTests {
 
 	@Test
 	public void testNorepTransforms() {
-		String rule = "(a | b | c | d).noreq()";
+		String rule = "(a | b | c | d).norep()";
 		RiScript rs = new RiScript();
 		String last = null;
 		for (int i = 0; i < 10; i++) {
-			String res = rs.evaluate(rule);
+			String res = rs.evaluate(rule,null);
 			//System.out.println(i+") "+res);
 			assertTrue(!res.equals(last));
 			last = res;
@@ -963,7 +964,7 @@ public class RiScriptTests {
 				opts("dog", new Dog())),
 				"It was a white dog.");
 		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.",
-				opts("dog", new Dog())), 
+				opts("dog", new Dog())),
 				"It was a WHITE dog.");
 		assertEq(RiTa.evaluate("$a.b",
 				opts("a", opts("b", 1)), SP),
@@ -1038,7 +1039,6 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("How many (teeth).toUpperCase() do you have?", ctx), "How many TEETH do you have?");
 		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?", ctx), "How many \"teeth\" do you have?");
 		assertEq(RiTa.evaluate("That is (ant).articlize()."), "That is an ant.");
-
 	}
 
 	@Test
@@ -1049,9 +1049,10 @@ public class RiScriptTests {
 		Map<String, Object> ctx = opts();
 		ctx.put("blah2", blah2);
 		assertEq(RiTa.evaluate("That is (ant).blah2().", ctx), "That is Blah2.");
-		RiTa.addTransform("Blah3", (s) -> "Blah3");
+		
+		RiTa.addTransform("blah3", (s) -> "Blah3");
 		assertEq(RiTa.evaluate("That is (ant).blah3().", opts()), "That is Blah3.");
-		RiTa.addTransform("Blah3", null);
+		RiTa.addTransform("blah3", null);
 	}
 
 	// Grammar
