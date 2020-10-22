@@ -39,28 +39,39 @@ public class MarkovTests {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
-		ArrayList<double[]> distrs = new ArrayList<double[]>();
-		ArrayList<Double> results = new ArrayList<Double>();
+		for (int x = 0; x < 100; x++) { // repeat 100 times
+			ArrayList<double[]> distrs = new ArrayList<double[]>();
+			ArrayList<Double> results = new ArrayList<Double>();
 
-		for (double t : temps) {
-			double[] r = RandGen.ndist(weights, t);
-			distrs.add(r);
-		}
-
-		int numTests = 100;
-		int i = 0;
-
-		for (double[] sm : distrs) {
-			int sum = 0;
-			for (int j = 0; j < numTests; j++) {
-				sum += RandGen.pselect(sm);
+			for (double t : temps) {
+				double[] r = RandGen.ndist(weights, t);
+				distrs.add(r);
 			}
-			double r = sum / numTests;
-			results.add(r);
-		}
 
-		for (int j = 0; j < 4; j++) {
-			assertEquals(results.get(j), expected[j], .1);
+			int numTests = 10000;
+			double[] mathExpectation = new double[temps.length];
+
+			for (int i = 0; i < distrs.size(); i++) {
+				double[] distr = distrs.get(i);
+				double exp = 0;
+				for (int j = 0; j < distr.length; j++) {
+					exp += distr[j] * j;
+				}
+				mathExpectation[i] = exp;
+			}
+
+			for (double[] sm : distrs) {
+				int sum = 0;
+				for (int j = 0; j < numTests; j++) {
+					sum += RandGen.pselect(sm);
+				}
+				double r = (double) sum / numTests;
+				results.add(r);
+			}
+
+			for (int j = 0; j < 4; j++) {
+				assertEquals(results.get(j), mathExpectation[j], .1);
+			}
 		}
 	}
 
@@ -82,6 +93,27 @@ public class MarkovTests {
 
 		for (int i = 0; i < results2.length; i++) {
 			assertEquals(results2[i], expected2[i], 0.01);
+		}
+
+		double[] weights3 = { 1, 23, 2, 34, 5 };
+		double[] expected3 = { (double) 1 / 65, (double) 23 / 65, (double) 2 / 65, (double) 34 / 65, (double) 5 / 65 };
+		double[] results3 = RandGen.ndist(weights3);
+		for (int i = 0; i < results2.length; i++) {
+			assertEquals(results3[i], expected3[i], 0.01);
+		}
+
+		double[] weights4 = { 1, -1 };
+		double[] expected4 = { (double) 2.718281 / 3.086159, (double) 0.367879 / 3.086159 };
+		double[] results4 = RandGen.ndist(weights4, 1);
+		for (int i = 0; i < results4.length; i++) {
+			assertEquals(results4[i], expected4[i], 0.01);
+		}
+
+		double[] weights5 = { 1, 2, -1 };
+		double[] expected5 = { (double) 2.718281 / 10.475217, (double) 7.389056 / 10.475217, (double) 0.367879 / 10.475217 };
+		double[] results5 = RandGen.ndist(weights5, 1);
+		for (int i = 0; i < results5.length; i++) {
+			assertEquals(results5[i], expected5[i], 0.01);
 		}
 
 	}
@@ -114,21 +146,22 @@ public class MarkovTests {
 		Markov rm = new Markov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
-		Object toks = rm.initSentence();
-		// TODO:initSentence()
-		// assertEquals(toks.length, 1);
-		// assertEquals(toks[0].token, "The");
+		Markov.Node[] toks = rm.initSentence();
+		assertEquals(toks.length, 1);
+		assertEquals(rm._flatten(toks), "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
-		assertEquals(rm._flatten(rm.initSentence(new String[] { "I", "also" })), "I also");
-
+		toks = rm.initSentence(new String[] { "I", "also" });
+		assertEquals(toks.length, 2);
+		String a = rm._flatten(toks);
+		assertEquals(a, new String("I also"));
 	}
 
 	@Test
 	public void testFailedGenerate() {
 		Markov rm = new Markov(4);
-		rm.addText(RiTa.sentences(sample));
+		rm.addText(RiTa.sentences("just two sentences. should fail."));
 		assertThrows(RiTaException.class, () -> rm.generate(5));
 	}
 
@@ -166,7 +199,7 @@ public class MarkovTests {
 
 		hm.clear();
 		hm.put("startTokens", "家");
-		String[] result = rm.generate(5, hm);
+		String[] result = rm.generate(5, hm);//-> did not tokenize to "家","安".....
 		assertEquals(result.length, 5);
 
 		for (String r : result) {
@@ -178,16 +211,19 @@ public class MarkovTests {
 	@Test
 	public void testGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
-		Markov rm = new Markov(4, hm);
+		Markov rm = new Markov(4, hm); // ?? why sometime still exceed max attempts?
 		rm.addText(RiTa.sentences(sample));
-		String[] sents = rm.generate(5);
+		String[] sents = new String[0];
+		for (int i = 0; i < 100; i++) {
+			sents = rm.generate(5);
+		}//repeat 100 times make sure generate dont throw error
 		//		System.out.println(Arrays.toString(sents));
 		assertEquals(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
 			String firstL = String.valueOf(s.charAt(0));
 			assertEquals(firstL, firstL.toUpperCase());
-			assertTrue(s.matches("[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
+			assertTrue(s.matches("(.*)[?.!]$"), "FAIL: bad last char in \"" + s + "\"");
 		}
 
 		rm = new Markov(4);
@@ -196,7 +232,7 @@ public class MarkovTests {
 		// console.log(i + ") " + s);
 		String firstL = String.valueOf(s[0].charAt(0));
 		assertTrue(s != null && firstL == firstL.toUpperCase());
-		assertTrue(s[0].matches("[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
+		assertTrue(s[0].matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
 		int num = RiTa.tokenize(s[0]).length;
 		assertTrue(num >= 5 && num <= 35);
 	}
@@ -213,7 +249,7 @@ public class MarkovTests {
 			String s = sents[i];
 			String firstL = String.valueOf(s.charAt(0));
 			assertEquals(firstL, firstL.toUpperCase());
-			assertTrue(s.matches("[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
+			assertTrue(s.matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
 		}
@@ -226,7 +262,7 @@ public class MarkovTests {
 			String s = rm.generate(opts("minLength", minLength, "maxLength", maxLength))[0];
 			String firstL = String.valueOf(s.charAt(0));
 			assertEquals(firstL, firstL.toUpperCase(), "FAIL: bad first char in '" + s + "'");
-			assertTrue(s.matches("[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
+			assertTrue(s.matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
 		}
@@ -239,20 +275,20 @@ public class MarkovTests {
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
-			String s = rm.generate(opts("startTokens", "start"))[0];
+			String s = rm.generate(opts("startTokens", start))[0];
 			assertTrue(s.startsWith(start));
 		}
 
 		start = "Achieving";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", "start"))[0];
+			String res = rm.generate(opts("startTokens", start))[0];
 			//			assertTrue(res instanceof String);
 			assertTrue(res.startsWith(start));
 		}
 
 		start = "I";
 		for (int i = 0; i < 5; i++) {
-			String[] arr = rm.generate(2, opts("startTokens", "start"));
+			String[] arr = rm.generate(2, opts("startTokens", start));
 			assertEquals(arr.length, 2);
 			assertTrue(arr[0].startsWith(start));
 		}
@@ -265,20 +301,20 @@ public class MarkovTests {
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
-			String s = rm.generate(opts("startTokens", "start"))[0];
+			String s = rm.generate(opts("startTokens", start))[0];
 			// console.log(i + ") " + s);
 			assertTrue(s.startsWith(start[0]));
 		}
 
 		start[0] = "Achieving";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", "start"))[0];
+			String res = rm.generate(opts("startTokens", start))[0];
 			assertTrue(res.startsWith(start[0]));
 		}
 
 		start[0] = "I";
 		for (int i = 0; i < 5; i++) {
-			String[] arr = rm.generate(2, opts("startTokens", "start"));
+			String[] arr = rm.generate(2, opts("startTokens", start));
 			assertEquals(arr.length, 2);
 			assertTrue(arr[0].startsWith(start[0]));
 		}
@@ -288,21 +324,21 @@ public class MarkovTests {
 
 		String[] start2 = { "One", "reason" };
 		for (int i = 0; i < 1; i++) {
-			String s = rm.generate(opts("startTokens", "start"))[0];
+			String s = rm.generate(opts("startTokens", start2))[0];
 			assertTrue(s.startsWith(String.join(" ", start2)));
 		}
 
 		start2[0] = "Achieving";
 		start2[1] = "personal";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", "start"))[0];
+			String res = rm.generate(opts("startTokens", start2))[0];
 			assertTrue(res.startsWith(String.join(" ", start2)));
 		}
 
 		start2[0] = "I";
 		start2[1] = "also";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", "start"))[0];
+			String res = rm.generate(opts("startTokens", start2))[0];
 			assertTrue(res.startsWith(String.join(" ", start2)));
 		}
 
@@ -576,8 +612,9 @@ public class MarkovTests {
 
 	@Test
 	public void testFailForSentenceInput() {
-		Markov rm = new Markov(4, opts("disableInputChecks", false));
+		Markov rm = new Markov(4);
 		rm.addText(new String[] { "I ate the dog." });
+		//rm.generate();
 		assertThrows(RiTaException.class, () -> rm.generate());
 	}
 

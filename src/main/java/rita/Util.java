@@ -8,7 +8,7 @@ public class Util {
 	// Takes a syllabification and turns it into a string of phonemes,
 	// delimited with dashes, with spaces between syllables
 	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L450 ?
-	static String syllablesToPhones(List<List<List<String>>> syllables) {
+	private static final String syllablesToPhones(List<List<List<String>>> syllables) {
 
 		ArrayList<String> ret = new ArrayList<String>();
 		for (int i = 0; i < syllables.size(); i++) {
@@ -30,7 +30,7 @@ public class Util {
 	}
 
 	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L171
-	static String syllablesFromPhones(String[] input) {
+	static final String syllablesFromPhones(String[] input) {
 
 		boolean dbug = false;
 
@@ -141,7 +141,7 @@ public class Util {
 		return syllablesToPhones(syllables);
 	}
 
-	public static boolean isNum(String strNum) {
+	public static final boolean isNum(String strNum) {
 		if (strNum == null) return false;
 		try {
 			Double.parseDouble(strNum);
@@ -150,16 +150,16 @@ public class Util {
 			return false;
 		}
 	}
+//
+//	public static final boolean isNode() {
+//		return false;
+//	}
 
-	public static boolean isNode() {
-		return false;
-	}
-
-	public static Object invokeStatic(Method method, Object... args) {
+	public static final Object invokeStatic(Method method, Object... args) {
 		return invoke(null, method, args);
 	}
 
-	public static Object invoke(Object target, Method method, Object... args) {
+	public static final Object invoke(Object target, Method method, Object... args) {
 		try {
 			return method.invoke(target, args);//.toString();
 		} catch (Exception e) {
@@ -171,16 +171,16 @@ public class Util {
 		}
 	}
 
-	public static boolean hasProperty(Object o, String prop) {
+	public static final boolean hasProperty(Object o, String prop) {
 		return getProperty(o, prop) != null;
 	}
 
-	public static boolean hasMethod(Object o, String prop) {
+	public static final boolean hasMethod(Object o, String prop) {
 		return getMethods(o, prop).length > 0;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static Object getProperty(Object o, String prop) {
+	public static final Object getProperty(Object o, String prop) {
 		boolean foundProp = false;
 		Field[] fields = o.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -205,8 +205,8 @@ public class Util {
 		return null; // fail
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private static <T> T getProperty(Object o, String prop, T defaultVal) {
+	@SuppressWarnings({ "unchecked", "rawtypes" }) // unused
+	private static final <T> T getProperty(Object o, String prop, T defaultVal) {
 
 		Field[] fields = o.getClass().getDeclaredFields();
 		for (int i = 0; i < fields.length; i++) {
@@ -223,7 +223,7 @@ public class Util {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static Method getStatic(Class c, String name, Class... params) {
+	public static final Method getStatic(Class c, String name, Class... params) {
 		try {
 			return c.getDeclaredMethod(name, params);
 		} catch (Exception e) {
@@ -231,12 +231,12 @@ public class Util {
 		}
 	}
 
-	public static Method getMethod(Object o, String name) {
+	public static final Method getMethod(Object o, String name) {
 		return getMethod(o, name, new Class[0]);
 	}
 
 	@SuppressWarnings("rawtypes")
-	public static Method getMethod(Object o, String name, Class... params) {
+	public static final Method getMethod(Object o, String name, Class... params) {
 		try {
 			return o.getClass().getDeclaredMethod(name, params);
 		} catch (Exception e) {
@@ -244,7 +244,7 @@ public class Util {
 		}
 	}
 
-	public static Method[] getMethods(Object o, String meth) {
+	public static final Method[] getMethods(Object o, String meth) {
 		List<Method> result = new ArrayList<Method>();
 		Method[] methods = o.getClass().getDeclaredMethods();
 		for (int i = 0; i < methods.length; i++) {
@@ -255,58 +255,58 @@ public class Util {
 		return result.toArray(new Method[0]);
 	}
 
-	public static Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
+	public static final Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		if (m1 != null) result.putAll(m1);
 		if (m2 != null) result.putAll(m2);
 		return result;
 	}
 
-	public static boolean boolOpt(String key, Map<String, Object> opts) {
+	public static final boolean boolOpt(String key, Map<String, Object> opts) {
 		return boolOpt(key, opts, false);
 	}
 
-	public static boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
+	public static final boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
 		return (opts != null) ? (boolean) opts.getOrDefault(key, def) : def;
 	}
 
-	public static int intOpt(String key, Map<String, Object> opts) {
+	public static final int intOpt(String key, Map<String, Object> opts) {
 		return intOpt(key, opts, -1);
 	}
 
-	public static int intOpt(String key, Map<String, Object> opts, int def) {
+	public static final int intOpt(String key, Map<String, Object> opts, int def) {
 		return (opts != null) ? (int) opts.getOrDefault(key, def) : def;
 	}
 
-	public static float floatOpt(String key, Map<String, Object> opts) {
+	public static final float floatOpt(String key, Map<String, Object> opts) {
 		return floatOpt(key, opts, -1);
 	}
 
-	public static float floatOpt(String key, Map<String, Object> opts, float def) {
+	public static final float floatOpt(String key, Map<String, Object> opts, float def) {
 		return (opts != null) ? (float) opts.getOrDefault(key, def) : def;
 	}
 
-	public static String strOpt(String key, Map<String, Object> opts) {
+	public static final String strOpt(String key, Map<String, Object> opts) {
 		return strOpt(key, opts, null);
 	}
 
-	public static String strOpt(String key, Map<String, Object> opts, String def) {
+	public static final String strOpt(String key, Map<String, Object> opts, String def) {
 		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
 	}
 
-	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
+	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
 		return mapOpt(key, opts, null);// new HashMap<String, Object>());
 	}
 
 	@SuppressWarnings("unchecked")
-	public static Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
+	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
 		return opts != null ? (Map<String, Object>) opts.getOrDefault(key, def) : def;
 		// if (opts == null) return def;
 		//Object val = opts.get(key);
 		//return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
 	}
 
-	public static String[] shuffle(String[] arr) { // shuffle array //TODO what is the type of second arg
+	public static final String[] shuffle(String[] arr) { // shuffle array //TODO what is the type of second arg
 		String[] newArray = arr;
 
 		Random rand = new Random();
@@ -329,28 +329,28 @@ public class Util {
 		return newArray;
 	}
 
-	public static Map<String, Object> opts() {
+	public static final Map<String, Object> opts() {
 		return new HashMap<String, Object>();
 	}
 
-	public static Map<String, Object> opts(String key, Object val) {
+	public static final Map<String, Object> opts(String key, Object val) {
 		return opts(new String[] { key }, new Object[] { val });
 	}
 
-	public static Map<String, Object> opts(String key1, Object val1, String key2, Object val2) {
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2) {
 		return opts(new String[] { key1, key2 }, new Object[] { val1, val2 });
 	}
 
-	public static Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
 		return opts(new String[] { key1, key2, key3 }, new Object[] { val1, val2, val3 });
 	}
 
-	public static Map<String, Object> opts(String key1, Object val1,
+	public static final Map<String, Object> opts(String key1, Object val1,
 			String key2, Object val2, String key3, Object val3, String key4, Object val4) {
 		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
 	}
 
-	public static Map<String, Object> opts(String[] keys, Object[] vals) {
+	public static final Map<String, Object> opts(String[] keys, Object[] vals) {
 		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
 		Map<String, Object> data = new HashMap<String, Object>();
 		for (int i = 0; i < keys.length; i++) {
@@ -359,31 +359,31 @@ public class Util {
 		return data;
 	}
 
-	public static List<?> slice(List<?> arr, int from) {
+	public static final List<?> slice(List<?> arr, int from) {
 		return slice(arr, from, arr.size());
 	}
 
-	public static List<?> slice(List<?> arr, int from, int to) {
+	public static final List<?> slice(List<?> arr, int from, int to) {
 		return arr.subList(from, to);
 	}
 
-	public static String[] slice(String[] arr, int from) {
+	public static final String[] slice(String[] arr, int from) {
 		return slice(arr, from, arr.length);
 	}
 
-	public static String[] slice(String[] arr, int from, int to) {
+	public static final String[] slice(String[] arr, int from, int to) {
 		return Arrays.copyOfRange(arr, from, to);
 	}
 
-	private static boolean isVowel(String phone) {
+	private static final boolean isVowel(String phone) {
 		return Arrays.asList(Vowels).contains(phone);
 	}
 
-	private static boolean isConsonant(String phone) {
+	private static final boolean isConsonant(String phone) {
 		return Arrays.asList(Consonants).contains(phone);
 	}
 
-	private static boolean isOnset(String phone) {
+	private static final boolean isOnset(String phone) {
 		return Arrays.asList(Onsets).contains(phone);
 	}
 
