@@ -108,17 +108,17 @@ public class KnownIssues {
 		Map<String, Object> ctx = opts("pluralise", pluralise);
 		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "bad"), ctx);
 		res = rg.expand(TT);
-		assertEquals(res, "bad feelings"); //pass
+		assertEquals("bad feelings", res); //pass
 		rg = new Grammar(opts("start", "($state feeling).pluralise()", "state", "(bad | bad)"), ctx);
 		res = rg.expand(TT);
-		assertEquals(res, "bad feelings"); //fail
+		assertEquals("bad feelings", res); //fail
 		//seems that the choice problem still exist in some cases
 		//script: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) )) (chars   feeling) (symbol (transform .pluralise()))) <EOF>)
 		//should: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) ) (chars   feeling) (symbol (transform .pluralise())))) <EOF>) ?
 
 		//-------------using riscipt to recreate---------------
 		res = RiTa.evaluate("($a b).pluralize()\n$a=(a | a)", opts(), TT);
-		assertEquals(res, "a bs"); //fail
+		assertEquals("a bs", res); //fail
 		//script: (script (expr (symbol $a) (chars   b) (symbol (transform .pluralize()))) <EOF>)
 		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
