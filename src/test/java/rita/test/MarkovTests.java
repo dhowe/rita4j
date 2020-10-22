@@ -211,7 +211,7 @@ public class MarkovTests {
 	@Test
 	public void testGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
-		Markov rm = new Markov(4, hm); // ?? why sometime still exceed max attempts?
+		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = new String[0];
 		for (int i = 0; i < 100; i++) {
