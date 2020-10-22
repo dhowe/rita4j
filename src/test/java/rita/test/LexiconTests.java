@@ -6,15 +6,15 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
-import java.util.Map.Entry;
 
 import org.junit.jupiter.api.Test;
 
 import rita.*;
+import static rita.Util.*;
 
 public class LexiconTests {
 
-	// TODO: use Util.opts() instead of creating Maps
+	// TODO: use opts() instead of creating Maps
 
 	@Test
 	public void testHasWord() {
@@ -202,7 +202,7 @@ public class LexiconTests {
 	@Test
 	public void testSearchWithPhones() {
 
-		String[] res1 = RiTa.search("f-ah-n-t", Util.opts("type", "phones", "limit", 5));
+		String[] res1 = RiTa.search("f-ah-n-t", opts("type", "phones", "limit", 5));
 		//System.out.println(Arrays.asList(res1));
 		assertArrayEquals(res1, new String[] {
 				"elephant",
@@ -212,7 +212,7 @@ public class LexiconTests {
 				"oftentimes"
 		});
 
-		String[] res2 = RiTa.search("/f-a[eh]-n-t/", Util.opts("type", "phones", "limit", 10));
+		String[] res2 = RiTa.search("/f-a[eh]-n-t/", opts("type", "phones", "limit", 10));
 		//System.out.println(Arrays.asList(res2));
 		assertArrayEquals(res2, new String[] {
 				"elephant",
@@ -262,11 +262,8 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		hm.put("pos", "nns");
 		res = RiTa.search("010", hm);
-		console.log(res);
 		assertArrayEquals(res,
 				new String[] { "abandonments", "abatements", "abbreviations", "abdomens", "abductions" });
-
-		//if (1 == 1) return;
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
@@ -396,7 +393,7 @@ public class LexiconTests {
 	public void testAlliterationsNumSyllables() {
 
 		String[] result = RiTa.alliterations("cat",
-				Util.opts("minLength", 1, "numSyllables", 7));
+				opts("minLength", 1, "numSyllables", 7));
 
 		assertArrayEquals(result, new String[] {
 				"electrocardiogram", "electromechanical", "telecommunications"
@@ -474,7 +471,7 @@ public class LexiconTests {
 		result = RiTa.alliterations("#$%^&*");
 		assertTrue(result.length < 1);
 
-		result = RiTa.alliterations("umbrella", Util.opts("silent", true));
+		result = RiTa.alliterations("umbrella", opts("silent", true));
 		assertTrue(result.length < 1);
 
 		result = RiTa.alliterations("cat");
@@ -582,7 +579,7 @@ public class LexiconTests {
 		assertTrue(Arrays.asList(RiTa.rhymes("mouse", hm)).contains("house"));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight", hm)).contains("weight"));
 
-		String[] rhymes = RiTa.rhymes("weight", Util.opts("pos", "vb"));
+		String[] rhymes = RiTa.rhymes("weight", opts("pos", "vb"));
 		assertFalse(Arrays.asList(rhymes).contains("eight"));
 		assertTrue(Arrays.asList(rhymes).contains("hate"));
 	} 
@@ -618,6 +615,8 @@ public class LexiconTests {
 	@Test
 	public void testSpellsLike() {
 		String[] result;
+		
+		// TODO: use opts()
 
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("minLength", 6);
@@ -641,6 +640,7 @@ public class LexiconTests {
 
 		hm.clear();
 		hm.put("minDistance", 1);
+		result = RiTa.spellsLike("banana", hm);
 		assertArrayEquals(result, new String[] { "banal", "bonanza", "cabana", "manna" });
 
 		result = RiTa.spellsLike("tornado");
@@ -650,12 +650,12 @@ public class LexiconTests {
 		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice" });
 
 		hm.clear();
-		hm.put("minAllowedDistance", 1);
+		hm.put("minDistance", 1);
 		result = RiTa.spellsLike("ice", hm);
 		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice" });
 
 		hm.clear();
-		hm.put("minAllowedDistance", 2);
+		hm.put("minDistance", 2);
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
 		result = RiTa.spellsLike("ice", hm);
@@ -664,7 +664,7 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
-		hm.put("minAllowedDistance", 0);
+		hm.put("minDistance", 0);
 		result = RiTa.spellsLike("ice", hm);
 		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
 
@@ -674,7 +674,10 @@ public class LexiconTests {
 		result = RiTa.spellsLike("ice", hm);
 		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
 
+		hm.clear();
 		hm.put("pos", "n");
+		hm.put("minLength", 3);
+		hm.put("maxLength", 3);
 		result = RiTa.spellsLike("ice", hm);
 		assertArrayEquals(result, new String[] { "ace", "ire" });
 
@@ -693,10 +696,6 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		result = RiTa.spellsLike("ice", hm);
 		assertArrayEquals(result, new String[] { "aches", "acres", "aides", "apices", "axes" });
-
-		result = RiTa.spellsLike("123", hm);
-		assertTrue(result.length > 400);
-
 	}
 
 	@Test
@@ -711,7 +710,7 @@ public class LexiconTests {
 				"tie", "tray", "tree", "tribe", "tried", "tripe", "trite", "true", "wry" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("try", Util.opts("minDistance", 2));
+		result = RiTa.soundsLike("try", opts("minDistance", 2));
 		//console.log(result);
 		assertTrue(result.length > answer.length); // more
 
@@ -719,7 +718,7 @@ public class LexiconTests {
 		answer = new String[] { "happier", "hippie" };
 		assertArrayEquals(result, answer);
 
-		result = RiTa.soundsLike("happy",  Util.opts("minDistance", 2));
+		result = RiTa.soundsLike("happy",  opts("minDistance", 2));
 		assertTrue(result.length > answer.length); // more
 
 		/*
@@ -730,16 +729,15 @@ public class LexiconTests {
 				"kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat" };
 		eql(result, answer);*/
 
-		result = RiTa.soundsLike("cat",  Util.opts("limit", 5));
+		result = RiTa.soundsLike("cat",  opts("limit", 5));
 		answer = new String[] { "abashed", "abate", "abbey", "abbot", "abet" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("cat", Util.opts("minLength", 2, "maxLength", 4));
-		answer = new String[] { "at", "bat", "cab", "calf", "can", "cap", "cash", "cast", "chat", "coat", "cot", "curt",
-				"cut", "fat", "hat", "kit", "kite", "mat", "matt", "pat", "rat", "sat", "tat", "that", "vat" };
+		result = RiTa.soundsLike("cat", opts("minLength", 2, "maxLength", 4));
+		answer = new String[] {"bat","cab","calf","can","cant","cap","cash","cast","chat","coat","cot","curt","cut","fat","hat","kit","kite","mat","matt","pat","rat","sat","tat","that","vat" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("cat", Util.opts(
+		result = RiTa.soundsLike("cat", opts(
 				"minLength", 4,
 				"maxLength", 5,
 				"pos", "jj",

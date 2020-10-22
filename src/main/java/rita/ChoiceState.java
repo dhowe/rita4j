@@ -52,7 +52,6 @@ public class ChoiceState {
     if (type.equals(RSEQUENCE)) {
     	this.options = RandGen.randomOrdering(this.options);
     }
-      
 	}
 
 	public ParserRuleContext select() {
@@ -61,19 +60,31 @@ public class ChoiceState {
 		if (type.equals(ChoiceState.SEQUENCE)) return selectSequence();
 		if (type.equals(ChoiceState.NOREPEAT)) return selectNoRepeat();
 		if (type.equals(ChoiceState.RSEQUENCE)) return selectRandSequence();
-		return randomElement(); // SIMPLE
-	}
-
-	protected ParserRuleContext randomElement() {
-		return options.get((int) (Math.random() * options.size()));
+		return RandGen.randomItem(this.options);//randomElement(); // SIMPLE
 	}
 
 	protected ParserRuleContext selectNoRepeat() {
+		ParserRuleContext cand;
+    do {
+      cand = RandGen.randomItem(this.options);
+    } while (cand == this.last);
+    
+    return (this.last = cand);
+	}
+	
+	protected ParserRuleContext selectNoRepeatX() {
 		ParserRuleContext cand = null;
-		// need to test for equality here
-		while (cand == last)
-			cand = randomElement();
+		if (last != null) { 
+			// need to test for equality here
+			while (last.equals(cand)) {
+				cand = RandGen.randomItem(this.options);
+			}
+		}
+		else {
+			cand = RandGen.randomItem(this.options);
+		}
 		return (this.last = cand);
+		
 	}
 
 	protected ParserRuleContext selectSequence() {
