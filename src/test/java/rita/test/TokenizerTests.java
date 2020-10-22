@@ -30,14 +30,14 @@ public class TokenizerTests {
 				"this is for a/b a⁄b",
 				"this is for «guillemets»",
 				"this... is… for ellipsis",
-				//"this line is 'for' single ‘quotation’ mark",//this pass tokenize and unkenize separately but not this?
+				"this line is 'for' single ‘quotation’ mark",
 				"Katherine’s cat and John's cat",
 				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
 				"this line is for the-dash",
 				"30% of the student love day-dreaming.",
-				//"my email address is name@domin.com", 
-				//"it is www.google.com",
-				//"that is www6.cityu.edu.hk", //these too... => see forDegub()
+				"my email address is name@domin.com", 
+				"it is www.google.com",
+				"that is www6.cityu.edu.hk",
 				"30% of the student will pay $30 to decrease the temperature by 2°C"
 		};
 		for (int i = 0; i < tests.length; i++) {
@@ -165,7 +165,9 @@ public class TokenizerTests {
 				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd. Prof.",
 				"(testing) [brackets] {all} ⟨kinds⟩",
 				"elipsis dots... another elipsis dots…",
-				"this line is 'for' single ‘quotation’ mark"
+				"this line is 'for' single ‘quotation’ mark",
+				"that is www.google.com",
+				"this is www6.cityu.edu.hk"
 		};
 
 		String[][] outputs = new String[][] {
@@ -180,7 +182,9 @@ public class TokenizerTests {
 						"Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd.", "Prof." },
 				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
 				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
-				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" }
+				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" },
+				{ "that", "is", "www", ".", "google", ".", "com" },
+				{ "this", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" }
 		};
 
 		assertEquals(inputs.length, outputs.length);
