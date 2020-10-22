@@ -134,6 +134,59 @@ public class KnownIssues {
 		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
 
+	@Test
+	public void assignmentWithSymbolInContext() {
+		//from Garmmar, testResolveInlines()
+		//-----------------------------simplest recreation---------------
+		for (int i = 0; i < 10; i++) {
+			String[] expec = {"a a", "b b", "c c"};
+			Map<String,Object> ctx = opts("symbol","(a | b | c)");
+			String res = RiTa.evaluate("[$chosen=$symbol] $chosen", ctx, opts("trace", true));
+			assertTrue(Arrays.asList(expec).contains(res));
+		}
+
+		//-----------------------------detail----------------------------
+		Map<String, Object> TT = opts("trace", true);
+		for (int i = 0; i < 10; i++) {
+			String[] expec = { "Dave talks to Dave.", "John talks to John.", "Katherine talks to Katherine." };
+			String res = RiTa.evaluate("[$chosen=$person] talks to $chosen.\n$person=(Dave | John | Katherine)");
+			assertTrue(Arrays.asList(expec).contains(res));
+		}
+		//this pass
+
+		String[] expected = { "Dave talks to Dave.", "John talks to John.", "Katherine talks to Katherine." };
+		Grammar rg;
+		String rules, rs;
+
+		for (int i = 0; i < 10; i++) {
+			rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | John | Katherine\"}";
+			rg = Grammar.fromJSON(rules);
+			rs = rg.expand();
+			assertTrue(Arrays.asList(expected).contains(rs));
+		}
+		//but this fail
+
+		//ok it calls evaluate like this
+		for (int i = 0; i < 10; i++) {
+			String[] expec = { "Dave talks to Dave.", "John talks to John.", "Katherine talks to Katherine." };
+			Map<String, Object> ctx = opts("start", "[$chosen=$person] talks to $chosen.", "person", "(Dave | John | Katherine)");
+			String res = RiTa.evaluate("[$chosen=$person] talks to $chosen.", ctx, opts("trace", true));
+			assertTrue(Arrays.asList(expec).contains(res));
+		}
+		//and it fail
+		//script: (script (expr (choice ( (wexpr (expr (chars Dave)))  |  (wexpr (expr (chars John)))  |  (wexpr (expr (chars Katherine))) )) (chars   talks   to  ) (choice ( (wexpr (expr (chars Dave)))  |  (wexpr (expr (chars John)))  |  (wexpr (expr (chars Katherine))) )) (chars .)) <EOF>)
+		//so $chosen is parsed as choice(...), but not a char(...)
+
+		for (int i = 0; i < 10; i++) {
+			String[] expec = { "Dave talks to Dave.", "John talks to John.", "Katherine talks to Katherine." };
+			Map<String, Object> ctx = opts("start", "$chosen talks to $chosen.", "person", "(Dave | John | Katherine)", "chosen", "$person");
+			String res = RiTa.evaluate("$chosen talks to $chosen.", ctx, opts("trace", true));
+			assertTrue(Arrays.asList(expec).contains(res));
+		}
+		//same as above
+
+	}
+
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
 	}
