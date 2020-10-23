@@ -39,7 +39,7 @@ public class GrammarTests {
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
 			// console.log(i, ':', res);
-			assertEquals(res, opts[i]);
+			eq(res, opts[i]);
 		}
 
 		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
@@ -48,7 +48,7 @@ public class GrammarTests {
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
 			// console.log(i, ':', res);
-			assertEquals(res, opts[i].toUpperCase());
+			eq(res, opts[i].toUpperCase());
 		}
 	}
 
@@ -160,7 +160,7 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void testRemoveRules() {
+	public void testRemoveRule() {
 		for (String g : grammars) {
 			Grammar rg = Grammar.fromJSON(g);
 
@@ -193,7 +193,7 @@ public class GrammarTests {
 		rg.addRule("$pet", "($bird | $mammal)");
 		rg.addRule("$bird", "(hawk | crow)");
 		rg.addRule("$mammal", "dog");
-		assertEquals(rg.expand("$mammal"), "dog");
+		eq(rg.expand("$mammal"), "dog");
 
 		for (int i = 0; i < 30; i++) {
 			String res = rg.expand("$bird");
@@ -207,18 +207,18 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "pet");
 		String str = rg.toString();
-		assertEquals(str, "{\n  \"start\": \"pet\"\n}");
+		eq(str, "{\n  \"start\": \"pet\"\n}");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		rg.addRule("$pet", "dog");
 		str = rg.toString();
-		assertEquals(str, "{\n  \"start\": \"$pet\",\n  \"pet\": \"dog\"\n}");
+		eq(str, "{\n  \"start\": \"$pet\",\n  \"pet\": \"dog\"\n}");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet | $iphone");
 		rg.addRule("$iphone", "iphoneSE | iphone12");
 		rg.addRule("$pet", "dog | cat");
 		str = rg.toString();
-		assertEquals(str, "{\n  \"start\": \"($pet | $iphone)\",\n  \"iphone\": \"(iphoneSE | iphone12)\",\n  \"pet\": \"(dog | cat)\"\n}");
+		eq(str, "{\n  \"start\": \"($pet | $iphone)\",\n  \"iphone\": \"(iphoneSE | iphone12)\",\n  \"pet\": \"(dog | cat)\"\n}");
 	}
 
 	@Test
@@ -227,18 +227,18 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "pet");
 		String str = rg.toString(lb);
-		assertEquals(str, "{<br/>  \"start\": \"pet\"<br/>}");
+		eq(str, "{<br/>  \"start\": \"pet\"<br/>}");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		rg.addRule("$pet", "dog");
 		str = rg.toString(lb);
-		assertEquals(str, "{<br/>  \"start\": \"$pet\",<br/>  \"pet\": \"dog\"<br/>}");
+		eq(str, "{<br/>  \"start\": \"$pet\",<br/>  \"pet\": \"dog\"<br/>}");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet | $iphone");
 		rg.addRule("$pet", "dog | cat");
 		rg.addRule("$iphone", "iphoneSE | iphone12");
 		str = rg.toString(lb);
-		assertEquals(str,
+		eq(str,
 				"{<br/>  \"start\": \"($pet | $iphone)\",<br/>  \"iphone\": \"(iphoneSE | iphone12)\",<br/>  \"pet\": \"(dog | cat)\"<br/>}");
 	}
 
@@ -246,19 +246,19 @@ public class GrammarTests {
 	public void testExpand() {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "pet");
-		assertEquals(rg.expand(), "pet");
+		eq(rg.expand(), "pet");
 		rg = new Grammar();
 		rg.addRule("$start", "$pet");
 		rg.addRule("$pet", "dog");
-		assertEquals(rg.expand(), "dog");
+		eq(rg.expand(), "dog");
 
 		rg = new Grammar();
 		rg.addRule("start", "ani");
-		assertEquals(rg.expand(), "ani");
+		eq(rg.expand(), "ani");
 		rg = new Grammar();
 		rg.addRule("start", "$ani");
 		rg.addRule("ani", "cat");
-		assertEquals(rg.expand(), "cat");
+		eq(rg.expand(), "cat");
 	}
 
 	@Test
@@ -287,7 +287,7 @@ public class GrammarTests {
 		rg.addRule("$bird", "hawk");
 		rg.addRule("$mammal", "dog");
 
-		assertEquals(rg.expand("$mammal"), "dog");
+		eq(rg.expand("$mammal"), "dog");
 
 		int hawks = 0;
 		int dogs = 0;
@@ -306,25 +306,25 @@ public class GrammarTests {
 		Grammar rg = new Grammar();
 		rg.addRule("$start", "$pet.toUpperCase()");
 		rg.addRule("$pet", "dog");
-		assertEquals(rg.expand(), "DOG");
+		eq(rg.expand(), "DOG");
 
 		rg = new Grammar();
 		rg.addRule("$start", "($pet | $animal)");
 		rg.addRule("$animal", "$pet");
 		rg.addRule("$pet", "(dog).toUpperCase()");
-		assertEquals(rg.expand(), "DOG");
+		eq(rg.expand(), "DOG");
 
 		rg = new Grammar();
 		rg.addRule("$start", "($pet | $animal)");
 		rg.addRule("$animal", "$pet");
 		rg.addRule("$pet", "(ant).articlize()");
-		assertEquals(rg.expand(), "an ant");
+		eq(rg.expand(), "an ant");
 
 		rg = new Grammar();
 		rg.addRule("$start", "($pet | $animal).articlize().ucf()");
 		rg.addRule("$animal", "$pet");
 		rg.addRule("$pet", "ant");
-		assertEquals(rg.expand(), "An ant");
+		eq(rg.expand(), "An ant");
 	}
 
 	@Test
@@ -345,7 +345,7 @@ public class GrammarTests {
 		Grammar rg = Grammar.fromJSON(jsonString, ctx);
 
 		String res = rg.expand();
-		assertEquals(res, "bad feelings");
+		eq(res, "bad feelings");
 
 	}
 
@@ -356,10 +356,10 @@ public class GrammarTests {
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = new Grammar(opts("start", "My .randomPosition()."));
-		assertEquals("My job type.", rg.expand(context));
+		eq("My job type.", rg.expand(context));
 
 		rg = new Grammar(opts("stat", "My .randomPosition()."));
-		assertEquals("My job type.", rg.expand("stat", context));
+		eq("My job type.", rg.expand("stat", context));
 
 	}
 
@@ -371,24 +371,19 @@ public class GrammarTests {
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = Grammar.fromJSON(rules, context);
-		assertEquals(rg.expand(), "My jobArea jobType.");
+		eq(rg.expand(), "My jobArea jobType.");
 	}
 
 	@Test
 	public void testSymbolTransfrom() {
 		Grammar rg = Grammar.fromJSON("{\"start\": \"$tmpl\",\"tmpl\": \"$jrSr.capitalize()\",\"jrSr\": \"(junior|junior)\"}");
-		assertEquals(rg.expand(), "Junior");
+		eq(rg.expand(), "Junior");
 
-		Grammar rg1 = Grammar.fromJSON("{\"start\": \"$r.capitalize()\",\"r\": \"(a|a)\"}");
-		assertEquals(rg1.expand(), "A");
-	}
+		Grammar rg1 = Grammar.fromJSON("{\"start\": \"$r.capitalize()\",\"r\": \"(a | a)\"}");
+		eq(rg1.expand(), "A");
 
-	@Test
-	public void testGrammarFromJSON() {
-		String s = "{ \"$start\": \"hello name\" }";
-		Grammar rg = Grammar.fromJSON(s);
-		String res = rg.expand();
-		assertEquals(res, "hello name");
+		Grammar rg2 = Grammar.fromJSON("{\"start\": \"$r.pluralize()\",\"r\": \"(mouse | mouse)\"}");
+		eq(rg2.expand(), "mice");
 	}
 
 	@Test
@@ -397,12 +392,12 @@ public class GrammarTests {
 		Grammar rg = Grammar.fromJSON(s);
 		String res = rg.expand();
 		// console.log(res);
-		assertEquals(res, "hello | name");
+		eq(res, "hello | name");
 
 		s = "{ \"$start\": \"hello: name\" }";
 		rg = Grammar.fromJSON(s);
 		res = rg.expand();
-		assertEquals(res, "hello: name");
+		eq(res, "hello: name");
 
 		s = "{ \"$start\": \"&#8220;hello!&#8221;\" }";
 		rg = Grammar.fromJSON(s);
@@ -411,18 +406,18 @@ public class GrammarTests {
 		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		// console.log(res);
-		assertEquals(res, "<start>");
+		eq(res, "<start>");
 
 		s = "{ \"$start\": \"I don&#96;t want it.\" }";
 		rg = Grammar.fromJSON(s);
 		res = rg.expand();
 		// console.log(res);
-		assertEquals(res, "I don`t want it.");
+		eq(res, "I don`t want it.");
 
 		s = "{ \"$start\": \"&#39;I really don&#39;t&#39;\" }";
 		rg = Grammar.fromJSON(s);
 		res = rg.expand();
-		assertEquals(res, "'I really don't'");
+		eq(res, "'I really don't'");
 
 		s = "{ \"$start\": \"hello | name\" }";
 		rg = Grammar.fromJSON(s);
@@ -439,13 +434,13 @@ public class GrammarTests {
 		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
 		Grammar rg = Grammar.fromJSON(s);
 		Grammar rg2 = Grammar.fromJSON(rg.toJSON());
-		assertEquals(rg.toString(), rg2.toString());
+		eq(rg.toString(), rg2.toString());
 		assertTrue(rg.equals(rg2));
 
 		for (String g : grammars) {
 			rg = Grammar.fromJSON(g);
 			rg2 = Grammar.fromJSON(rg.toJSON());
-			assertEquals(rg.toString(), rg2.toString());
+			eq(rg.toString(), rg2.toString());
 			assertTrue(rg.equals(rg2));
 		}
 	}
@@ -462,6 +457,14 @@ public class GrammarTests {
 			if (list.contains(item)) found++;
 		}
 		assertTrue(found == array.length);
+	}
+
+	static void eq(String a, String b) {
+		eq(a, b, "");
+	}
+
+	static void eq(String a, String b, String msg) {
+		assertEquals(b, a, msg);
 	}
 
 }
