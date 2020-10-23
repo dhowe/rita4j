@@ -195,8 +195,8 @@ public class LexiconTests {
 				"triumphant",
 				"triumphantly"
 		};
-		assertArrayEquals(RiTa.search("phant"), results);
-		//assertArrayEquals(RiTa.search("/phant/"), results);
+		assertArrayEquals(results, RiTa.search("phant"));
+		assertArrayEquals(results, RiTa.search("/phant/"));
 	}
 
 	@Test
@@ -344,7 +344,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 3);
+				assertEquals(3, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isVerb(result));
 
 				hm.clear();
@@ -353,7 +353,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertEquals(1, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 				hm.clear();
@@ -362,7 +362,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertEquals(1, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 				hm.clear();
@@ -371,7 +371,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 5);
+				assertEquals(5, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 			}
