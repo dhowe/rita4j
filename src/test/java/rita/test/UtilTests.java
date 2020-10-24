@@ -25,7 +25,12 @@ public class UtilTests {
 	}
 
 	@Test
-	public void testMergeMaps() {
+	public void testRandomOrdering() {
+		//this function is done by RandGen Class in Java
+	}
+
+	@Test
+	public void testDeepMerge() {
 		Map<String, Object> map;
 		map = Util.deepMerge(Util.opts(), Util.opts("a", "1"));
 		assertTrue(map.equals(Util.opts("a", "1")));
