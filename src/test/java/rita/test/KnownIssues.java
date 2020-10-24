@@ -18,9 +18,9 @@ public class KnownIssues {
 	@Test
 	public void symbolsInMultiwordTransforms() {
 		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
-		assertEquals("the dogs", res); 
+		assertEquals("the dogs", res);
 	}
-	
+
 	@Test
 	public void singularizeBugs() { // also in js
 		String[] tests = {
@@ -91,6 +91,18 @@ public class KnownIssues {
 
 	@Test
 	public void choiceProblem() {
+		//-------------------------simplest recreation---------------------
+		//                          1. bulit-in pluralize()
+		String result;
+		result = RiTa.evaluate("($a b).pluralize()\n$a=(a | a)", opts());
+		assertEquals("a bs", result);
+		//                          2. customize transform
+		Function<String, String> trans = (s) -> {
+			return s + "z";
+		};
+		result = RiTa.evaluate("($a b).trans()\n$a=(a | a)", opts("trans",trans));
+		assertEquals("a bz", result);
+		//-------------------------detail test from Grammar test-----------
 		Grammar rg;
 		String res;
 		Map<String, Object> TT = opts("trace", true);
@@ -115,12 +127,6 @@ public class KnownIssues {
 		//seems that the choice problem still exist in some cases
 		//script: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) )) (chars   feeling) (symbol (transform .pluralise()))) <EOF>)
 		//should: (script (expr (choice ( (wexpr (expr (chars bad)))  |  (wexpr (expr (chars bad))) ) (chars   feeling) (symbol (transform .pluralise())))) <EOF>) ?
-
-		//-------------using riscipt to recreate---------------
-		res = RiTa.evaluate("($a b).pluralize()\n$a=(a | a)", opts(), TT);
-		assertEquals("a bs", res); //fail
-		//script: (script (expr (symbol $a) (chars   b) (symbol (transform .pluralize()))) <EOF>)
-		//should: (script (expr (((symbol $a) (chars   b)) (symbol (transform .pluralize())))) <EOF>) ?
 	}
 
 	@Test
@@ -128,8 +134,8 @@ public class KnownIssues {
 		//from Garmmar, testResolveInlines()
 		//-----------------------------simplest recreation---------------
 		for (int i = 0; i < 10; i++) {
-			String[] expec = {"a a", "b b", "c c"};
-			Map<String,Object> ctx = opts("symbol","(a | b | c)");
+			String[] expec = { "a a", "b b", "c c" };
+			Map<String, Object> ctx = opts("symbol", "(a | b | c)");
 			String res = RiTa.evaluate("[$chosen=$symbol] $chosen", ctx, opts("trace", true));
 			assertTrue(Arrays.asList(expec).contains(res));
 		}
