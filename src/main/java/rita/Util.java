@@ -150,10 +150,10 @@ public class Util {
 			return false;
 		}
 	}
-//
-//	public static final boolean isNode() {
-//		return false;
-//	}
+	//
+	//	public static final boolean isNode() {
+	//		return false;
+	//	}
 
 	public static final Object invokeStatic(Method method, Object... args) {
 		return invoke(null, method, args);
@@ -198,9 +198,9 @@ public class Util {
 		if (o instanceof Map) {
 			return ((Map) o).get(prop);
 		}
-		
-		if (!foundProp) System.err.println("[WARN] Unable to find prop '" + prop
-				+ "' on " + o.getClass().getSimpleName());
+
+		if (!foundProp) throw new RiTaException("Unable to find prop '"
+				+ prop + "' on " + o.getClass().getSimpleName());
 
 		return null; // fail
 	}

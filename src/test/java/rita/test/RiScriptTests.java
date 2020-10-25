@@ -1,8 +1,6 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import static rita.Util.opts;
 
 import java.util.*;
@@ -176,6 +174,24 @@ public class RiScriptTests {
 		String res = RiTa.evaluate("$foo=$bar.color\n$foo", ctx);
 		assertEq(res, "blue");
 	}
+	
+	@Test
+	public void testResolveComplexInlines() {
+    String[] expected = {"Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete."};
+
+    String rs;
+    rs = RiTa.evaluate("$person talks to $person.", opts("person", "(Dave | Jill | Pete)" ), TT);
+		assertTrue(Arrays.asList(expected).contains(rs));
+    
+    rs = RiTa.evaluate("[$person=(Dave | Jill | Pete)] talks to [$person=(Dave | Jill | Pete)].");
+		assertTrue(Arrays.asList(expected).contains(rs));
+    
+    rs = RiTa.evaluate("[$chosen=(Dave | Jill | Pete)] talks to $chosen.");
+		assertTrue(Arrays.asList(expected).contains(rs));
+
+    rs = RiTa.evaluate("[$chosen=$person] talks to $chosen.", opts("person", "(Dave | Jill | Pete)" ));
+		assertTrue(Arrays.asList(expected).contains(rs));
+	}
 
 	// Evaluation
 
@@ -189,7 +205,6 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("'foo'", ctx), "'foo'");
 		assertEq(RiTa.evaluate("foo\nbar", ctx), "foo bar");
 		assertEq(RiTa.evaluate("foo&#10;bar", ctx), "foo\nbar");
-		assertEq(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx), "bar baz");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz", ctx), "baz");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz\n$foo", ctx), "baz bar");
 
@@ -701,6 +716,12 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void symbolsInMultiwordTransforms() {
+		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
+		assertEquals("the dogs", res); 
+	}
+	
+	@Test
 	public void testParseSelectChoicesTX() {
 		assertEq(RiTa.evaluate("(a | a).toUpperCase()", opts()), "A");
 		assertEq(RiTa.evaluate("(a | a).up()", opts()), "a.up()");
@@ -1001,7 +1022,7 @@ public class RiScriptTests {
 		dog.put("getColor", func);
 		String input = "$dog.name.ucf() was a $dog.getColor() dog.";
 		String expected = "Spot was a red dog.";
-		assertEq(RiTa.evaluate(input, opts("dog", dog)), expected);
+		assertEq(RiTa.evaluate(input, opts("dog", dog),TT), expected);
 	}
 
 	@Test

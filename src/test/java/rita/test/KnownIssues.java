@@ -11,12 +11,6 @@ import rita.RiTa;
 public class KnownIssues {
 
 	@Test
-	public void symbolsInMultiwordTransforms() {
-		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
-		assertEquals("the dogs", res); 
-	}
-	
-	@Test
 	public void singularizeBugs() { // also in js
 		String[] tests = {
 				"grooves", "groove",
@@ -83,6 +77,9 @@ public class KnownIssues {
 			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
 	}
+	
+	// NOT SURE WHY THIS TEST EXISTS
+	//assertEq(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx), "bar baz");
 
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();

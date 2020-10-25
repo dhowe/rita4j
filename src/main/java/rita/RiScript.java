@@ -22,10 +22,13 @@ public class RiScript {
 
 	protected RiScriptLexer lexer;
 	protected RiScriptParser parser;
+	protected List<String> appliedTransforms;
+
 	protected Visitor visitor;
 
 	public RiScript() {
 		this.visitor = new Visitor(this);
+		this.appliedTransforms = new ArrayList<String>();
 	}
 
 	public static String eval(String input) {
@@ -58,6 +61,8 @@ public class RiScript {
 
 		if (ctx == null) ctx = new HashMap<String, Object>();
 
+		pushTransforms(ctx);
+
 		String last = null, expr = input;
 		for (int i = 0; /*isParseable(expr)&& */!expr.equals(last) && i < MAX_TRIES; i++) {
 			last = expr;
@@ -66,7 +71,7 @@ public class RiScript {
 			if (trace) passInfo(ctx, last, expr, i);
 			if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
 					+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
-			if (onepass) break;
+      if (onepass || !this.isParseable(expr)) break;
 		}
 
 		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
@@ -74,7 +79,24 @@ public class RiScript {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
 
-		return resolveEntities(expr);
+		return popTransforms(ctx).resolveEntities(expr);
+	}
+
+	private RiScript pushTransforms(Map<String, Object> ctx) {
+		for (String tx : RiScript.transforms.keySet()) {
+			if (!ctx.containsKey(tx)) {
+				ctx.put(tx, RiScript.transforms.get(tx));
+				this.appliedTransforms.add(tx);
+			}
+		}
+		return this;
+	}
+
+	private RiScript popTransforms(Map<String, Object> ctx) {
+		for (String tx : appliedTransforms) {
+			ctx.remove(tx);
+		}
+		return this;
 	}
 
 	private String resolveEntities(String s) {
@@ -208,8 +230,7 @@ public class RiScript {
 	}
 
 	public boolean isParseable(String s) { // public for testing (TODO: more needed!!!)
-		boolean found = PARSEABLE_RE.matcher(s).find();
-		return found;
+		return PARSEABLE_RE.matcher(s).find();
 	}
 
 	public static String articlize(String s) {

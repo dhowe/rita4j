@@ -22,7 +22,7 @@ import rita.antlr.RiScriptParser.*;
 public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static final String EOF = "<EOF>";
-	static final String FUNCTION = "()";
+	static final String FUNCTION = "()", DOT = ".";
 
 	protected int indexer;
 	protected boolean trace;
@@ -34,7 +34,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	public Visitor(RiScript parent) {
 		this(parent, null, null);
 	}
-	
+
 	public Visitor(RiScript parent, Map<String, Object> ctx) {
 		this(parent, ctx, null);
 	}
@@ -49,19 +49,17 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	Visitor init(Map<String, Object> ctx, Map<String, Object> opts) {
 		this.trace = Util.boolOpt("trace", opts);
 		this.pendingSymbols = new ArrayList<String>();
-		this.appliedTransforms = new ArrayList<String>();
-		this.context = ctx != null ? ctx : new HashMap<String, Object>();		
+		this.context = ctx != null ? ctx : new HashMap<String, Object>();
 		return this;
 	}
-
 
 	public String start(ScriptContext ctx) {
 		if (trace) System.out.println("start: '" + ctx.getText()
 				.replaceAll("\\r?\\n", "\\\\n") + "'");
 		this.indexer = 0;
-		pushTransforms(this.context);
+		//pushTransforms(this.context);
 		String result = visitScript(ctx);
-		popTransforms(this.context);
+		//popTransforms(this.context);
 		return result;
 	}
 
@@ -81,8 +79,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitInline(InlineContext ctx) {
 
-		// TODO: what if the symbol is pending or needs to be pending (add test)
-
 		ExprContext token = ctx.expr();
 		List<TransformContext> txs = ctx.transform();
 		String id = ctx.symbol().getText().replaceAll("^\\$", "");
@@ -90,6 +86,16 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (this.trace) System.out.println("visitInline: $"
 				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
 
+    // if we've already resolved (likely as an inline) just return
+		Object lookup = this.context.get(id);
+		if (lookup != null && lookup instanceof String) {
+			String lookupStr = (String) lookup;
+	    if (ctx != null && !this.parent.isParseable(lookupStr)) {
+	      if (trace) console.log("resolveInline[0]: $" + id + " -> '" + lookupStr + "' (already defined)");
+	      return lookupStr;
+	    }
+		}
+    
 		// visit the token and add result to the context
 		String visited = this.visit(token);
 		this.context.put(id, visited);
@@ -112,7 +118,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		ChoiceState choice = sequences.get(++this.indexer);
 		if (choice == null) {
 			choice = new ChoiceState(this, ctx);
-			//System.out.println("new Choise("+indexer+")");
 			if (!choice.type.equals(ChoiceState.SIMPLE)) {
 				sequences.put(choice.id, choice);
 			}
@@ -134,7 +139,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (txs.size() < 1) return visited;
 
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : visited + flatten(txs);
+		String result = applied != null ? applied : '(' + visited + ')' + flatten(txs);
 
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
@@ -155,15 +160,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// get the symbol identifier
 		String ident = tn.getText().replaceAll("^\\$", "");
 
-		// if already a pending symbol, save for later
-		if (this.pendingSymbols.contains(ident)) {
-			if (trace) System.out.println("IGNORE PENDING Symbol: \"\" tfs="
-					+ flatten(txs) + " -> " + result);
-			return result;
-		}
-
 		if (trace) System.out.println("visitSymbol: $"
 				+ ident + " tfs=" + flatten(txs));// + " -> " + result);
+		
+    // if the symbol is pending just return it
+    if (this.pendingSymbols.contains(ident)) {
+      if(trace) console.log("resolveSymbol[0]: (pending) $" + ident);//+ " -> " + result);
+      return result;
+    }
 
 		// now try to resolve from context
 		Object resolved = context.get(ident);
@@ -174,6 +178,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					+ ident + "' -> '" + result + "'");
 			return result;
 		}
+
+    // if the symbol is not fully resolved, save it for next time (as an inline*)
+    if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
+      this.pendingSymbols.add(ident);
+      String tmp = "[$" + ident + "=" + resolved + "]" + flatten(txs);
+      if(trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
+      return tmp;
+    }
 
 		// now check for transforms
 		if (txs.size() < 1) {
@@ -299,9 +311,11 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	// Attempts to apply transform, returns null on failure
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object applyTransform(Object target, String tx) {
 
 		Object result = null;
+		String raw = target + Visitor.DOT + tx;
 
 		if (trace) System.out.println("applyTransform: '" +
 				(target instanceof String ? target : target.getClass().getSimpleName())
@@ -311,32 +325,24 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (tx.endsWith(Visitor.FUNCTION)) {
 			tx = tx.substring(0, tx.length() - 2);
 
-			// 1. Static method - Java: valueOf, format, join only
-			Method meth = null;///Util.getStatic(String.class, tx, String.class);
-			if (meth != null) {  // String static
-				result = Util.invokeStatic(meth, target);
-			} // disabled
-
-			// 2. Member (String) method
-			if (result == null) {
-				meth = Util.getMethod(target, tx);
-				if (meth != null) { // String method
-					result = Util.invoke(target, meth);
+			// 0. Static function (only join/format on String, maybe RiTa)
+			
+			// 1. Member (String) method
+			Method meth = Util.getMethod(target, tx);
+			if (meth != null) { // String method
+				result = Util.invoke(target, meth);
+			}
+			
+			// 2. Function in context
+			else if (this.context != null && this.context.containsKey(tx)) {
+				Object func = this.context.get(tx);
+				if (func instanceof Function) {
+					result = ((Function<String, String>) func).apply((String) target);
 				}
 			}
 
-			// 3. Function in context
-			if (result == null) {
-				if (this.context != null && this.context.containsKey(tx)) {
-					Object func = this.context.get(tx);
-					if (func instanceof Function) {
-						result = ((Function<String, String>) func).apply((String) target);
-					}
-				}
-			}
-
-			// 4. Function in Map
-			if (result == null && target instanceof Map) {
+			// 3. Function in Map
+			else if (target instanceof Map) {
 				Map m = (Map) target;
 				if (m.containsKey(tx)) {
 					Object func = m.get(tx);
@@ -345,10 +351,20 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					}
 				}
 			}
+			
+			else {
+        if (this.trace) System.err.println("[WARN] Unresolved transform: " + raw);
+        return raw;
+			}
 		}
 		// check for property
 		else {
-			result = Util.getProperty(target, tx);
+			try {
+				result = Util.getProperty(target, tx);
+			} catch (RiTaException e) {
+        if (this.trace) System.err.println("[WARN] Unresolved transform: " + raw);
+        return raw;
+			}
 		}
 
 		if (trace) System.out.println("resolveTransform: '"
@@ -438,20 +454,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			result += visit != null ? visit : "";
 		}
 		return result;
-	}
-
-	private void pushTransforms(Map<String, Object> ctx) {
-		for (String tx : RiScript.transforms.keySet()) {
-			if (!ctx.containsKey(tx)) {
-				ctx.put(tx, RiScript.transforms.get(tx));
-				this.appliedTransforms.add(tx);
-			}
-		}
-	}
-
-	private void popTransforms(Map<String, Object> ctx) {
-		for (String tx : appliedTransforms)
-			ctx.remove(tx);
 	}
 
 	public static void main(String[] args) {
