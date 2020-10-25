@@ -12,7 +12,13 @@ import rita.RiTa;
 public class RiTaTests {
 
 	@Test
-	public void testStem() {
+	public void accessStaticConstantAndFunction() {
+		assertEquals("2", RiTa.VERSION);
+		assertTrue(RiTa.hasWord("dog"));
+	}
+
+	@Test
+	public void callStem() {
 		String[] tests = {
 				"boy", "boy",
 				"boys", "boy",
@@ -47,7 +53,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testRandomOrdering() {
+	public void callRandomOrdering() {
 		int[] result = new int[] { 0 };
 		assertArrayEquals(result, RiTa.randomOrdering(1));
 		int[] result2 = new int[] { 0, 1 };
@@ -60,7 +66,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testIsQuestion() {
+	public void callIsQuestion() {
 		assertTrue(RiTa.isQuestion("What"));
 		assertTrue(RiTa.isQuestion("what"));
 		assertTrue(RiTa.isQuestion("what is this"));
@@ -78,7 +84,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testArticlize() {
+	public void callArticlize() {
 		String[] data = {
 				"a dog", "dog",
 				"an ant", "ant",
@@ -92,7 +98,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testIsAbbreviation() { // TODO add second parameter tests
+	public void callIsAbbreviation() { // TODO add second parameter tests
 
 		assertTrue(RiTa.isAbbreviation("Dr."));
 		assertTrue(!RiTa.isAbbreviation("dr."));
@@ -137,7 +143,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testIsPunctuation() {
+	public void callIsPunctuation() {
 
 		assertTrue(!RiTa.isPunctuation("What the"));
 		assertTrue(!RiTa.isPunctuation("What ! the"));
@@ -203,7 +209,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testTokenize() {
+	public void callTokenize() {
 		String[] expect = { "" };
 		assertArrayEquals(expect, RiTa.tokenize(""));
 		expect = new String[] { "The", "dog" };
@@ -316,7 +322,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testUntokenize() {
+	public void callUntokenize() {
 		assertEquals("", RiTa.untokenize(new String[] { "" }));
 		String[][] input = {
 				new String[] { "We", "should", "consider", "the", "students", "'", "learning" },
@@ -399,13 +405,13 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testConcordance() {
+	public void callConcordance() {
 		//Map<String,String> data = RiTa.concordance("The dog ate the cat");
 		assertEquals("1", "0", "this function not in Java yet");
 	}
 
 	@Test
-	public void testSentences(){
+	public void callSentences(){
 		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
 		String[] input = {
 			"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",

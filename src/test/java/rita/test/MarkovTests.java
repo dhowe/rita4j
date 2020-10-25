@@ -24,18 +24,18 @@ public class MarkovTests {
 	String sample3 = sample + " One reason people are dishonest is to achieve power.";
 
 	@Test
-	public void testConstructor() {
+	public void callConstructor() {
 		Markov rm = new Markov(3);
 		assertTrue(rm != null);
 	}
 
 	@Test
-	public void testCallCreateMarkov() {
+	public void callCreateMarkov() {
 		assertTrue(RiTa.createMarkov(3) != null);
 	}
 
 	@Test
-	public void testRandomSelect() {
+	public void callRandomSelect() {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
@@ -76,7 +76,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testRandGenNdist() {
+	public void callRandGenNdist() {
 		assertThrows(RiTaException.class, () -> RandGen.ndist(new double[] { 1.0, 2, 6, -2.5, 0 }));
 
 		double[] weights = { 2, 1 };
@@ -119,7 +119,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testRandomndistTemp() {
+	public void callRandomndistTemp() {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[][] expected = {
 				{ 0, 0, 1, 0, 0 },
@@ -142,7 +142,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testInitSentence() {
+	public void callInitSentence() {
 		Markov rm = new Markov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
@@ -159,14 +159,14 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testFailedGenerate() {
+	public void throwOnFailedGenerate() {
 		Markov rm = new Markov(4);
 		rm.addText(RiTa.sentences("just two sentences. should fail."));
 		assertThrows(RiTaException.class, () -> rm.generate(5));
 	}
 
 	@Test
-	public void testNonEnglishSentences() {
+	public void generateNonEnglishSentences() {
 		String text = "家 安 春 夢 家 安 春 夢 ！ 家 安 春 夢 德 安 春 夢 ？ 家 安 春 夢 安 安 春 夢 。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
 		Markov rm = new Markov(4);
@@ -182,7 +182,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testCustomTokenizer() {
+	public void applyCustomTokenizer() {
 		String text = "家安春夢家安春夢！家安春夢德安春夢？家安春夢安安春夢。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
 		Map<String, Object> hm = opts();
@@ -209,7 +209,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerate() {
+	public void callGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
 		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
@@ -238,7 +238,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateMinMaxLength() {
+	public void callGenerateMinMaxLength() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		int minLength = 7;
 		int maxLength = 20;
@@ -270,7 +270,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateStart() {
+	public void callGenerateStart() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
@@ -296,7 +296,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateStartArray() {
+	public void callGenerateStartArray() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
@@ -345,7 +345,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateMLM() {
+	public void callGenerateMLM() {
 		int mlms = 10;
 		Markov rm = new Markov(3, opts("maxLengthMatch", mlms, "trace", false));
 		rm.addText(RiTa.sentences(sample3));
@@ -373,7 +373,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testCompletions() {
+	public void callCompletions() {
 		Markov rm = new Markov(4);
 		rm.addText((sample));
 
@@ -424,7 +424,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbabilities() {
+	public void callProbabilities() {
 		Markov rm = new Markov(3);
 		rm.addText((sample));
 
@@ -447,7 +447,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbabilitiesArray() {
+	public void callProbabilitiesArray() {
 		Markov rm = new Markov(4);
 		rm.addText(sample2);
 
@@ -495,7 +495,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbability() {
+	public void callProbability() {
 		String text = "the dog ate the boy the";
 		Markov rm = new Markov(3);
 		rm.addText(text);
@@ -518,7 +518,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbabilityArray() {
+	public void callProbabilityArray() {
 		Markov rm = new Markov(3);
 		rm.addText(sample);
 		float expected = 0;
@@ -540,7 +540,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testAddText() {
+	public void callAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
 		int count = sents.length;
@@ -563,7 +563,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testChildCount() {
+	public void callNodeChildCount() {
 		Markov rm = new Markov(2);
 		eq(0, rm.root.childCount());
 
@@ -574,7 +574,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testToString() {
+	public void callToString() {
 
 		Markov rm;
 		String exp;
@@ -593,7 +593,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testSize() {
+	public void callSize() {
 
 		Markov rm = new Markov(4);
 		eq(rm.size(), 0);
@@ -611,7 +611,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testFailForSentenceInput() {
+	public void failForSentenceInput() {
 		Markov rm = new Markov(4);
 		rm.addText(new String[] { "I ate the dog." });
 		//rm.generate();
@@ -619,7 +619,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testDisableInputChecks() {
+	public void handleDisableInputChecks() {
 		Markov rm = new Markov(4, opts("disableInputChecks", false));
 		rm.addText("I ate the dog.");
 		assertTrue(rm.input instanceof Object);
@@ -630,7 +630,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testSerializeAndDeserialize() {
+	public void serializeAndDeserialize() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		rm.addText(new String[] { "I ate the dog." });
 		// TODO: fromJSON

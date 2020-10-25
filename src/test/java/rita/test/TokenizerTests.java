@@ -8,7 +8,7 @@ import rita.RiTa;
 public class TokenizerTests {
 
 	@Test
-	public void testTokenizeAndBack() {
+	public void callTokenizeThenUntokenize() {
 		
 		// JC: why are some of these commented out?
 		String[] tests = {
@@ -57,7 +57,7 @@ public class TokenizerTests {
 	}
 
 	@Test
-	public void testTokenize() {
+	public void callTokenize() {
 
 		arrayEq(RiTa.tokenize(""), new String[] { "" });
 		arrayEq(RiTa.tokenize("The dog"), new String[] { "The", "dog" });
@@ -231,7 +231,7 @@ public class TokenizerTests {
 	}
 
 	@Test
-	public void testUntokenize() {
+	public void callUntokenize() {
 
 		eq(RiTa.untokenize(new String[] { "" }), "");
 
@@ -389,7 +389,7 @@ public class TokenizerTests {
 	}
 
 	@Test
-	public void testSentences() {
+	public void callSentences() {
 
 		String input = "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.";
 		String[] expected = new String[] {

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test;
 public class AnalyzerTests { // NOT IN SYNC WITH JS
 
 	@Test
-	public void testSingularize() {
+	public void callSingularize() {
 
 		String[] tests = {
 				"media", "medium",
@@ -148,7 +148,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testPluralize() {
+	public void callPluralize() {
 		String[] tests = {
 			"media", "medium",
 			"millennia", "millennium",
@@ -275,7 +275,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testSingularPluralPairs() {
+	public void handleSingularPluralPairs() {
 
 		String[] testPairs = {
 				"dazes", "daze",
@@ -472,7 +472,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testAnalyzeLts() {
+	public void callAnalyzeLts() {
 		// failing bc of testComputePhones (above)
 		Map<String, String> feats = RiTa.analyze("cloze");
 		eq(feats.get("pos"), "nn");
@@ -481,7 +481,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testAnalyze() {
+	public void callAnalyze() {
 
 		Map<String, String> feats;
 
@@ -514,7 +514,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testStresses() {
+	public void callStresses() {
 
 		String result, answer;
 
@@ -554,7 +554,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testPhonemes() {
+	public void callPhonemes() {
 
 		String result, answer;
 
@@ -613,13 +613,13 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 	}
 
 	@Test
-	public void testSyllableLts() {
+	public void callSyllableLts() {
 		String result = RiTa.syllables("The Laggin");
 		eq(result, "dh-ah l-ae/g-ih-n", "got '" + result + "'");
 	}
 
 	@Test
-	public void testSyllables() {
+	public void callSyllables() {
 		// syllables()
 
 		eq(RiTa.syllables("clothes"), "k-l-ow-dh-z");

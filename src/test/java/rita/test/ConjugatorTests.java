@@ -15,7 +15,7 @@ import java.util.Map;
 public class ConjugatorTests {
 
 	@Test
-	public void testPastParticiple() {
+	public void callPastParticiple() {
 		eq(RiTa.pastParticiple("sleep"), "slept");
 		eq(RiTa.pastParticiple("withhold"), "withheld");
 
@@ -45,7 +45,7 @@ public class ConjugatorTests {
 	}
 
 	@Test
-	public void testPresentParticiple() {
+	public void callPresentParticiple() {
 
 		eq(RiTa.presentParticiple("sleep"), "sleeping");
 		eq(RiTa.presentParticiple("withhold"), "withholding");
@@ -73,7 +73,7 @@ public class ConjugatorTests {
 	}
 
 	@Test
-	public void testConjugateVbd() {
+	public void callConjugateVbd() {
 		Map<String, Object> args = new HashMap<String, Object>();
 		args.put("tense", RiTa.PAST_TENSE);
 		args.put("number", RiTa.SINGULAR);
@@ -92,7 +92,7 @@ public class ConjugatorTests {
 	}
 
 	@Test
-	public void testConjugate() {
+	public void callConjugate() {
 
 
 		String[] s, a;

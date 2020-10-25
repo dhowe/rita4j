@@ -13,7 +13,7 @@ import static rita.Util.opts;
 public class TaggerTests {
 
 	@Test
-	public void testPosArray() {
+	public void callPosArray() {
 		arrayEq(RiTa.pos(new String[0]), new String[0]);
 		arrayEq(RiTa.pos(new String[] { "deal" }), new String[] { "nn" });
 		arrayEq(RiTa.pos(new String[] { "freed" }), new String[] { "jj" });
@@ -29,7 +29,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testPosArrayWithSimple() {
+	public void callPosArrayWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 		arrayEq(RiTa.pos(new String[0], hm), new String[0]);
@@ -45,14 +45,14 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testPosArrayWithInlineSimple() {
+	public void callPosArrayWithInlineSimple() {
 		//Map<String,Object> options = opts("inline", true, "simple", true);
 		//arrayEq(RiTa.pos(new String[0], options), new String[0]);
 		assertEquals("1", "0", "function N/A in java");
 	}
 
 	@Test
-	public void testInflectedVerbs() {
+	public void callInflectedVerbs() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
@@ -80,7 +80,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testPos() {
+	public void callPos() {
 
 		String[] result, answer, resultArr, answerArr;
 		String txt;
@@ -217,7 +217,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testPosWithSimple() {
+	public void callPosWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
@@ -232,12 +232,12 @@ public class TaggerTests {
 	}
 
 	@Test 
-	public void testPosWithInline(){
+	public void callPosWithInline(){
 		assertEquals("1", "0", "function N/A in Java");
 	}
 
 	@Test
-	public void testPosInline() {
+	public void callPosInline() {
 
 		String result, answer;
 		String txt;
@@ -298,12 +298,12 @@ public class TaggerTests {
 	}
 
 	@Test 
-	public void testPosWithInlineSimple() {
+	public void callPosWithInlineSimple() {
 		assertEquals("1", "0", "function N/A in Java");
 	}
 
 	@Test
-	public void testPosInlineWithSimple() {
+	public void callPosInlineWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
@@ -364,7 +364,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsAdverb() {
+	public void callIsAdverb() {
 
 		assertTrue(!RiTa.isAdverb(""));
 		assertTrue(!RiTa.isAdverb("swim"));
@@ -412,7 +412,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsNoun() {
+	public void callIsNoun() {
 
 		// nn
 
@@ -480,7 +480,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsVerb() {
+	public void callIsVerb() {
 		assertTrue(RiTa.isVerb("abandons"));
 
 		assertTrue(RiTa.isVerb("dance"));
@@ -558,7 +558,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsAdjective() {
+	public void callIsAdjective() {
 
 		assertTrue(!RiTa.isAdjective("swim"));
 		assertTrue(!RiTa.isAdjective("walk"));
