@@ -438,7 +438,7 @@ public class RiScriptTests {
 		assertTrue(Arrays.asList(possibleResults).contains(rs));
 
 		ctx.put("name", "(Dave1 | Dave2)");
-		rs = RiTa.evaluate("$name=(Dave1 | Dave2)\n[$stored=$name] is $stored", ctx);
+		rs = RiTa.evaluate("$name=(Dave1 | Dave2)\n[$stored=$name] is $stored", ctx=opts());
 
 		String[] possibleNames = { "Dave1", "Dave2" };
 		assertTrue(Arrays.asList(possibleNames).contains(ctx.get("stored")));
@@ -446,7 +446,7 @@ public class RiScriptTests {
 		String[] possibleResult2 = { "Dave1 is Dave1", "Dave2 is Dave2" };
 		assertTrue(Arrays.asList(possibleResult2).contains(rs));
 
-		rs = RiTa.evaluate("$name=(Dave | Dave)\n[$stored=$name] is called $stored", ctx);
+		rs = RiTa.evaluate("$name=(Dave | Dave)\n[$stored=$name] is called $stored", ctx=opts());
 		assertEq(rs, "Dave is called Dave");
 	}
 
@@ -455,30 +455,29 @@ public class RiScriptTests {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("[$foo=hi]", ctx), "hi");
 		//if (1==1)return;
-		assertEq(RiTa.evaluate("[$foo=(hi | hi)] there", ctx), "hi there");
-		assertEq(RiTa.evaluate("[$foo=(hi | hi).ucf()] there", ctx), "Hi there");
+		assertEq(RiTa.evaluate("[$foo=(hi | hi)] there", opts()), "hi there");
+		assertEq(RiTa.evaluate("[$foo=(hi | hi).ucf()] there", opts()), "Hi there");
 
-		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", ctx),
-				RiTa.evaluate("[$foo=(hi | hi)] there", ctx));
+		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", opts()),
+				RiTa.evaluate("[$foo=(hi | hi)] there", opts()));
 
 		String exp = "A dog is a mammal";
-		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", ctx), "B");
+		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", opts()), "B");
 
-		assertEq(RiTa.evaluate("[$stored=(a | a)] dog is a mammal", ctx), exp.toLowerCase());
+		assertEq(RiTa.evaluate("[$stored=(a | a)] dog is a mammal", ctx=opts()), exp.toLowerCase());
 		assertEq(ctx.get("stored"), "a");
 
-		assertEq(RiTa.evaluate("[$stored=(a | a).toUpperCase()] dog is a mammal", ctx), exp);
+		assertEq(RiTa.evaluate("[$stored=(a | a).toUpperCase()] dog is a mammal", ctx=opts()), exp);
 		assertEq(ctx.get("stored"), "A");
 
-		assertEq(RiTa.evaluate("$stored=(a | a)\n$stored.toUpperCase() dog is a mammal", ctx), exp);
+		assertEq(RiTa.evaluate("$stored=(a | a)\n$stored.toUpperCase() dog is a mammal", ctx=opts()), exp);
 		assertEq(ctx.get("stored"), "a");
 
-		assertEq(RiTa.evaluate("$stored=(a | a)\n$stored.toUpperCase() dog is a mammal", ctx), exp);
+		assertEq(RiTa.evaluate("$stored=(a | a)\n$stored.toUpperCase() dog is a mammal", ctx=opts()), exp);
 		assertEq(ctx.get("stored"), "a");
 
-		assertEq(RiTa.evaluate("[$stored=(a | a)] dog is a mammal", ctx), exp.toLowerCase());
+		assertEq(RiTa.evaluate("[$stored=(a | a)] dog is a mammal", ctx=opts()), exp.toLowerCase());
 		assertEq(ctx.get("stored"), "a");
-
 	}
 
 	@Test

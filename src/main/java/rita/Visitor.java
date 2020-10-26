@@ -91,7 +91,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
     // if we've already resolved (likely as an inline) then reuse it
 		Object lookup = this.context.get(id);
 		if (lookup instanceof String && !this.parent.isParseable((String) lookup)) {
-      if (trace) console.log("resolveInline[0]: $" + id + " -> '" + lookup + "' (already defined)");
+      if (trace) console.log("symbolDefined[0]: $" + id + " -> '" + lookup + "' (already defined)");
       visited = (String) lookup;
 		}
 		else {
@@ -101,11 +101,15 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		}
 
 		// apply transforms if we have them
-		if (txs.size() < 1) return visited;
+		if (txs.size() < 1) {
+			if (this.trace) System.out.println("resolveInline[1]: $"
+					+ id + " -> '" + visited + "'");
+			return visited;
+		}
 		String applied = applyTransforms(visited, txs);
 		String result = applied != null ? applied : visited + flatten(txs);
 
-		if (this.trace) System.out.println("resolveInline: $"
+		if (this.trace) System.out.println("resolveInline[2]: $"
 				+ id + " -> '" + result + "'");
 
 		// return result or defer for later
