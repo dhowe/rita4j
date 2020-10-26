@@ -180,7 +180,7 @@ public class RiScriptTests {
     String[] expected = {"Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete."};
 
     String rs;
-    rs = RiTa.evaluate("$person talks to $person.", opts("person", "(Dave | Jill | Pete)" ), TT);
+    rs = RiTa.evaluate("$person talks to $person.", opts("person", "(Dave | Jill | Pete)" ));
 		assertTrue(Arrays.asList(expected).contains(rs));
     
     rs = RiTa.evaluate("[$person=(Dave | Jill | Pete)] talks to [$person=(Dave | Jill | Pete)].");
@@ -717,7 +717,7 @@ public class RiScriptTests {
 
 	@Test
 	public void symbolsInMultiwordTransforms() {
-		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the", null, opts("trace", true));
+		String res = RiTa.evaluate("($a dog).pluralize()\n$a=the");
 		assertEquals("the dogs", res); 
 	}
 	
@@ -1022,7 +1022,7 @@ public class RiScriptTests {
 		dog.put("getColor", func);
 		String input = "$dog.name.ucf() was a $dog.getColor() dog.";
 		String expected = "Spot was a red dog.";
-		assertEq(RiTa.evaluate(input, opts("dog", dog),TT), expected);
+		assertEq(RiTa.evaluate(input, opts("dog", dog)), expected);
 	}
 
 	@Test

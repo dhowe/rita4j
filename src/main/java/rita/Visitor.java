@@ -86,19 +86,19 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (this.trace) System.out.println("visitInline: $"
 				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
 
-    // if we've already resolved (likely as an inline) just return
+		String visited = null;
+		
+    // if we've already resolved (likely as an inline) then reuse it
 		Object lookup = this.context.get(id);
-		if (lookup != null && lookup instanceof String) {
-			String lookupStr = (String) lookup;
-	    if (ctx != null && !this.parent.isParseable(lookupStr)) {
-	      if (trace) console.log("resolveInline[0]: $" + id + " -> '" + lookupStr + "' (already defined)");
-	      return lookupStr;
-	    }
+		if (lookup instanceof String && !this.parent.isParseable((String) lookup)) {
+      if (trace) console.log("resolveInline[0]: $" + id + " -> '" + lookup + "' (already defined)");
+      visited = (String) lookup;
 		}
-    
-		// visit the token and add result to the context
-		String visited = this.visit(token);
-		this.context.put(id, visited);
+		else {
+			// otherwise, visit token and add result to context
+			visited = this.visit(token);
+			this.context.put(id, visited);
+		}
 
 		// apply transforms if we have them
 		if (txs.size() < 1) return visited;
