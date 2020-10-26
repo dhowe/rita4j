@@ -17,12 +17,12 @@ public class LexiconTests {
 	// TODO: use opts() instead of creating Maps
 
 	@Test
-	public void testHasWord() {
+	public void callHasWord() {
 		assertTrue(RiTa.hasWord("random"));
 	}
 
 	@Test
-	public void testRandomWord() {
+	public void callRandomWord() {
 		String result;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "xxx");
@@ -64,7 +64,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testAugmentedLexicon() {
+	public void handleAnAugmentedLexicon() {
 		Lexicon lexicon = RiTa._lexicon();
 		lexicon.dict.put("deg", new String[] { "d-eh1-g", "nn" });
 		lexicon.dict.put("wadly", new String[] { "w-ae1-d l-iy", "rb" });
@@ -81,7 +81,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testCustomLexicon() {
+	public void hanldeACustomLexicon() {
 		Lexicon lexicon = RiTa._lexicon();
 		Map<String, String[]> orig = lexicon.dict;
 		Map<String, String[]> data = new HashMap<String, String[]>();
@@ -102,7 +102,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRandomWordNNS() {
+	public void callRandomWordNNS() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "nns");
 		//Map<String, Object> bad = new HashMap<String, Object>();
@@ -134,7 +134,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRandomWordPos() {
+	public void callRandomWordPos() {
 		String[] pos = { "nn", "jj", "jjr", "wp" };
 		Map<String, Object> hm = new HashMap<String, Object>();
 
@@ -152,7 +152,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRandomWordSyls() {
+	public void callRandomWordSyls() {
 		int i = 0;
 		String result = "";
 		String syllables = "";
@@ -181,12 +181,12 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSearchWithoutOpts() {
+	public void callSearchWithoutOpts() {
 		assertTrue(RiTa.search().length > 20000);
 	}
 
 	@Test
-	public void testSearchWithLetters() {
+	public void callSearchWithLetters() {
 		String[] results = {
 				"elephant",
 				"elephantine",
@@ -195,12 +195,12 @@ public class LexiconTests {
 				"triumphant",
 				"triumphantly"
 		};
-		assertArrayEquals(RiTa.search("phant"), results);
-		//assertArrayEquals(RiTa.search("/phant/"), results);
+		assertArrayEquals(results, RiTa.search("phant"));
+		assertArrayEquals(results, RiTa.search("/phant/"));
 	}
 
 	@Test
-	public void testSearchWithPhones() {
+	public void callSearchWithPhones() {
 
 		String[] res1 = RiTa.search("f-ah-n-t", opts("type", "phones", "limit", 5));
 		//System.out.println(Arrays.asList(res1));
@@ -229,7 +229,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSearchWithPos() {
+	public void callSearchWithPos() {
 		String[] res;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("type", "stresses");
@@ -283,7 +283,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSearchWithStress() {
+	public void callSearchWithStress() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("type", "stresses");
 		hm.put("limit", 5);
@@ -324,7 +324,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRandomWordPosSyls() {
+	public void callRandomWordPosSyls() {
 		// function fail(result, epos) {
 		// let test = result.endsWith('es') ? result.substring(-2) : result;
 		// let ent = RiTa.lexicon()[test];
@@ -344,7 +344,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 3);
+				assertEquals(3, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isVerb(result));
 
 				hm.clear();
@@ -353,7 +353,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertEquals(1, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 				hm.clear();
@@ -362,7 +362,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 1);
+				assertEquals(1, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 				hm.clear();
@@ -371,7 +371,7 @@ public class LexiconTests {
 				result = RiTa.randomWord(hm);
 				assertTrue(result.length() > 0);
 				syllables = RiTa.syllables(result);
-				assertEquals(syllables.split(RiTa.SYLLABLE_BOUNDARY).length, 5);
+				assertEquals(5, syllables.split(RiTa.SYLLABLE_BOUNDARY).length);
 				assertTrue(RiTa.isNoun(result));
 
 			}
@@ -382,7 +382,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testToPhoneArray() {
+	public void callToPhoneArray() {
 
 		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon().rawPhones("tornado", false));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
@@ -390,7 +390,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testAlliterationsNumSyllables() {
+	public void callAlliterationsNumSyllables() {
 
 		String[] result = RiTa.alliterations("cat",
 				opts("minLength", 1, "numSyllables", 7));
@@ -406,7 +406,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testAlliterationsPos() {
+	public void callAlliterationsPos() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("minLength", 1);
 		hm.put("numSyllables", 7);
@@ -459,7 +459,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testAlliterations() {
+	public void callAlliterations() {
 
 		String[] result;
 
@@ -524,7 +524,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRhymes() {
+	public void callRhymes() {
 
 		assertTrue(Arrays.asList(RiTa.rhymes("cat")).contains("hat"));
 		assertTrue(Arrays.asList(RiTa.rhymes("yellow")).contains("mellow"));
@@ -551,7 +551,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRhymesPos() {
+	public void callRhymesPos() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "v");
 
@@ -585,7 +585,7 @@ public class LexiconTests {
 	} 
 
 	@Test
-	public void testRhymesNumSyllables() {
+	public void callRhymesNumSyllables() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("numSyllables", 1);
 		assertTrue(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
@@ -602,7 +602,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testRhymesWordLength() {
+	public void callRhymesWordLength() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("minLength", 4);
 		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
@@ -613,7 +613,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSpellsLike() {
+	public void callSpellsLike() {
 		String[] result;
 		
 		// TODO: use opts()
@@ -699,7 +699,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSoundsLike() {
+	public void callSoundsLike() {
 		String[] result, answer;
 
 		result = RiTa.soundsLike("tornado");
@@ -747,7 +747,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testSoundsLikeMatchSpelling() {
+	public void callSoundsLikeMatchSpelling() {
 		String[] result, answer;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("matchSpelling", true);
@@ -787,7 +787,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testIsRhyme() {
+	public void callIsRhyme() {
 
 		assertTrue(!RiTa.isRhyme("apple", "polo"));
 		assertTrue(!RiTa.isRhyme("this", "these"));
@@ -819,7 +819,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void testIsAlliteration() {
+	public void callIsAlliteration() {
 
 		assertTrue(RiTa.isAlliteration("knife", "gnat")); // gnat=lts
 		assertTrue(RiTa.isAlliteration("knife", "naughty"));

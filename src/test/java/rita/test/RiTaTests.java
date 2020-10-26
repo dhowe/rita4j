@@ -12,7 +12,13 @@ import rita.RiTa;
 public class RiTaTests {
 
 	@Test
-	public void testStem() {
+	public void accessStaticConstantAndFunction() {
+		assertEquals("2", RiTa.VERSION);
+		assertTrue(RiTa.hasWord("dog"));
+	}
+
+	@Test
+	public void callStem() {
 		String[] tests = {
 				"boy", "boy",
 				"boys", "boy",
@@ -41,25 +47,26 @@ public class RiTaTests {
 		for (int i = 0; i < tests.length; i += 2) {
 			// System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i +
 			// 1]);
-			assertEquals(RiTa.stem(tests[i]), tests[i + 1]);
+			assertEquals(tests[i + 1], RiTa.stem(tests[i]));
 		}
 
 	}
 
 	@Test
-	public void testRandomOrdering() {
+	public void callRandomOrdering() {
 		int[] result = new int[] { 0 };
-		assertArrayEquals(RiTa.randomOrdering(1), result);
+		assertArrayEquals(result, RiTa.randomOrdering(1));
 		int[] result2 = new int[] { 0, 1 };
 		int[] ro = RiTa.randomOrdering(2);
 		Arrays.sort(ro);
-		assertArrayEquals(ro, result2);
+		assertArrayEquals(result2, ro);
 		// expect(RiTa.randomOrdering(['a'])).	['a']);
 		// expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
+		// not in Java yet
 	}
 
 	@Test
-	public void testIsQuestion() {
+	public void callIsQuestion() {
 		assertTrue(RiTa.isQuestion("What"));
 		assertTrue(RiTa.isQuestion("what"));
 		assertTrue(RiTa.isQuestion("what is this"));
@@ -77,7 +84,21 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testIsAbbreviation() { // TODO add second parameter tests
+	public void callArticlize() {
+		String[] data = {
+				"a dog", "dog",
+				"an ant", "ant",
+				"an honor", "honor",
+				"an eagle", "eagle",
+				"an ermintrout", "ermintrout"
+		};
+		for (int i = 0; i < data.length; i += 2) {
+			assertEquals(data[i], RiTa.articlize(data[i + 1]));
+		}
+	}
+
+	@Test
+	public void callIsAbbreviation() { // TODO add second parameter tests
 
 		assertTrue(RiTa.isAbbreviation("Dr."));
 		assertTrue(!RiTa.isAbbreviation("dr."));
@@ -122,7 +143,7 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testIsPunctuation() {
+	public void callIsPunctuation() {
 
 		assertTrue(!RiTa.isPunctuation("What the"));
 		assertTrue(!RiTa.isPunctuation("What ! the"));
@@ -188,8 +209,246 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void testConcordance() {
-		// TODO
+	public void callTokenize() {
+		String[] expect = { "" };
+		assertArrayEquals(expect, RiTa.tokenize(""));
+		expect = new String[] { "The", "dog" };
+		assertArrayEquals(expect, RiTa.tokenize("The dog"));
+
+		String[] input = {
+				"The student said 'learning is fun'",
+				"\"Oh God,\" he thought.",
+				"The boy, dressed in red, ate an apple.",
+				"why? Me?huh?!",
+				"123 123 1 2 3 1,1 1.1 23.45.67 22/05/2012 12th May,2012",
+				"The boy screamed, \"Where is my apple?\"",
+				"The boy screamed, \u201CWhere is my apple?\u201D",
+				"The boy screamed, 'Where is my apple?'",
+				"The boy screamed, \u2018Where is my apple?\u2019",
+				"dog, e.g. the cat.",
+				"dog, i.e. the cat.",
+				"What does e.g. mean? E.g. is used to introduce a few examples, not a complete list.",
+				"What does i.e. mean? I.e. means in other words.",
+				"it cost $30",
+				"calculate 2^3",
+				"30% of the students",
+				"A simple sentence.",
+				"that's why this is our place).",
+				"most, punctuation; is. split: from! adjoining words?",
+				"double quotes \"OK\"",
+				"face-to-face class",
+				"\"it is strange\", said John, \"Katherine does not drink alchol.\"",
+				"\"What?!\", John yelled.",
+				"more abbreviations: a.m. p.m. Cap. c. et al. etc. P.S. Ph.D R.I.P vs. v. Mr. Ms. Dr. Pf. Mx. Ind. Inc. Corp. Co.,Ltd. Co., Ltd. Co. Ltd. Ltd. Prof.",
+				"elipsis dots... another elipsis dots…",
+				"(testing) [brackets] {all} ⟨kinds⟩",
+		};
+
+		String[][] output = {
+				new String[] { "The", "student", "said", "'", "learning", "is", "fun", "'" },
+				new String[] { "\"", "Oh", "God", ",", "\"", "he", "thought", "." },
+				new String[] { "The", "boy", ",", "dressed", "in", "red", ",", "ate", "an", "apple", "." },
+				new String[] { "why", "?", "Me", "?", "huh", "?", "!" },
+				new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1", ".", "1", "23", ".", "45", ".", "67", "22/05/2012", "12th", "May",
+						",", "2012" },
+				new String[] { "The", "boy", "screamed", ",", "\"", "Where", "is", "my", "apple", "?", "\"" },
+				new String[] { "The", "boy", "screamed", ",", "\u201C", "Where", "is", "my", "apple", "?", "\u201D" },
+				new String[] { "The", "boy", "screamed", ",", "'", "Where", "is", "my", "apple", "?", "'" },
+				new String[] { "The", "boy", "screamed", ",", "\u2018", "Where", "is", "my", "apple", "?", "\u2019" },
+				new String[] { "dog", ",", "e.g.", "the", "cat", "." },
+				new String[] { "dog", ",", "i.e.", "the", "cat", "." },
+				new String[] { "What", "does", "e.g.", "mean", "?", "E.g.", "is", "used", "to", "introduce", "a", "few", "examples", ",", "not", "a",
+						"complete", "list", "." },
+				new String[] { "What", "does", "i.e.", "mean", "?", "I.e.", "means", "in", "other", "words", "." },
+				new String[] { "it", "cost", "$", "30" },
+				new String[] { "calculate", "2", "^", "3" },
+				new String[] { "30", "%", "of", "the", "students" },
+				new String[] { "A", "simple", "sentence", "." },
+				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
+				new String[] { "most", ",", "punctuation", ";", "is", ".", "split", ":", "from", "!", "adjoining", "words", "?" },
+				new String[] { "double", "quotes", "\"", "OK", "\"" },
+				new String[] { "face-to-face", "class" },
+				new String[] { "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".",
+						"\"" },
+				new String[] { "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
+				new String[] { "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.",
+						"Mr.", "Ms.", "Dr.", "Pf.", "Mx.", "Ind.", "Inc.", "Corp.", "Co.,Ltd.", "Co., Ltd.", "Co. Ltd.", "Ltd.", "Prof." },
+				new String[] { "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
+				new String[] { "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" }
+		};
+		assertTrue(input.length == output.length);
+		for (int i = 0; i < input.length; i++) {
+			assertArrayEquals(output[i], RiTa.tokenize(input[i]));
+		}
+
+		//contractions----------------------------
+		String[] cIn = {
+				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
+				"He can't didn't couldn't shouldn't wouldn't eat.",
+				"Shouldn't he eat?",
+				"It's not that I can't.",
+				"We've found the cat.",
+				"We didn't find the cat.",
+				"it's 30°C outside"
+		};
+		String[][] cOut1 = {
+				new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they", "are", "friends", "." },
+				new String[] { "He", "can", "not", "did", "not", "could", "not", "should", "not", "would", "not", "eat", "." },
+				new String[] { "Should", "not", "he", "eat", "?" },
+				new String[] { "It", "is", "not", "that", "I", "can", "not", "." },
+				new String[] { "We", "have", "found", "the", "cat", "." },
+				new String[] { "We", "did", "not", "find", "the", "cat", "." },
+				new String[] { "it", "is", "30", "°", "C", "outside" }
+		};
+		RiTa.SPLIT_CONTRACTIONS = true;
+		assertTrue(cIn.length == cOut1.length);
+		for (int i = 0; i < cIn.length; i++) {
+			assertArrayEquals(cOut1[i], RiTa.tokenize(cIn[i]));
+		}
+		String[][] cOut2 = {
+				new String[] { "Dr.", "Chan", "is", "talking", "slowly", "with", "Mr.", "Cheng", ",", "and", "they're", "friends", "." },
+				new String[] { "He", "can't", "didn't", "couldn't", "shouldn't", "wouldn't", "eat", "." },
+				new String[] { "Shouldn't", "he", "eat", "?" },
+				new String[] { "It's", "not", "that", "I", "can't", "." },
+				new String[] { "We've", "found", "the", "cat", "." },
+				new String[] { "We", "didn't", "find", "the", "cat", "." },
+				new String[] { "it's", "30", "°", "C", "outside" }
+		};
+		assertTrue(cIn.length == cOut2.length);
+		RiTa.SPLIT_CONTRACTIONS = false;
+		for (int i = 0; i < cIn.length; i++) {
+			assertArrayEquals(cOut2[i], RiTa.tokenize(cIn[i]));
+		}
+	}
+
+	@Test
+	public void callUntokenize() {
+		assertEquals("", RiTa.untokenize(new String[] { "" }));
+		String[][] input = {
+				new String[] { "We", "should", "consider", "the", "students", "'", "learning" },
+				new String[] { "The", "boy", ",", "dressed", "in", "red", ",", "ate", "an", "apple", "." },
+				new String[] { "We", "should", "consider", "the", "students", "\u2019", "learning" },
+				new String[] { "The", "boy", "screamed", ",", "'", "Where", "is", "my", "apple", "?", "'" },
+				new String[] { "Dr", ".", "Chan", "is", "talking", "slowly", "with", "Mr", ".", "Cheng", ",", "and", "they're", "friends", "." },
+				new String[] { "why", "?", "Me", "?", "huh", "?", "!" },
+				new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1", ".", "1", "23", ".", "45", ".", "67", "22/05/2012", "12th", "May",
+						",", "2012" },
+				new String[] { "\"", "Oh", "God", ",", "\"", "he", "thought", "." },
+				new String[] { "The", "boy", "screamed", ",", "'", "Where", "is", "my", "apple", "?", "'" },
+				new String[] { "She", "screamed", ",", "\"", "Oh", "God", "!", "\"" },
+				new String[] { "\"", "Oh", ",", "God", "\"", ",", "he", "thought", ",", "\"", "not", "rain", "!", "\"" },
+				new String[] { "The", "student", "said", "'", "learning", "is", "fun", "'" },
+				new String[] { "dog", ",", "e.g.", "the", "cat", "." },
+				new String[] { "dog", ",", "i.e.", "the", "cat", "." },
+				new String[] { "What", "does", "e.g.", "mean", "?", "E.g.", "is", "used", "to", "introduce", "a", "few", "examples", ",", "not", "a",
+						"complete", "list", "." },
+				new String[] { "What", "does", "i.e.", "mean", "?", "I.e.", "means", "in", "other", "words", "." },
+				new String[] { "A", "simple", "sentence", "." },
+				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
+				new String[] { "this", "is", "for", "semicolon", ";", "that", "is", "for", "else" },
+				new String[] { "this", "is", "for", "2", "^", "3", "2", "*", "3" },
+				new String[] { "this", "is", "for", "$", "30", "and", "#", "30" },
+				new String[] { "this", "is", "for", "30", "°", "C", "or", "30", "\u2103" },
+				new String[] { "this", "is", "for", "a", "/", "b", "a", "⁄", "b" },
+				new String[] { "this", "is", "for", "«", "guillemets", "»" },
+				new String[] { "this", "...", "is", "…", "for", "ellipsis" },
+				new String[] { "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" },
+				new String[] { "Katherine", "’", "s", "cat", "and", "John", "'", "s", "cat" },
+				new String[] { "this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done" },
+				new String[] { "this", "line", "is", "for", "the", "-", "dash" },
+				new String[] { "30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "." },
+				new String[] { "\"", "that", "test", "line", "\"" },
+				new String[] { "my", "email", "address", "is", "name", "@", "domin", ".", "com" },
+				new String[] { "it", "is", "www", ".", "google", ".", "com" },
+				new String[] { "that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" },
+		};
+		String[] output = {
+				"We should consider the students' learning",
+				"The boy, dressed in red, ate an apple.",
+				"We should consider the students\u2019 learning",
+				"The boy screamed, 'Where is my apple?'",
+				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
+				"why? Me? huh?!",
+				"123 123 1 2 3 1, 1 1. 1 23. 45. 67 22/05/2012 12th May, 2012",
+				"\"Oh God,\" he thought.",
+				"The boy screamed, 'Where is my apple?'",
+				"She screamed, \"Oh God!\"",
+				"\"Oh, God\", he thought, \"not rain!\"",
+				"The student said 'learning is fun'",
+				"dog, e.g. the cat.",
+				"dog, i.e. the cat.",
+				"What does e.g. mean? E.g. is used to introduce a few examples, not a complete list.",
+				"What does i.e. mean? I.e. means in other words.",
+				"A simple sentence.",
+				"that's why this is our place).",
+				"this is for semicolon; that is for else",
+				"this is for 2^3 2*3",
+				"this is for $30 and #30",
+				"this is for 30°C or 30\u2103",
+				"this is for a/b a⁄b",
+				"this is for «guillemets»",
+				"this... is… for ellipsis",
+				"this line is 'for' single ‘quotation’ mark",
+				"Katherine’s cat and John's cat",
+				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
+				"this line is for the-dash",
+				"30% of the student love day-dreaming.",
+				"\"that test line\"",
+				"my email address is name@domin.com",
+				"it is www.google.com",
+				"that is www6.cityu.edu.hk"
+		};
+		assertTrue(input.length == output.length);
+		for (int i = 0; i < input.length; i++) {
+			assertEquals(output[i], RiTa.untokenize(input[i]));
+		}
+	}
+
+	@Test
+	public void callConcordance() {
+		//Map<String,String> data = RiTa.concordance("The dog ate the cat");
+		assertEquals("1", "0", "this function not in Java yet");
+	}
+
+	@Test
+	public void callSentences(){
+		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
+		String[] input = {
+			"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
+			"\"The boy went fishing.\", he said. Then he went away.",
+			"The dog",
+			"I guess the dog ate the baby.",
+			"Oh my god, the dog ate the baby!",
+			"Which dog ate the baby?",
+			"'Yes, it was a dog that ate the baby', he said.",
+			"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
+			"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
+			"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
+			"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
+			"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
+			"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
+			" I had a visit from my \"friend\" the tax man."
+		};
+		String[][] output = {
+			new String[] {"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.", "The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.", "If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs."},
+			new String[] {"\"The boy went fishing.\", he said.", "Then he went away."},
+			new String[] {"The dog"},
+			new String[] {"I guess the dog ate the baby."},
+			new String[] {"Oh my god, the dog ate the baby!"},
+			new String[] {"Which dog ate the baby?"},
+			new String[] {"\'Yes, it was a dog that ate the baby\', he said."},
+			new String[] {"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad."},
+			new String[] {"\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\""},
+			new String[] {"\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D"},
+			new String[] {"\"My dear Mr. Bennet.", "Netherfield Park is let at last.\""},
+			new String[] {"\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D"},
+			new String[] {"She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\""},
+			new String[] {"I had a visit from my \"friend\" the tax man."}
+		};
+		assertTrue(input.length == output.length);
+		for (int i = 0; i < input.length; i++) {
+			assertArrayEquals(output[i], RiTa.sentences(input[i]));
+		}
 	}
 
 }

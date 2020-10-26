@@ -8,225 +8,236 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
+import static rita.Util.opts;
 
 public class TaggerTests {
 
 	@Test
-	public void testPosArray() {
-		assertArrayEquals(RiTa.pos(new String[0]), new String[0]);
-		assertArrayEquals(RiTa.pos(new String[] { "deal" }), new String[] { "nn" });
-		assertArrayEquals(RiTa.pos(new String[] { "freed" }), new String[] { "jj" });
-		assertArrayEquals(RiTa.pos(new String[] { "the" }), new String[] { "dt" });
-		assertArrayEquals(RiTa.pos(new String[] { "a" }), new String[] { "dt" });
-		assertArrayEquals(RiTa.pos("the top seed".split(" ")), new String[] { "dt", "jj", "nn" });
-		assertArrayEquals(RiTa.pos("by illegal means".split(" ")), new String[] { "in", "jj", "nn" });
-		assertArrayEquals(RiTa.pos("He outnumbers us".split(" ")), new String[] { "prp", "vbz", "prp" });
-		assertArrayEquals(RiTa.pos("I outnumber you".split(" ")), new String[] { "prp", "vbp", "prp" });
-		assertArrayEquals(RiTa.pos("Elephants dance".split(" ")), new String[] { "nns", "vbp" });
-		assertArrayEquals(RiTa.pos("the boy dances".split(" ")), new String[] { "dt", "nn", "vbz" });
-		assertArrayEquals(RiTa.pos("Dave dances".split(" ")), new String[] { "nnp", "vbz" });
+	public void callPosArray() {
+		arrayEq(RiTa.pos(new String[0]), new String[0]);
+		arrayEq(RiTa.pos(new String[] { "deal" }), new String[] { "nn" });
+		arrayEq(RiTa.pos(new String[] { "freed" }), new String[] { "jj" });
+		arrayEq(RiTa.pos(new String[] { "the" }), new String[] { "dt" });
+		arrayEq(RiTa.pos(new String[] { "a" }), new String[] { "dt" });
+		arrayEq(RiTa.pos("the top seed".split(" ")), new String[] { "dt", "jj", "nn" });
+		arrayEq(RiTa.pos("by illegal means".split(" ")), new String[] { "in", "jj", "nn" });
+		arrayEq(RiTa.pos("He outnumbers us".split(" ")), new String[] { "prp", "vbz", "prp" });
+		arrayEq(RiTa.pos("I outnumber you".split(" ")), new String[] { "prp", "vbp", "prp" });
+		arrayEq(RiTa.pos("Elephants dance".split(" ")), new String[] { "nns", "vbp" });
+		arrayEq(RiTa.pos("the boy dances".split(" ")), new String[] { "dt", "nn", "vbz" });
+		arrayEq(RiTa.pos("Dave dances".split(" ")), new String[] { "nnp", "vbz" });
 	}
 
 	@Test
-	public void testPosArraySimple() {
+	public void callPosArrayWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
-		assertArrayEquals(RiTa.pos(new String[0], hm), new String[0]);
-		assertArrayEquals(RiTa.pos(new String[] { "freed" }, hm), new String[] { "a" });
-		assertArrayEquals(RiTa.pos(new String[] { "the" }, hm), new String[] { "-" });
-		assertArrayEquals(RiTa.pos(new String[] { "a" }, hm), new String[] { "-" });
-		assertArrayEquals(RiTa.pos("the top seed".split(" "), hm), new String[] { "-", "a", "n" });
-		assertArrayEquals(RiTa.pos("by illegal means".split(" "), hm), new String[] { "-", "a", "n" });
-		assertArrayEquals(RiTa.pos("He outnumbers us".split(" "), hm), new String[] { "-", "v", "-" });
-		assertArrayEquals(RiTa.pos("I outnumber you".split(" "), hm), new String[] { "-", "v", "-" });
-		assertArrayEquals(RiTa.pos("Elephants dance".split(" "), hm), new String[] { "n", "v" });
-		assertArrayEquals(RiTa.pos("the boy dances".split(" "), hm), new String[] { "-", "n", "v" });
+		arrayEq(RiTa.pos(new String[0], hm), new String[0]);
+		arrayEq(RiTa.pos(new String[] { "freed" }, hm), new String[] { "a" });
+		arrayEq(RiTa.pos(new String[] { "the" }, hm), new String[] { "-" });
+		arrayEq(RiTa.pos(new String[] { "a" }, hm), new String[] { "-" });
+		arrayEq(RiTa.pos("the top seed".split(" "), hm), new String[] { "-", "a", "n" });
+		arrayEq(RiTa.pos("by illegal means".split(" "), hm), new String[] { "-", "a", "n" });
+		arrayEq(RiTa.pos("He outnumbers us".split(" "), hm), new String[] { "-", "v", "-" });
+		arrayEq(RiTa.pos("I outnumber you".split(" "), hm), new String[] { "-", "v", "-" });
+		arrayEq(RiTa.pos("Elephants dance".split(" "), hm), new String[] { "n", "v" });
+		arrayEq(RiTa.pos("the boy dances".split(" "), hm), new String[] { "-", "n", "v" });
 	}
 
-	// NA: public void testPosArrayInlineSimple()
+	@Test
+	public void callPosArrayWithInlineSimple() {
+		//Map<String,Object> options = opts("inline", true, "simple", true);
+		//arrayEq(RiTa.pos(new String[0], options), new String[0]);
+		assertEquals("1", "0", "function N/A in java");
+	}
 
 	@Test
-	public void testInflectedVerbs() {
+	public void callInflectedVerbs() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
-		assertArrayEquals(RiTa.pos("disbelieves"), new String[] { "vbz" });
-		assertArrayEquals(RiTa.pos("disbelieves", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("disbelieves"), new String[] { "vbz" });
+		arrayEq(RiTa.pos("disbelieves", hm), new String[] { "v" });
 
-		assertArrayEquals(RiTa.pos("fates"), new String[] { "nns" });
-		assertArrayEquals(RiTa.pos("fates", hm), new String[] { "n" });
+		arrayEq(RiTa.pos("fates"), new String[] { "nns" });
+		arrayEq(RiTa.pos("fates", hm), new String[] { "n" });
 
-		assertArrayEquals(RiTa.pos("hates"), new String[] { "vbz" });
-		assertArrayEquals(RiTa.pos("hates", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("hates"), new String[] { "vbz" });
+		arrayEq(RiTa.pos("hates", hm), new String[] { "v" });
 
-		assertArrayEquals(RiTa.pos("hated"), new String[] { "vbd" });
-		assertArrayEquals(RiTa.pos("hated", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("hated"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("hated", hm), new String[] { "v" });
 
-		assertArrayEquals(RiTa.pos("hating"), new String[] { "vbg" });
-		assertArrayEquals(RiTa.pos("hating", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("hating"), new String[] { "vbg" });
+		arrayEq(RiTa.pos("hating", hm), new String[] { "v" });
 
-		assertArrayEquals(RiTa.pos("He rode the horse"), new String[] { "prp", "vbd", "dt", "nn" });
-		assertArrayEquals(RiTa.pos("He has ridden the horse"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
+		arrayEq(RiTa.pos("He rode the horse"), new String[] { "prp", "vbd", "dt", "nn" });
+		arrayEq(RiTa.pos("He has ridden the horse"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
 
-		assertArrayEquals(RiTa.pos("He rowed the boat"), new String[] { "prp", "vbd", "dt", "nn" });
-		assertArrayEquals(RiTa.pos("He has rowed the boat"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
+		arrayEq(RiTa.pos("He rowed the boat"), new String[] { "prp", "vbd", "dt", "nn" });
+		arrayEq(RiTa.pos("He has rowed the boat"), new String[] { "prp", "vbz", "vbn", "dt", "nn" });
 
 	}
 
 	@Test
-	public void testPos() {
+	public void callPos() {
 
 		String[] result, answer, resultArr, answerArr;
 		String txt;
 
-		assertArrayEquals(RiTa.pos(""), new String[] {});
-		assertArrayEquals(RiTa.pos("freed"), new String[] { "jj" });
-		assertArrayEquals(RiTa.pos("biped"), new String[] { "nn" });
-		assertArrayEquals(RiTa.pos("greed"), new String[] { "nn" });
-		assertArrayEquals(RiTa.pos("creed"), new String[] { "nn" });
-		assertArrayEquals(RiTa.pos("weed"), new String[] { "nn" });
+		arrayEq(RiTa.pos(""), new String[] {});
+		arrayEq(RiTa.pos("freed"), new String[] { "jj" });
+		arrayEq(RiTa.pos("biped"), new String[] { "nn" });
+		arrayEq(RiTa.pos("greed"), new String[] { "nn" });
+		arrayEq(RiTa.pos("creed"), new String[] { "nn" });
+		arrayEq(RiTa.pos("weed"), new String[] { "nn" });
 
-		assertArrayEquals(RiTa.pos("the top seed"), new String[] { "dt", "jj", "nn" });
-		assertArrayEquals(RiTa.pos("by illegal means"), new String[] { "in", "jj", "nn" });
-		assertArrayEquals(RiTa.pos("Joanny Smith ran away"), new String[] { "nnp", "nnp", "vbd", "rb" });
+		arrayEq(RiTa.pos("the top seed"), new String[] { "dt", "jj", "nn" });
+		arrayEq(RiTa.pos("by illegal means"), new String[] { "in", "jj", "nn" });
+		arrayEq(RiTa.pos("Joanny Smith ran away"), new String[] { "nnp", "nnp", "vbd", "rb" });
 
 		result = RiTa.pos("mammal");
 		answer = new String[] { "nn" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("asfaasd");
 		answer = new String[] { "nn" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("innings");
 		answer = new String[] { "nns" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("clothes");
 		answer = new String[] { "nns" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("teeth");
 		answer = new String[] { "nns" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 		// return;
 
 		result = RiTa.pos("memories");
 		answer = new String[] { "nns" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
-		assertArrayEquals(RiTa.pos("flunks"), new String[] { "vbz" });
-		assertArrayEquals(RiTa.pos("outnumbers"), new String[] { "vbz" });
-		assertArrayEquals(RiTa.pos("He outnumbers us"), new String[] { "prp", "vbz", "prp" });
-		assertArrayEquals(RiTa.pos("I outnumber you"), new String[] { "prp", "vbp", "prp" });
+		arrayEq(RiTa.pos("flunks"), new String[] { "vbz" });
+		arrayEq(RiTa.pos("outnumbers"), new String[] { "vbz" });
+		arrayEq(RiTa.pos("He outnumbers us"), new String[] { "prp", "vbz", "prp" });
+		arrayEq(RiTa.pos("I outnumber you"), new String[] { "prp", "vbp", "prp" });
 
 		resultArr = RiTa.pos("Elephants dance");
 		answerArr = new String[] { "nns", "vbp" };
-		assertArrayEquals(answerArr, resultArr);
+		arrayEq(answerArr, resultArr);
 
 		result = RiTa.pos("the boy dances");
 		answer = new String[] { "dt", "nn", "vbz" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("he dances");
 		answer = new String[] { "prp", "vbz" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		resultArr = RiTa.pos("Dave dances");
 		answerArr = new String[] { "nnp", "vbz" };
-		assertArrayEquals(answerArr, resultArr);
+		arrayEq(answerArr, resultArr);
 
 		result = RiTa.pos("running");
 		answer = new String[] { "vbg" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("asserting");
 		answer = new String[] { "vbg" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("assenting");
 		answer = new String[] { "vbg" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("Dave");
 		answer = new String[] { "nnp" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("They feed the cat");
 		answer = new String[] { "prp", "vbp", "dt", "nn" };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("There is a cat.");
 		answer = new String[] { "ex", "vbz", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("The boy, dressed in red, ate an apple.");
 		answer = new String[] { "dt", "nn", ",", "vbn", "in", "jj", ",", "vbd", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		txt = "The dog ran faster than the other dog.  But the other dog was prettier.";
 		result = RiTa.pos(txt);
 		answer = new String[] { "dt", "nn", "vbd", "rbr", "in", "dt", "jj", "nn", ".", "cc", "dt", "jj", "nn", "vbd",
 				"jjr", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		// Tests for verb conjugation
-		assertArrayEquals(RiTa.pos("is"), new String[] { "vbz" });
-		assertArrayEquals(RiTa.pos("am"), new String[] { "vbp" });
-		assertArrayEquals(RiTa.pos("be"), new String[] { "vb" });
+		arrayEq(RiTa.pos("is"), new String[] { "vbz" });
+		arrayEq(RiTa.pos("am"), new String[] { "vbp" });
+		arrayEq(RiTa.pos("be"), new String[] { "vb" });
 
 		result = RiTa.pos("There is a cat.");
 		answer = new String[] { "ex", "vbz", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("There was a cat.");
 		answer = new String[] { "ex", "vbd", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("I am a cat.");
 		answer = new String[] { "prp", "vbp", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
 		result = RiTa.pos("I was a cat.");
 		answer = new String[] { "prp", "vbd", "dt", "nn", "." };
-		assertArrayEquals(result, answer);
+		arrayEq(result, answer);
 
-		assertArrayEquals(RiTa.pos("flunk"), new String[] { "vb" });
-		assertArrayEquals(RiTa.pos("He flunks the test"), new String[] { "prp", "vbz", "dt", "nn" });
+		arrayEq(RiTa.pos("flunk"), new String[] { "vb" });
+		arrayEq(RiTa.pos("He flunks the test"), new String[] { "prp", "vbz", "dt", "nn" });
 
-		assertArrayEquals(RiTa.pos("he"), new String[] { "prp" });
-		assertArrayEquals(RiTa.pos("outnumber"), new String[] { "vb" });
-		assertArrayEquals(RiTa.pos("I outnumbered you"), new String[] { "prp", "vbd", "prp" });
-		assertArrayEquals(RiTa.pos("She outnumbered us"), new String[] { "prp", "vbd", "prp" });
-		assertArrayEquals(RiTa.pos("I am outnumbering you"), new String[] { "prp", "vbp", "vbg", "prp" });
-		assertArrayEquals(RiTa.pos("I have outnumbered you"), new String[] { "prp", "vbp", "vbd", "prp" });
+		arrayEq(RiTa.pos("he"), new String[] { "prp" });
+		arrayEq(RiTa.pos("outnumber"), new String[] { "vb" });
+		arrayEq(RiTa.pos("I outnumbered you"), new String[] { "prp", "vbd", "prp" });
+		arrayEq(RiTa.pos("She outnumbered us"), new String[] { "prp", "vbd", "prp" });
+		arrayEq(RiTa.pos("I am outnumbering you"), new String[] { "prp", "vbp", "vbg", "prp" });
+		arrayEq(RiTa.pos("I have outnumbered you"), new String[] { "prp", "vbp", "vbd", "prp" });
 
 		String[] checks = new String[] { "emphasis", "stress", "discus", "colossus", "fibrosis", "digitalis",
 				"pettiness", "mess", "cleanliness", "orderliness", "bronchitis", "preparedness", "highness" };
 		for (int i = 0, j = checks.length; i < j; i++) {
 			// if (RiTa.pos(checks[i])[0] !== "nn")
 			// console.log(checks[i] + ": " + RiTa.pos(checks[i])[0]);
-			assertArrayEquals(RiTa.pos(checks[i]), new String[] { "nn" });
+			arrayEq(RiTa.pos(checks[i]), new String[] { "nn" });
 		}
 	}
 
 	@Test
-	public void testSimplePos() {
+	public void callPosWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
-		assertArrayEquals(RiTa.pos("", hm), new String[] {});
-		assertArrayEquals(RiTa.pos("biped", hm), new String[] { "n" });
-		assertArrayEquals(RiTa.pos("creed", hm), new String[] { "n" });
-		assertArrayEquals(RiTa.pos("weed", hm), new String[] { "n" });
-		assertArrayEquals(RiTa.pos("is", hm), new String[] { "v" });
-		assertArrayEquals(RiTa.pos("am", hm), new String[] { "v" });
-		assertArrayEquals(RiTa.pos("be", hm), new String[] { "v" });
-		assertArrayEquals(RiTa.pos("freed", hm), new String[] { "a" });
+		arrayEq(RiTa.pos("", hm), new String[] {});
+		arrayEq(RiTa.pos("biped", hm), new String[] { "n" });
+		arrayEq(RiTa.pos("creed", hm), new String[] { "n" });
+		arrayEq(RiTa.pos("weed", hm), new String[] { "n" });
+		arrayEq(RiTa.pos("is", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("am", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("be", hm), new String[] { "v" });
+		arrayEq(RiTa.pos("freed", hm), new String[] { "a" });
+	}
+
+	@Test 
+	public void callPosWithInline(){
+		assertEquals("1", "0", "function N/A in Java");
 	}
 
 	@Test
-	public void testInlinePos() {
+	public void callPosInline() {
 
 		String result, answer;
 		String txt;
@@ -237,57 +248,62 @@ public class TaggerTests {
 		 * Map<String, Object> hm = new HashMap<String, Object>(); hm.put("inline",
 		 * true);
 		 * 
-		 * assertEquals(RiTa.pos("", hm), ""); assertEquals(RiTa.pos("asdfaasd", hm),
+		 * eq(RiTa.pos("", hm), ""); eq(RiTa.pos("asdfaasd", hm),
 		 * "asdfaasd/nn");
 		 * 
 		 * result = RiTa.pos("clothes", hm); answer = "clothes/nns";
-		 * assertEquals(result, answer);
+		 * eq(result, answer);
 		 * 
-		 * result = RiTa.pos("teeth", hm); answer = "teeth/nns"; assertEquals(result,
+		 * result = RiTa.pos("teeth", hm); answer = "teeth/nns"; eq(result,
 		 * answer);
 		 * 
 		 * result = RiTa.pos("There is a cat.", hm); answer =
-		 * "There/ex is/vbz a/dt cat/nn ."; assertEquals(result, answer);
+		 * "There/ex is/vbz a/dt cat/nn ."; eq(result, answer);
 		 * 
 		 * result = RiTa.pos("The boy, dressed in red, ate an apple.", hm); answer =
 		 * "The/dt boy/nn , dressed/vbn in/in red/jj , ate/vbd an/dt apple/nn .";
-		 * assertEquals(result, answer);
+		 * eq(result, answer);
 		 * 
 		 * txt =
 		 * "The dog ran faster than the other dog.  But the other dog was prettier.";
 		 * result = RiTa.pos(txt, hm); answer =
 		 * "The/dt dog/nn ran/vbd faster/rbr than/in the/dt other/jj dog/nn . But/cc the/dt other/jj dog/nn was/vbd prettier/jjr ."
-		 * ; assertEquals(result, answer);
+		 * ; eq(result, answer);
 		 */
 
 		// without Map argument
-		assertEquals(RiTa.posInline(""), "");
-		assertEquals(RiTa.posInline("asdfaasd"), "asdfaasd/nn");
+		eq(RiTa.posInline(""), "");
+		eq(RiTa.posInline("asdfaasd"), "asdfaasd/nn");
 
 		result = RiTa.posInline("clothes");
 		answer = "clothes/nns";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("teeth");
 		answer = "teeth/nns";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("There is a cat.");
 		answer = "There/ex is/vbz a/dt cat/nn .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("The boy, dressed in red, ate an apple.");
 		answer = "The/dt boy/nn , dressed/vbn in/in red/jj , ate/vbd an/dt apple/nn .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		txt = "The dog ran faster than the other dog.  But the other dog was prettier.";
 		result = RiTa.posInline(txt);
 		answer = "The/dt dog/nn ran/vbd faster/rbr than/in the/dt other/jj dog/nn . But/cc the/dt other/jj dog/nn was/vbd prettier/jjr .";
-		assertEquals(result, answer);
+		eq(result, answer);
+	}
+
+	@Test 
+	public void callPosWithInlineSimple() {
+		assertEquals("1", "0", "function N/A in Java");
 	}
 
 	@Test
-	public void testInlinePosSimple() {
+	public void callPosInlineWithSimple() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("simple", true);
 
@@ -295,60 +311,60 @@ public class TaggerTests {
 		String txt;
 
 		// posInline
-		assertEquals(RiTa.posInline("asdfaasd", hm), "asdfaasd/n");
+		eq(RiTa.posInline("asdfaasd", hm), "asdfaasd/n");
 
 		result = RiTa.posInline("clothes", hm);
 		answer = "clothes/n";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("teeth", hm);
 		answer = "teeth/n";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("There is a cat.", hm);
 		answer = "There/- is/v a/- cat/n .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		result = RiTa.posInline("The boy, dressed in red, ate an apple.", hm);
 		answer = "The/- boy/n , dressed/v in/- red/a , ate/v an/- apple/n .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		txt = "The dog ran faster than the other dog.  But the other dog was prettier.";
 		result = RiTa.posInline(txt, hm);
 		answer = "The/- dog/n ran/v faster/r than/- the/- other/a dog/n . But/- the/- other/a dog/n was/v prettier/a .";
-		assertEquals(result, answer);
+		eq(result, answer);
 
 		// with Map (NOT relevant for Java as we can't have different return types)
 
 		/*
 		 * pos, add inline hm.put("inline", true);
 		 * 
-		 * assertEquals(RiTa.pos("", hm), ""); assertEquals(RiTa.pos("asdfaasd", hm),
+		 * eq(RiTa.pos("", hm), ""); eq(RiTa.pos("asdfaasd", hm),
 		 * "asdfaasd/n");
 		 * 
-		 * result = RiTa.pos("clothes", hm); answer = "clothes/n"; assertEquals(result,
+		 * result = RiTa.pos("clothes", hm); answer = "clothes/n"; eq(result,
 		 * answer);
 		 * 
-		 * result = RiTa.pos("teeth", hm); answer = "teeth/n"; assertEquals(result,
+		 * result = RiTa.pos("teeth", hm); answer = "teeth/n"; eq(result,
 		 * answer);
 		 * 
 		 * result = RiTa.pos("There is a cat.", hm); answer =
-		 * "There/- is/v a/- cat/n ."; assertEquals(result, answer);
+		 * "There/- is/v a/- cat/n ."; eq(result, answer);
 		 * 
 		 * result = RiTa.pos("The boy, dressed in red, ate an apple.", hm); answer =
 		 * "The/- boy/n , dressed/v in/- red/a , ate/v an/- apple/n .";
-		 * assertEquals(result, answer);
+		 * eq(result, answer);
 		 * 
 		 * txt =
 		 * "The dog ran faster than the other dog.  But the other dog was prettier.";
 		 * result = RiTa.pos(txt, hm); answer =
 		 * "The/- dog/n ran/v faster/r than/- the/- other/a dog/n . But/- the/- other/a dog/n was/v prettier/a ."
-		 * ; assertEquals(result, answer);
+		 * ; eq(result, answer);
 		 */
 	}
 
 	@Test
-	public void testIsAdverb() {
+	public void callIsAdverb() {
 
 		assertTrue(!RiTa.isAdverb(""));
 		assertTrue(!RiTa.isAdverb("swim"));
@@ -396,7 +412,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsNoun() {
+	public void callIsNoun() {
 
 		// nn
 
@@ -464,7 +480,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsVerb() {
+	public void callIsVerb() {
 		assertTrue(RiTa.isVerb("abandons"));
 
 		assertTrue(RiTa.isVerb("dance"));
@@ -542,7 +558,7 @@ public class TaggerTests {
 	}
 
 	@Test
-	public void testIsAdjective() {
+	public void callIsAdjective() {
 
 		assertTrue(!RiTa.isAdjective("swim"));
 		assertTrue(!RiTa.isAdjective("walk"));
@@ -587,6 +603,14 @@ public class TaggerTests {
 		assertTrue(!RiTa.isAdjective("sleepily"));
 		assertTrue(!RiTa.isAdjective("excitedly"));
 		assertTrue(!RiTa.isAdjective("energetically"));
+	}
+
+	static void arrayEq(String[] a,String[] b) {
+		assertArrayEquals(b, a);
+	}
+
+	static void eq(String a, String b) {
+		assertEquals(b, a);
 	}
 
 }

@@ -11,7 +11,7 @@ import rita.Util;
 public class UtilTests {
 
 	@Test
-	public void testMapOpts() {
+	public void callUtilMapOpts() {
 		Map<String, Object> opts, res;
 		opts = new HashMap<String, Object>();
 		opts.put("context", Util.opts("a", "b"));
@@ -25,7 +25,12 @@ public class UtilTests {
 	}
 
 	@Test
-	public void testMergeMaps() {
+	public void callRandomOrdering() {
+		//this function is done by RandGen Class in Java
+	}
+
+	@Test
+	public void callDeepMerge() {
 		Map<String, Object> map;
 		map = Util.deepMerge(Util.opts(), Util.opts("a", "1"));
 		assertTrue(map.equals(Util.opts("a", "1")));
@@ -42,7 +47,7 @@ public class UtilTests {
 	}
 
 	@Test
-	public void testSliceArray() {
+	public void handleSliceArray() {
 
 		String[] res, animals = { "ant", "bison", "camel", "duck", "elephant" };
 
@@ -61,7 +66,7 @@ public class UtilTests {
 	}
 	
 	@Test
-	public void testSliceList() {
+	public void handleSliceList() {
 
 		String[] tmp = { "ant", "bison", "camel", "duck", "elephant" };
 		List<String> animals = new ArrayList<String>(Arrays.asList(tmp));

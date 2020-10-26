@@ -24,18 +24,18 @@ public class MarkovTests {
 	String sample3 = sample + " One reason people are dishonest is to achieve power.";
 
 	@Test
-	public void testConstructor() {
+	public void callConstructor() {
 		Markov rm = new Markov(3);
 		assertTrue(rm != null);
 	}
 
 	@Test
-	public void testCallCreateMarkov() {
+	public void callCreateMarkov() {
 		assertTrue(RiTa.createMarkov(3) != null);
 	}
 
 	@Test
-	public void testRandomSelect() {
+	public void callRandomSelect() {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
@@ -70,13 +70,13 @@ public class MarkovTests {
 			}
 
 			for (int j = 0; j < 4; j++) {
-				assertEquals(results.get(j), mathExpectation[j], .1);
+				eq(results.get(j), mathExpectation[j], .1);
 			}
 		}
 	}
 
 	@Test
-	public void testRandGenNdist() {
+	public void callRandGenNdist() {
 		assertThrows(RiTaException.class, () -> RandGen.ndist(new double[] { 1.0, 2, 6, -2.5, 0 }));
 
 		double[] weights = { 2, 1 };
@@ -84,7 +84,7 @@ public class MarkovTests {
 		double[] results = RandGen.ndist(weights);
 
 		for (int i = 0; i < results.length; i++) {
-			assertEquals(results[i], expected[i], 0.01);
+			eq(results[i], expected[i], 0.01);
 		}
 
 		double[] weights2 = { 7, 1, 2 };
@@ -92,34 +92,34 @@ public class MarkovTests {
 		double[] results2 = RandGen.ndist(weights2);
 
 		for (int i = 0; i < results2.length; i++) {
-			assertEquals(results2[i], expected2[i], 0.01);
+			eq(results2[i], expected2[i], 0.01);
 		}
 
 		double[] weights3 = { 1, 23, 2, 34, 5 };
 		double[] expected3 = { (double) 1 / 65, (double) 23 / 65, (double) 2 / 65, (double) 34 / 65, (double) 5 / 65 };
 		double[] results3 = RandGen.ndist(weights3);
 		for (int i = 0; i < results2.length; i++) {
-			assertEquals(results3[i], expected3[i], 0.01);
+			eq(results3[i], expected3[i], 0.01);
 		}
 
 		double[] weights4 = { 1, -1 };
 		double[] expected4 = { (double) 2.718281 / 3.086159, (double) 0.367879 / 3.086159 };
 		double[] results4 = RandGen.ndist(weights4, 1);
 		for (int i = 0; i < results4.length; i++) {
-			assertEquals(results4[i], expected4[i], 0.01);
+			eq(results4[i], expected4[i], 0.01);
 		}
 
 		double[] weights5 = { 1, 2, -1 };
 		double[] expected5 = { (double) 2.718281 / 10.475217, (double) 7.389056 / 10.475217, (double) 0.367879 / 10.475217 };
 		double[] results5 = RandGen.ndist(weights5, 1);
 		for (int i = 0; i < results5.length; i++) {
-			assertEquals(results5[i], expected5[i], 0.01);
+			eq(results5[i], expected5[i], 0.01);
 		}
 
 	}
 
 	@Test
-	public void testRandomndistTemp() {
+	public void callRandomndistTemp() {
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[][] expected = {
 				{ 0, 0, 1, 0, 0 },
@@ -136,37 +136,37 @@ public class MarkovTests {
 		for (int i = 0; i < results.length; i++) {
 			double[] result = results[i];
 			for (int j = 0; j < result.length; j++) {
-				assertEquals(result[j], expected[i][j], 0.01);
+				eq(result[j], expected[i][j], 0.01);
 			}
 		}
 	}
 
 	@Test
-	public void testInitSentence() {
+	public void callInitSentence() {
 		Markov rm = new Markov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
 		Markov.Node[] toks = rm.initSentence();
-		assertEquals(toks.length, 1);
-		assertEquals(rm._flatten(toks), "The");
+		eq(toks.length, 1);
+		eq(rm._flatten(toks), "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
 		toks = rm.initSentence(new String[] { "I", "also" });
-		assertEquals(toks.length, 2);
+		eq(toks.length, 2);
 		String a = rm._flatten(toks);
-		assertEquals(a, new String("I also"));
+		eq(a, new String("I also"));
 	}
 
 	@Test
-	public void testFailedGenerate() {
+	public void throwOnFailedGenerate() {
 		Markov rm = new Markov(4);
 		rm.addText(RiTa.sentences("just two sentences. should fail."));
 		assertThrows(RiTaException.class, () -> rm.generate(5));
 	}
 
 	@Test
-	public void testNonEnglishSentences() {
+	public void generateNonEnglishSentences() {
 		String text = "家 安 春 夢 家 安 春 夢 ！ 家 安 春 夢 德 安 春 夢 ？ 家 安 春 夢 安 安 春 夢 。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
 		Markov rm = new Markov(4);
@@ -174,7 +174,7 @@ public class MarkovTests {
 		Map<String, Object> hm = opts();
 		hm.put("startTokens", "家");
 		String[] result = rm.generate(5, hm);
-		assertEquals(result.length, 5);
+		eq(result.length, 5);
 		for (String r : result) {
 			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
 		}
@@ -182,7 +182,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testCustomTokenizer() {
+	public void applyCustomTokenizer() {
 		String text = "家安春夢家安春夢！家安春夢德安春夢？家安春夢安安春夢。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
 		Map<String, Object> hm = opts();
@@ -200,7 +200,7 @@ public class MarkovTests {
 		hm.clear();
 		hm.put("startTokens", "家");
 		String[] result = rm.generate(5, hm);//-> did not tokenize to "家","安".....
-		assertEquals(result.length, 5);
+		eq(result.length, 5);
 
 		for (String r : result) {
 			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
@@ -209,7 +209,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerate() {
+	public void callGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
 		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
@@ -218,11 +218,11 @@ public class MarkovTests {
 			sents = rm.generate(5);
 		}//repeat 100 times make sure generate dont throw error
 		//		System.out.println(Arrays.toString(sents));
-		assertEquals(sents.length, 5);
+		eq(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
 			String firstL = String.valueOf(s.charAt(0));
-			assertEquals(firstL, firstL.toUpperCase());
+			eq(firstL, firstL.toUpperCase());
 			assertTrue(s.matches("(.*)[?.!]$"), "FAIL: bad last char in \"" + s + "\"");
 		}
 
@@ -238,17 +238,17 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateMinMaxLength() {
+	public void callGenerateMinMaxLength() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		int minLength = 7;
 		int maxLength = 20;
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = rm.generate(5, opts("minLength", minLength, "maxLength", maxLength));
-		assertEquals(sents.length, 5);
+		eq(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
 			String firstL = String.valueOf(s.charAt(0));
-			assertEquals(firstL, firstL.toUpperCase());
+			eq(firstL, firstL.toUpperCase());
 			assertTrue(s.matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
@@ -261,7 +261,7 @@ public class MarkovTests {
 			maxLength = (10 + i);
 			String s = rm.generate(opts("minLength", minLength, "maxLength", maxLength))[0];
 			String firstL = String.valueOf(s.charAt(0));
-			assertEquals(firstL, firstL.toUpperCase(), "FAIL: bad first char in '" + s + "'");
+			eq(firstL, firstL.toUpperCase(), "FAIL: bad first char in '" + s + "'");
 			assertTrue(s.matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
@@ -270,7 +270,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateStart() {
+	public void callGenerateStart() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
@@ -289,14 +289,14 @@ public class MarkovTests {
 		start = "I";
 		for (int i = 0; i < 5; i++) {
 			String[] arr = rm.generate(2, opts("startTokens", start));
-			assertEquals(arr.length, 2);
+			eq(arr.length, 2);
 			assertTrue(arr[0].startsWith(start));
 		}
 
 	}
 
 	@Test
-	public void testGenerateStartArray() {
+	public void callGenerateStartArray() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
@@ -315,7 +315,7 @@ public class MarkovTests {
 		start[0] = "I";
 		for (int i = 0; i < 5; i++) {
 			String[] arr = rm.generate(2, opts("startTokens", start));
-			assertEquals(arr.length, 2);
+			eq(arr.length, 2);
 			assertTrue(arr[0].startsWith(start[0]));
 		}
 
@@ -345,7 +345,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testGenerateMLM() {
+	public void callGenerateMLM() {
 		int mlms = 10;
 		Markov rm = new Markov(3, opts("maxLengthMatch", mlms, "trace", false));
 		rm.addText(RiTa.sentences(sample3));
@@ -373,7 +373,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testCompletions() {
+	public void callCompletions() {
 		Markov rm = new Markov(4);
 		rm.addText((sample));
 
@@ -424,7 +424,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbabilities() {
+	public void callProbabilities() {
 		Markov rm = new Markov(3);
 		rm.addText((sample));
 
@@ -447,7 +447,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbabilitiesArray() {
+	public void callProbabilitiesArray() {
 		Markov rm = new Markov(4);
 		rm.addText(sample2);
 
@@ -495,52 +495,52 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testProbability() {
+	public void callProbability() {
 		String text = "the dog ate the boy the";
 		Markov rm = new Markov(3);
 		rm.addText(text);
-		assertEquals(rm.probability("dog"), (double) 1 / 6);
-		assertEquals(rm.probability("cat"), 0);
-		assertEquals(rm.probability("the"), .5);
+		eq(rm.probability("dog"), (double) 1 / 6);
+		eq(rm.probability("cat"), 0.0);
+		eq(rm.probability("the"), .5);
 
 		text = "the dog ate the boy that the dog found.";
 		rm = new Markov(3);
 		rm.addText(text);
 
-		assertEquals(rm.probability("the"), .3);
-		assertEquals(rm.probability("dog"), .2);
-		assertEquals(rm.probability("cat"), 0);
+		eq(rm.probability("the"), .3);
+		eq(rm.probability("dog"), .2);
+		eq(rm.probability("cat"), 0.0);
 
 		rm = new Markov(3);
 		rm.addText(sample);
-		assertEquals(rm.probability("power"), 0.017045454545454544);
+		eq(rm.probability("power"), 0.017045454545454544);
 
 	}
 
 	@Test
-	public void testProbabilityArray() {
+	public void callProbabilityArray() {
 		Markov rm = new Markov(3);
 		rm.addText(sample);
 		float expected = 0;
 
 		String[] check = "personal power is".split(" ");
 		expected = (float) 1 / 3;
-		assertEquals(rm.probability(check), expected);
+		eq(rm.probability(check), expected);
 
 		check = "personal powXer is".split(" ");
 		expected = (float) 0;
-		assertEquals(rm.probability(check), expected);
+		eq(rm.probability(check), expected);
 
 		check = "someone who pretends".split(" ");
 		expected = (float) 1 / 2;
-		assertEquals(rm.probability(check), expected);
+		eq(rm.probability(check), expected);
 
-		assertEquals(rm.probability(new String[] { }), 0);
+		eq(rm.probability(new String[] { }), 0);
 
 	}
 
 	@Test
-	public void testAddText() {
+	public void callAddText() {
 		Markov rm = new Markov(4);
 		String[] sents = RiTa.sentences(sample);
 		int count = sents.length;
@@ -550,7 +550,7 @@ public class MarkovTests {
 		}
 		rm.addText(sents);
 
-		assertEquals(rm.size(), count + sents.length);
+		eq(rm.size(), count + sents.length);
 
 		// TODO:
 		//    String[] ss = rm.root.child(Markov.SS);
@@ -563,18 +563,18 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testChildCount() {
+	public void callNodeChildCount() {
 		Markov rm = new Markov(2);
-		assertEquals(0, rm.root.childCount());
+		eq(0, rm.root.childCount());
 
 		rm = new Markov(2);
 		rm.addText("The");
-		assertEquals(3, rm.root.childCount());
-		assertEquals(1, rm.root.child("The").childCount());
+		eq(3, rm.root.childCount());
+		eq(1, rm.root.child("The").childCount());
 	}
 
 	@Test
-	public void testToString() {
+	public void callToString() {
 
 		Markov rm;
 		String exp;
@@ -583,35 +583,35 @@ public class MarkovTests {
 		exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
 		rm.addText("The");
 		//console.log(exp +"\n"+ rm.toString().replaceAll("\n", " "));
-		assertEquals(exp, rm.toString().replaceAll("\n", " "));
+		eq(exp, rm.toString().replaceAll("\n", " "));
 
 		rm = new Markov(2);
 		exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
 		//console.log(rm.toString());
-		assertEquals(exp, rm.toString().replaceAll("\n", " "));
+		eq(exp, rm.toString().replaceAll("\n", " "));
 	}
 
 	@Test
-	public void testSize() {
+	public void callSize() {
 
 		Markov rm = new Markov(4);
-		assertEquals(rm.size(), 0);
+		eq(rm.size(), 0);
 		String[] tokens = RiTa.tokenize(sample);
 		String[] sents = RiTa.sentences(sample);
 		rm = new Markov(3);
 		rm.addText(sample);
-		assertEquals(rm.size(), tokens.length + sents.length * 2);
+		eq(rm.size(), tokens.length + sents.length * 2);
 
 		Markov rm2 = new Markov(4);
 		rm2 = new Markov(3);
 		rm2.addText(sents);
-		assertEquals(rm.size(), rm2.size());
+		eq(rm.size(), rm2.size());
 
 	}
 
 	@Test
-	public void testFailForSentenceInput() {
+	public void failForSentenceInput() {
 		Markov rm = new Markov(4);
 		rm.addText(new String[] { "I ate the dog." });
 		//rm.generate();
@@ -619,7 +619,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testDisableInputChecks() {
+	public void handleDisableInputChecks() {
 		Markov rm = new Markov(4, opts("disableInputChecks", false));
 		rm.addText("I ate the dog.");
 		assertTrue(rm.input instanceof Object);
@@ -630,19 +630,43 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void testSerializeAndDeserialize() {
+	public void serializeAndDeserialize() {
 		Markov rm = new Markov(4, opts("disableInputChecks", true));
 		rm.addText(new String[] { "I ate the dog." });
 		// TODO: fromJSON
 		// Markov copy = Markov.fromJSON(rm.toJSON());
 		//		markovEquals(rm, copy);
-		//		assertEquals(copy.generate(), rm.generate());
+		//		eq(copy.generate(), rm.generate());
 	}
 
 	/* Helpers */
 
 	private void eql(Map<String, Object> result, Map<String, Object> opts) {
 		assertTrue(result.equals(opts));
+	}
+
+	static void eq(String a, String b) {
+		eq(a, b, null);
+	}
+
+	static void eq(String a, String b, String m) {
+		assertEquals(b, a, m);
+	}
+
+	static void eq(Double a, Double b) {
+		eq(a, b, 0.0);
+	}
+
+	static void eq(int a, int b) {
+		assertEquals(b, a);
+	}
+
+	static void eq(float a, float b) {
+		assertEquals(b, a);
+	}
+
+	static void eq(Double a, Double b, Double d) {
+		assertEquals(b, a, d);
 	}
 
 	private String[] getAllRegexMatches(String regexPattern, String input) {
