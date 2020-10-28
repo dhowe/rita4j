@@ -4,10 +4,12 @@ import static org.junit.jupiter.api.Assertions.*;
 //import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
+import rita.*;
 
 public class RiTaTests {
 
@@ -54,6 +56,7 @@ public class RiTaTests {
 
 	@Test
 	public void callRandomOrdering() {
+		//int
 		int[] result = new int[] { 0 };
 		assertArrayEquals(result, RiTa.randomOrdering(1));
 		int[] result2 = new int[] { 0, 1 };
@@ -63,6 +66,11 @@ public class RiTaTests {
 		// expect(RiTa.randomOrdering(['a'])).	['a']);
 		// expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
 		// not in Java yet
+
+		//float[]
+		float[] resF1 = new float[] { 0 };
+		assertEquals(resF1, RandGen.randomOrdering(new float[] { 1 }));
+		float[] resF2 = new float[] { 2 };
 	}
 
 	@Test
