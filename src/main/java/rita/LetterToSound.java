@@ -27,13 +27,14 @@ public class LetterToSound { // in-progress
 
 	public String[] computePhones(String word) {
 
-		if (!RiTa.SILENCE_LTS && !RiTa.SILENT) {
-			System.out.println("[INFO] Using LTS for '" + word + "'");
-		}
-
 		if (word == null || word.length() < 1 || RiTa.isPunctuation(word)) {
 			return null;
 		}
+		
+		if (!RiTa.SILENCE_LTS && !RiTa.SILENT) {
+			System.out.println("[INFO] Using LTS for '" + word + "'");
+		}
+		
     word = word.toLowerCase();
 
 		List<String> phoneList = new ArrayList<String>();

@@ -130,7 +130,7 @@ public class Stemmer
 
 		// -a to -ae
 		// No other common words end in -ae
-		if (s.endsWith("ae") && s != "pleae") // special case
+		if (s.endsWith("ae")) // special case
 			return (cut(s, "e"));
 
 		// -a to -ata

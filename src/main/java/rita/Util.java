@@ -100,7 +100,7 @@ public class Util {
 				// Make a new syllable out of the onset and nucleus.
 				List<List<String>> toPush = new ArrayList<List<String>>();
 				for (int j = 0; j < 4; j++) {
-					toPush.add(new ArrayList<String>()); // ?
+					toPush.add(new ArrayList<String>()); // ?  // TODO:
 				}
 				toPush.get(0).add(stress);
 				toPush.get(1).addAll(Arrays.asList(onset));
@@ -124,13 +124,14 @@ public class Util {
 		// We may have even not found a nucleus.
 		if (internuclei.size() > 0) {
 			if (syllables.size() == 0) {
-				// JS: syllables.push([[undefined], internuclei, [], []]);
+				// JS: syllables.push([[undefined], internuclei, [], []]); // TODO:
 				List<List<String>> toPush = new ArrayList<List<String>>();
 				for (int j = 0; j < 4; j++) {
 					toPush.add(new ArrayList<String>()); // ?
 				}
 				toPush.get(0).add(null);
 				toPush.get(1).addAll(internuclei);
+				syllables.add(toPush);
 			}
 			else {
 				//System.out.println(syllables.get(syllables.size() - 1));

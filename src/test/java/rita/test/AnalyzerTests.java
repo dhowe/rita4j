@@ -44,14 +44,12 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 			eq(RiTa.singularize(tests[i]), tests[i + 1]);
 		}
 
-		eq(RiTa.singularize("pleae"), "pleae"); // special-cased in code?
 		eq(RiTa.singularize("whizzes"), "whiz");
 		eq(RiTa.singularize("selves"), "self");
 		eq(RiTa.singularize("bookshelves"), "bookshelf");
 		eq(RiTa.singularize("wheezes"), "wheeze");
 		eq(RiTa.singularize("diagnoses"), "diagnosis");
 
-		eq(RiTa.singularize("minutia"), "minutia");
 		eq(RiTa.singularize("blondes"), "blonde");
 		eq(RiTa.singularize("eyes"), "eye");
 		eq(RiTa.singularize("swine"), "swine");
@@ -144,7 +142,6 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		eq(RiTa.singularize("aquatics"), "aquatics");
 		eq(RiTa.singularize("mechanics"), "mechanics");
 		eq(RiTa.singularize("quarters"), "quarter");
-
 	}
 
 	@Test
@@ -176,13 +173,11 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 			"pinches", "pinch",
 			"catharses", "catharsis",
 			"hankies", "hanky",
-			"pleae", "pleae",
 			"whizzes", "whiz",
 			"selves", "self",
 			"bookshelves", "bookshelf",
 			"wheezes", "wheeze",
 			"diagnoses", "diagnosis",
-			"minutia", "minutia",
 			"blondes", "blonde",
 			"eyes", "eye",
 			"swine", "swine",
@@ -260,8 +255,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 			"quarters", "quarter"
 		};
 		for (int i = 0; i < tests.length; i += 2) {
-			// System.out.println("singular: " + tests[i]);
-			// System.out.println("plural: " + RiTa.pluralize(tests[i + 1]));
+			//System.out.println(i+") " + tests[i]+" -> "+RiTa.pluralize(tests[i + 1]));
 			eq(RiTa.pluralize(tests[i + 1]), tests[i]);
 		}
 
@@ -291,7 +285,6 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 				"septa", "septum",
 				"termini", "terminus",
 				"larvae", "larva",
-				"minutiae", "minutia",
 				"vertebrae", "vertebra",
 				"hooves", "hoof",
 				"thieves", "thief",
@@ -316,7 +309,6 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 				"bookshelves", "bookshelf",
 				"wheezes", "wheeze",
 				"diagnoses", "diagnosis",
-				"minutiae", "minutia",
 				"blondes", "blonde",
 				"eyes", "eye",
 				"swine", "swine",
@@ -648,7 +640,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 		expected = "dh-ah eh-m/p-er/er hh-ae-d n-ow k-l-ow-dh-z aa-n .";
 		eq(RiTa.syllables(input), expected);
 
-		RiTa.SILENCE_LTS = true; // TODO : why ??
+		RiTa.SILENCE_LTS = true;
 		//System.out.println(RiTa.syllables("The Laggin Dragon"));
 		eq(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
