@@ -2,6 +2,8 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import org.junit.jupiter.api.Test;
+
 import rita.RiTa;
 
 // Failing tests go here until debugged

@@ -12,7 +12,7 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 
-public class AnalyzerTests { // NOT IN SYNC WITH JS
+public class AnalyzerTests { 
 
 	@Test
 	public void callSingularize() {
@@ -89,7 +89,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 
 		eq(RiTa.singularize("cakes"), "cake");
 
-		eq(RiTa.singularize("dogs"), "dog");
+		eq(RiTa.singularize("dogs"), "dog"); 
 		eq(RiTa.singularize("feet"), "foot");
 		eq(RiTa.singularize("teeth"), "tooth");
 		eq(RiTa.singularize("kisses"), "kiss");
@@ -209,7 +209,7 @@ public class AnalyzerTests { // NOT IN SYNC WITH JS
 			"golf", "golf",
 			"grief", "grief",
 			"cakes", "cake",
-			"dog", "dog",
+			"dogs", "dog",
 			"feet", "foot",
 			"teeth", "tooth",
 			"kisses", "kiss",
