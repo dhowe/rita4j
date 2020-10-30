@@ -63,22 +63,16 @@ public class Grammar {
 		return expand(DEFAULT_RULE_NAME, opts);
 	}
 
-	@SuppressWarnings("unchecked")
 	public String expand(String rule, Map<String, Object> opts) {
 
 		Map<String, Object> ctx = Util.deepMerge(this.context, this.rules);
-		if (opts != null) {
-			Object val = opts.get("context"); // TODO: document this, as well as 'trace', 'silent', etc.
-			if (val != null) {
-				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
-			}
-		}
-
+		if (opts != null) ctx = Util.deepMerge(ctx, opts);
 		if (rule.startsWith("$")) rule = rule.substring(1);
 
 		Object o = ctx.get(rule);
 		if (o == null) throw new RiTaException("Rule " + rule + " not found");
 
+		// a bit strange here as opts entries are included in ctx
 		return this.compiler.evaluate((String) o, ctx, opts);
 	}
 
@@ -113,7 +107,7 @@ public class Grammar {
 	}
 
 	@Override
-	public String toString(){
+	public String toString() {
 		return this.toJSON(true);
 	}
 

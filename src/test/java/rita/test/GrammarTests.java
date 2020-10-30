@@ -71,7 +71,7 @@ public class GrammarTests {
 		// console.log(rule);
 
 		for (int i = 0; i < 4; i++) {
-			String res = rg.expand(TT);
+			String res = rg.expand();
 			// console.log(i, ':', res);
 			result.add(res);
 		}
@@ -108,11 +108,6 @@ public class GrammarTests {
 		assertTrue(Arrays.asList(expected).contains(rs));
 
 		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
-		rg = Grammar.fromJSON(rules);
-		rs = rg.expand();
-		assertTrue(Arrays.asList(expected).contains(rs));
-
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave | Jill | Pete\",\"Jill\": \"Dave | Jill | Pete\",\"Pete\": \"Dave | Jill | Pete\"}";
 		rg = Grammar.fromJSON(rules);
 		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
@@ -183,10 +178,12 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void throwOnBadGrammarNames() {
+	public void throwOnMissingRules() {
 		Grammar rg = new Grammar();
-		//		assertThrows(RiTaException.class, () -> rg.expandFrom("wrongName"));
-		assertThrows(RiTaException.class, () -> rg.expand());
+ 		assertThrows(RiTaException.class, () -> rg.expand());
+		
+ 		Grammar rg2 = new Grammar(opts("start", "My rule"));
+		assertThrows(RiTaException.class, () -> rg2.expand("bad"));
 	}
 
 	@Test
@@ -349,21 +346,22 @@ public class GrammarTests {
 
 		String res = rg.expand();
 		eq(res, "bad feelings");
-
 	}
 
+	
 	@Test
-	public void alllowContextInExpand() {
-		Supplier<String> randomPosition = () -> {
+	public void allowContextInExpand() {
+		Grammar rg;
+		Supplier<String> randPosition = () -> {
 			return "job type";
 		};
-		Map<String, Object> context = opts("randomPosition", randomPosition);
-		Grammar rg = new Grammar(opts("start", "My .randomPosition()."));
-		eq("My job type.", rg.expand(context));
+		Map<String, Object> ctx = opts("randPosition", randPosition);
 
-		rg = new Grammar(opts("stat", "My .randomPosition()."));
-		eq("My job type.", rg.expand("stat", context));
+		rg = new Grammar(opts("start", "My .randPosition()."));
+		eq(rg.expand(ctx), "My job type.");
 
+		rg = new Grammar(opts("rule", "My .randPosition()."));
+		eq(rg.expand("rule", ctx), "My job type.");
 	}
 
 	@Test
@@ -374,7 +372,7 @@ public class GrammarTests {
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = Grammar.fromJSON(rules, context);
-		eq(rg.expand(TT), "My jobArea jobType.");
+		eq(rg.expand(), "My jobArea jobType.");
 	}
 
 	@Test

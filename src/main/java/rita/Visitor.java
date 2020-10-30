@@ -25,8 +25,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	static final String FUNCTION = "()", DOT = ".";
 
 	protected int indexer;
-	protected boolean trace;
 	protected RiScript parent;
+	protected boolean trace, silent;
 	protected Map<String, Object> context;
 	protected Map<Integer, ChoiceState> sequences;
 	protected List<String> appliedTransforms, pendingSymbols;
@@ -48,6 +48,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	Visitor init(Map<String, Object> ctx, Map<String, Object> opts) {
 		this.trace = Util.boolOpt("trace", opts);
+		this.silent = Util.boolOpt("silent", opts);
 		this.pendingSymbols = new ArrayList<String>();
 		this.context = ctx != null ? ctx : new HashMap<String, Object>();
 		return this;
@@ -87,12 +88,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
 
 		String visited = null;
-		
-    // if we've already resolved (likely as an inline) then reuse it
+
+		// if we've already resolved (likely as an inline) then reuse it
 		Object lookup = this.context.get(id);
 		if (lookup instanceof String && !this.parent.isParseable((String) lookup)) {
-      if (trace) console.log("symbolDefined[0]: $" + id + " -> '" + lookup + "' (already defined)");
-      visited = (String) lookup;
+			if (trace) console.log("symbolDefined[0]: $" + id + " -> '" + lookup + "' (already defined)");
+			visited = (String) lookup;
 		}
 		else {
 			// otherwise, visit token and add result to context
@@ -166,12 +167,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		if (trace) System.out.println("visitSymbol: $"
 				+ ident + " tfs=" + flatten(txs));// + " -> " + result);
-		
-    // if the symbol is pending just return it
-    if (this.pendingSymbols.contains(ident)) {
-      if(trace) console.log("resolveSymbol[0]: (pending) $" + ident);//+ " -> " + result);
-      return result;
-    }
+
+		// if the symbol is pending just return it
+		if (this.pendingSymbols.contains(ident)) {
+			if (trace) console.log("resolveSymbol[0]: (pending) $" + ident);//+ " -> " + result);
+			return result;
+		}
 
 		// now try to resolve from context
 		Object resolved = context.get(ident);
@@ -183,13 +184,13 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			return result;
 		}
 
-    // if the symbol is not fully resolved, save it for next time (as an inline*)
-    if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
-      this.pendingSymbols.add(ident);
-      String tmp = "[$" + ident + "=" + resolved + "]" + flatten(txs);
-      if(trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
-      return tmp;
-    }
+		// if the symbol is not fully resolved, save it for next time (as an inline*)
+		if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
+			this.pendingSymbols.add(ident);
+			String tmp = "[$" + ident + "=" + resolved + "]" + flatten(txs);
+			if (trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
+			return tmp;
+		}
 
 		// now check for transforms
 		if (txs.size() < 1) {
@@ -329,14 +330,19 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (tx.endsWith(Visitor.FUNCTION)) {
 			tx = tx.substring(0, tx.length() - 2);
 
-			// 0. Static function (only join/format on String, maybe RiTa)
-			
+			// 0. Static function (only join/format on String, maybe RiTa?)
+
 			// 1. Member (String) method
 			Method meth = Util.getMethod(target, tx);
 			if (meth != null) { // String method
 				result = Util.invoke(target, meth);
+				if ((target instanceof String && ((String) target).length() == 0)
+						&& (result instanceof String && ((String) result).length() == 0)) {
+					if (!this.silent && !RiTa.SILENT) System.err.println(
+							"[WARN] Unresolved transform[0]: " + raw);
+				}
 			}
-			
+
 			// 2. Function in context
 			else if (this.context != null && this.context.containsKey(tx)) {
 				Object func = this.context.get(tx);
@@ -344,7 +350,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					result = ((Function<String, String>) func).apply((String) target);
 				}
 				if (func instanceof Supplier) {
-					result = ((Supplier<String>) func).get();				
+					result = ((Supplier<String>) func).get();
 				}
 			}
 
@@ -358,10 +364,11 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					}
 				}
 			}
-			
+
 			else {
-        if (this.trace) System.err.println("[WARN] Unresolved transform: " + raw);
-        return raw;
+				if (!this.silent && !RiTa.SILENT) System.err.println(
+						"[WARN] Unresolved transform[1]: " + raw);
+				return raw;
 			}
 		}
 		// check for property
@@ -369,8 +376,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			try {
 				result = Util.getProperty(target, tx);
 			} catch (RiTaException e) {
-        if (this.trace) System.err.println("[WARN] Unresolved transform: " + raw);
-        return raw;
+				if (!this.silent && !RiTa.SILENT) System.err.println(
+						"[WARN] Unresolved transform[2]: " + raw);
+				return raw;
 			}
 		}
 
@@ -464,19 +472,5 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	public static void main(String[] args) {
-		//Function<String, String> up = x -> x.toUpperCase();
-		//assertEq(RiTa.evaluate("(a | a).up()", opts("up", up))
-		//RiTa.evaluate("$a.toUpperCase()", opts("a", "$b", "b", "hello"), 
-		//opts("singlePass", false, "trace", true));
-
-		//		Map<String, Object> opts = opts();
-		//		RiTa.evaluate("[$b=(a | a)].toUpperCase()",
-		//				opts, opts("singlePass", false, "trace", true));
-		//		System.out.println(opts.get("b"));
-		//		Map<String, Object> opts = opts();
-		//		RiTa.evaluate("[$b=(a | a)].toUpperCase()",
-		//				opts, opts("singlePass", true, "trace", true));
-		//System.out.println(opts.get("b"));
-		//System.out.println(StringEscapeUtils.unescapeHtml4("&#35;"));
 	}
 }
