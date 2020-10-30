@@ -9,6 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 public class RiTaTests {
 
 	@Test
@@ -406,44 +410,144 @@ public class RiTaTests {
 
 	@Test
 	public void callConcordance() {
-		//Map<String,String> data = RiTa.concordance("The dog ate the cat");
-		assertEquals("1", "0", "this function not in Java yet");
+		Map<String, String> data = RiTa.concordance("The dog ate the cat");
+		Set keys = data.keySet();
+		assertEquals(5, keys.size());
+		assertEquals("1", data.get("the"));
+		assertEquals("1", data.get("The"));
+		assertEquals("1", data.get("dog"));
+
+		data = RiTa.concordance("The dog ate the cat", "dog");
+		keys = data.keySet();
+		assertEquals(1, keys.size());
+		assertEquals("dog", (String) keys.toArray()[0]);
+		assertEquals("1", data.get("dog"));
+
+		data = RiTa.concordance("The dog ate the cat", "pig");
+		keys = data.keySet();
+		assertEquals(1, keys.size());
+		assertEquals("pig", (String) keys.toArray()[0]);
+		assertEquals("0", data.get("pig"));
+
+		Map<String, Object> defaultOpts = new HashMap<String, Object>();
+		defaultOpts.put("ignoreCase", false);
+		defaultOpts.put("ignoreStopWords", false);
+		defaultOpts.put("ignorePunctuation", false);
+		data = RiTa.concordance("The dog ate the cat", defaultOpts);
+		keys = data.keySet();
+		assertEquals(5, keys.size());
+		assertEquals("1", data.get("the"));
+		assertEquals("1", data.get("The"));
+		assertEquals("1", data.get("dog"));
+
+		data = RiTa.concordance("The dog ate the cat", "dog", defaultOpts);
+		keys = data.keySet();
+		assertEquals(1, keys.size());
+		assertEquals("dog", (String) keys.toArray()[0]);
+		assertEquals("1", data.get("dog"));
+
+		Map<String, Object> ignoreCase = new HashMap<String, Object>();
+		ignoreCase.put("ignoreCase", true);
+		data = RiTa.concordance("The dog ate the cat", ignoreCase);
+		keys = data.keySet();
+		assertEquals(4, keys.size());
+		assertEquals("2", data.get("the"));
+		assertEquals(null, data.get("The"));
+
+		data = RiTa.concordance("The dog ate the cat");
+		keys = data.keySet();
+		assertEquals(5, keys.size());
+		assertEquals("1", data.get("the"));
+		assertEquals("1", data.get("The"));
+
+		data = RiTa.concordance("The dog ate the cat", "The", ignoreCase);
+		keys = data.keySet();
+		assertEquals(1, keys.size());
+		assertEquals("The", keys.toArray()[0]);
+		assertEquals("0", data.get("The"));
+
+		data = RiTa.concordance("The dog ate the cat", "the", ignoreCase);
+		keys = data.keySet();
+		assertEquals(1, keys.size());
+		assertEquals("the", keys.toArray()[0]);
+		assertEquals("2", data.get("the"));
+
+		Map<String, Object> ignorePunc = new HashMap<String, Object>();
+		ignorePunc.put("ignorePunctuation", true);
+		data = RiTa.concordance("'What a wonderful world;!:,?.'\"", ignorePunc);
+		keys = data.keySet();
+		assertEquals(4, keys.size());
+		assertEquals(null, data.get("!"));
+
+		Map<String, Object> ignoreStopW = new HashMap<String, Object>();
+		ignoreStopW.put("ignoreStopWords", true);
+		data = RiTa.concordance("The dog ate the cat", ignoreStopW);
+		keys = data.keySet();
+		assertEquals(4, keys.size());
+		assertEquals(null, data.get("the"));
+		ignoreStopW.clear();
+		ignoreStopW.put("wordsToIgnore", new String[] { "dog", "cat" });
+		data = RiTa.concordance("The dog ate the cat", ignoreStopW);
+		keys = data.keySet();
+		assertEquals(2, keys.size());
+		assertEquals(null, data.get("dog"));
+		assertEquals(null, data.get("cat"));
+		assertEquals("1", data.get("ate"));
+		ignoreStopW.clear();
+		ignoreStopW.put("ignoreStopWords", true);
+		ignoreStopW.put("ignoreCase", true);
+		data = RiTa.concordance("The dog ate the cat", ignoreStopW);
+		keys = data.keySet();
+		assertEquals(3, keys.size());
+		assertEquals(null, data.get("The"));
+
+		Map<String, Object> all = new HashMap<String, Object>();
+		all.put("ignoreCase", true);
+		all.put("ignoreStopWords", true);
+		all.put("ignorePunctuation", true);
+		all.put("wordsToIgnore", new String[] { "fish" });
+		data = RiTa.concordance("The Fresh fried fish, Fish fresh fried.", all);
+		keys = data.keySet();
+		assertEquals(2, keys.size());
+		assertEquals("2", data.get("fresh"));
 	}
 
 	@Test
-	public void callSentences(){
+	public void callSentences() {
 		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
 		String[] input = {
-			"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
-			"\"The boy went fishing.\", he said. Then he went away.",
-			"The dog",
-			"I guess the dog ate the baby.",
-			"Oh my god, the dog ate the baby!",
-			"Which dog ate the baby?",
-			"'Yes, it was a dog that ate the baby', he said.",
-			"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
-			"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
-			"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
-			"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
-			"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
-			"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
-			" I had a visit from my \"friend\" the tax man."
+				"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
+				"\"The boy went fishing.\", he said. Then he went away.",
+				"The dog",
+				"I guess the dog ate the baby.",
+				"Oh my god, the dog ate the baby!",
+				"Which dog ate the baby?",
+				"'Yes, it was a dog that ate the baby', he said.",
+				"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
+				"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
+				"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
+				"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
+				"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
+				"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
+				" I had a visit from my \"friend\" the tax man."
 		};
 		String[][] output = {
-			new String[] {"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.", "The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.", "If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs."},
-			new String[] {"\"The boy went fishing.\", he said.", "Then he went away."},
-			new String[] {"The dog"},
-			new String[] {"I guess the dog ate the baby."},
-			new String[] {"Oh my god, the dog ate the baby!"},
-			new String[] {"Which dog ate the baby?"},
-			new String[] {"\'Yes, it was a dog that ate the baby\', he said."},
-			new String[] {"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad."},
-			new String[] {"\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\""},
-			new String[] {"\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D"},
-			new String[] {"\"My dear Mr. Bennet.", "Netherfield Park is let at last.\""},
-			new String[] {"\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D"},
-			new String[] {"She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\""},
-			new String[] {"I had a visit from my \"friend\" the tax man."}
+				new String[] { "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.",
+						"The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.",
+						"If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs." },
+				new String[] { "\"The boy went fishing.\", he said.", "Then he went away." },
+				new String[] { "The dog" },
+				new String[] { "I guess the dog ate the baby." },
+				new String[] { "Oh my god, the dog ate the baby!" },
+				new String[] { "Which dog ate the baby?" },
+				new String[] { "\'Yes, it was a dog that ate the baby\', he said." },
+				new String[] { "The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad." },
+				new String[] { "\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\"" },
+				new String[] { "\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D" },
+				new String[] { "\"My dear Mr. Bennet.", "Netherfield Park is let at last.\"" },
+				new String[] { "\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D" },
+				new String[] { "She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\"" },
+				new String[] { "I had a visit from my \"friend\" the tax man." }
 		};
 		assertTrue(input.length == output.length);
 		for (int i = 0; i < input.length; i++) {

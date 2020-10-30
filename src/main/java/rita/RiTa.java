@@ -56,8 +56,16 @@ public class RiTa {
 		return RiScript.articlize(s);
 	}
 
+	public static Map<String, String> concordance(String text) {
+		return concordance(text, null, null);
+	}
+
 	public static Map<String, String> concordance(String text, String word) {
 		return concordance(text, word, null);
+	}
+
+	public static Map<String, String> concordance(String text, Map<String, Object> opts) {
+		return concordance(text, null, opts);
 	}
 
 	public static Map<String, String> concordance(String text, String word, Map<String, Object> opts) //TODO
@@ -352,7 +360,7 @@ public class RiTa {
 	public static String[] tokenize(String text) {
 		return Tokenizer.tokenize(text);
 	}
-	
+
 	public static String[] tokenize(String text, String regex) {
 		return Tokenizer.tokenize(text, regex); // TODO: add tests
 	}
@@ -360,7 +368,7 @@ public class RiTa {
 	public static String untokenize(String[] words) {
 		return Tokenizer.untokenize(words);
 	}
-	
+
 	public static String untokenize(String[] words, String delim) {
 		return Tokenizer.untokenize(words, delim); // TODO: add tests
 	}
@@ -448,7 +456,8 @@ public class RiTa {
 
 	public static String[] ABBREVIATIONS = {
 			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
-			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.", "Mar.",
+			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.",
+			"Mar.",
 			"Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."
 	};
 	public static String[] QUESTIONS = {
