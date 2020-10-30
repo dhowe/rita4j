@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
-import org.stringtemplate.v4.ST;
 
 import rita.*;
 
@@ -1006,16 +1005,22 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveCustomTransforms_TRANSFORM() {
-		Function<String, String> blah = s -> "Blah";
-		Function<String, String> blah2 = s -> "Blah2";
-		assertEq(RiTa.evaluate("That is (ant).blah().", opts("blah", blah)), "That is Blah.");
-		Map<String, Object> ctx = opts();
-		ctx.put("blah2", blah2);
-		assertEq(RiTa.evaluate("That is (ant).blah2().", ctx), "That is Blah2.");
+//		Function<String, String> blah = s -> "Blah";
+//		Function<String, String> blah2 = s -> "Blah2";
+//		assertEq(RiTa.evaluate("That is (ant).blah().", opts("blah", blah)), "That is Blah.");
+//		Map<String, Object> ctx = opts();
+//		ctx.put("blah2", blah2);
+//		assertEq(RiTa.evaluate("That is (ant).blah2().", ctx), "That is Blah2.");
+//
+//		RiTa.addTransform("blah3", (s) -> "Blah3");
+//		assertEq(RiTa.evaluate("That is (ant).blah3().", opts()), "That is Blah3.");
+//		RiTa.addTransform("blah3", null);
+		
+		Supplier<String> randPos = () -> {
+			return "jobArea jobType";
+		};
+		assertEq(RiTa.evaluate("a .randPos().", opts("randPos", randPos), TT), "a jobArea jobType.");
 
-		RiTa.addTransform("blah3", (s) -> "Blah3");
-		assertEq(RiTa.evaluate("That is (ant).blah3().", opts()), "That is Blah3.");
-		RiTa.addTransform("blah3", null);
 	}
 
 	// Grammar

@@ -52,7 +52,7 @@ public class Grammar {
 	}
 
 	public String expand() {
-		return expand(DEFAULT_RULE_NAME, null);
+		return expand(DEFAULT_RULE_NAME);
 	}
 
 	public String expand(String rule) {
@@ -68,7 +68,7 @@ public class Grammar {
 
 		Map<String, Object> ctx = Util.deepMerge(this.context, this.rules);
 		if (opts != null) {
-			Object val = opts.get("context");
+			Object val = opts.get("context"); // TODO: document this, as well as 'trace', 'silent', etc.
 			if (val != null) {
 				ctx = Util.deepMerge(ctx, (Map<String, Object>) val);
 			}

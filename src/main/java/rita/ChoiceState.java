@@ -20,7 +20,7 @@ public class ChoiceState {
 
 	private int cursor = 0;
 	private ParserRuleContext last;
-	
+
 	public ChoiceState(Visitor parent, ChoiceContext ctx) {
 		this(parent, ctx, SIMPLE);
 	}
@@ -38,20 +38,31 @@ public class ChoiceState {
 			WeightContext wctx = w.weight(); // handle weight
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
-			for (int j = 0; j < weight; j++) options.add(expr); 
+			for (int j = 0; j < weight; j++)
+				options.add(expr);
 		}
-		
-    List<TransformContext> txs = ctx.transform();
-    if (txs.size() > 0) {
-      String tf = txs.get(0).getText();
-      for (String t : TYPES) {
-				if (tf.equals("."+t+"()")) this.type = t;
-      }
-    }
 
-    if (type.equals(RSEQUENCE)) {
-    	this.options = RandGen.randomOrdering(this.options);
-    }
+		this.handleSequence(ctx);
+
+		if (type.equals(RSEQUENCE)) {
+			this.options = RandGen.randomOrdering(this.options);
+		}
+	}
+
+	private void handleSequence(ChoiceContext ctx) { // TODO: use contains instead
+		List<TransformContext> txs = ctx.transform();
+		if (txs.size() > 0) {
+			String[] tfs = txs.get(0).getText().replaceAll("^\\.", "").split("\\.");
+			//console.log(tfs);
+			for (String tf : tfs) {
+				for (String t : TYPES) {
+					if (tf.equals(t + Visitor.FUNCTION)) {
+						this.type = t;
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	public ParserRuleContext select() {
@@ -65,16 +76,16 @@ public class ChoiceState {
 
 	protected ParserRuleContext selectNoRepeat() {
 		ParserRuleContext cand;
-    do {
-      cand = RandGen.randomItem(this.options);
-    } while (cand == this.last);
-    
-    return (this.last = cand);
+		do {
+			cand = RandGen.randomItem(this.options);
+		} while (cand == this.last);
+
+		return (this.last = cand);
 	}
-	
+
 	protected ParserRuleContext selectNoRepeatX() {
 		ParserRuleContext cand = null;
-		if (last != null) { 
+		if (last != null) {
 			// need to test for equality here
 			while (last.equals(cand)) {
 				cand = RandGen.randomItem(this.options);
@@ -84,7 +95,7 @@ public class ChoiceState {
 			cand = RandGen.randomItem(this.options);
 		}
 		return (this.last = cand);
-		
+
 	}
 
 	protected ParserRuleContext selectSequence() {

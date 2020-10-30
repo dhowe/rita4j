@@ -343,6 +343,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				if (func instanceof Function) {
 					result = ((Function<String, String>) func).apply((String) target);
 				}
+				if (func instanceof Supplier) {
+					result = ((Supplier<String>) func).get();				
+				}
 			}
 
 			// 3. Function in Map

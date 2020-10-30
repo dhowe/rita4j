@@ -31,51 +31,54 @@ public class GrammarTests {
 
 	@Test
 	public void supportSeqTransform() {
-		String[] opts = { "a", "b", "c", "d" };
+		String[] seq = { "a", "b", "c", "d" };
 
-		String rule = "(" + String.join("|", opts) + ").seq()";
+		String rule = "(" + String.join("|", seq) + ").seq()";
 		Grammar rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-			// console.log(i, ':', res);
-			eq(res, opts[i]);
+//			console.log(i+ ": "+ res);
+			eq(res, seq[i]);
 		}
 
-		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
+		rule = "(" + String.join("|", seq) + ").seq().capitalize()";
 		rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-			// console.log(i, ':', res);
-			eq(res, opts[i].toUpperCase());
+//			console.log(i+ ": "+ res);
+			eq(res, seq[i].toUpperCase());
 		}
 	}
 
 	@Test
 	public void supportRSeqTransform() {
-		String[] opts = { "a", "b", "c", "d" };
-		String rule = "(" + String.join("|", opts) + ").rseq()";
+		String[] seq = { "a", "b", "c", "d" };
+		String rule = "(" + String.join("|", seq) + ").rseq()";
 		Grammar rg = new Grammar(opts("start", rule));
 		ArrayList<String> result = new ArrayList<String>();
-		// console.log(rule);
-		for (int i = 0; i < 4; i++) {
-			String res = rg.expand();
-			// console.log(i, ':', res);
-			result.add(res);
-		}
-		containsAll(result, opts);
 
-		rule = "(" + String.join("|", opts) + ").rseq().capitalize()";
-		// rg = new Grammar(opts("start", rule));
-		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
+			result.add(res);
+		}
+		containsAll(result, seq);
+//if (1==1) return;
+		result.clear();
+		rule = "(" + String.join("|", seq) + ").rseq().capitalize()";
+		rg = new Grammar(opts("start", rule));
+		// console.log(rule);
+
+		for (int i = 0; i < 4; i++) {
+			String res = rg.expand(TT);
 			// console.log(i, ':', res);
 			result.add(res);
 		}
-		String[] opts_u = { "A", "B", "C", "D" };
-		containsAll(result, opts_u);
+		//console.log(result);
+
+		String[] upperSeq = { "A", "B", "C", "D" };
+		containsAll(result, upperSeq);
 	}
 
 	@Test
@@ -371,7 +374,7 @@ public class GrammarTests {
 		};
 		Map<String, Object> context = opts("randomPosition", randomPosition);
 		Grammar rg = Grammar.fromJSON(rules, context);
-		eq(rg.expand(), "My jobArea jobType.");
+		eq(rg.expand(TT), "My jobArea jobType.");
 	}
 
 	@Test
