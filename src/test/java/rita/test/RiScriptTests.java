@@ -8,7 +8,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
-import org.stringtemplate.v4.ST;
 
 import rita.*;
 
@@ -26,7 +25,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("(BAZ).toLowerCase().ucf()", opts()), "Baz");
 
 		assertEq(RiTa.evaluate("(a).toUpperCase()", ctx), "A"); // Choice
-		assertEq(RiTa.evaluate(".toUpperCase()", ctx), ""); // Symbol
+		assertEq(RiTa.evaluate(".toUpperCase()", ctx, ST), ""); // Symbol
 
 		assertEq(RiTa.evaluate("$a=b\n$a.toUpperCase()", ctx), "B"); // Symbol
 		assertEq(RiTa.evaluate("[$b=((a | a)|a)].toUpperCase() dog.", ctx), "A dog.");// Inline
@@ -430,7 +429,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$foo=((a | a) | (a | a))", ctx), "");
 		assertEq(ctx.get("foo"), "a");
 
-		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");// empty string
+		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx, ST), "");// empty string
 		assertEq(ctx.get("foo"), "");
 
 	}
@@ -504,7 +503,6 @@ public class RiScriptTests {
 	public void resolveInlineAssigns_INLINE() {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("[$foo=hi]", ctx), "hi");
-		//if (1==1)return;
 		assertEq(RiTa.evaluate("[$foo=(hi | hi)] there", opts()), "hi there");
 		assertEq(RiTa.evaluate("[$foo=(hi | hi).ucf()] there", opts()), "Hi there");
 
@@ -686,7 +684,7 @@ public class RiScriptTests {
 	@Test
 	public void parseSelectChoicesTX_CHOICE() {
 		assertEq(RiTa.evaluate("(a | a).toUpperCase()", opts()), "A");
-		assertEq(RiTa.evaluate("(a | a).up()", opts()), "a.up()");
+		assertEq(RiTa.evaluate("(a | a).up()", opts(), ST), "a.up()");
 		Function<String, String> up = x -> x.toUpperCase();
 		assertEq(RiTa.evaluate("(a | a).up()", opts("up", up)), "A");
 		assertEq(RiTa.evaluate("$a", opts("a", 1)), "1");
@@ -886,7 +884,7 @@ public class RiScriptTests {
 	@Test
 	public void resolveChoiceTransforms_TRANSFORM() {
 		Map<String, Object> ctx = opts();
-		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");
+		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx, ST), "");
 		assertEq(ctx.get("foo"), "");
 
 		ctx.clear();
@@ -1016,6 +1014,12 @@ public class RiScriptTests {
 		RiTa.addTransform("blah3", (s) -> "Blah3");
 		assertEq(RiTa.evaluate("That is (ant).blah3().", opts()), "That is Blah3.");
 		RiTa.addTransform("blah3", null);
+		
+		Supplier<String> randPos = () -> {
+			return "jobArea jobType";
+		};
+		assertEq(RiTa.evaluate("a .randPos().", opts("randPos", randPos)), "a jobArea jobType.");
+
 	}
 
 	// Grammar
@@ -1052,7 +1056,7 @@ public class RiScriptTests {
 		String rs = RiTa.evaluate("$foo=$bar.toUpperCase()\n$bar=baz\n$foo", ctx);
 		assertEq(rs, "BAZ");
 
-		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx), "");
+		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx, ST), "");
 		assertEq(ctx.get("foo"), "");
 
 		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)", null), "A");

@@ -31,51 +31,54 @@ public class GrammarTests {
 
 	@Test
 	public void supportSeqTransform() {
-		String[] opts = { "a", "b", "c", "d" };
+		String[] seq = { "a", "b", "c", "d" };
 
-		String rule = "(" + String.join("|", opts) + ").seq()";
+		String rule = "(" + String.join("|", seq) + ").seq()";
 		Grammar rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-			// console.log(i, ':', res);
-			eq(res, opts[i]);
+//			console.log(i+ ": "+ res);
+			eq(res, seq[i]);
 		}
 
-		rule = "(" + String.join("|", opts) + ").seq().capitalize()";
+		rule = "(" + String.join("|", seq) + ").seq().capitalize()";
 		rg = new Grammar(opts("start", rule));
 		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-			// console.log(i, ':', res);
-			eq(res, opts[i].toUpperCase());
+//			console.log(i+ ": "+ res);
+			eq(res, seq[i].toUpperCase());
 		}
 	}
 
 	@Test
 	public void supportRSeqTransform() {
-		String[] opts = { "a", "b", "c", "d" };
-		String rule = "(" + String.join("|", opts) + ").rseq()";
+		String[] seq = { "a", "b", "c", "d" };
+		String rule = "(" + String.join("|", seq) + ").rseq()";
 		Grammar rg = new Grammar(opts("start", rule));
 		ArrayList<String> result = new ArrayList<String>();
-		// console.log(rule);
-		for (int i = 0; i < 4; i++) {
-			String res = rg.expand();
-			// console.log(i, ':', res);
-			result.add(res);
-		}
-		containsAll(result, opts);
 
-		rule = "(" + String.join("|", opts) + ").rseq().capitalize()";
-		// rg = new Grammar(opts("start", rule));
+		for (int i = 0; i < 4; i++) {
+			String res = rg.expand();
+			result.add(res);
+		}
+		containsAll(result, seq);
+//if (1==1) return;
+		result.clear();
+		rule = "(" + String.join("|", seq) + ").rseq().capitalize()";
+		rg = new Grammar(opts("start", rule));
 		// console.log(rule);
+
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
 			// console.log(i, ':', res);
 			result.add(res);
 		}
-		String[] opts_u = { "A", "B", "C", "D" };
-		containsAll(result, opts_u);
+		//console.log(result);
+
+		String[] upperSeq = { "A", "B", "C", "D" };
+		containsAll(result, upperSeq);
 	}
 
 	@Test
@@ -105,11 +108,6 @@ public class GrammarTests {
 		assertTrue(Arrays.asList(expected).contains(rs));
 
 		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
-		rg = Grammar.fromJSON(rules);
-		rs = rg.expand();
-		assertTrue(Arrays.asList(expected).contains(rs));
-
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave | Jill | Pete\",\"Jill\": \"Dave | Jill | Pete\",\"Pete\": \"Dave | Jill | Pete\"}";
 		rg = Grammar.fromJSON(rules);
 		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
@@ -180,10 +178,12 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void throwOnBadGrammarNames() {
+	public void throwOnMissingRules() {
 		Grammar rg = new Grammar();
-		//		assertThrows(RiTaException.class, () -> rg.expandFrom("wrongName"));
-		assertThrows(RiTaException.class, () -> rg.expand());
+ 		assertThrows(RiTaException.class, () -> rg.expand());
+		
+ 		Grammar rg2 = new Grammar(opts("start", "My rule"));
+		assertThrows(RiTaException.class, () -> rg2.expand("bad"));
 	}
 
 	@Test
@@ -346,21 +346,22 @@ public class GrammarTests {
 
 		String res = rg.expand();
 		eq(res, "bad feelings");
-
 	}
 
+	
 	@Test
-	public void alllowContextInExpand() {
-		Supplier<String> randomPosition = () -> {
+	public void allowContextInExpand() {
+		Grammar rg;
+		Supplier<String> randPosition = () -> {
 			return "job type";
 		};
-		Map<String, Object> context = opts("randomPosition", randomPosition);
-		Grammar rg = new Grammar(opts("start", "My .randomPosition()."));
-		eq("My job type.", rg.expand(context));
+		Map<String, Object> ctx = opts("randPosition", randPosition);
 
-		rg = new Grammar(opts("stat", "My .randomPosition()."));
-		eq("My job type.", rg.expand("stat", context));
+		rg = new Grammar(opts("start", "My .randPosition()."));
+		eq(rg.expand(ctx), "My job type.");
 
+		rg = new Grammar(opts("rule", "My .randPosition()."));
+		eq(rg.expand("rule", ctx), "My job type.");
 	}
 
 	@Test
