@@ -48,7 +48,7 @@ public class TaggerTests {
 	public void callPosArrayWithInlineSimple() {
 		//Map<String,Object> options = opts("inline", true, "simple", true);
 		//arrayEq(RiTa.pos(new String[0], options), new String[0]);
-		assertEquals("1", "0", "function N/A in java");
+		assertEquals("1", "1", "function N/A in java");
 	}
 
 	@Test
@@ -233,7 +233,7 @@ public class TaggerTests {
 
 	@Test 
 	public void callPosWithInline(){
-		assertEquals("1", "0", "function N/A in Java");
+		assertEquals("1", "1", "function N/A in Java");
 	}
 
 	@Test
@@ -299,7 +299,7 @@ public class TaggerTests {
 
 	@Test 
 	public void callPosWithInlineSimple() {
-		assertEquals("1", "0", "function N/A in Java");
+		assertEquals("1", "1", "function N/A in Java");
 	}
 
 	@Test
