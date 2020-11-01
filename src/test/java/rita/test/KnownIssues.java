@@ -1,6 +1,7 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
@@ -79,8 +80,19 @@ public class KnownIssues {
 	// NOT SURE WHY THIS TEST EXISTS
 	//assertEq(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx), "bar baz");
 
+	@Test
+	public void isRhymeProblem() {
+		assertTrue(RiTa.isRhyme("yo", "bro"));
+	}
+
 	public static void main(String[] args) {
 		new KnownIssues().singularizeBugs();
+	}
+
+	@Test
+	public void tem() {
+		String pos = RiTa._lexicon().posData(RiTa.singularize("criteria"));
+		assertEquals(pos, "nn");
 	}
 
 }
