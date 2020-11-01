@@ -68,7 +68,7 @@ public class KnownIssues {
 		for (int i = 0; i < tests.length; i += 2) {
 			System.out.println(tests[i] + " -> " + RiTa.singularize(tests[i])
 					+ ", but expecting " + tests[i + 1]);
-			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
+			assertEquals(tests[i + 1], RiTa.singularize(tests[i]));
 		}
 	}
 	
