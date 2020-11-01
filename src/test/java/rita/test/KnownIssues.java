@@ -89,10 +89,4 @@ public class KnownIssues {
 		new KnownIssues().singularizeBugs();
 	}
 
-	@Test
-	public void tem() {
-		String pos = RiTa._lexicon().posData(RiTa.singularize("criteria"));
-		assertEquals(pos, "nn");
-	}
-
 }
