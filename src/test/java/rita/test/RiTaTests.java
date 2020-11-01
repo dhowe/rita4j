@@ -71,7 +71,7 @@ public class RiTaTests {
 
 		//List <Float>
 		List<Float> resLF = new ArrayList<Float>();
-		resLF.add(Float.valueOf(0)); 
+		resLF.add(Float.valueOf(0));
 		List<Float> outputLF = RandGen.randomOrdering(resLF);
 		assertTrue(listEq(resLF, outputLF));
 
@@ -139,7 +139,7 @@ public class RiTaTests {
 		int[] outputI = RandGen.randomOrdering(resI);
 		assertArrayEquals(resI, outputI);
 		resI = new int[] { 0, 1, 2, 3, 4 };
-		outputI =  RandGen.randomOrdering(resI);
+		outputI = RandGen.randomOrdering(resI);
 		Arrays.sort(outputI);
 		assertArrayEquals(resI, outputI);
 
@@ -147,7 +147,7 @@ public class RiTaTests {
 		float[] resF = new float[] { 0 };
 		float[] outputF = RandGen.randomOrdering(resF);
 		assertArrayEquals(resF, outputF);
-		resF = new float[] { 0, 1, 2, 3, (float)4.554 };
+		resF = new float[] { 0, 1, 2, 3, (float) 4.554 };
 		outputF = RandGen.randomOrdering(resF);
 		Arrays.sort(outputF);
 		assertArrayEquals(resF, outputF);
@@ -177,7 +177,7 @@ public class RiTaTests {
 		outputO = RandGen.randomOrdering(resO);
 		Arrays.sort(outputO);
 		assertArrayEquals(resO, outputO);
-	} 
+	}
 
 	@Test
 	public void callIsQuestion() {
@@ -525,39 +525,41 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void callSentences(){
+	public void callSentences() {
 		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
 		String[] input = {
-			"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
-			"\"The boy went fishing.\", he said. Then he went away.",
-			"The dog",
-			"I guess the dog ate the baby.",
-			"Oh my god, the dog ate the baby!",
-			"Which dog ate the baby?",
-			"'Yes, it was a dog that ate the baby', he said.",
-			"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
-			"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
-			"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
-			"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
-			"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
-			"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
-			" I had a visit from my \"friend\" the tax man."
+				"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
+				"\"The boy went fishing.\", he said. Then he went away.",
+				"The dog",
+				"I guess the dog ate the baby.",
+				"Oh my god, the dog ate the baby!",
+				"Which dog ate the baby?",
+				"'Yes, it was a dog that ate the baby', he said.",
+				"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
+				"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
+				"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
+				"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
+				"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
+				"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
+				" I had a visit from my \"friend\" the tax man."
 		};
 		String[][] output = {
-			new String[] {"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.", "The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.", "If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs."},
-			new String[] {"\"The boy went fishing.\", he said.", "Then he went away."},
-			new String[] {"The dog"},
-			new String[] {"I guess the dog ate the baby."},
-			new String[] {"Oh my god, the dog ate the baby!"},
-			new String[] {"Which dog ate the baby?"},
-			new String[] {"\'Yes, it was a dog that ate the baby\', he said."},
-			new String[] {"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad."},
-			new String[] {"\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\""},
-			new String[] {"\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D"},
-			new String[] {"\"My dear Mr. Bennet.", "Netherfield Park is let at last.\""},
-			new String[] {"\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D"},
-			new String[] {"She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\""},
-			new String[] {"I had a visit from my \"friend\" the tax man."}
+				new String[] { "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.",
+						"The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.",
+						"If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs." },
+				new String[] { "\"The boy went fishing.\", he said.", "Then he went away." },
+				new String[] { "The dog" },
+				new String[] { "I guess the dog ate the baby." },
+				new String[] { "Oh my god, the dog ate the baby!" },
+				new String[] { "Which dog ate the baby?" },
+				new String[] { "\'Yes, it was a dog that ate the baby\', he said." },
+				new String[] { "The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad." },
+				new String[] { "\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\"" },
+				new String[] { "\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D" },
+				new String[] { "\"My dear Mr. Bennet.", "Netherfield Park is let at last.\"" },
+				new String[] { "\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D" },
+				new String[] { "She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\"" },
+				new String[] { "I had a visit from my \"friend\" the tax man." }
 		};
 		assertTrue(input.length == output.length);
 		for (int i = 0; i < input.length; i++) {
@@ -570,11 +572,12 @@ public class RiTaTests {
 		if (a == null || b == null) {
 			return false;
 		}
-		if (a.size() != b.size()){
+		if (a.size() != b.size()) {
 			return false;
-		} else {
+		}
+		else {
 			for (int i = 0; i < a.size(); i++) {
-				if (! a.get(1).equals(b.get(i))) {
+				if (!a.get(i).equals(b.get(i))) {
 					return false;
 				}
 			}
