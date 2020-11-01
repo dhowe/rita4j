@@ -1,16 +1,8 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static rita.Util.opts;
-
-import java.util.*;
-import java.util.function.Function;
-
-import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
-import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {

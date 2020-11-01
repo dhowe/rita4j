@@ -79,7 +79,9 @@ public class RiScript {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
 
-		return popTransforms(ctx).resolveEntities(expr);
+		popTransforms(ctx);
+		
+		return resolveEntities(expr);
 	}
 
 	private RiScript pushTransforms(Map<String, Object> ctx) {
