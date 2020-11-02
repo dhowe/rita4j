@@ -57,12 +57,10 @@ public class KnownIssues {
 				"brasses", "brass",
 				"marshes", "marsh",
 				"masses", "mass",
-				"overpasses", "overpass",
 				"impulses", "impulse",
 				"pelvises", "pelvis",
 				"fetishes", "fetish",
 				"abysses", "abyss",
-				"lighthouses", "lighthouse",
 				"gashes", "gash",
 				"directives", "directive",
 				"calories", "calorie",
@@ -73,7 +71,7 @@ public class KnownIssues {
 		for (int i = 0; i < tests.length; i += 2) {
 			System.out.println(tests[i] + " -> " + RiTa.singularize(tests[i])
 					+ ", but expecting " + tests[i + 1]);
-			assertEquals(RiTa.singularize(tests[i]), tests[i + 1]);
+			assertEquals(tests[i + 1], RiTa.singularize(tests[i]));
 		}
 	}
 	

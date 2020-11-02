@@ -15,9 +15,14 @@ import org.junit.jupiter.api.Test;
 public class AnalyzerTests { 
 
 	@Test
-	public void callSingularize() {
+	public void handleSingularPluralPairs() {
 
-		String[] tests = {
+		String[] testPairs = {
+				"turf", "turf",
+				"macaroni", "macaroni",
+				"spaghetti", "spaghetti",
+				"potpourri", "potpourri",
+				"electrolysis", "electrolysis",
 				"media", "medium",
 				"millennia", "millennium",
 				"consortia", "consortium",
@@ -27,284 +32,22 @@ public class AnalyzerTests {
 				"larvae", "larva",
 				"vertebrae", "vertebra",
 				"memorabilia", "memorabilium",
-				"hooves", "hoof",
-				"thieves", "thief",
-				"rabbis", "rabbi",
-				"flu", "flu",
-				"safaris", "safari",
 				"sheaves", "sheaf",
-				"uses", "use",
-				"pinches", "pinch",
-				"catharses", "catharsis",
-				"hankies", "hanky"
-		};
-		for (int i = 0; i < tests.length; i += 2) {
-			// System.out.println("p: " + RiTa.singularize(tests[i])
-			// + " s: " + tests[i + 1]);
-			eq(RiTa.singularize(tests[i]), tests[i + 1]);
-		}
-
-		eq(RiTa.singularize("whizzes"), "whiz");
-		eq(RiTa.singularize("selves"), "self");
-		eq(RiTa.singularize("bookshelves"), "bookshelf");
-		eq(RiTa.singularize("wheezes"), "wheeze");
-		eq(RiTa.singularize("diagnoses"), "diagnosis");
-
-		eq(RiTa.singularize("blondes"), "blonde");
-		eq(RiTa.singularize("eyes"), "eye");
-		eq(RiTa.singularize("swine"), "swine");
-		eq(RiTa.singularize("cognoscenti"), "cognoscenti");
-		eq(RiTa.singularize("bonsai"), "bonsai");
-		eq(RiTa.singularize("taxis"), "taxi");
-		eq(RiTa.singularize("chiefs"), "chief");
-		eq(RiTa.singularize("monarchs"), "monarch");
-		eq(RiTa.singularize("lochs"), "loch");
-		eq(RiTa.singularize("stomachs"), "stomach");
-
-		eq(RiTa.singularize("Chinese"), "Chinese");
-
-		eq(RiTa.singularize("people"), "person");
-		eq(RiTa.singularize("money"), "money");
-		eq(RiTa.singularize("vertebrae"), "vertebra");
-		eq(RiTa.singularize("humans"), "human");
-		eq(RiTa.singularize("germans"), "german");
-		eq(RiTa.singularize("romans"), "roman");
-
-		eq(RiTa.singularize("memoranda"), "memorandum");
-		eq(RiTa.singularize("data"), "datum");
-		eq(RiTa.singularize("appendices"), "appendix");
-		eq(RiTa.singularize("theses"), "thesis");
-		eq(RiTa.singularize("alumni"), "alumnus");
-
-		eq(RiTa.singularize("solos"), "solo");
-		eq(RiTa.singularize("music"), "music");
-
-		eq(RiTa.singularize("oxen"), "ox");
-		eq(RiTa.singularize("beef"), "beef");
-
-		eq(RiTa.singularize("tobacco"), "tobacco");
-		eq(RiTa.singularize("cargo"), "cargo");
-		eq(RiTa.singularize("golf"), "golf");
-		eq(RiTa.singularize("grief"), "grief");
-
-		eq(RiTa.singularize("cakes"), "cake");
-
-		eq(RiTa.singularize("dogs"), "dog"); 
-		eq(RiTa.singularize("feet"), "foot");
-		eq(RiTa.singularize("teeth"), "tooth");
-		eq(RiTa.singularize("kisses"), "kiss");
-		eq(RiTa.singularize("children"), "child");
-		eq(RiTa.singularize("randomwords"), "randomword");
-		eq(RiTa.singularize("deer"), "deer");
-		eq(RiTa.singularize("sheep"), "sheep");
-		eq(RiTa.singularize("shrimp"), "shrimp");
-
-		eq(RiTa.singularize("tomatoes"), "tomato");
-		eq(RiTa.singularize("photos"), "photo");
-
-		eq(RiTa.singularize("toes"), "toe");
-
-		eq(RiTa.singularize("series"), "series");
-		eq(RiTa.singularize("men"), "man");
-		eq(RiTa.singularize("mice"), "mouse");
-		eq(RiTa.singularize("lice"), "louse");
-
-		eq(RiTa.singularize("gases"), "gas");
-		eq(RiTa.singularize("buses"), "bus");
-		eq(RiTa.singularize("happiness"), "happiness");
-
-		eq(RiTa.singularize("crises"), "crisis");
-		eq(RiTa.singularize("apotheses"), "apothesis");
-		eq(RiTa.singularize("stimuli"), "stimulus");
-		eq(RiTa.singularize("corpora"), "corpus");
-
-		eq(RiTa.singularize("women"), "woman");
-		eq(RiTa.singularize("congressmen"), "congressman");
-		eq(RiTa.singularize("aldermen"), "alderman");
-		eq(RiTa.singularize("freshmen"), "freshman");
-		eq(RiTa.singularize("firemen"), "fireman");
-		eq(RiTa.singularize("grandchildren"), "grandchild");
-		eq(RiTa.singularize("menus"), "menu");
-		eq(RiTa.singularize("gurus"), "guru");
-
-		eq(RiTa.singularize("hardness"), "hardness");
-		eq(RiTa.singularize("shortness"), "shortness");
-		eq(RiTa.singularize("dreariness"), "dreariness");
-		eq(RiTa.singularize("unwillingness"), "unwillingness");
-		eq(RiTa.singularize("fish"), "fish");
-		eq(RiTa.singularize("ooze"), "ooze");
-
-		eq(RiTa.singularize("enterprises"), "enterprise");
-		eq(RiTa.singularize("treatises"), "treatise");
-		eq(RiTa.singularize("houses"), "house");
-		eq(RiTa.singularize("chemises"), "chemise");
-
-		eq(RiTa.singularize("aquatics"), "aquatics");
-		eq(RiTa.singularize("mechanics"), "mechanics");
-		eq(RiTa.singularize("quarters"), "quarter");
-	}
-
-	@Test
-	public void callPluralize() {
-		String[] tests = {
-			"media", "medium",
-			"millennia", "millennium",
-			"consortia", "consortium",
-			"concerti", "concerto",
-			"septa", "septum",
-			"termini", "terminus",
-			"larvae", "larva",
-			"vertebrae", "vertebra",
-			"memorabilia", "memorabilium",
-			"sheaves", "sheaf",
-			"spoofs", "spoof",
-			"proofs", "proof",
-			"roofs", "roof",
-			"disbeliefs", "disbelief",
-			"indices", "index",
-			"accomplices", "accomplice",
-			"hooves", "hoof",
-			"thieves", "thief",
-			"rabbis", "rabbi",
-			"flu", "flu",
-			"safaris", "safari",
-			"sheaves", "sheaf",
-			"uses", "use",
-			"pinches", "pinch",
-			"catharses", "catharsis",
-			"hankies", "hanky",
-			"whizzes", "whiz",
-			"selves", "self",
-			"bookshelves", "bookshelf",
-			"wheezes", "wheeze",
-			"diagnoses", "diagnosis",
-			"blondes", "blonde",
-			"eyes", "eye",
-			"swine", "swine",
-			"cognoscenti", "cognoscenti",
-			"bonsai", "bonsai",
-			"taxis", "taxi",
-			"chiefs", "chief",
-			"monarchs", "monarch",
-			"lochs", "loch",
-			"stomachs", "stomach",
-			"Chinese", "Chinese",
-			"people", "person",
-			"money", "money",
-			"vertebrae", "vertebra",
-			"humans", "human",
-			"germans", "german",
-			"romans", "roman",
-			"memoranda", "memorandum",
-			"data", "datum",
-			"appendices", "appendix",
-			"theses", "thesis",
-			"alumni", "alumnus",
-			"solos", "solo",
-			"music", "music",
-			"oxen", "ox",
-			"beef", "beef",
-			"tobacco", "tobacco",
-			"cargo", "cargo",
-			"golf", "golf",
-			"grief", "grief",
-			"cakes", "cake",
-			"dogs", "dog",
-			"feet", "foot",
-			"teeth", "tooth",
-			"kisses", "kiss",
-			"children", "child",
-			"randomwords", "randomword",
-			"deer", "deer",
-			"sheep", "sheep",
-			"shrimp", "shrimp",
-			"tomatoes", "tomato",
-			"photos", "photo",
-			"toes", "toe",
-			"series", "series",
-			"men", "man",
-			"mice", "mouse",
-			"lice", "louse",
-			"gases", "gas",
-			"buses", "bus",
-			"happiness", "happiness",
-			"crises", "crisis",
-			"apotheses", "apothesis",
-			"stimuli", "stimulus",
-			"corpora", "corpus",
-			"women", "woman",
-			"congressmen", "congressman",
-			"aldermen", "alderman",
-			"freshmen", "freshman",
-			"firemen", "fireman",
-			"grandchildren", "grandchild",
-			"menus", "menu",
-			"gurus", "guru",
-			"hardness", "hardness",
-			"shortness", "shortness",
-			"dreariness", "dreariness",
-			"unwillingness", "unwillingness",
-			"fish", "fish",
-			"ooze", "ooze",
-			"enterprises", "enterprise",
-			"treatises", "treatise",
-			"houses", "house",
-			"chemises", "chemise",
-			"aquatics", "aquatics",
-			"mechanics", "mechanics",
-			"quarters", "quarter"
-		};
-		for (int i = 0; i < tests.length; i += 2) {
-			//System.out.println(i+") " + tests[i]+" -> "+RiTa.pluralize(tests[i + 1]));
-			eq(RiTa.pluralize(tests[i + 1]), tests[i]);
-		}
-
-		// uncountable
-		tests = new String[] {
-				"turf", "macaroni", "spaghetti", "potpourri", "electrolysis"
-		};
-		for (int i = 0; i < tests.length; i++) {
-			eq(RiTa.pluralize(tests[i]), tests[i]);
-		}
-	}
-
-	@Test
-	public void handleSingularPluralPairs() {
-
-		String[] testPairs = {
-				"dazes", "daze",
-				"hives", "hive",
-				"dives", "dive",
-				"octopuses", "octopus",
-				"abalone", "abalone",
-				"wildlife", "wildlife",
-				"media", "medium",
-				"millennia", "millennium",
-				"consortia", "consortium",
-				"concerti", "concerto",
-				"septa", "septum",
-				"termini", "terminus",
-				"larvae", "larva",
-				"vertebrae", "vertebra",
-				"hooves", "hoof",
-				"thieves", "thief",
-				"rabbis", "rabbi",
-				"flu", "flu",
-				"safaris", "safari",
-				"sheaves", "sheaf",
-				"uses", "use",
-				"pinches", "pinch",
-				"hankies", "hanky",
 				"spoofs", "spoof",
 				"proofs", "proof",
 				"roofs", "roof",
 				"disbeliefs", "disbelief",
-				"beliefs", "belief",
 				"indices", "index",
 				"accomplices", "accomplice",
+				"hooves", "hoof",
+				"thieves", "thief",
+				"rabbis", "rabbi",
+				"flu", "flu",
+				"safaris", "safari",
+				"uses", "use",
+				"pinches", "pinch",
 				"catharses", "catharsis",
-				"prognoses", "prognosis",
-				"whizzes", "whiz",
+				"hankies", "hanky",
 				"selves", "self",
 				"bookshelves", "bookshelf",
 				"wheezes", "wheeze",
@@ -321,55 +64,47 @@ public class AnalyzerTests {
 				"stomachs", "stomach",
 				"Chinese", "Chinese",
 				"people", "person",
+				"money", "money",
 				"humans", "human",
 				"germans", "german",
 				"romans", "roman",
 				"memoranda", "memorandum",
 				"data", "datum",
-				"geese", "goose",
-				"femurs", "femur",
 				"appendices", "appendix",
 				"theses", "thesis",
 				"alumni", "alumnus",
 				"solos", "solo",
 				"music", "music",
 				"oxen", "ox",
-				"solos", "solo",
-				"music", "music",
-				"money", "money",
 				"beef", "beef",
 				"tobacco", "tobacco",
 				"cargo", "cargo",
 				"golf", "golf",
 				"grief", "grief",
 				"cakes", "cake",
-				"tomatoes", "tomato",
-				"photos", "photo",
-				"smallpox", "smallpox",
-				"toes", "toe",
-				"series", "series",
-				"oxen", "ox",
-				"men", "man",
-				"mice", "mouse",
-				"lice", "louse",
-				"children", "child",
-				"gases", "gas",
-				"buses", "bus",
-				"happiness", "happiness",
-				"crises", "crisis",
-				"theses", "thesis",
-				"apotheses", "apothesis",
-				"stimuli", "stimulus",
-				"alumni", "alumnus",
-				"corpora", "corpus",
 				"dogs", "dog",
 				"feet", "foot",
 				"teeth", "tooth",
 				"kisses", "kiss",
+				"children", "child",
+				"randomwords", "randomword",
 				"deer", "deer",
 				"sheep", "sheep",
 				"shrimp", "shrimp",
+				"tomatoes", "tomato",
+				"photos", "photo",
+				"toes", "toe",
+				"series", "series",
 				"men", "man",
+				"mice", "mouse",
+				"lice", "louse",
+				"gases", "gas",
+				"buses", "bus",
+				"happiness", "happiness",
+				"crises", "crisis",
+				"apotheses", "apothesis",
+				"stimuli", "stimulus",
+				"corpora", "corpus",
 				"women", "woman",
 				"congressmen", "congressman",
 				"aldermen", "alderman",
@@ -391,38 +126,20 @@ public class AnalyzerTests {
 				"aquatics", "aquatics",
 				"mechanics", "mechanics",
 				"quarters", "quarter",
+				"dazes", "daze",
+				"hives", "hive",
+				"dives", "dive",
+				"octopuses", "octopus",
+				"abalone", "abalone",
+				"wildlife", "wildlife",
+				"beliefs", "belief",
+				"prognoses", "prognosis",
+				"whizzes", "whiz",
+				"geese", "goose",
+				"femurs", "femur",
+				"smallpox", "smallpox",
 				"motifs", "motif",
-				"alumni", "alumnus",
-				"turf", "turf",
-				"macaroni", "macaroni",
-				"spaghetti", "spaghetti",
-				"potpourri", "potpourri",
-				"electrolysis", "electrolysis",
-				"eyes", "eye",
-				"teeth", "tooth",
-				"cakes", "cake",
-				"kisses", "kiss",
-				"lice", "louse",
-				"series", "series",
-				"crises", "crisis",
-				"theses", "thesis",
-				"apotheses", "apothesis",
-				"stimuli", "stimulus",
-				"alumni", "alumnus",
-				"corpora", "corpus",
-				"menus", "menu",
-				"hardness", "hardness",
-				"shortness", "shortness",
-				"dreariness", "dreariness",
-				"unwillingness", "unwillingness",
 				"moose", "moose",
-				"toes", "toe",
-				"tobacco", "tobacco",
-				"cargo", "cargo",
-				"golf", "golf",
-				"grief", "grief",
-				"taxis", "taxi",
-				"bonsai", "bonsai",
 				"lives", "life",
 				"additives", "additive",
 				"epochs", "epoch",
@@ -431,10 +148,7 @@ public class AnalyzerTests {
 				"goddesses", "goddess",
 				"tresses", "tress",
 				"murderesses", "murderess",
-				"memories", "memory",
-				"corpora", "corpus",
-				"stimuli", "stimulus",
-				"theses", "thesis"
+				"memories", "memory"
 		};
 
 		String res1, res2;
