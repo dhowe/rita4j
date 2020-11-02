@@ -13,12 +13,11 @@ public class Inflector {
 	private static final RE DEFAULT_PLURAL_RULE = new RE("^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$", 0, "s");
 	private static final RE[] SINGULAR_RULES = {
 			new RE("(houses|pulses|cases)$", 1, ""),
-			new RE("^(groov|univers|conclav|promis|spous|laps|microwav|pretens|zombi|hears|hippi|yuppi|purs|phras|missiv|paus|directiv|calori|mov|expans)es$", 1, ""), // a better way is to check with the set of all word ended with e ?
 			new RE("^(apices|cortices)$", 4, "ex"),
 			new RE("^(meninges|phalanges)$", 3, "x"), // x -> ges
-			new RE("^(octopus|pinch|fetus|genus|sinus|tomatoes|kisses|pelvis)es$", 2),
+			new RE("^(octopus|pinch|fetus|genus|sinus|tomato|kiss|pelvis)es$", 2),
 			new RE("^(whizzes)$", 3),
-			new RE("^(to|wheez|ooz|us|enterpris|alcov|hous|hors|cas|daz|hiv|div|additiv)es$", 1), //End with: es -> e
+			new RE("^(to|wheez|ooz|us|enterpris|alcov|hous|hors|cas|daz|hiv|div|additiv|groov|univers|conclav|promis|spous|laps|microwav|pretens|zombi|hears|hippi|yuppi|purs|phras|missiv|paus|directiv|calori|mov|expans)es$", 1), //End with: es -> e, better ways?
 			new RE("(l|w)ives$", 3, "fe"),
 			new RE("(men|women)$", 2, "an"),
 			new RE("ves$", 3, "f"),
