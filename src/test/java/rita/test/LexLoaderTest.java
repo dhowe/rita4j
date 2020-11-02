@@ -17,14 +17,14 @@ public class LexLoaderTest {
 		Instant now = Instant.now();
 		int numWords = RiTa.words().length;
 		long timeMs = Duration.between(now, Instant.now()).toMillis();
-		console.log("1) "+numWords + " words in " + timeMs + "ms");
+		//console.log("1) "+numWords + " words in " + timeMs + "ms");
 		assertTrue(numWords > 22000);
 		assertTrue(timeMs < 400);
 
 		now = Instant.now();
 		numWords = RiTa.words().length;
 		timeMs = Duration.between(now, Instant.now()).toMillis();
-		console.log("2) "+numWords + " words in " + timeMs + "ms");
+		//console.log("2) "+numWords + " words in " + timeMs + "ms");
 		assertTrue(numWords > 22000);
 		assertTrue(timeMs < 20);
 	}

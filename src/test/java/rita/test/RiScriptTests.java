@@ -147,7 +147,9 @@ public class RiScriptTests {
 		assertEq(RiTa.articlize("ant"), "an ant");
 		assertEq(RiTa.articlize("honor"), "an honor");
 		assertEq(RiTa.articlize("eagle"), "an eagle");
+		RiTa.SILENCE_LTS = true;
 		assertEq(RiTa.articlize("ermintrout"), "an ermintrout"); // LTS
+		RiTa.SILENCE_LTS = false;
 	}
 
 	@Test
@@ -918,6 +920,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("[$a=$dog] $a.articlize().capitalize()", ctx), "spot A spot");
 		ctx.clear();
 		ctx.put("dog", "abe");
+		RiTa.SILENCE_LTS = true;
 		assertEq(RiTa.evaluate("[$a=$dog] $a.articlize().capitalize()", ctx), "abe An abe");
 		assertEq(RiTa.evaluate("(abe | abe).articlize().capitalize()", ctx), "An abe");
 		assertEq(RiTa.evaluate("(abe | abe).capitalize().articlize()", ctx), "an Abe");
@@ -1321,5 +1324,6 @@ public class RiScriptTests {
 	}
 
 	public static void main(String[] args) {
+		//System.out.println(RiTa.evaluate("(Abe Lincoln).articlize().capitalize()"));
 	}
 }

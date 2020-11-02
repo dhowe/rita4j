@@ -15,6 +15,9 @@ import static rita.Util.*;
 public class LexiconTests {
 
 	// TODO: use opts() instead of creating Maps
+	LexiconTests() {
+		RiTa.SILENCE_LTS = true;
+	}
 
 	@Test
 	public void callHasWord() {

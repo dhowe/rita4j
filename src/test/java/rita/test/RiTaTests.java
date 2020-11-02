@@ -203,6 +203,7 @@ public class RiTaTests {
 
 	@Test
 	public void callArticlize() {
+		RiTa.SILENCE_LTS = true;
 		String[] data = {
 				"a dog", "dog",
 				"an ant", "ant",
@@ -213,6 +214,7 @@ public class RiTaTests {
 		for (int i = 0; i < data.length; i += 2) {
 			assertEquals(data[i], RiTa.articlize(data[i + 1]));
 		}
+		RiTa.SILENCE_LTS = false;
 	}
 
 	@Test
