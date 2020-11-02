@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
 import com.ibm.icu.util.TimeZone.SystemTimeZoneType;
@@ -61,49 +62,45 @@ public abstract class RandGen {
 		Collections.shuffle(list);
 		return list;
 	}
-
-	public static final float[] randomOrdering(float[] arr) { // hideous
+	
+	public static final float[] randomOrdering(float[] arr) { // hideous java
 		List<Float> arrList = new ArrayList<Float>();
-		for (int i = 0; i < arr.length; i ++) {
+		for (int i = 0; i < arr.length; i++) {
 			arrList.add(Float.valueOf(arr[i]));
 		}
 		Float[] ro = randomOrdering(arrList).toArray(new Float[0]);
 		float[] p = new float[ro.length];
-		for(int i = 0; i < p.length; i++) p[i] = ro[i];
+		for (int i = 0; i < p.length; i++) {
+			p[i] = ro[i];
+		}
 		return p;
 	}
 
-	public static final boolean[] randomOrdering(boolean[] arr) {// hideous
+	public static final boolean[] randomOrdering(boolean[] arr) {// hideous java
 		List<Boolean> arrList = new ArrayList<Boolean>();
-		for (int i = 0; i < arr.length; i ++) {
+		for (int i = 0; i < arr.length; i++) {
 			arrList.add(Boolean.valueOf(arr[i]));
 		}
 		Boolean[] ro = randomOrdering(arrList).toArray(new Boolean[0]);
 		boolean[] p = new boolean[ro.length];
-		for(int i = 0; i < p.length; i++) p[i] = ro[i];
+		for (int i = 0; i < p.length; i++) {
+			p[i] = ro[i];
+		}
 		return p;
 	}
 	
-	public static final double[] randomOrdering(double[] arr) {// hideous
-		List<Double> arrList = new ArrayList<Double>();
-		for (int i = 0; i < arr.length; i ++) {
-			arrList.add(Double.valueOf(arr[i]));
-		}
-		Double[] ro = randomOrdering(arrList).toArray(new Double[0]);
-		double[] p = new double[ro.length];
-		for(int i = 0; i < p.length; i++) p[i] = ro[i];
-		return p;
+	public static final double[] randomOrdering(double[] arr) { // slightly less hideous 
+		Double[] ro = randomOrdering(Arrays.stream(arr).boxed()
+				.collect(Collectors.toList())).toArray(new Double[0]);
+		return Arrays.stream(ro).mapToDouble(Double::doubleValue).toArray();
 	}
 
-	public static final int[] randomOrdering(int[] arr) {// slightly less hideous
-		List<Integer> arrList = new ArrayList<Integer>();
-		for (int i = 0; i < arr.length; i ++) {
-			arrList.add(Integer.valueOf(arr[i]));
-		}
-		Integer[] ro = randomOrdering(arrList).toArray(new Integer[0]);
+	public static final int[] randomOrdering(int[] arr) { // slightly less hideous 
+		Integer[] ro = randomOrdering(Arrays.stream(arr).boxed()
+				.collect(Collectors.toList())).toArray(new Integer[0]);
 		return Arrays.stream(ro).mapToInt(Integer::intValue).toArray();
 	}
-
+	
 	public static final <T> T[] randomOrdering(final T[] arr) {
 		int index;
 		Random random = new Random();
@@ -129,7 +126,7 @@ public abstract class RandGen {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static final  <T> T randomItem(Collection<T> c) {
+	public static final <T> T randomItem(Collection<T> c) {
 		return (T) randomItem(c.toArray()); // TODO: needs testing
 	}
 
