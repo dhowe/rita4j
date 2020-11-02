@@ -12,11 +12,12 @@ public class Inflector {
 	private static final RE DEFAULT_SINGULAR_RULE = new RE("^.*s$", 1);
 	private static final RE DEFAULT_PLURAL_RULE = new RE("^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$", 0, "s");
 	private static final RE[] SINGULAR_RULES = {
+			new RE("(houses|pulses|cases)$", 1, ""),
+			new RE("^(groov|univers|conclav|promis|spous|laps|microwav|pretens|zombi|hears|hippi|yuppi|purs|phras|missiv|paus|directiv|calori|mov|expans)es$", 1, ""), // a better way is to check with the set of all word ended with e ?
 			new RE("^(apices|cortices)$", 4, "ex"),
 			new RE("^(meninges|phalanges)$", 3, "x"), // x -> ges
-			new RE("^(octopus|pinch)es$", 2),
+			new RE("^(octopus|pinch|fetus|genus|sinus|tomatoes|kisses|pelvis)es$", 2),
 			new RE("^(whizzes)$", 3),
-			new RE("^(tomatoes|kisses)$", 2),
 			new RE("^(to|wheez|ooz|us|enterpris|alcov|hous|hors|cas|daz|hiv|div|additiv)es$", 1), //End with: es -> e
 			new RE("(l|w)ives$", 3, "fe"),
 			new RE("(men|women)$", 2, "an"),
@@ -42,6 +43,7 @@ public class Inflector {
 			new RE("^oxen", 2),
 			new RE("esses$", 2),
 			new RE("(treatises|chemises)$", 1),
+			new RE("(sh|ch|o|z|ss|x)es$", 2, ""), //burshes ... 
 			new RE("(ses)$", 2, "is"), // catharses, prognoses
 			//  new RE("([a-z]+osis|[a-z]+itis|[a-z]+ness)$", 0),
 			DEFAULT_SINGULAR_RULE
@@ -52,40 +54,40 @@ public class Inflector {
 			new RE("^(monarch|loch|stomach|epoch|ranch)$", 0, "s"),
 			new RE("^(piano|photo|solo|ego|tobacco|cargo|taxi)$", 0, "s"),
 			new RE("(chief|proof|ref|relief|roof|belief|spoof|golf|grief)$", 0, "s"),
-			new RE("^(appendix|index|matrix|apex|cortex)$", 2, "ices"), 
-			new RE("^concerto$", 1, "i"), 
+			new RE("^(appendix|index|matrix|apex|cortex)$", 2, "ices"),
+			new RE("^concerto$", 1, "i"),
 			new RE("^prognosis", 2, "es"),
-			new RE("[bcdfghjklmnpqrstvwxyz]o$", 0, "es"), 
-			new RE("[bcdfghjklmnpqrstvwxyz]y$", 1, "ies"), 
+			new RE("[bcdfghjklmnpqrstvwxyz]o$", 0, "es"),
+			new RE("[bcdfghjklmnpqrstvwxyz]y$", 1, "ies"),
 			new RE("^ox$", 0, "en"),
-			new RE("^(stimul|alumn|termin)us$", 2, "i"), 
-			new RE("^corpus$", 2, "ora"), 
+			new RE("^(stimul|alumn|termin)us$", 2, "i"),
+			new RE("^corpus$", 2, "ora"),
 			new RE("(xis|sis)$", 2, "es"),
 			//new RE("(ness)$", 0, "es"),
-			new RE("whiz$", 0, "zes"), 
-			new RE("motif$", 0, "s"), 
-			new RE("[lraeiou]fe$", 2, "ves"), 
+			new RE("whiz$", 0, "zes"),
+			new RE("motif$", 0, "s"),
+			new RE("[lraeiou]fe$", 2, "ves"),
 			new RE("[lraeiou]f$", 1, "ves"),
-			new RE("(eu|eau)$", 0, "x"), 
-			new RE("(man|woman)$", 2, "en"), 
-			new RE("person$", 4, "ople"), 
+			new RE("(eu|eau)$", 0, "x"),
+			new RE("(man|woman)$", 2, "en"),
+			new RE("person$", 4, "ople"),
 			new RE("^meninx|phalanx$", 1, "ges"),
-			new RE("schema$", 0, "ta"), 
-			new RE("^(bus|gas)$", 0, "es"), 
+			new RE("schema$", 0, "ta"),
+			new RE("^(bus|gas)$", 0, "es"),
 			new RE("child$", 0, "ren"),
-			new RE("^(vertebr|larv|minuti)a$", 0, "e"), 
-			new RE("^(maharaj|raj|myn|mull)a$", 0, "hs"), 
+			new RE("^(vertebr|larv|minuti)a$", 0, "e"),
+			new RE("^(maharaj|raj|myn|mull)a$", 0, "hs"),
 			new RE("^aide-de-camp$", 8, "s-de-camp"),
-			new RE("^weltanschauung$", 0, "en"), 
-			new RE("^lied$", 0, "er"), 
-			new RE("^tooth$", 4, "eeth"), 
+			new RE("^weltanschauung$", 0, "en"),
+			new RE("^lied$", 0, "er"),
+			new RE("^tooth$", 4, "eeth"),
 			new RE("^[lm]ouse$", 4, "ice"),
-			new RE("^foot$", 3, "eet"), 
-			new RE("goose", 4, "eese"), 
-			new RE("^(co|no)$", 0, "'s"), 
-			new RE("^blond$", 0, "es"), 
+			new RE("^foot$", 3, "eet"),
+			new RE("goose", 4, "eese"),
+			new RE("^(co|no)$", 0, "'s"),
+			new RE("^blond$", 0, "es"),
 			new RE("^datum", 2, "a"),
-			new RE("([a-z]+osis|[a-z]+itis|[a-z]+ness)$", 0), 
+			new RE("([a-z]+osis|[a-z]+itis|[a-z]+ness)$", 0),
 			new RE("([zsx]|ch|sh)$", 0, "es"), // note: words ending in 's' otfen hit here, add 'es'
 			new RE("^(medi|millenni|consorti|sept|memorabili)um$", 2, "a"),
 			new RE("^(memorandum|bacterium|curriculum|minimum|maximum|referendum|spectrum|phenomenon|criterion)$", 2, "a"), // Latin stems
@@ -118,7 +120,7 @@ public class Inflector {
 	public static final String singularize(String word) {
 		return singularize(word, null);
 	}
-	
+
 	public static final String singularize(String word, Map<String, Object> opts) {
 		return adjustNumber(word, SINGULARIZE, Util.boolOpt("dbug", opts));
 	}
@@ -126,7 +128,7 @@ public class Inflector {
 	public static final String pluralize(String word) {
 		return pluralize(word, null);
 	}
-	
+
 	public static final String pluralize(String word, Map<String, Object> opts) {
 		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
 	}
