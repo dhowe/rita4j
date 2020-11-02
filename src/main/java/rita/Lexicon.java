@@ -94,7 +94,8 @@ public class Lexicon {
 
 	public boolean hasWord(String word) {
 		return (word != null && word.length() > 0)
-				? Inflector.isPlural(word.toLowerCase())
+				? //Inflector.isPlural(word.toLowerCase())//?why
+				this.dict.containsKey(word.toLowerCase())
 				: false;
 	}
 
@@ -610,7 +611,7 @@ public class Lexicon {
 
 		String raw = rawPhones(word, noLts);
 		if (raw == null || raw.length() == 0) return null;
-		int idx = raw.lastIndexOf(RiTa.STRESSED);
+		int idx = raw.lastIndexOf(RiTa.STRESSED);//?
 		if (idx < 0) return null;
 		char c = raw.charAt(--idx);
 		while (c != '-' && c != ' ') {
