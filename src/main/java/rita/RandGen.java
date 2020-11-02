@@ -63,28 +63,44 @@ public abstract class RandGen {
 	}
 
 	public static final float[] randomOrdering(float[] arr) { // hideous
-		Float[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Float[0]);
+		List<Float> arrList = new ArrayList<Float>();
+		for (int i = 0; i < arr.length; i ++) {
+			arrList.add(Float.valueOf(arr[i]));
+		}
+		Float[] ro = randomOrdering(arrList).toArray(new Float[0]);
 		float[] p = new float[ro.length];
 		for(int i = 0; i < p.length; i++) p[i] = ro[i];
 		return p;
 	}
 
 	public static final boolean[] randomOrdering(boolean[] arr) {// hideous
-		Boolean[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Boolean[0]);
+		List<Boolean> arrList = new ArrayList<Boolean>();
+		for (int i = 0; i < arr.length; i ++) {
+			arrList.add(Boolean.valueOf(arr[i]));
+		}
+		Boolean[] ro = randomOrdering(arrList).toArray(new Boolean[0]);
 		boolean[] p = new boolean[ro.length];
 		for(int i = 0; i < p.length; i++) p[i] = ro[i];
 		return p;
 	}
 	
 	public static final double[] randomOrdering(double[] arr) {// hideous
-		Double[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Double[0]);
+		List<Double> arrList = new ArrayList<Double>();
+		for (int i = 0; i < arr.length; i ++) {
+			arrList.add(Double.valueOf(arr[i]));
+		}
+		Double[] ro = randomOrdering(arrList).toArray(new Double[0]);
 		double[] p = new double[ro.length];
 		for(int i = 0; i < p.length; i++) p[i] = ro[i];
 		return p;
 	}
 
 	public static final int[] randomOrdering(int[] arr) {// slightly less hideous
-		Integer[] ro = randomOrdering(Arrays.asList(arr)).toArray(new Integer[0]);
+		List<Integer> arrList = new ArrayList<Integer>();
+		for (int i = 0; i < arr.length; i ++) {
+			arrList.add(Integer.valueOf(arr[i]));
+		}
+		Integer[] ro = randomOrdering(arrList).toArray(new Integer[0]);
 		return Arrays.stream(ro).mapToInt(Integer::intValue).toArray();
 	}
 

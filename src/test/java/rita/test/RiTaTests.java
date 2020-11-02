@@ -3,11 +3,15 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.*;
 //import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
+import rita.*;
 
 public class RiTaTests {
 
@@ -54,6 +58,7 @@ public class RiTaTests {
 
 	@Test
 	public void callRandomOrdering() {
+		//int
 		int[] result = new int[] { 0 };
 		assertArrayEquals(result, RiTa.randomOrdering(1));
 		int[] result2 = new int[] { 0, 1 };
@@ -63,6 +68,115 @@ public class RiTaTests {
 		// expect(RiTa.randomOrdering(['a'])).	['a']);
 		// expect(RiTa.randomOrdering(['a', 'b'])).to.have.members(['a', 'b']);
 		// not in Java yet
+
+		//List <Float>
+		List<Float> resLF = new ArrayList<Float>();
+		resLF.add(Float.valueOf(0));
+		List<Float> outputLF = RandGen.randomOrdering(resLF);
+		assertTrue(listEq(resLF, outputLF));
+
+		resLF.add(Float.valueOf((float) 0.6));
+		resLF.add(Float.valueOf(1));
+		outputLF = RandGen.randomOrdering(resLF);
+		Collections.sort(resLF);
+		Collections.sort(outputLF);
+		assertTrue(listEq(resLF, outputLF));
+
+		//List <Int>
+		List<Integer> resLI = new ArrayList<Integer>();
+		resLI.add(Integer.valueOf(0));
+		List<Integer> outputLI = RandGen.randomOrdering(resLI);
+		assertTrue(listEq(resLI, outputLI));
+
+		resLI.add(Integer.valueOf(1));
+		resLI.add(Integer.valueOf(2));
+		outputLI = RandGen.randomOrdering(resLI);
+		Collections.sort(resLI);
+		Collections.sort(outputLI);
+		assertTrue(listEq(resLI, outputLI));
+
+		//List <Boolean>
+		List<Boolean> resLB = new ArrayList<Boolean>();
+		resLB.add(Boolean.valueOf(false));
+		List<Boolean> outputLB = RandGen.randomOrdering(resLB);
+		assertTrue(listEq(resLB, outputLB));
+
+		resLB.add(Boolean.valueOf(false));
+		resLB.add(Boolean.valueOf(true));
+		outputLB = RandGen.randomOrdering(resLB);
+		Collections.sort(resLB);
+		Collections.sort(outputLB);
+		assertTrue(listEq(resLB, outputLB));
+
+		//List <Double>
+		List<Double> resLD = new ArrayList<Double>();
+		resLD.add(Double.valueOf(0.0));
+		List<Double> outputLD = RandGen.randomOrdering(resLD);
+		assertTrue(listEq(resLD, outputLD));
+
+		resLD.add(Double.valueOf(1));
+		resLD.add(Double.valueOf(2));
+		outputLD = RandGen.randomOrdering(resLD);
+		Collections.sort(resLD);
+		Collections.sort(outputLD);
+		assertTrue(listEq(resLD, outputLD));
+
+		//List <T> T is other kind of finalized object
+		List<String> resLO = new ArrayList<String>();
+		resLO.add("a");
+		List<String> outputLO = RandGen.randomOrdering(resLO);
+		assertTrue(listEq(resLO, outputLO));
+
+		resLO.add("b");
+		resLO.add("c");
+		outputLO = RandGen.randomOrdering(resLO);
+		Collections.sort(resLO);
+		Collections.sort(outputLO);
+		assertTrue(listEq(resLO, outputLO));
+
+		//int[]
+		int[] resI = new int[] { 0 };
+		int[] outputI = RandGen.randomOrdering(resI);
+		assertArrayEquals(resI, outputI);
+		resI = new int[] { 0, 1, 2, 3, 4 };
+		outputI = RandGen.randomOrdering(resI);
+		Arrays.sort(outputI);
+		assertArrayEquals(resI, outputI);
+
+		//float[]
+		float[] resF = new float[] { 0 };
+		float[] outputF = RandGen.randomOrdering(resF);
+		assertArrayEquals(resF, outputF);
+		resF = new float[] { 0, 1, 2, 3, (float) 4.554 };
+		outputF = RandGen.randomOrdering(resF);
+		Arrays.sort(outputF);
+		assertArrayEquals(resF, outputF);
+
+		//double[] 
+		double[] resD = new double[] { 0 };
+		double[] outputD = RandGen.randomOrdering(resD);
+		assertArrayEquals(resD, outputD);
+		resD = new double[] { 0, 1, 2, 3, 4 };
+		outputD = RandGen.randomOrdering(resD);
+		Arrays.sort(outputD);
+		assertArrayEquals(resD, outputD);
+
+		//boolean[]
+		boolean[] resB = new boolean[] { false };
+		boolean[] outputB = RandGen.randomOrdering(resB);
+		assertArrayEquals(resB, outputB);
+		resB = new boolean[] { false, false, false, false };
+		outputB = RandGen.randomOrdering(resB);
+		assertArrayEquals(resB, outputB);
+
+		//T[] T is final object
+		String[] resO = new String[] { "a" };
+		String[] outputO = RandGen.randomOrdering(resO);
+		assertArrayEquals(resO, outputO);
+		resO = new String[] { "a", "b", "c" };
+		outputO = RandGen.randomOrdering(resO);
+		Arrays.sort(outputO);
+		assertArrayEquals(resO, outputO);
 	}
 
 	@Test
@@ -411,43 +525,63 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void callSentences(){
+	public void callSentences() {
 		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
 		String[] input = {
-			"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
-			"\"The boy went fishing.\", he said. Then he went away.",
-			"The dog",
-			"I guess the dog ate the baby.",
-			"Oh my god, the dog ate the baby!",
-			"Which dog ate the baby?",
-			"'Yes, it was a dog that ate the baby', he said.",
-			"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
-			"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
-			"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
-			"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
-			"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
-			"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
-			" I had a visit from my \"friend\" the tax man."
+				"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.",
+				"\"The boy went fishing.\", he said. Then he went away.",
+				"The dog",
+				"I guess the dog ate the baby.",
+				"Oh my god, the dog ate the baby!",
+				"Which dog ate the baby?",
+				"'Yes, it was a dog that ate the baby', he said.",
+				"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.",
+				"\"The baby belonged to Mr. and Mrs. Stevens. They will be very sad.\"",
+				"\u201CThe baby belonged to Mr. and Mrs. Stevens. They will be very sad.\u201D",
+				"\"My dear Mr. Bennet. Netherfield Park is let at last.\"",
+				"\u201CMy dear Mr. Bennet. Netherfield Park is let at last.\u201D",
+				"She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"",
+				" I had a visit from my \"friend\" the tax man."
 		};
 		String[][] output = {
-			new String[] {"Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.", "The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.", "If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs."},
-			new String[] {"\"The boy went fishing.\", he said.", "Then he went away."},
-			new String[] {"The dog"},
-			new String[] {"I guess the dog ate the baby."},
-			new String[] {"Oh my god, the dog ate the baby!"},
-			new String[] {"Which dog ate the baby?"},
-			new String[] {"\'Yes, it was a dog that ate the baby\', he said."},
-			new String[] {"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad."},
-			new String[] {"\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\""},
-			new String[] {"\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D"},
-			new String[] {"\"My dear Mr. Bennet.", "Netherfield Park is let at last.\""},
-			new String[] {"\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D"},
-			new String[] {"She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\""},
-			new String[] {"I had a visit from my \"friend\" the tax man."}
+				new String[] { "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications.",
+						"The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels.",
+						"If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs." },
+				new String[] { "\"The boy went fishing.\", he said.", "Then he went away." },
+				new String[] { "The dog" },
+				new String[] { "I guess the dog ate the baby." },
+				new String[] { "Oh my god, the dog ate the baby!" },
+				new String[] { "Which dog ate the baby?" },
+				new String[] { "\'Yes, it was a dog that ate the baby\', he said." },
+				new String[] { "The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad." },
+				new String[] { "\"The baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\"" },
+				new String[] { "\u201CThe baby belonged to Mr. and Mrs. Stevens.", "They will be very sad.\u201D" },
+				new String[] { "\"My dear Mr. Bennet.", "Netherfield Park is let at last.\"" },
+				new String[] { "\u201CMy dear Mr. Bennet.", "Netherfield Park is let at last.\u201D" },
+				new String[] { "She wrote: \"I don't paint anymore.", "For a while I thought it was just a phase that I'd get over.\"" },
+				new String[] { "I had a visit from my \"friend\" the tax man." }
 		};
 		assertTrue(input.length == output.length);
 		for (int i = 0; i < input.length; i++) {
 			assertArrayEquals(output[i], RiTa.sentences(input[i]));
+		}
+	}
+
+	//--------------------------------helper----------------------
+	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {
+		if (a == null || b == null) {
+			return false;
+		}
+		if (a.size() != b.size()) {
+			return false;
+		}
+		else {
+			for (int i = 0; i < a.size(); i++) {
+				if (!a.get(i).equals(b.get(i))) {
+					return false;
+				}
+			}
+			return true;
 		}
 	}
 
