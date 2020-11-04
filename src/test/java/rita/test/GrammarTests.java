@@ -30,21 +30,24 @@ public class GrammarTests {
 	}
 
 	@Test
+	public void handlePhraseTransforms_TRANSFORM() {
+    Map<String, Object> g = opts("start", "[$x=$y b].ucf()", "y", "(a | a)");
+    eq(RiTa.evaluate(new Grammar(g).expand()),"A b");
+  }
+	
+	@Test
 	public void supportSeqTransform() {
 		String[] seq = { "a", "b", "c", "d" };
 
 		String rule = "(" + String.join("|", seq) + ").seq()";
 		Grammar rg = new Grammar(opts("start", rule));
-		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-//			console.log(i+ ": "+ res);
 			eq(res, seq[i]);
 		}
 
 		rule = "(" + String.join("|", seq) + ").seq().capitalize()";
 		rg = new Grammar(opts("start", rule));
-		// console.log(rule);
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
 //			console.log(i+ ": "+ res);

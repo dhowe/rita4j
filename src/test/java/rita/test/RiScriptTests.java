@@ -32,8 +32,13 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("().toLowerCase()", null, ST), ""); // ?
 		assertEq(RiTa.evaluate("().toUpperCase()", null, ST), ""); // ?
 	}
+	
+	@Test
+	public void handlePhraseTransforms_TRANSFORM() {
+    String g = "$y=(a | a)\n[$x=$y b].ucf()";
+    assertEq(RiTa.evaluate(g),"A b");
+  }
 
-		
 	@Test
 	public void handleVariousTransforms_TRANSFORM() { // TODO: add to JS
 		Map<String, Object> ctx = opts();

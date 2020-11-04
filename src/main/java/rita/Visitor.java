@@ -23,6 +23,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static final String EOF = "<EOF>";
 	static final String FUNCTION = "()", DOT = ".";
+	private static final String LP = "(", RP = ")";
 
 	protected int indexer;
 	protected RiScript parent;
@@ -108,7 +109,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			return visited;
 		}
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : visited + flatten(txs);
+		String result = applied != null ? applied
+				: Visitor.LP + visited + Visitor.RP + flatten(txs);
 
 		if (this.trace) System.out.println("resolveInline[2]: $"
 				+ id + " -> '" + result + "'");
