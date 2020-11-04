@@ -789,6 +789,7 @@ public class LexiconTests {
 	@Test
 	public void callIsRhyme() {
 
+		assertTrue(!RiTa.isRhyme("", ""));
 		assertTrue(!RiTa.isRhyme("apple", "polo"));
 		assertTrue(!RiTa.isRhyme("this", "these"));
 
@@ -803,14 +804,11 @@ public class LexiconTests {
 		assertTrue(!RiTa.isRhyme("hose", "house"));
 		assertTrue(!RiTa.isRhyme("sieve", "mellow"));
 
-		assertTrue(RiTa.isRhyme("mouse", "house")); // why??
-		// assertTrue(!RiTa.isRhyme("solo", "yoyo"));
-		// assertTrue(!RiTa.isRhyme("yoyo", "jojo")); -> Known Issues
+		assertTrue(RiTa.isRhyme("mouse", "house")); 
 
-		//assertTrue(RiTa.isRhyme("yo", "bro"));// fail, moved to knownIssue
+		assertTrue(RiTa.isRhyme("yo", "bro"));
 		assertTrue(!RiTa.isRhyme("swag", "grab"));
-		assertTrue(!RiTa.isRhyme("", ""));
-
+		
 		assertTrue(RiTa.isRhyme("weight", "eight"));
 		assertTrue(RiTa.isRhyme("eight", "weight"));
 

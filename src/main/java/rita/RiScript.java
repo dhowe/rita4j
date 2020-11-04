@@ -71,7 +71,7 @@ public class RiScript {
 			if (trace) passInfo(ctx, last, expr, i);
 			if (i >= RiScript.MAX_TRIES - 1) throw new RiTaException("Unable to resolve: \""
 					+ input + "\" after " + RiScript.MAX_TRIES + " tries. An infinite loop?");
-      if (onepass || !this.isParseable(expr)) break;
+			if (onepass || !this.isParseable(expr)) break;
 		}
 
 		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
@@ -80,7 +80,7 @@ public class RiScript {
 		}
 
 		popTransforms(ctx);
-		
+
 		return resolveEntities(expr);
 	}
 
@@ -236,6 +236,7 @@ public class RiScript {
 	}
 
 	public static String articlize(String s) {
+		if (s == null || s.length() < 1) return "";
 		String phones = RiTa.phones(s, Util.opts("silent", true));
 		//System.out.println(phones+" " + phones.substring(0,1));
 		return (phones != null && phones.length() > 0 && RE.test("[aeiou]",
@@ -244,21 +245,36 @@ public class RiScript {
 
 	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\(\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
 
-	private static final Function<String, String> articlize = s -> RiTa.articlize(s);
-	private static final Function<String, String> pluralize = s -> RiTa.pluralize(s);
-	private static final Function<String, String> quotify = s -> '"' + s + '"';
 	private static final Function<String, String> identity = s -> s;
-	private static final Function<String, String> uc = s -> s.toUpperCase();
+
+	private static final Function<String, String> uc = s -> {
+		return s != null ? s.toUpperCase() : "";
+	};
+
+	private static final Function<String, String> articlize = s -> {
+		return RiTa.articlize((s != null ? s : ""));
+	};
+
+	private static final Function<String, String> pluralize = s -> {
+		return RiTa.pluralize((s != null ? s : ""));
+	};
+
+	private static final Function<String, String> quotify = s -> {
+		return "&quot;" + (s != null ? s : "") + "&quot;";
+	};
+
 	private static final Function<String, String> capitalize = s -> {
+		if (s == null || s.length() < 1) return "";
 		return String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
 	};
 
-	private static final Map.Entry<String, Object>[] namedFunctions = new Map.Entry[] {
+	private static final Map.Entry<String, Object>[] transformMap = new Map.Entry[] {
 			new AbstractMap.SimpleEntry<String, Object>("articlize", articlize),
 			new AbstractMap.SimpleEntry<String, Object>("pluralize", pluralize),
 			new AbstractMap.SimpleEntry<String, Object>("capitalize", capitalize),
 			new AbstractMap.SimpleEntry<String, Object>("quotify", quotify),
 			new AbstractMap.SimpleEntry<String, Object>("ucf", capitalize),
+			new AbstractMap.SimpleEntry<String, Object>("art", articlize),
 			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("norep", identity),
@@ -269,7 +285,7 @@ public class RiScript {
 
 	static {
 		transforms = new HashMap<String, Function<String, String>>();
-		for (Map.Entry<String, Object> kv : namedFunctions) {
+		for (Map.Entry<String, Object> kv : transformMap) {
 			transforms.put(kv.getKey(), (Function<String, String>) kv.getValue());
 		}
 	}

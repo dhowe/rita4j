@@ -19,10 +19,26 @@ public class RiScriptTests {
 	static final Map<String, Object> SPTT = opts("singlePass", true, "trace", true);
 
 	@Test
-	public void handleVariousTransforms_TRANSFORM() {
+	public void handleEmptyBuiltins_TRANSFORM() { // TODO: add to JS
+		
+		assertEq(RiTa.evaluate("().uc()"), "");
+		assertEq(RiTa.evaluate("().ucf()"), "");
+		assertEq(RiTa.evaluate("().articlize()"), "");
+		assertEq(RiTa.evaluate("().capitalize()"), "");
+		assertEq(RiTa.evaluate("().pluralize()"), "");
+		assertEq(RiTa.evaluate("().quotify()"), "\"\"");
+		assertEq(RiTa.evaluate("().art()"), "");
+		
+		assertEq(RiTa.evaluate("().toLowerCase()", null, ST), ""); // ?
+		assertEq(RiTa.evaluate("().toUpperCase()", null, ST), ""); // ?
+	}
+
+		
+	@Test
+	public void handleVariousTransforms_TRANSFORM() { // TODO: add to JS
 		Map<String, Object> ctx = opts();
 
-		assertEq(RiTa.evaluate("(BAZ).toLowerCase().ucf()", opts()), "Baz");
+		assertEq(RiTa.evaluate("(BAZ).toLowerCase().ucf()", ctx), "Baz");
 
 		assertEq(RiTa.evaluate("(a).toUpperCase()", ctx), "A"); // Choice
 		assertEq(RiTa.evaluate(".toUpperCase()", ctx, ST), ""); // Symbol
@@ -38,7 +54,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testCustomRegexes() {
+	public void testCustomRegexes() {  // NO_JS
 		String expr = "The $foo\ndog.";
 		assertTrue(RE.test("\\$[A-Za-z_]", expr));
 		//System.out.println(expr);
