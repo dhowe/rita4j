@@ -341,8 +341,8 @@ public class Lexicon {
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
-    int actualLimit = Util.intOpt("limit", opts, Integer.MAX_VALUE);
-    opts.put("limit", Integer.MAX_VALUE);
+		int actualLimit = Util.intOpt("limit", opts, Integer.MAX_VALUE);
+		opts.put("limit", Integer.MAX_VALUE);
 
 		opts.put("type", "letter");
 		String[] simLetter = similarByType(word, opts);
@@ -612,12 +612,14 @@ public class Lexicon {
 		String raw = rawPhones(word, noLts);
 		if (raw == null || raw.length() == 0) return null;
 		int idx = raw.lastIndexOf(RiTa.STRESSED);//?
-		if (idx < 0) return null;
-		char c = raw.charAt(--idx);
-		while (c != '-' && c != ' ') {
-			if (--idx < 0) return raw; // single-stressed syllable
-			c = raw.charAt(idx);
-		}
+		//if (idx < 0) return null;
+		if (idx >= 0) {
+			char c = raw.charAt(--idx);
+			while (c != '-' && c != ' ') {
+				if (--idx < 0) return raw; // single-stressed syllable
+				c = raw.charAt(idx);
+			}
+		}//fix to #75 from js
 		return raw.substring(idx + 1);
 	}
 
