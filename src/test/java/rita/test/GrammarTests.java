@@ -16,10 +16,10 @@ import rita.*;
 
 public class GrammarTests {
 
-	String sentences1 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"($verb | $verb $noun_phrase)\",\"$determiner\": \"(a | the)\",\"$noun\": \"(woman | man)\",\"$verb\": \"shoots\"}";
-	String sentences2 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$determiner\": [\"a\", \"the\"],\"$verb_phrase\": [\"$verb $noun_phrase\", \"$verb\"],\"$noun\": [\"woman\", \"man\"],\"$verb\": \"shoots\"}";
-	String sentences3 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
-	String[] grammars = { sentences1, sentences2, sentences3 };
+	static String sentences1 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"($verb | $verb $noun_phrase)\",\"$determiner\": \"(a | the)\",\"$noun\": \"(woman | man)\",\"$verb\": \"shoots\"}";
+	static String sentences2 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$determiner\": [\"a\", \"the\"],\"$verb_phrase\": [\"$verb $noun_phrase\", \"$verb\"],\"$noun\": [\"woman\", \"man\"],\"$verb\": \"shoots\"}";
+	static String sentences3 = "{\"$start\": \"$noun_phrase $verb_phrase.\",\"$noun_phrase\": \"$determiner $noun\",\"$verb_phrase\": \"$verb | $verb $noun_phrase\",\"$determiner\": \"a | the\",\"$noun\": \"woman | man\",\"$verb\": \"shoots\"}";
+	public static String[] grammars = { sentences1, sentences2, sentences3 };
 
 	static Map<String, Object> TT = opts("trace", true);
 
@@ -433,7 +433,7 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void callJSONMethods() {
+	public void callToFromJSON() {
 
 		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
 		Grammar rg = Grammar.fromJSON(s);
@@ -441,12 +441,12 @@ public class GrammarTests {
 		eq(rg.toString(), rg2.toString());
 		assertTrue(rg.equals(rg2));
 
-		for (String g : grammars) {
+		/*for (String g : grammars) { //  KnownIssues
 			rg = Grammar.fromJSON(g);
 			rg2 = Grammar.fromJSON(rg.toJSON());
-			eq(rg.toString(), rg2.toString());
+			eq(rg2.toString(), rg.toString());
 			assertTrue(rg.equals(rg2));
-		}
+		}*/
 	}
 
 	// return true if object is not null

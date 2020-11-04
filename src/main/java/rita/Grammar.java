@@ -89,7 +89,7 @@ public class Grammar {
 
 	public Grammar addRule(String name, String rule) {
 		if (name.startsWith("$")) name = name.substring(1);
-		if (RE.test("\\|", rule) && !RE.test("^\\(.*\\)$", rule)) {
+		if (RE.test("\\|", rule) && !RE.test("^\\([^\\(\\)]*\\)$", rule)) {
 			rule = '(' + rule + ')';
 		}
 		this.rules.put(name, rule);
