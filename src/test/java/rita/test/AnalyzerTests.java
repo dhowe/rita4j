@@ -207,6 +207,7 @@ public class AnalyzerTests {
 				"moves", "move",
 				"expanses", "expanse",
 				"briefcases", "briefcase",
+				"beaux", "beau",
 		};
 
 		String res1, res2;
