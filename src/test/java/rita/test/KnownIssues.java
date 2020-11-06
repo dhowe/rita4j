@@ -17,12 +17,6 @@ public class KnownIssues {
 		assertEquals(true, Inflector.isPlural("clones"));
 		assertEquals(false, Inflector.isPlural("clone"));
 	}
-	
-	//@Test
-	public void isRhymeProblem() {
-		assertTrue(!RiTa.isRhyme("solo", "yoyo")); // should not be rhymes
-		assertTrue(!RiTa.isRhyme("yoyo", "jojo")); // should not be rhymes
-	}
 
 	//@Test
 	public void grammarToString() {

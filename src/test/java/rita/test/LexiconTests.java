@@ -813,6 +813,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isRhyme("eight", "weight"));
 
 		assertTrue(RiTa.isRhyme("sieve", "give"));
+		
+		assertTrue(RiTa.isRhyme("solo", "yoyo"));
+		assertTrue(RiTa.isRhyme("yoyo", "jojo"));
 
 	}
 
