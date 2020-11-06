@@ -13,7 +13,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 public class AnalyzerTests { 
-
+	
 	@Test
 	public void handleSingularPluralPairs() {
 
@@ -208,6 +208,7 @@ public class AnalyzerTests {
 				"expanses", "expanse",
 				"briefcases", "briefcase",
 				"beaux", "beau",
+				//"clones", "clone",
 		};
 
 		String res1, res2;

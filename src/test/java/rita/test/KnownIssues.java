@@ -1,13 +1,23 @@
 package rita.test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import rita.Grammar;
-import rita.RiTa;
+import org.junit.jupiter.api.Test;
+
+import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
 
+	//@Test
+	public void singularPlural() {
+		assertEquals("clones", RiTa.pluralize("clone"));
+		assertEquals("clone", RiTa.singularize("clones"));
+		assertEquals(true, Inflector.isPlural("clones"));
+		assertEquals(false, Inflector.isPlural("clone"));
+	}
+	
 	//@Test
 	public void isRhymeProblem() {
 		assertTrue(!RiTa.isRhyme("solo", "yoyo")); // should not be rhymes
