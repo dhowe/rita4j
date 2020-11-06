@@ -1,6 +1,6 @@
 package rita.test;
 
-public class TestClass {
+public class MockClass {
 	public String getProp() {
 		return prop;
 	}

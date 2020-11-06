@@ -1113,7 +1113,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveTransformPropertiesAndMethods_TRANSFORM() {
-		Map<String, Object> ctx = opts("bar", new TestClass());
+		Map<String, Object> ctx = opts("bar", new MockClass());
 		String rs = RiTa.evaluate("$foo=$bar.prop\n$foo", ctx);
 		assertEq(rs, "result");
 		rs = RiTa.evaluate("$foo=$bar.getProp()\n$foo", ctx);

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import rita.RiTa;
 import rita.console;
 
-public class LexLoaderTest {
+public class LexLoaderTests {
 
 	@Test
 	public void testLoading() {
