@@ -9,7 +9,7 @@
 	<name>RiTa</name>
 	<description>A toolkit for generative natural language</description>
 	<url>http://www.rednoise.org/rita</url>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
@@ -20,6 +20,14 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
+		<resources>
+			<resource>
+				<directory>src/main/java</directory>
+				<includes>
+					<include>rita_dict.js</include>
+				</includes>
+			</resource>
+		</resources>
 	</build>
 
 	<properties>
