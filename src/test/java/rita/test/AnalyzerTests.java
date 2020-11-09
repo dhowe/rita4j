@@ -166,7 +166,8 @@ public class AnalyzerTests {
 				"quizes", "quiz",
 				"spyglasses", "spyglass",
 				"overpasses", "overpass",
-				"clones", "clones",
+				"clones", "clone",
+				//according to Cambridge dictionary clone is n. [c]
 				"microwaves", "microwave",
 				"hypotheses", "hypothesis",
 				"pretenses", "pretense",

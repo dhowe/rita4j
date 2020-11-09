@@ -543,7 +543,7 @@ public class Lexicon {
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
-				return Util.syllablesFromPhones(phones);
+				return Util.syllablesFromPhones(phones).trim();
 				//.replaceAll("\\[", E).replaceAll("'", E);
 			}
 		}
@@ -654,6 +654,7 @@ public class Lexicon {
 
 		String raw = rawPhones(word, noLts);
 		if (raw == E || raw == null) return null;
+		raw = raw.trim();
 		int idx = raw.indexOf(RiTa.STRESSED);
 		if (idx < 0) return null;
 		char c = raw.charAt(--idx);

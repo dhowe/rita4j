@@ -405,7 +405,7 @@ public class Util {
 			"portuguese", "prose", "recompense", "remorse", "repose", "senegalese", "siamese", "singhalese", "innings", "sleaze", "sioux", "sudanese",
 			"suspense", "swiss", "taiwanese", "vietnamese", "unease", "aircraft", "anise", "antifreeze", "applause", "archdiocese", "apparatus",
 			"asparagus", "barracks", "bellows", "bison", "bluefish", "bourgeois", "bream", "brill", "butterfingers", "cargo", "carp", "catfish",
-			"chassis", "clone", "clones",
+			"chassis",
 			"clothes", "chub", "cod", "codfish", "coley", "contretemps", "corps", "crawfish", "crayfish", "crossroads", "cuttlefish", "deer", "dice",
 			"dogfish", "doings", "dory", "downstairs", "eldest", "earnings", "economics", "electronics", "firstborn", "fish", "flatfish", "flounder",
 			"fowl", "fry", "fries", "works", "goldfish", "golf", "grand", "grief", "haddock", "hake", "halibut", "headquarters", "herring", "hertz",
