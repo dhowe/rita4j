@@ -9,13 +9,11 @@ import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
-
 	//@Test
-	public void singularPlural() {
-		assertEquals("clones", RiTa.pluralize("clone"));
-		assertEquals("clone", RiTa.singularize("clones"));
-		assertEquals(true, Inflector.isPlural("clones"));
-		assertEquals(false, Inflector.isPlural("clone"));
+	public void pluralizeProblem(){
+		assertEquals("pleae", RiTa.pluralize("pleae"));
+		//from js knownIssues
+		//can't find this word in Cambridge dictionary tho
 	}
 
 	//@Test
