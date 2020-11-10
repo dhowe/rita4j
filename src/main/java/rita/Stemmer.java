@@ -112,7 +112,7 @@ public class Stemmer
 			return (cut(s, "i") + "us");
 
 		//Wrong plural
-		if (s.endsWith("uses") && Arrays.asList(categoryUS_I).contains(cut(s, "uses") + "i") || s == ("genuses") || s == ("corpuses"))
+		if (s.endsWith("uses") && Arrays.asList(categoryUS_I).contains(cut(s, "uses") + "i") || s.equals("genuses") || s.equals("corpuses"))
 			return (cut(s, "es"));
 
 		// -ex to -ices

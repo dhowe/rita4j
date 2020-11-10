@@ -189,7 +189,7 @@ public class Tagger {
 			String tag = result[i];
 			String[] results = result;
 			// transform 1a: DT, {VBD | VBP | VB} --> DT, NN
-			if (i > 0 && (results[i - 1] == "dt")) {
+			if (i > 0 && (results[i - 1].equals("dt"))) {
 
 				if (tag.startsWith("vb")) {
 					tag = "nn";
@@ -249,7 +249,7 @@ public class Tagger {
 			}
 			
 			//transform 7(dch): convert a vb to vbn when following vbz/'has'  (She has ridden, He has rode)
-		    if (tag == "vbd" && i > 0 && result[i - 1].matches("^(vbz)$")) {
+		    if (tag.equals("vbd") && i > 0 && result[i - 1].matches("^(vbz)$")) {
 		        tag = "vbn";
 		        if (dbug) _logCustom("7", word, tag);
 		    }
@@ -295,7 +295,7 @@ public class Tagger {
 
 			// transform 12(dch): convert plural nouns which have an entry for their base
 			// form to vbz
-			if (tag == "nns") {
+			if (tag.equals("nns")) {
 
 				// is preceded by one of the following
 				String[] options = new String[] { "nn", "prp", "cc", "nnp" };
@@ -412,7 +412,7 @@ public class Tagger {
 			return result;
 		}
 
-		if (word == "the" || word == "a") {
+		if (word.equals("the") || word.equals("a")) {
 			result[0] = "dt";
 			return result;
 		}

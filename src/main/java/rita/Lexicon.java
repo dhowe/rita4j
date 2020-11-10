@@ -653,7 +653,7 @@ public class Lexicon {
 	private String firstStressedSyl(String word, boolean noLts) {
 
 		String raw = rawPhones(word, noLts);
-		if (raw == E || raw == null) return null;
+		if (raw == null || raw.equals(E)) return null;
 		raw = raw.trim();
 		int idx = raw.indexOf(RiTa.STRESSED);
 		if (idx < 0) return null;

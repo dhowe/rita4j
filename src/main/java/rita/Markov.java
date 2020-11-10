@@ -167,7 +167,7 @@ public class Markov {
 				}
 
 				tokens.add(next);
-				if (next.token == Markov.SE) {
+				if (next.token.equals(Markov.SE)) {
 					tokens.remove(tokens.size() - 1);
 					if (tokens.size() >= minLength) {
 						List<String> rawtoks = new ArrayList<>();
@@ -349,7 +349,7 @@ public class Markov {
 		}
 		if (opts.containsKey("startTokens")) {
 			Object st = opts.get("startTokens");
-			if (st.getClass().getName() == "java.lang.String")
+			if (st.getClass().getName().equals("java.lang.String"))
 				startTokens = this.tokenize.apply((String) st);
 			else
 				startTokens = (String[]) st;
