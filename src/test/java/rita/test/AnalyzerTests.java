@@ -209,11 +209,14 @@ public class AnalyzerTests {
 				"expanses", "expanse",
 				"briefcases", "briefcase",
 				"beaux", "beau",
+				"milieux", "milieu",
 				//"clones", "clone",
 		};
 
 		String res1, res2;
 		boolean res3, dbug = false;
+		
+		// testPairs = new String[] {"milieux", "milieu"}; // test one
 
 		for (int i = 0; i < testPairs.length; i += 2) {
 
@@ -224,12 +227,12 @@ public class AnalyzerTests {
 			res3 = Inflector.isPlural(testPairs[i], dbug);
 
 			// singularize
-			eq(res1, testPairs[i + 1], "FAIL: singularize(" + testPairs[i]
+			assertEquals(testPairs[i + 1], res1, "FAIL: singularize(" + testPairs[i]
 					+ ") was " + res1 + ", but expected " + testPairs[i + 1] + "\n        "
 					+ "pluralize(" + testPairs[i + 1] + ") was " + res2 + "\n\n");
 
 			// pluralize
-			eq(res2, testPairs[i], "FAIL: pluralize(" + testPairs[i + 1]
+			assertEquals(testPairs[i], res2, "FAIL: pluralize(" + testPairs[i + 1]
 					+ ") was " + res2 + ", but expected " + testPairs[i] + "\n        "
 					+ "singularize(" + testPairs[i] + ") was " + res1 + "\n\n");
 

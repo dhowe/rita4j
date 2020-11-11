@@ -341,7 +341,6 @@ public class MarkovTests {
 			String res = rm.generate(opts("startTokens", start2))[0];
 			assertTrue(res.startsWith(String.join(" ", start2)));
 		}
-
 	}
 
 	@Test

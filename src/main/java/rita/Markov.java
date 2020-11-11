@@ -1,17 +1,10 @@
 package rita;
 
-import java.util.*;
-import java.util.function.Function;
-
-import org.antlr.v4.parse.ANTLRParser.finallyClause_return;
-
-import java.math.BigDecimal;
-
-import rita.Markov.Node;
+import static rita.Util.opts;
 
 import java.text.DecimalFormat;
-
-import static rita.Util.opts;
+import java.util.*;
+import java.util.function.Function;
 
 public class Markov {
 
@@ -19,14 +12,13 @@ public class Markov {
 	private static DecimalFormat DF = new DecimalFormat("0.000");
 
 	public int n;
-	public List<String> input = new ArrayList<>();
 	public Node root;
+	public List<String> input;
 	public Function<String, String[]> tokenize;
 	public Function<String[], String> untokenize;
 
-	protected int mlm, maxAttempts = 99;
+	protected int mlm, treeifyTimes, maxAttempts = 99;
 	protected boolean trace, disableInputChecks, logDuplicates;
-	protected int treeifyTimes = 0;
 
 	public Markov(int n) {
 		this(n, null);
@@ -35,6 +27,7 @@ public class Markov {
 	public Markov(int n, Map<String, Object> opts) {
 
 		this.n = n;
+		this.input = new ArrayList<>();
 		this.root = new Node("ROOT");
 
 		if (opts != null) {
@@ -349,10 +342,13 @@ public class Markov {
 		}
 		if (opts.containsKey("startTokens")) {
 			Object st = opts.get("startTokens");
-			if (st.getClass().getName().equals("java.lang.String"))
+			if (st instanceof String) {
+			//if (st.getClass().getName().equals("java.lang.String"))
 				startTokens = this.tokenize.apply((String) st);
-			else
+			}
+			else {
 				startTokens = (String[]) st;
+			}
 		}
 		return startTokens;
 	}
@@ -364,7 +360,8 @@ public class Markov {
 		}
 		check.add(word.token); // string
 		int lastX = this.mlm + 1;
-		List<String> subArr = new ArrayList<String>(check.subList(check.size() - lastX, check.size()));
+		List<String> subArr = new ArrayList<String>
+			(check.subList(check.size() - lastX, check.size()));
 		return !isSubArrayList(subArr, this.input);
 	}
 
@@ -442,7 +439,7 @@ public class Markov {
 		}
 	}
 
-	private void treeifyX(String[] tokens) {
+	private void treeifyX(String[] tokens) { // not used
 
 		int order = 0;
 		Node root = this.root;
