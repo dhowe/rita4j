@@ -3,6 +3,7 @@ package rita;
 import static rita.Util.opts;
 
 import java.text.DecimalFormat;
+
 import java.util.*;
 import java.util.function.Function;
 
@@ -14,8 +15,8 @@ public class Markov {
 	public int n;
 	public Node root;
 	public List<String> input;
-	public Function<String, String[]> tokenize;
-	public Function<String[], String> untokenize;
+	protected Function<String, String[]> _tokenize;
+	//protected Function<String[], String> _untokenize;
 
 	protected int mlm, treeifyTimes, maxAttempts = 99;
 	protected boolean trace, disableInputChecks, logDuplicates;
@@ -24,40 +25,18 @@ public class Markov {
 		this(n, null);
 	}
 
+	@SuppressWarnings("unchecked")
 	public Markov(int n, Map<String, Object> opts) {
 
 		this.n = n;
-		this.input = new ArrayList<>();
 		this.root = new Node("ROOT");
 
-		if (opts != null) {
-			if (opts.get("tokenize") != null) {
-				this.tokenize = (Function<String, String[]>) opts.get("tokenize");
-			}
-			else {
-				this.tokenize = (in) -> {
-					return RiTa.tokenize(in);
-				};
-			}
-			if (opts.get("untokenize") != null) {
-				this.untokenize = (Function<String[], String>) opts.get("untokenize");
-			}
-			else {
-				this.untokenize = (in) -> {
-					return RiTa.untokenize(in);
-				};
-			}
+		if (opts != null && opts.containsKey("tokenize")) {
+			this._tokenize = (Function<String, String[]>) opts.get("tokenize");
 		}
-		else {
-			this.tokenize = (in) -> {
-				return RiTa.tokenize(in);
-			};
-			this.untokenize = (in) -> {
-				return RiTa.untokenize(in);
-			};
-		}
-		this.maxAttempts = Util.intOpt("maxAttempts", opts, 99);
+
 		this.trace = Util.boolOpt("trace", opts);
+		this.maxAttempts = Util.intOpt("maxAttempts", opts, 99);
 		this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
 
@@ -65,8 +44,14 @@ public class Markov {
 		if (mlm != 0 && mlm <= n) {
 			throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
 		}
-		if (!(!this.disableInputChecks || this.mlm != 0)) {
-			this.input = null;
+		if (mlm > 0 && disableInputChecks) {
+			throw new RiTaException("[Markov] 'disableInputChecks' and "
+					+ "'maxLengthMatch' cannot be used together");
+		}
+
+		// only create 'input' if we have an mlm
+		if (this.mlm != 0 || !this.disableInputChecks) {
+			this.input = new ArrayList<>();
 		}
 	}
 
@@ -89,7 +74,7 @@ public class Markov {
 		List<String> tokens = new ArrayList<String>();
 		for (int k = 0; k < multiplier; k++) {
 			for (int i = 0; i < sents.length; i++) {
-				String[] words = this.tokenize.apply(sents[i]);
+				String[] words = this.doTokenize(sents[i]);
 				toAdd.clear(); // Q: is toAdd needed here?
 				toAdd.add(Markov.SS);
 				toAdd.addAll(Arrays.asList(words));
@@ -105,9 +90,6 @@ public class Markov {
 	}
 
 	public String toString() {
-		// Node root = this.root;
-		//		System.out.println("root's children: " + this.root.children.toString() + "last words' children"
-		//				+ this.root.children.get(this.input.get(this.input.size() - 2)).children);// if dont visit the last word's children, and the root's children before call astree, they disappear???
 		return this.root.asTree().replaceAll("\\{\\}", "");
 	}
 
@@ -137,7 +119,8 @@ public class Markov {
 		int tries = 0;
 		while (result.size() < num) {
 			Node[] arr = this.initSentence(startTokens);
-			if (tokens != null && arr != null && tokens.size() == 0) {// startTokens should be add just once 
+			// startTokens should be added just once
+			if (tokens != null && arr != null && tokens.size() == 0) {
 				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
 			}
 
@@ -156,7 +139,7 @@ public class Markov {
 				if (next == null) {
 					fail(tokens, "no next", ++tries);
 					tokens = new ArrayList<>();// to reset tokens
-					break; // possible if all children excluded
+					break; // possible if all children are excluded
 				}
 
 				tokens.add(next);
@@ -166,7 +149,6 @@ public class Markov {
 						List<String> rawtoks = new ArrayList<>();
 						tokens.forEach(t -> rawtoks.add(t.token));
 
-						// TODO: do we need this if checking mlm with each word? yes
 						if (isSubArrayList(rawtoks, this.input)) {
 							fail(tokens, "in input", ++tries);
 							tokens = new ArrayList<>();// to reset tokens
@@ -209,12 +191,15 @@ public class Markov {
 		if (postArray != null) {
 			ArrayList<String> res = new ArrayList<String>();
 			if (preArray.length + postArray.length > this.n) {
-				throw new RiTaException(
-						"sum of preArray length and postArray length should be no bigger then n, was: " + (preArray.length + postArray.length));
+				throw new RiTaException("sum of preArray length and postArray"
+						+ " length should be no bigger then n, was: "
+						+ (preArray.length + postArray.length));
 			}
 			Node tn = this._pathTo(preArray);
 			if (tn == null) {
-				System.out.println("Markov.completions() WARNING: no node found in preArray");
+				if (!RiTa.SILENT) {
+					System.err.println("Markov.completions() WARNING: no node found in preArray");
+				}
 				return new String[0];
 			}
 			Node[] next = tn.childNodes();
@@ -297,11 +282,11 @@ public class Markov {
 	}
 
 	public Map<String, Object> probabilities(String path) {
-		return probabilities(this.tokenize.apply(path), 0);
+		return probabilities(this.doTokenize(path), 0);
 	}
 
 	public Map<String, Object> probabilities(String path, double temp) {
-		return probabilities(this.tokenize.apply(path), temp);
+		return probabilities(this.doTokenize(path), temp);
 	}
 
 	public Map<String, Object> probabilities(String[] path) {
@@ -343,8 +328,8 @@ public class Markov {
 		if (opts.containsKey("startTokens")) {
 			Object st = opts.get("startTokens");
 			if (st instanceof String) {
-			//if (st.getClass().getName().equals("java.lang.String"))
-				startTokens = this.tokenize.apply((String) st);
+				//if (st.getClass().getName().equals("java.lang.String"))
+				startTokens = this.doTokenize((String) st);
 			}
 			else {
 				startTokens = (String[]) st;
@@ -360,8 +345,10 @@ public class Markov {
 		}
 		check.add(word.token); // string
 		int lastX = this.mlm + 1;
-		List<String> subArr = new ArrayList<String>
-			(check.subList(check.size() - lastX, check.size()));
+		List<String> subArr = new ArrayList<String>(check.subList(check.size() - lastX, check.size()));
+		if (this.mlm > 0 && this.input == null) { // double-check
+			throw new RiTaException("[Markov] Invalid state: mlm > 0 and null input list");
+		}
 		return !isSubArrayList(subArr, this.input);
 	}
 
@@ -439,23 +426,6 @@ public class Markov {
 		}
 	}
 
-	private void treeifyX(String[] tokens) { // not used
-
-		int order = 0;
-		Node root = this.root;
-		for (int i = 0; i < tokens.length; i++) {
-			Node node = root;
-			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
-			for (int j = 0; j < words.length; j++) {
-				if (words[j] != null) {
-					node = node.addChild(words[j], this.treeifyTimes + order);
-					order++;
-				}
-			}
-		}
-		this.treeifyTimes += order;
-	}
-
 	private Node _pathTo(Node[] path) {
 		return _pathTo(path, this.root);
 	}
@@ -502,7 +472,6 @@ public class Markov {
 			}
 			return res;
 		}
-
 	}
 
 	public String _flatten(List<Node> tokens) {
@@ -510,9 +479,11 @@ public class Markov {
 	}
 
 	public void _logError(int tries, List<Node> toks, String msg) {
-		if (this.trace)
-			System.out
-					.println(tries + " FAIL" + (msg.length() > 0 ? "(" + msg + ")" : "") + ": " + this._flatten(toks));
+		if (this.trace) {
+			System.out.println(tries + " FAIL" + (msg.length() > 0
+					? "(" + msg + ")"
+					: "") + ": " + this._flatten(toks));
+		}
 	}
 
 	public int size() {
@@ -520,14 +491,15 @@ public class Markov {
 	}
 
 	private boolean isSubArrayList(List<String> find, List<String> arr) {
-		if (arr == null || arr.size() == 0)
-			return false;
+		if (arr == null || arr.size() == 0) return false;
 		OUT: for (int i = find.size() - 1; i < arr.size(); i++) {
 			for (int j = 0; j < find.size(); j++) {
-				if (find.get(find.size() - j - 1) != arr.get(i - j))
+				if (find.get(find.size() - j - 1) != arr.get(i - j)) {
 					continue OUT;
-				if (j == find.size() - 1)
+				}
+				if (j == find.size() - 1) {
 					return true;
+				}
 			}
 		}
 		return false;
@@ -562,8 +534,9 @@ public class Markov {
 		}
 
 		indent = "\n";
-		for (int j = 0; j < depth - 1; j++)
+		for (int j = 0; j < depth - 1; j++) {
 			indent += "  ";
+		}
 
 		return str + indent + "}";
 	}
@@ -679,7 +652,8 @@ public class Markov {
 			if (this.parent == null) {
 				throw new RiTaException("no parent for: " + this);
 			}
-			double result = (double) this.count / (double) this.parent.childCount(excludeMetaTags);
+			double result = (double) this.count /
+					(double) this.parent.childCount(excludeMetaTags);
 			// System.out.println("C:" + this.count + " " +
 			// this.parent.childCount(excludeMetaTags) + "->" + result);
 			return result;
@@ -711,14 +685,14 @@ public class Markov {
 				s += "(" + this.count + ")->";
 			}
 			s += "{";
-			return this.childCount() != 0 ? stringulate(this, s, 1, true) : s + "}";
+			return this.childCount() != 0
+					? stringulate(this, s, 1, true)
+					: s + "}";
 		}
 
 		public String toString() {
 			if (this.parent == null) return "Root";
 			String prob = DF.format(this.nodeProb());
-			//			BigDecimal probBigDecimal = new BigDecimal(this.nodeProb());
-			//			probBigDecimal = probBigDecimal.setScale(3, BigDecimal.ROUND_HALF_UP);
 			return this.token + "(" + this.count + "/" + prob + "%)";
 		}
 	}
@@ -729,11 +703,9 @@ public class Markov {
 		}
 	};
 
-	// static final Comparator<String> byProb = new Comparator<String>(){
-	// 	public int compare(String a, String b) {
-	// 		return 
-	// 	}
-	// };
+	private String[] doTokenize(String s) {
+		return this._tokenize != null ? this._tokenize.apply(s) : RiTa.tokenize(s);
+	}
 
 	public static void main(String[] args) {
 		Markov rm = new Markov(2);
