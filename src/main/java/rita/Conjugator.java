@@ -501,7 +501,7 @@ public class Conjugator {
 	}
 
 	public static String pastTense(String theVerb, int pers, int numb) {
-		if (theVerb.toLowerCase() == "be") {
+		if (theVerb.toLowerCase().equals("be")) {
 
 			switch (numb) {
 
@@ -537,7 +537,7 @@ public class Conjugator {
 
 			return checkRules(PRESENT_TENSE_RULESET, theVerb);
 
-		} else if (theVerb == "be") {
+		} else if (theVerb.equals("be")) {
 
 			if (number == RiTa.SINGULAR) {
 
@@ -561,7 +561,7 @@ public class Conjugator {
 	}
 
 	public static String presentParticiple(String verb) {
-		return verb == "be" ? "being" : checkRules(PRESENT_PARTICIPLE_RULESET, verb);
+		return verb.equals("be") ? "being" : checkRules(PRESENT_PARTICIPLE_RULESET, verb);
 	}
 
 	public static String pastParticiple(String verb) {
