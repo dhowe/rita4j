@@ -13,6 +13,7 @@ public class Concorder {
 	Map<String, Object> model = new HashMap<String, Object>();
 	//	Map<String, Object> _lookup = new HashMap<String, Object>();
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map<String, String> concordance(String text, String word, Map<String, Object> opts) {
 		_parseOptions(opts);
 		words = RiTa.tokenize(text);
@@ -76,27 +77,31 @@ public class Concorder {
 
 	///////////////////////////////////////////////////////////////////////////
 
-	private void _parseOptions(Map<String, Object> options) { 
+	private void _parseOptions(Map<String, Object> options) {
 		if (options != null && options.size() > 0) {
 			if (options.containsKey("ignoreCase")) {
 				ignoreCase = (boolean) options.get("ignoreCase");
-			} else {
+			}
+			else {
 				ignoreCase = false;
 			}
 			if (options.containsKey("ignoreStopWords")) {
 				ignoreStopWords = (boolean) options.get("ignoreStopWords");
-			} else {
+			}
+			else {
 				ignoreStopWords = false;
 			}
 			if (options.containsKey("ignorePunctuation")) {
 				ignorePunctuation = (boolean) options.get("ignorePunctuation");
-			} else {
+			}
+			else {
 				ignorePunctuation = false;
 			}
 			if (options.containsKey("wordsToIgnore")) {
 				String[] got = (String[]) options.get("wordsToIgnore");
 				wordsToIgnore = _concatStringArray(got, RiTa.STOP_WORDS);
-			} else {
+			}
+			else {
 				wordsToIgnore = null;
 			}
 			if (ignoreStopWords && wordsToIgnore == null) {
@@ -138,6 +143,7 @@ public class Concorder {
 				//	      _lookup.push(j); // TODO
 			}
 			else {
+				@SuppressWarnings({ "unchecked", "rawtypes" })
 				Map<String, Object> copyOfLookup = (Map) _lookup;
 				int[] newIndexes = _pushIntArray((int[]) copyOfLookup.get("indexes"), j);
 				copyOfLookup.put("indexes", newIndexes);
