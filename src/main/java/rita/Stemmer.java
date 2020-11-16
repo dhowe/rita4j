@@ -205,7 +205,7 @@ public class Stemmer
 
 		// -x to -xes
 		// No other common word ends with "xe(s)" except for "axe"
-		if (s.endsWith("xes") && s != "axes")
+		if (s.endsWith("xes") && !s.equals("axes"))
 			return (cut(s, "es"));
 
 		// -[nlw]ife to -[nlw]ives

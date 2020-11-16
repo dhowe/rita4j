@@ -156,7 +156,7 @@ public class Lexicon {
 		}
 
 		// verify we haven't changed syllable count
-		if (result != word && numSyllables > 0) {
+		if (!result.equals(word) && numSyllables > 0) {
 			boolean tmp = RiTa.SILENCE_LTS;
 			RiTa.SILENCE_LTS = true;
 			int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;

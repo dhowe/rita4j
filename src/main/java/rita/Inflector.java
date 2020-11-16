@@ -162,7 +162,7 @@ public class Inflector {
 		String[] pos, data = dict.get(sing);
 
 		// Is singularized form different and n lexicon as 'nn'?
-		if (sing != word && data != null && data.length == 2) {
+		if (!sing.equals(word) && data != null && data.length == 2) {
 			pos = data[1].split(" ");
 			if (Arrays.asList(pos).contains("nn")) return true;
 		}
