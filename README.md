@@ -1,3 +1,5 @@
+![Java CI with Maven](https://github.com/dhowe/rita2/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 # RiTa 2.0
 Ongoing development of the RiTa library version 2.x (Java)
 
@@ -7,7 +9,7 @@ For JavaScript, see [this repo](https://github.com/dhowe/rita2js) and/or [try th
 ```
 $ git clone https://github.com/dhowe/rita2.git
 $ cd rita2
-$ mvn install # you should see "BUILD SUCCESS"
+$ mvn install      # you should see "BUILD SUCCESS"
 ```
 The project requires a minimum version of Java 8 and Maven 3.6 to build.
 
