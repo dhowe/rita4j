@@ -494,7 +494,7 @@ public class Markov {
 		if (arr == null || arr.size() == 0) return false;
 		OUT: for (int i = find.size() - 1; i < arr.size(); i++) {
 			for (int j = 0; j < find.size(); j++) {
-				if (find.get(find.size() - j - 1) != arr.get(i - j)) {
+				if (!find.get(find.size() - j - 1).equals(arr.get(i - j))) {
 					continue OUT;
 				}
 				if (j == find.size() - 1) {

@@ -148,7 +148,7 @@ public class Tagger {
 		boolean result = checkType(word, NOUNS);
 		if (!result) {
 			String singular = RiTa.singularize(word);
-			if (singular != word) {
+			if (!singular.equals(word)) {
 				result = checkType(singular, NOUNS);
 			}
 		}

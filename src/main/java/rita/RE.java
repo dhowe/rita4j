@@ -49,7 +49,7 @@ public class RE {
 	}
 
 	public boolean analyze(String word) {
-		return (suffix != "" && word.endsWith(suffix));
+		return (!suffix.equals("") && word.endsWith(suffix));
 	}
 
 	private String truncate(String word) {

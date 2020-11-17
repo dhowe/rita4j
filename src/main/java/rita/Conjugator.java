@@ -433,7 +433,7 @@ public class Conjugator {
 
 				// !@# not yet implemented! ??? WHAT?
 				conjs.add(pp);
-			} else if (interrogative && frontVG != "be" && conjs.size() < 1) {
+			} else if (interrogative && !frontVG.equals("be") && conjs.size() < 1) {
 
 				conjs.add(frontVG);
 			} else {
