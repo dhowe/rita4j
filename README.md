@@ -1,3 +1,5 @@
+![Java CI with Maven](https://github.com/dhowe/rita2/workflows/Java%20CI%20with%20Maven/badge.svg)
+
 # RiTa 2.0
 Ongoing development of the RiTa library version 2.x (Java)
 
