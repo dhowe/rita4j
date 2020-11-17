@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.rednoise</groupId>
 	<artifactId>rita</artifactId>
-	<version>v2.0.0-beta.38</version>
+	<version>v2.0.0-beta.38-SNAPSHOT</version>
 	<name>RiTa</name>
 	<description>A toolkit for generative natural language</description>
 	<url>http://www.rednoise.org/rita</url>
@@ -90,6 +90,11 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>3.0.0-M1</version>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
