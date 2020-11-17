@@ -20,7 +20,13 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - name: Cache
+      uses: actions/cache@v1.0.0
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-maven-
     - name: List files
       run: ls -R
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Run Tests
+      run: mvn test
