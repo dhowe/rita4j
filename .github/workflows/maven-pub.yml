@@ -1,4 +1,4 @@
-name: Publish package to Maven Central
+name: Publish to Maven Central
 on:
   registry_package:
     types: [published]
