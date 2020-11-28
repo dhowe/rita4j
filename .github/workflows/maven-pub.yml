@@ -14,9 +14,11 @@ jobs:
           server-id: ossrh
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
-      - name: Publish to the Maven Central Repository
+      - name: Publish to Maven Central Repo
         run: mvn -B -Pcentral deploy
         env:
+          GPG_PRIVATE_KEY: ${{ secrets.OSSRH_USERNAME }}
+          GPG_PASSPHRASE: ${{ secrets.OSSRH_TOKEN }}
           MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
 
