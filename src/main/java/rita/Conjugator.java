@@ -342,8 +342,8 @@ public class Conjugator {
 	private static boolean progressive = false;
 	private static boolean passive = false;
 	private static boolean interrogative = false;
-	private static int tense = RiTa.PRESENT_TENSE;
-	private static int person = RiTa.FIRST_PERSON;
+	private static int tense = RiTa.PRESENT;
+	private static int person = RiTa.FIRST;
 	private static int number = RiTa.SINGULAR;
 	private static int form = RiTa.NORMAL;
 
@@ -352,8 +352,8 @@ public class Conjugator {
 		progressive = false;
 		passive = false;
 		interrogative = false;
-		tense = RiTa.PRESENT_TENSE;
-		person = RiTa.FIRST_PERSON;
+		tense = RiTa.PRESENT;
+		person = RiTa.FIRST;
 		number = RiTa.SINGULAR;
 		form = RiTa.NORMAL;
 	}
@@ -401,7 +401,7 @@ public class Conjugator {
 			actualModal = "to";
 		}
 
-		if (tense == RiTa.FUTURE_TENSE) {
+		if (tense == RiTa.FUTURE) {
 			actualModal = "will";
 		}
 
@@ -508,13 +508,13 @@ public class Conjugator {
 			case RiTa.SINGULAR:
 				switch (pers) {
 
-				case RiTa.FIRST_PERSON:
+				case RiTa.FIRST:
 					break;
 
-				case RiTa.THIRD_PERSON:
+				case RiTa.THIRD:
 					return "was";
 
-				case RiTa.SECOND_PERSON:
+				case RiTa.SECOND:
 					return "were";
 
 				}
@@ -533,7 +533,7 @@ public class Conjugator {
 		person = per;
 		number = numb;
 
-		if ((person == RiTa.THIRD_PERSON) && (number == RiTa.SINGULAR)) {
+		if ((person == RiTa.THIRD) && (number == RiTa.SINGULAR)) {
 
 			return checkRules(PRESENT_TENSE_RULESET, theVerb);
 
@@ -543,13 +543,13 @@ public class Conjugator {
 
 				switch (person) {
 
-				case RiTa.FIRST_PERSON:
+				case RiTa.FIRST:
 					return "am";
 
-				case RiTa.SECOND_PERSON:
+				case RiTa.SECOND:
 					return "are";
 
-				case RiTa.THIRD_PERSON:
+				case RiTa.THIRD:
 					return "is";
 				}
 
@@ -571,9 +571,9 @@ public class Conjugator {
 	private static String verbForm(String theVerb, int tense, int person, int number) {
 
 		switch (tense) {
-		case RiTa.PRESENT_TENSE:
+		case RiTa.PRESENT:
 			return presentTense(theVerb, person, number);
-		case RiTa.PAST_TENSE:
+		case RiTa.PAST:
 			return pastTense(theVerb, person, number);
 		}
 		return theVerb;

@@ -101,7 +101,7 @@ public class RiTa {
 	public static boolean isAbbreviation(String input, boolean ignoreCase) {
 		if (input == null) return false;
 		if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1);
-		return Arrays.stream(ABBREVIATIONS).anyMatch(input::equals);
+		return Arrays.stream(ABRV).anyMatch(input::equals);
 	}
 
 	public static boolean isAdjective(String word) {
@@ -431,30 +431,30 @@ public class RiTa {
 	public static String DICT_PATH = "rita_dict.js";
 
 	// CONSTANTS
-	public static final int FIRST_PERSON = 1;
-	public static final int SECOND_PERSON = 2;
-	public static final int THIRD_PERSON = 3;
-	public static final int PAST_TENSE = 4;
-	public static final int PRESENT_TENSE = 5;
-	public static final int FUTURE_TENSE = 6;
+	public static final int FIRST = 1;
+	public static final int SECOND = 2;
+	public static final int THIRD = 3;
+	public static final int PAST = 4;
+	public static final int PRESENT = 5;
+	public static final int FUTURE = 6;
 	public static final int SINGULAR = 7;
 	public static final int PLURAL = 8;
 	public static final int NORMAL = 9;
 	public static final int INFINITIVE = 1;
 	public static final int GERUND = 2;
-	public static final int IMPERATIVE = 3;
-	public static final int BARE_INFINITIVE = 4;
-	public static final int SUBJUNCTIVE = 5;
+//	public static final int IMPERATIVE = 3;
+//	public static final int BARE_INFINITIVE = 4;
+//	public static final int SUBJUNCTIVE = 5;
 
-	public static final String STRESSED = "1";
-	public static final String UNSTRESSED = "0";
+	public static final String STRESS = "1";
+	public static final String NOSTRESS = "0";
 	public static final String VOWELS = "aeiou";
 	public static final String VERSION = "2";
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
 	public static final String[] FEATURES = { "TOKENS", "STRESSES", "PHONEMES", "SYLLABLES", "POS", "TEXT" };
 
-	public static String[] ABBREVIATIONS = {
+	public static String[] ABRV = {
 			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
 			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.",
 			"Mar.",

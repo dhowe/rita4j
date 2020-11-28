@@ -192,13 +192,13 @@ public class Lexicon {
 
 	private static final Map<String, Object> S1P_PAST = Util.opts(
 			"number", RiTa.SINGULAR,
-			"person", RiTa.FIRST_PERSON,
-			"tense", RiTa.PAST_TENSE);
+			"person", RiTa.FIRST,
+			"tense", RiTa.PAST);
 
 	private static final Map<String, Object> S3P_PRES = Util.opts(
 			"number", RiTa.SINGULAR,
-			"person", RiTa.THIRD_PERSON,
-			"tense", RiTa.PRESENT_TENSE);
+			"person", RiTa.THIRD,
+			"tense", RiTa.PRESENT);
 
 	private boolean isMassNoun(String w, String pos) {
 		return w.endsWith("ness")
@@ -611,7 +611,7 @@ public class Lexicon {
 
 		String raw = rawPhones(word, noLts);
 		if (raw == null || raw.length() == 0) return null;
-		int idx = raw.lastIndexOf(RiTa.STRESSED);//?
+		int idx = raw.lastIndexOf(RiTa.STRESS);//?
 		//if (idx < 0) return null;
 		if (idx >= 0) {
 			char c = raw.charAt(--idx);
@@ -655,7 +655,7 @@ public class Lexicon {
 		String raw = rawPhones(word, noLts);
 		if (raw == null || raw.equals(E)) return null;
 		raw = raw.trim();
-		int idx = raw.indexOf(RiTa.STRESSED);
+		int idx = raw.indexOf(RiTa.STRESS);
 		if (idx < 0) return null;
 		char c = raw.charAt(--idx);
 		while (c != ' ') {

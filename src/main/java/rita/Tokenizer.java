@@ -370,7 +370,7 @@ public class Tokenizer {
 
 	private static String escapeAbbrevs(String text) {
 
-		String[] abbrevs = RiTa.ABBREVIATIONS;
+		String[] abbrevs = RiTa.ABRV;
 		for (int i = 0; i < abbrevs.length; i++) {
 			String abv = abbrevs[i];
 			int idx = text.indexOf(abv);

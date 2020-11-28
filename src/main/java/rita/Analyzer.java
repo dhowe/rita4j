@@ -85,9 +85,9 @@ public class Analyzer {
 			String[] stressyls = rawPhones.split(" ");
 			for (int j = 0; j < stressyls.length; j++) {
 				if (/*stressyls[j] == null ||*/stressyls[j].length() == 0) continue;
-				stresses += (stressyls[j].indexOf(RiTa.STRESSED) > -1)
-						? RiTa.STRESSED
-						: RiTa.UNSTRESSED;
+				stresses += (stressyls[j].indexOf(RiTa.STRESS) > -1)
+						? RiTa.STRESS
+						: RiTa.NOSTRESS;
 				if (j < stressyls.length - 1) stresses += SLASH;
 			}
 		}

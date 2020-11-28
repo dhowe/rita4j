@@ -75,17 +75,17 @@ public class ConjugatorTests {
 	@Test
 	public void callConjugateVbd() {
 		Map<String, Object> args = new HashMap<String, Object>();
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("tense", RiTa.PAST);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.FIRST_PERSON);
+		args.put("person", RiTa.FIRST);
 
 		String c = RiTa.conjugate("go", args);
 		eq(c, "went");
 
 		args.clear();
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("tense", RiTa.PAST);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.FIRST_PERSON);
+		args.put("person", RiTa.FIRST);
 
 		String s = RiTa.conjugate("run", args);
 		eq(s, "ran");
@@ -107,9 +107,9 @@ public class ConjugatorTests {
 		a = new String[] { "swims", "needs", "opens" };
 
 		args = new HashMap<String, Object>();
-		args.put("tense", RiTa.PRESENT_TENSE);
+		args.put("tense", RiTa.PRESENT);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 
 		for (int i = 0; i < s.length; i++) {
 			String c = RiTa.conjugate(s[i], args);
@@ -117,9 +117,9 @@ public class ConjugatorTests {
 		}
 
 		args.clear();
-		args.put("tense", RiTa.PRESENT_TENSE);
+		args.put("tense", RiTa.PRESENT);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 		args.put("passive", true);
 
 		a = new String[] { "is swum", "is needed", "is opened" };
@@ -131,8 +131,8 @@ public class ConjugatorTests {
 
 		args.clear();
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.FIRST_PERSON);
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("person", RiTa.FIRST);
+		args.put("tense", RiTa.PAST);
 
 		eq(RiTa.conjugate("swim", args), "swam");
 
@@ -148,8 +148,8 @@ public class ConjugatorTests {
 
 		args.clear();
 		args.put("number", RiTa.PLURAL);
-		args.put("person", RiTa.SECOND_PERSON);
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("person", RiTa.SECOND);
+		args.put("tense", RiTa.PAST);
 
 		a = new String[] { "swam", "needed", "opened", "" };
 		eq(a.length, s.length);
@@ -160,8 +160,8 @@ public class ConjugatorTests {
 
 		args.clear();
 		args.put("number", RiTa.PLURAL);
-		args.put("person", RiTa.SECOND_PERSON);
-		args.put("tense", RiTa.FUTURE_TENSE);
+		args.put("person", RiTa.SECOND);
+		args.put("tense", RiTa.FUTURE);
 
 		a = new String[] { "will swim", "will need", "will open", "" };
 		eq(a.length, s.length);
@@ -171,9 +171,9 @@ public class ConjugatorTests {
 		}
 
 		args.clear();
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("tense", RiTa.PAST);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 
 		a = new String[] { "swam", "needed", "opened", "" };
 
@@ -185,9 +185,9 @@ public class ConjugatorTests {
 		}
 
 		args.clear();
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("tense", RiTa.PAST);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 		args.put("form", RiTa.INFINITIVE);
 
 		a = new String[] { "to swim", "to need", "to open", "" };
@@ -198,9 +198,9 @@ public class ConjugatorTests {
 		}
 
 		args.clear();
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("tense", RiTa.PAST);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 		args.put("passive", true);
 
 		s = new String[] { "scorch", "burn", "hit", "" };
@@ -214,9 +214,9 @@ public class ConjugatorTests {
 		s = new String[] { "swim", "need", "open", "" };
 
 		args.clear();
-		args.put("tense", RiTa.PRESENT_TENSE);
+		args.put("tense", RiTa.PRESENT);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 		args.put("form", RiTa.INFINITIVE);
 		args.put("progressive", true);
 
@@ -228,9 +228,9 @@ public class ConjugatorTests {
 		}
 
 		args.clear();
-		args.put("tense", RiTa.PRESENT_TENSE);
+		args.put("tense", RiTa.PRESENT);
 		args.put("number", RiTa.SINGULAR);
-		args.put("person", RiTa.THIRD_PERSON);
+		args.put("person", RiTa.THIRD);
 		args.put("form", RiTa.INFINITIVE);
 		args.put("perfect", true);
 
@@ -243,8 +243,8 @@ public class ConjugatorTests {
 
 		args.clear();
 		args.put("number", RiTa.PLURAL);
-		args.put("person", RiTa.SECOND_PERSON);
-		args.put("tense", RiTa.PAST_TENSE);
+		args.put("person", RiTa.SECOND);
+		args.put("tense", RiTa.PAST);
 
 		eq(RiTa.conjugate("barter", args), "bartered");
 		eq(RiTa.conjugate("run", args), "ran");
