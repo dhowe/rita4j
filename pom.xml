@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.rednoise</groupId>
 	<artifactId>rita</artifactId>
-	<version>v2.0.0-beta.46</version>
+	<version>v2.0.0-beta.47</version>
 	<name>RiTa</name>
 	<description>A toolkit for generative natural language</description>
 	<url>http://www.rednoise.org/rita</url>
