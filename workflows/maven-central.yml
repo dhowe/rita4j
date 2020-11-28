@@ -20,7 +20,7 @@ jobs:
           gpg --list-secret-keys --keyid-format LONG
       - name: Deploy to Maven Central
         run: | #mvn -B -Pcentral deploy
-          mvn \
+          mvn -P central \
           --no-transfer-progress \
           --batch-mode \
           -Dgpg.passphrase=${{ secrets.OSSRH_GPG_SECRET_KEY_PASSWORD }} \

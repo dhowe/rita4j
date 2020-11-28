@@ -175,12 +175,12 @@
 						</goals>
 					</execution>
 				</executions>
-				<configuration>
+				<!--configuration>
 				  <gpgArguments>
-				      <arg>--pinentry-mode</arg>
+				      <arg>-dash-dash-pinentry-mode</arg>
 				      <arg>loopback</arg>
 				  </gpgArguments>
-				</configuration>
+				</configuration-->
 			</plugin>
 
 			<plugin>
