@@ -26,41 +26,6 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void callStem() {
-		String[] tests = {
-				"boy", "boy",
-				"boys", "boy",
-				"biophysics", "biophysics",
-				"automata", "automaton",
-				"genus", "genus",
-				"emus", "emu",
-				"cakes", "cake",
-				"run", "run",
-				"runs", "run",
-				"running", "running",
-				"take", "take",
-				"takes", "take",
-				"taking", "taking",
-				"hide", "hide",
-				"hides", "hide",
-				"hiding", "hiding",
-				"become", "become",
-				"becomes", "become",
-				"becoming", "becoming",
-				"gases", "gas",
-				"buses", "bus",
-				"happiness", "happiness",
-				"terrible", "terrible"
-		};
-		for (int i = 0; i < tests.length; i += 2) {
-			// System.out.println("p: " + RiTa.singularize(tests[i]) + " s: " + tests[i +
-			// 1]);
-			assertEquals(tests[i + 1], RiTa.stem(tests[i]));
-		}
-
-	}
-
-	@Test
 	public void callRandomOrdering() {
 		//int
 		int[] result = new int[] { 0 };

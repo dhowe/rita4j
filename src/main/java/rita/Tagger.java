@@ -475,7 +475,7 @@ public class Tagger {
 
 	private static boolean _isLikelyPlural(String word) {
 		// Check for plural noun with singularizer and stemmer
-		return Stemmer._checkPluralNoLex(word) || _lexHas("n", RiTa.singularize(word));
+		return PlingStemmer._checkPluralNoLex(word) || _lexHas("n", RiTa.singularize(word));
 	}
 
 	private static boolean checkType(String word, String[] tagArray) {
@@ -488,7 +488,8 @@ public class Tagger {
 
 		if (word == null || word.length() == 0) return false;
 
-		if (word.indexOf(" ") > -1) throw new RiTaException("checkType() expects single word, found: '" + word + "'");
+		if (word.indexOf(" ") > -1) throw new RiTaException
+			("checkType() expects single word, found: '" + word + "'");
 
 		List<String> psa = Arrays.asList(lexicon.posArr(word));
 

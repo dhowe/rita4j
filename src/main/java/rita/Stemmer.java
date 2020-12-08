@@ -1,267 +1,1604 @@
 package rita;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
-public class Stemmer
-{
+public class Stemmer {
 
-	/* Words that are both singular and plural */
-	private static final String[] categorySP = {"acoustics", "aesthetics", "aquatics", "basics", "ceramics", "classics", "cosmetics", "dialectics", "deer", "dynamics", "ethics", "harmonics", "heroics", "mechanics", "metrics", "optics", "people", "physics", "polemics", "pyrotechnics", "quadratics", "quarters", "statistics", "tactics", "tropics"};
+	protected StringBuffer current;
+	protected int cursor, limit, limitBw, bra, ket;
 
-	/* Words that end in "-se" in their plural forms (like "nurse" etc.) */
-	private static final String[] categorySE_SES = {"abuses", "apocalypses", "blouses", "bruises", "chaises", "cheeses", "chemises", "clauses", "corpses", "courses", "crazes", "creases", "cruises", "curses", "databases", "dazes", "defenses", "demises", "discourses", "diseases", "doses", "eclipses", "enterprises", "expenses", "friezes", "fuses", "glimpses", "guises", "hearses", "horses", "houses", "impasses", "impulses", "kamikazes", "mazes", "mousses", "noises", "nooses", "noses", "nurses", "obverses", "offenses", "oozes", "overdoses", "phrases", "posses", "premises", "pretenses", "proteases", "pulses", "purposes", "purses", "racehorses", "recluses", "recourses", "relapses", "responses", "roses", "ruses", "spouses", "stripteases", "subleases", "sunrises", "tortoises", "trapezes", "treatises", "toes", "universes", "uses", "vases", "verses", "vises", "wheelbases", "wheezes"};
-
-	/* Words that do not have a distinct plural form (like "atlas" etc.) */
-	private static final String[] category00 = {"alias", "asbestos", "atlas", "barracks", "bathos", "bias", "breeches", "britches", "canvas", "chaos", "clippers", "contretemps", "corps", "cosmos", "crossroads", "diabetes", "ethos", "gallows", "gas", "graffiti", "headquarters", "herpes", "high-jinks", "innings", "jackanapes", "lens", "means", "measles", "mews", "mumps", "news", "pathos", "pincers", "pliers", "proceedings", "rabies", "rhinoceros", "sassafras", "scissors", "series", "shears", "species", "tuna"};
-
-	/* Words that change from "-um" to "-a" (like "curriculum" etc.), listed in their plural forms */
-	private static final String[] categoryUM_A = {"addenda", "agenda", "aquaria", "bacteria", "candelabra", "compendia", "consortia", "crania", "curricula", "data", "desiderata", "dicta", "emporia", "enconia", "errata", "extrema", "gymnasia", "honoraria", "interregna", "lustra", "maxima", "media", "memoranda", "millenia", "minima", "momenta", "memorabilia", "millennia", "optima", "ova", "phyla", "quanta", "rostra", "spectra", "specula", "septa", "stadia", "strata", "symposia", "trapezia", "ultimata", "vacua", "vela"};
-
-	/* Words that change from "-on" to "-a" (like "phenomenon" etc.), listed in their plural forms */
-	private static final String[] categoryON_A = {"aphelia", "asyndeta", "automata", "criteria", "hyperbata", "noumena", "organa", "perihelia", "phenomena", "prolegomena", "referenda"};
-
-	/* Words that change from "-o" to "-i" (like "libretto" etc.), listed in their plural forms */
-	private static final String[] categoryO_I = {"alti", "bassi", "canti", "concerti", "contralti", "crescendi", "libretti", "soli", "soprani", "tempi", "virtuosi"};
-
-	/*  Words that change from "-us" to "-i" (like "fungus" etc.), listed in their plural forms		 */
-	private static final String[] categoryUS_I = {"alumni", "bacilli", "cacti", "foci", "fungi", "genii", "hippopotami", "incubi", "nimbi", "nuclei", "nucleoli", "octopi", "radii", "stimuli", "styli", "succubi", "syllabi", "termini", "tori", "umbilici", "uteri"};
-
-	/* Words that change from "-ix" to "-ices" (like "appendix" etc.), listed in their plural forms */
-	private static final String[] categoryIX_ICES = {"appendices", "cervices", "indices", "matrices"};
-
-	/* Words that change from "-is" to "-es" (like "axis" etc.), listed in their plural forms, plus everybody ending in theses */
-	private static final String[] categoryIS_ES = {"analyses", "axes", "bases", "catharses", "crises", "diagnoses", "ellipses", "emphases", "neuroses", "oases", "paralyses", "prognoses", "synopses"};
-
-	/* Words that change from "-oe" to "-oes" (like "toe" etc.), listed in their plural forms*/
-	private static final String[] categoryOE_OES = {"aloes", "backhoes", "beroes", "canoes", "chigoes", "cohoes", "does", "felloes", "floes", "foes", "gumshoes", "hammertoes", "hoes", "hoopoes", "horseshoes", "leucothoes", "mahoes", "mistletoes", "oboes", "overshoes", "pahoehoes", "pekoes", "roes", "shoes", "sloes", "snowshoes", "throes", "tic-tac-toes", "tick-tack-toes", "ticktacktoes", "tiptoes", "tit-tat-toes", "toes", "toetoes", "tuckahoes", "woes"};
-
-	/* Words that change from "-ex" to "-ices" (like "index" etc.), listed in their plural forms*/
-	private static final String[] categoryEX_ICES = {"apices", "codices", "cortices", "indices", "latices", "murices", "pontifices", "silices", "simplices", "vertices", "vortices"};
-
-	/* Words that change from "-u" to "-us" (like "emu" etc.), listed in their plural forms*/
-	private static final String[] categoryU_US = {"menus", "gurus", "apercus", "barbus", "cornus", "ecrus", "emus", "fondus", "gnus", "iglus", "mus", "nandus", "napus", "poilus", "quipus", "snafus", "tabus", "tamandus", "tatus", "timucus", "tiramisus", "tofus", "tutus"};
-
-	/* Words that change from "-sse" to "-sses" (like "finesse" etc.), listed in their plural forms,plus those ending in mousse*/
-	private static final String[] categorySSE_SSES = {"bouillabaisses", "coulisses", "crevasses", "crosses", "cuisses", "demitasses", "ecrevisses", "fesses", "finesses", "fosses", "impasses", "lacrosses", "largesses", "masses", "noblesses", "palliasses", "pelisses", "politesses", "posses", "tasses", "wrasses"};
-
-	/* Words that change from "-che" to "-ches" (like "brioche" etc.), listed in their plural forms*/
-	private static final String[] categoryCHE_CHES = {"adrenarches", "attaches", "avalanches", "barouches", "brioches", "caches", "caleches", "caroches", "cartouches", "cliches", "cloches", "creches", "demarches", "douches", "gouaches", "guilloches", "headaches", "heartaches", "huaraches", "menarches", "microfiches", "moustaches", "mustaches", "niches", "panaches", "panoches", "pastiches", "penuches", "pinches", "postiches", "psyches", "quiches", "schottisches", "seiches", "soutaches", "synecdoches", "thelarches", "troches"};
-
-	/* Words that end with "-ics" and do not exist as nouns without the "s" (like "aerobics" etc.)*/
-	private static final String[] categoryICS = {"aerobatics", "aerobics", "aerodynamics", "aeromechanics", "aeronautics", "alphanumerics", "animatronics", "apologetics", "architectonics", "astrodynamics", "astronautics", "astrophysics", "athletics", "atmospherics", "autogenics", "avionics", "ballistics", "bibliotics", "bioethics", "biometrics", "bionics", "bionomics", "biophysics", "biosystematics", "cacogenics", "calisthenics", "callisthenics", "catoptrics", "civics", "cladistics", "cryogenics", "cryonics", "cryptanalytics", "cybernetics", "cytoarchitectonics", "cytogenetics", "diagnostics", "dietetics", "dramatics", "dysgenics", "econometrics", "economics", "electromagnetics", "electronics", "electrostatics", "endodontics", "enterics", "ergonomics", "eugenics", "eurhythmics", "eurythmics", "exodontics", "fibreoptics", "futuristics", "genetics", "genomics", "geographics", "geophysics", "geopolitics", "geriatrics", "glyptics", "graphics", "gymnastics", "hermeneutics", "histrionics", "homiletics", "hydraulics", "hydrodynamics", "hydrokinetics", "hydroponics", "hydrostatics", "hygienics", "informatics", "kinematics", "kinesthetics", "kinetics", "lexicostatistics", "linguistics", "lithoglyptics", "liturgics", "logistics", "macrobiotics", "macroeconomics", "magnetics", "magnetohydrodynamics", "mathematics", "metamathematics", "metaphysics", "microeconomics", "microelectronics", "mnemonics", "morphophonemics", "neuroethics", "neurolinguistics", "nucleonics", "numismatics", "obstetrics", "onomastics", "orthodontics", "orthopaedics", "orthopedics", "orthoptics", "paediatrics", "patristics", "patristics", "pedagogics", "pediatrics", "periodontics", "pharmaceutics", "pharmacogenetics", "pharmacokinetics", "phonemics", "phonetics", "phonics", "photomechanics", "physiatrics", "pneumatics", "poetics", "politics", "pragmatics", "prosthetics", "prosthodontics", "proteomics", "proxemics", "psycholinguistics", "psychometrics", "psychonomics", "psychophysics", "psychotherapeutics", "robotics", "semantics", "semiotics", "semitropics", "sociolinguistics", "stemmatics", "strategics", "subtropics", "systematics", "tectonics", "telerobotics", "therapeutics", "thermionics", "thermodynamics", "thermostatics"};
-
-	/* Words that change from "-ie" to "-ies" (like "auntie" etc.), listed in their plural forms*/
-	private static final String[] categoryIE_IES = {"aeries", "anomies", "aunties", "baddies", "beanies", "birdies", "bogies", "bonhomies", "boogies", "bookies", "booties", "bourgeoisies", "brasseries", "brassies", "brownies", "caddies", "calories", "camaraderies", "charcuteries", "collies", "commies", "cookies", "coolies", "coonties", "cooties", "coteries", "cowpies", "cowries", "cozies", "crappies", "crossties", "curies", "darkies", "dearies", "dickies", "dies", "dixies", "doggies", "dogies", "eyries", "faeries", "falsies", "floozies", "folies", "foodies", "freebies", "gendarmeries", "genies", "gillies", "goalies", "goonies", "grannies", "groupies", "hippies", "hoagies", "honkies", "indies", "junkies", "kelpies", "kilocalories", "laddies", "lassies", "lies", "lingeries", "magpies", "magpies", "mashies", "mealies", "meanies", "menageries", "mollies", "moxies", "neckties", "newbies", "nighties", "nookies", "oldies", "panties", "patisseries", "pies", "pinkies", "pixies", "porkpies", "potpies", "prairies", "preemies", "pyxies", "quickies", "reveries", "rookies", "rotisseries", "scrapies", "sharpies", "smoothies", "softies", "stoolies", "stymies", "swaggies", "sweeties", "talkies", "techies", "ties", "tooshies", "toughies", "townies", "veggies", "walkie-talkies", "wedgies", "weenies", "yuppies", "zombies"};
-
-	/* Maps irregular Germanic English plural nouns to their singular form */
-	private static final String[] categoryIRR = {"blondes", "blonde", "teeth", "tooth", "beefs", "beef", "brethren", "brother", "busses", "bus", "cattle", "cow", "children", "child", "corpora", "corpus", "femora", "femur", "genera", "genus", "genies", "genie", "genii", "genie", "lice", "louse", "mice", "mouse", "mongooses", "mongoose", "monies", "money", "octopodes", "octopus", "oxen", "ox", "people", "person", "schemata", "schema", "soliloquies", "soliloquy", "taxis", "taxi", "throes", "throes", "trilbys", "trilby", "innings", "inning", "alibis", "alibi", "skis", "ski", "safaris", "safari", "rabbis", "rabbi"};
-
-	private static String cut(String s, String suffix) {  // Cuts a suffix from a string (that is the number of chars given by the
-
-		return (s.substring(0, s.length() - suffix.length()));
+	private Stemmer() {
+		current = new StringBuffer();
 	}
 
-	private static Boolean greek(String s) {  // Cuts a suffix from a string (that is the number of chars given by the
-		return (s.indexOf("ph") > 0 || s.indexOf('y') > 0 && s.endsWith("nges"));
+	public static String stem(String word) {
+		Stemmer s = new Stemmer();
+		s.setCurrent(word);
+		s.stemImpl();
+		return s.current.toString();
 	}
 
-	/* Returns true if a word is probably not Latin */
-	private static Boolean noLatin(String s) {
-		return (s.indexOf('h') > 0 || s.indexOf('j') > 0 || s.indexOf('k') > 0 || s.indexOf('w') > 0 || s.indexOf('y') > 0 || s.indexOf('z') > 0 || s.indexOf("ou") > 0 || s.indexOf("sh") > 0 || s.indexOf("ch") > 0 || s.endsWith("aus"));
+	public void setCurrent(String value) {
+		current.replace(0, current.length(), value);
+		cursor = 0;
+		limit = current.length();
+		limitBw = 0;
+		bra = cursor;
+		ket = limit;
 	}
 
-	public static String stem(String s)
-	{
+	public String getCurrent() {
+		String result = current.toString();
+		current = new StringBuffer();
+		return result;
+	}
 
+	protected boolean in_grouping(char[] s, int min, int max) {
+		if (cursor >= limit) return false;
+		char ch = current.charAt(cursor);
+		if (ch > max || ch < min) return false;
+		ch -= min;
+		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) return false;
+		cursor++;
+		return true;
+	}
 
-		// Handle irregular ones
-		if (Arrays.asList(categoryIRR).contains(s)) {
-			int index = Arrays.asList(categoryIRR).indexOf(s);
-			if (index % 2 == 0) {
-				String irreg = categoryIRR[index + 1];
-				return (irreg);
+	protected boolean in_grouping_b(char[] s, int min, int max) {
+		if (cursor <= limitBw) return false;
+		char ch = current.charAt(cursor - 1);
+		if (ch > max || ch < min) return false;
+		ch -= min;
+		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) return false;
+		cursor--;
+		return true;
+	}
+
+	protected boolean out_grouping(char[] s, int min, int max) {
+		if (cursor >= limit) return false;
+		char ch = current.charAt(cursor);
+		if (ch > max || ch < min) {
+			cursor++;
+			return true;
+		}
+		ch -= min;
+		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) {
+			cursor++;
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean out_grouping_b(char[] s, int min, int max) {
+		if (cursor <= limitBw) return false;
+		char ch = current.charAt(cursor - 1);
+		if (ch > max || ch < min) {
+			cursor--;
+			return true;
+		}
+		ch -= min;
+		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) {
+			cursor--;
+			return true;
+		}
+		return false;
+	}
+
+	protected boolean in_range(int min, int max) {
+		if (cursor >= limit) return false;
+		char ch = current.charAt(cursor);
+		if (ch > max || ch < min) return false;
+		cursor++;
+		return true;
+	}
+
+	protected boolean in_range_b(int min, int max) {
+		if (cursor <= limitBw) return false;
+		char ch = current.charAt(cursor - 1);
+		if (ch > max || ch < min) return false;
+		cursor--;
+		return true;
+	}
+
+	protected boolean out_range(int min, int max) {
+		if (cursor >= limit) return false;
+		char ch = current.charAt(cursor);
+		if (!(ch > max || ch < min)) return false;
+		cursor++;
+		return true;
+	}
+
+	protected boolean out_range_b(int min, int max) {
+		if (cursor <= limitBw) return false;
+		char ch = current.charAt(cursor - 1);
+		if (!(ch > max || ch < min)) return false;
+		cursor--;
+		return true;
+	}
+
+	protected boolean eq_s(int s_size, String s) {
+		if (limit - cursor < s_size) return false;
+		int i;
+		for (i = 0; i != s_size; i++) {
+			if (current.charAt(cursor + i) != s.charAt(i)) return false;
+		}
+		cursor += s_size;
+		return true;
+	}
+
+	protected boolean eq_s_b(int s_size, String s) {
+		if (cursor - limitBw < s_size) return false;
+		int i;
+		for (i = 0; i != s_size; i++) {
+			if (current.charAt(cursor - s_size + i) != s.charAt(i)) return false;
+		}
+		cursor -= s_size;
+		return true;
+	}
+
+	protected boolean eq_v(CharSequence s) {
+		return eq_s(s.length(), s.toString());
+	}
+
+	protected boolean eq_v_b(CharSequence s) {
+		return eq_s_b(s.length(), s.toString());
+	}
+
+	protected int find_among(Among v[], int v_size) {
+		int i = 0;
+		int j = v_size;
+
+		int c = cursor;
+		int l = limit;
+
+		int common_i = 0;
+		int common_j = 0;
+
+		boolean first_key_inspected = false;
+
+		while (true) {
+			int k = i + ((j - i) >> 1);
+			int diff = 0;
+			int common = common_i < common_j ? common_i : common_j; // smaller
+			Among w = v[k];
+			int i2;
+			for (i2 = common; i2 < w.s_size; i2++) {
+				if (c + common == l) {
+					diff = -1;
+					break;
+				}
+				diff = current.charAt(c + common) - w.s[i2];
+				if (diff != 0) break;
+				common++;
+			}
+			if (diff < 0) {
+				j = k;
+				common_j = common;
+			}
+			else {
+				i = k;
+				common_i = common;
+			}
+			if (j - i <= 1) {
+				if (i > 0) break; // v->s has been inspected
+				if (j == i) break; // only one item in v
+
+				// - but now we need to go round once more to get
+				// v->s inspected. This looks messy, but is actually
+				// the optimal approach.
+
+				if (first_key_inspected) break;
+				first_key_inspected = true;
 			}
 		}
-		// -on to -a
-		if (Arrays.asList(categoryON_A).contains(s))
-			return (cut(s, "a") + "on");
-
-		// -um to -a
-		if (Arrays.asList(categoryUM_A).contains(s))
-			return (cut(s, "a") + "um");
-
-		// -x to -ices
-		if (Arrays.asList(categoryIX_ICES).contains(s))
-			return (cut(s, "ices") + "ix");
-
-		// -o to -i
-		if (Arrays.asList(categoryO_I).contains(s))
-			return (cut(s, "i") + "o");
-
-		// -se to ses
-		if (Arrays.asList(categorySE_SES).contains(s))
-			return (cut(s, "s"));
-
-		// -is to -es
-		if (Arrays.asList(categoryIS_ES).contains(s) || s.endsWith("theses"))
-			return (cut(s, "es") + "is");
-
-		// -us to -i
-		if (Arrays.asList(categoryUS_I).contains(s))
-			return (cut(s, "i") + "us");
-
-		//Wrong plural
-		if (s.endsWith("uses") && Arrays.asList(categoryUS_I).contains(cut(s, "uses") + "i") || s.equals("genuses") || s.equals("corpuses"))
-			return (cut(s, "es"));
-
-		// -ex to -ices
-		if (Arrays.asList(categoryEX_ICES).contains(s))
-			return (cut(s, "ices") + "ex");
-
-		// Words that do not inflect in the plural
-		if (s.endsWith("ois") || s.endsWith("itis") || Arrays.asList(category00).contains(s) || Arrays.asList(categoryICS).contains(s))
-			return (s);
-
-		// -en to -ina
-		// No other common words end in -ina
-		if (s.endsWith("ina"))
-			return (cut(s, "en"));
-
-		// -a to -ae
-		// No other common words end in -ae
-		if (s.endsWith("ae")) // special case
-			return (cut(s, "e"));
-
-		// -a to -ata
-		// No other common words end in -ata
-		if (s.endsWith("ata"))
-			return (cut(s, "ta"));
-
-		// trix to -trices
-		// No common word ends with -trice(s)
-		if (s.endsWith("trices"))
-			return (cut(s, "trices") + "trix");
-
-		// -us to -us
-		//No other common word ends in -us, except for false plurals of French words
-		//Catch words that are not latin or known to end in -u
-		if (s.endsWith("us") && !s.endsWith("eaus") && !s.endsWith("ieus") && !noLatin(s) && !Arrays.asList(categoryU_US).contains(s))
-			return (s);
-
-		// -tooth to -teeth
-		// -goose to -geese
-		// -foot to -feet
-		// -zoon to -zoa
-		//No other common words end with the indicated suffixes
-		if (s.endsWith("teeth"))
-			return (cut(s, "teeth") + "tooth");
-		if (s.endsWith("geese"))
-			return (cut(s, "geese") + "goose");
-		if (s.endsWith("feet"))
-			return (cut(s, "feet") + "foot");
-		if (s.endsWith("zoa"))
-			return (cut(s, "zoa") + "zoon");
-
-		// -men to -man
-		// -firemen to -fireman
-		if (s.endsWith("men")) return (cut(s, "men") + "man");
-
-		// -martinis to -martini
-		// -bikinis to -bikini
-		if (s.endsWith("inis")) return (cut(s, "inis") + "ini");
-
-		// -children to -child
-		// -schoolchildren to -schoolchild
-		if (s.endsWith("children")) return (cut(s, "ren"));
-
-		// -eau to -eaux
-		//No other common words end in eaux
-		if (s.endsWith("eaux"))
-			return (cut(s, "x"));
-
-		// -ieu to -ieux
-		//No other common words end in ieux
-		if (s.endsWith("ieux"))
-			return (cut(s, "x"));
-
-		// -nx to -nges
-		// Pay attention not to kill words ending in -nge with plural -nges
-		// Take only Greek words (works fine, only a handfull of exceptions)
-		if (s.endsWith("nges") && greek(s))
-			return (cut(s, "nges") + "nx");
-
-		// -[sc]h to -[sc]hes
-		//No other common word ends with "shes", "ches" or "she(s)"
-		//Quite a lot end with "che(s)", filter them out
-		if (s.endsWith("shes") || s.endsWith("ches") && !Arrays.asList(categoryCHE_CHES).contains(s))
-			return (cut(s, "es"));
-
-		// -ss to -sses
-		// No other common singular word ends with "sses"
-		// Filter out those ending in "sse(s)"
-		if (s.endsWith("sses") && !Arrays.asList(categorySSE_SSES).contains(s) && !s.endsWith("mousses"))
-			return (cut(s, "es"));
-
-		// -x to -xes
-		// No other common word ends with "xe(s)" except for "axe"
-		if (s.endsWith("xes") && !s.equals("axes"))
-			return (cut(s, "es"));
-
-		// -[nlw]ife to -[nlw]ives
-		//No other common word ends with "[nlw]ive(s)" except for olive
-		if (s.endsWith("nives") || s.endsWith("lives") && !s.endsWith("olives") || s.endsWith("wives"))
-			return (cut(s, "ves") + "fe");
-
-		// -[aeo]lf to -ves  exceptions: valve, solve
-		// -[^d]eaf to -ves  exceptions: heave, weave
-		// -arf to -ves      no exception
-		if (s.endsWith("alves") && !s.endsWith("valves") || s.endsWith("olves") && !s.endsWith("solves") || s.endsWith("eaves") && !s.endsWith("heaves") && !s.endsWith("weaves") || s.endsWith("arves") || s.endsWith("shelves") || s.endsWith("selves"))
-			return (cut(s, "ves") + "f");
-
-		// -y to -ies
-		// -ies is very uncommon as a singular suffix
-		// but -ie is quite common, filter them out
-		if (s.endsWith("ies") && !Arrays.asList(categoryIE_IES).contains(s))
-			return (cut(s, "ies") + "y");
-
-		// -o to -oes
-		// Some words end with -oe, so don't kill the "e"
-		if (s.endsWith("oes") && !Arrays.asList(categoryOE_OES).contains(s))
-			return (cut(s, "es"));
-
-		// -s to -ses
-		// -z to -zes
-		// no words end with "-ses" or "-zes" in singular
-		if (s.endsWith("ses") || s.endsWith("zes"))
-			return (cut(s, "es"));
-
-		// - to -s
-		if (s.endsWith("s") && !s.endsWith("ss") && !s.endsWith("is"))
-			return (cut(s, "s"));
-
-		return (s);
-
-
+		while (true) {
+			Among w = v[i];
+			if (common_i >= w.s_size) {
+				cursor = c + w.s_size;
+				if (w.method == null) return w.result;
+				boolean res;
+				try {
+					Object resobj = w.method.invoke(w.methodobject,
+							new Object[0]);
+					res = resobj.toString().equals("true");
+				} catch (InvocationTargetException e) {
+					res = false;
+					// FIXME - debug message
+				} catch (IllegalAccessException e) {
+					res = false;
+					// FIXME - debug message
+				}
+				cursor = c + w.s_size;
+				if (res) return w.result;
+			}
+			i = w.substring_i;
+			if (i < 0) return 0;
+		}
 	}
 
-	public static boolean _checkPluralNoLex(String s) {
-		ArrayList<String> cats = new ArrayList<String>();
-		cats.addAll(Arrays.asList(categoryUM_A));
-		cats.addAll(Arrays.asList(categoryON_A));
-		cats.addAll(Arrays.asList(categoryO_I));
-		cats.addAll(Arrays.asList(categoryUS_I));
-		cats.addAll(Arrays.asList(categoryIX_ICES));
-		
-		//for (int i = 0; i < cats.length; i++) {
-		if (cats.contains(s)) return true;
-		//}
+	// find_among_b is for backwards processing. Same comments apply
+	protected int find_among_b(Among v[], int v_size) {
+		int i = 0;
+		int j = v_size;
 
-		int idx =  Arrays.asList(categoryIRR).indexOf(s);
-		return (idx % 2 == 0) ? true : false;
+		int c = cursor;
+		int lb = limitBw;
+
+		int common_i = 0;
+		int common_j = 0;
+
+		boolean first_key_inspected = false;
+
+		while (true) {
+			int k = i + ((j - i) >> 1);
+			int diff = 0;
+			int common = common_i < common_j ? common_i : common_j;
+			Among w = v[k];
+			int i2;
+			for (i2 = w.s_size - 1 - common; i2 >= 0; i2--) {
+				if (c - common == lb) {
+					diff = -1;
+					break;
+				}
+				diff = current.charAt(c - 1 - common) - w.s[i2];
+				if (diff != 0) break;
+				common++;
+			}
+			if (diff < 0) {
+				j = k;
+				common_j = common;
+			}
+			else {
+				i = k;
+				common_i = common;
+			}
+			if (j - i <= 1) {
+				if (i > 0) break;
+				if (j == i) break;
+				if (first_key_inspected) break;
+				first_key_inspected = true;
+			}
+		}
+		while (true) {
+			Among w = v[i];
+			if (common_i >= w.s_size) {
+				cursor = c - w.s_size;
+				if (w.method == null) return w.result;
+
+				boolean res;
+				try {
+					Object resobj = w.method.invoke(w.methodobject,
+							new Object[0]);
+					res = resobj.toString().equals("true");
+				} catch (InvocationTargetException e) {
+					res = false;
+					// FIXME - debug message
+				} catch (IllegalAccessException e) {
+					res = false;
+					// FIXME - debug message
+				}
+				cursor = c - w.s_size;
+				if (res) return w.result;
+			}
+			i = w.substring_i;
+			if (i < 0) return 0;
+		}
 	}
 
+	/* to replace chars between c_bra and c_ket in current by the
+	 * chars in s.
+	 */
+	protected int replace_s(int c_bra, int c_ket, String s) {
+		int adjustment = s.length() - (c_ket - c_bra);
+		current.replace(c_bra, c_ket, s);
+		limit += adjustment;
+		if (cursor >= c_ket) cursor += adjustment;
+		else if (cursor > c_bra) cursor = c_bra;
+		return adjustment;
+	}
 
+	protected void slice_check() {
+		if (bra < 0 ||
+				bra > ket ||
+				ket > limit ||
+				limit > current.length())   // this line could be removed
+		{
+			System.err.println("faulty slice operation");
+			// FIXME: report error somehow.
+			/*
+			fprintf(stderr, "faulty slice operation:\n");
+			debug(z, -1, 0);
+			exit(1);
+			*/
+		}
+	}
 
+	protected void slice_from(String s) {
+		slice_check();
+		replace_s(bra, ket, s);
+	}
 
+	protected void slice_from(CharSequence s) {
+		slice_from(s.toString());
+	}
+
+	protected void slice_del() {
+		slice_from("");
+	}
+
+	protected void insert(int c_bra, int c_ket, String s) {
+		int adjustment = replace_s(c_bra, c_ket, s);
+		if (c_bra <= bra) bra += adjustment;
+		if (c_bra <= ket) ket += adjustment;
+	}
+
+	protected void insert(int c_bra, int c_ket, CharSequence s) {
+		insert(c_bra, c_ket, s.toString());
+	}
+
+	/* Copy the slice into the supplied StringBuffer */
+	protected StringBuffer slice_to(StringBuffer s) {
+		slice_check();
+		s.replace(0, s.length(), current.substring(bra, ket));
+		return s;
+	}
+
+	/* Copy the slice into the supplied StringBuilder */
+	protected StringBuilder slice_to(StringBuilder s) {
+		slice_check();
+		s.replace(0, s.length(), current.substring(bra, ket));
+		return s;
+	}
+
+	protected StringBuffer assign_to(StringBuffer s) {
+		s.replace(0, s.length(), current.substring(0, limit));
+		return s;
+	}
+
+	protected StringBuilder assign_to(StringBuilder s) {
+		s.replace(0, s.length(), current.substring(0, limit));
+		return s;
+	}
+
+	private final static Stemmer methodObject = new Stemmer();
+
+	private final static Among a_0[] = {
+			new Among("arsen", -1, -1, "", methodObject),
+			new Among("commun", -1, -1, "", methodObject),
+			new Among("gener", -1, -1, "", methodObject)
+	};
+
+	private final static Among a_1[] = {
+			new Among("'", -1, 1, "", methodObject),
+			new Among("'s'", 0, 1, "", methodObject),
+			new Among("'s", -1, 1, "", methodObject)
+	};
+
+	private final static Among a_2[] = {
+			new Among("ied", -1, 2, "", methodObject),
+			new Among("s", -1, 3, "", methodObject),
+			new Among("ies", 1, 2, "", methodObject),
+			new Among("sses", 1, 1, "", methodObject),
+			new Among("ss", 1, -1, "", methodObject),
+			new Among("us", 1, -1, "", methodObject)
+	};
+
+	private final static Among a_3[] = {
+			new Among("", -1, 3, "", methodObject),
+			new Among("bb", 0, 2, "", methodObject),
+			new Among("dd", 0, 2, "", methodObject),
+			new Among("ff", 0, 2, "", methodObject),
+			new Among("gg", 0, 2, "", methodObject),
+			new Among("bl", 0, 1, "", methodObject),
+			new Among("mm", 0, 2, "", methodObject),
+			new Among("nn", 0, 2, "", methodObject),
+			new Among("pp", 0, 2, "", methodObject),
+			new Among("rr", 0, 2, "", methodObject),
+			new Among("at", 0, 1, "", methodObject),
+			new Among("tt", 0, 2, "", methodObject),
+			new Among("iz", 0, 1, "", methodObject)
+	};
+
+	private final static Among a_4[] = {
+			new Among("ed", -1, 2, "", methodObject),
+			new Among("eed", 0, 1, "", methodObject),
+			new Among("ing", -1, 2, "", methodObject),
+			new Among("edly", -1, 2, "", methodObject),
+			new Among("eedly", 3, 1, "", methodObject),
+			new Among("ingly", -1, 2, "", methodObject)
+	};
+
+	private final static Among a_5[] = {
+			new Among("anci", -1, 3, "", methodObject),
+			new Among("enci", -1, 2, "", methodObject),
+			new Among("ogi", -1, 13, "", methodObject),
+			new Among("li", -1, 16, "", methodObject),
+			new Among("bli", 3, 12, "", methodObject),
+			new Among("abli", 4, 4, "", methodObject),
+			new Among("alli", 3, 8, "", methodObject),
+			new Among("fulli", 3, 14, "", methodObject),
+			new Among("lessli", 3, 15, "", methodObject),
+			new Among("ousli", 3, 10, "", methodObject),
+			new Among("entli", 3, 5, "", methodObject),
+			new Among("aliti", -1, 8, "", methodObject),
+			new Among("biliti", -1, 12, "", methodObject),
+			new Among("iviti", -1, 11, "", methodObject),
+			new Among("tional", -1, 1, "", methodObject),
+			new Among("ational", 14, 7, "", methodObject),
+			new Among("alism", -1, 8, "", methodObject),
+			new Among("ation", -1, 7, "", methodObject),
+			new Among("ization", 17, 6, "", methodObject),
+			new Among("izer", -1, 6, "", methodObject),
+			new Among("ator", -1, 7, "", methodObject),
+			new Among("iveness", -1, 11, "", methodObject),
+			new Among("fulness", -1, 9, "", methodObject),
+			new Among("ousness", -1, 10, "", methodObject)
+	};
+
+	private final static Among a_6[] = {
+			new Among("icate", -1, 4, "", methodObject),
+			new Among("ative", -1, 6, "", methodObject),
+			new Among("alize", -1, 3, "", methodObject),
+			new Among("iciti", -1, 4, "", methodObject),
+			new Among("ical", -1, 4, "", methodObject),
+			new Among("tional", -1, 1, "", methodObject),
+			new Among("ational", 5, 2, "", methodObject),
+			new Among("ful", -1, 5, "", methodObject),
+			new Among("ness", -1, 5, "", methodObject)
+	};
+
+	private final static Among a_7[] = {
+			new Among("ic", -1, 1, "", methodObject),
+			new Among("ance", -1, 1, "", methodObject),
+			new Among("ence", -1, 1, "", methodObject),
+			new Among("able", -1, 1, "", methodObject),
+			new Among("ible", -1, 1, "", methodObject),
+			new Among("ate", -1, 1, "", methodObject),
+			new Among("ive", -1, 1, "", methodObject),
+			new Among("ize", -1, 1, "", methodObject),
+			new Among("iti", -1, 1, "", methodObject),
+			new Among("al", -1, 1, "", methodObject),
+			new Among("ism", -1, 1, "", methodObject),
+			new Among("ion", -1, 2, "", methodObject),
+			new Among("er", -1, 1, "", methodObject),
+			new Among("ous", -1, 1, "", methodObject),
+			new Among("ant", -1, 1, "", methodObject),
+			new Among("ent", -1, 1, "", methodObject),
+			new Among("ment", 15, 1, "", methodObject),
+			new Among("ement", 16, 1, "", methodObject)
+	};
+
+	private final static Among a_8[] = {
+			new Among("e", -1, 1, "", methodObject),
+			new Among("l", -1, 2, "", methodObject)
+	};
+
+	private final static Among a_9[] = {
+			new Among("succeed", -1, -1, "", methodObject),
+			new Among("proceed", -1, -1, "", methodObject),
+			new Among("exceed", -1, -1, "", methodObject),
+			new Among("canning", -1, -1, "", methodObject),
+			new Among("inning", -1, -1, "", methodObject),
+			new Among("earring", -1, -1, "", methodObject),
+			new Among("herring", -1, -1, "", methodObject),
+			new Among("outing", -1, -1, "", methodObject)
+	};
+
+	private final static Among a_10[] = {
+			new Among("andes", -1, -1, "", methodObject),
+			new Among("atlas", -1, -1, "", methodObject),
+			new Among("bias", -1, -1, "", methodObject),
+			new Among("cosmos", -1, -1, "", methodObject),
+			new Among("dying", -1, 3, "", methodObject),
+			new Among("early", -1, 9, "", methodObject),
+			new Among("gently", -1, 7, "", methodObject),
+			new Among("howe", -1, -1, "", methodObject),
+			new Among("idly", -1, 6, "", methodObject),
+			new Among("lying", -1, 4, "", methodObject),
+			new Among("news", -1, -1, "", methodObject),
+			new Among("only", -1, 10, "", methodObject),
+			new Among("singly", -1, 11, "", methodObject),
+			new Among("skies", -1, 2, "", methodObject),
+			new Among("skis", -1, 1, "", methodObject),
+			new Among("sky", -1, -1, "", methodObject),
+			new Among("tying", -1, 5, "", methodObject),
+			new Among("ugly", -1, 8, "", methodObject)
+	};
+
+	private static final char g_v[] = { 17, 65, 16, 1 };
+
+	private static final char g_v_WXY[] = { 1, 17, 65, 208, 1 };
+
+	private static final char g_valid_LI[] = { 55, 141, 2 };
+
+	private boolean B_Y_found;
+	private int I_p2, I_p1;
+
+	private boolean r_prelude() {
+		int v_1;
+		int v_2;
+		int v_3;
+		int v_4;
+		int v_5;
+		// (, line 25
+		// unset Y_found, line 26
+		B_Y_found = false;
+		// do, line 27
+		v_1 = cursor;
+		lab0: do {
+			// (, line 27
+			// [, line 27
+			bra = cursor;
+			// literal, line 27
+			if (!(eq_s(1, "'"))) {
+				break lab0;
+			}
+			// ], line 27
+			ket = cursor;
+			// delete, line 27
+			slice_del();
+		} while (false);
+		cursor = v_1;
+		// do, line 28
+		v_2 = cursor;
+		lab1: do {
+			// (, line 28
+			// [, line 28
+			bra = cursor;
+			// literal, line 28
+			if (!(eq_s(1, "y"))) {
+				break lab1;
+			}
+			// ], line 28
+			ket = cursor;
+			// <-, line 28
+			slice_from("Y");
+			// set Y_found, line 28
+			B_Y_found = true;
+		} while (false);
+		cursor = v_2;
+		// do, line 29
+		v_3 = cursor;
+
+		do {
+			// repeat, line 29
+			replab3: while (true) {
+				v_4 = cursor;
+				lab4: do {
+					// (, line 29
+					// goto, line 29
+					golab5: while (true) {
+						v_5 = cursor;
+						lab6: do {
+							// (, line 29
+							if (!(in_grouping(g_v, 97, 121))) {
+								break lab6;
+							}
+							// [, line 29
+							bra = cursor;
+							// literal, line 29
+							if (!(eq_s(1, "y"))) {
+								break lab6;
+							}
+							// ], line 29
+							ket = cursor;
+							cursor = v_5;
+							break golab5;
+						} while (false);
+						cursor = v_5;
+						if (cursor >= limit) {
+							break lab4;
+						}
+						cursor++;
+					}
+					// <-, line 29
+					slice_from("Y");
+					// set Y_found, line 29
+					B_Y_found = true;
+					continue replab3;
+				} while (false);
+				cursor = v_4;
+				break replab3;
+			}
+		} while (false);
+		cursor = v_3;
+		return true;
+	}
+
+	private boolean r_mark_regions() {
+		int v_1;
+		int v_2;
+		// (, line 32
+		I_p1 = limit;
+		I_p2 = limit;
+		// do, line 35
+		v_1 = cursor;
+		lab0: do {
+			// (, line 35
+			// or, line 41
+			lab1: do {
+				v_2 = cursor;
+				lab2: do {
+					// among, line 36
+					if (find_among(a_0, 3) == 0) {
+						break lab2;
+					}
+					break lab1;
+				} while (false);
+				cursor = v_2;
+				// (, line 41
+				// gopast, line 41
+				golab3: while (true) {
+					lab4: do {
+						if (!(in_grouping(g_v, 97, 121))) {
+							break lab4;
+						}
+						break golab3;
+					} while (false);
+					if (cursor >= limit) {
+						break lab0;
+					}
+					cursor++;
+				}
+				// gopast, line 41
+				golab5: while (true) {
+					lab6: do {
+						if (!(out_grouping(g_v, 97, 121))) {
+							break lab6;
+						}
+						break golab5;
+					} while (false);
+					if (cursor >= limit) {
+						break lab0;
+					}
+					cursor++;
+				}
+			} while (false);
+			// setmark p1, line 42
+			I_p1 = cursor;
+			// gopast, line 43
+			golab7: while (true) {
+				lab8: do {
+					if (!(in_grouping(g_v, 97, 121))) {
+						break lab8;
+					}
+					break golab7;
+				} while (false);
+				if (cursor >= limit) {
+					break lab0;
+				}
+				cursor++;
+			}
+			// gopast, line 43
+			golab9: while (true) {
+				lab10: do {
+					if (!(out_grouping(g_v, 97, 121))) {
+						break lab10;
+					}
+					break golab9;
+				} while (false);
+				if (cursor >= limit) {
+					break lab0;
+				}
+				cursor++;
+			}
+			// setmark p2, line 43
+			I_p2 = cursor;
+		} while (false);
+		cursor = v_1;
+		return true;
+	}
+
+	private boolean r_shortv() {
+		int v_1;
+		// (, line 49
+		// or, line 51
+		lab0: do {
+			v_1 = limit - cursor;
+			lab1: do {
+				// (, line 50
+				if (!(out_grouping_b(g_v_WXY, 89, 121))) {
+					break lab1;
+				}
+				if (!(in_grouping_b(g_v, 97, 121))) {
+					break lab1;
+				}
+				if (!(out_grouping_b(g_v, 97, 121))) {
+					break lab1;
+				}
+				break lab0;
+			} while (false);
+			cursor = limit - v_1;
+			// (, line 52
+			if (!(out_grouping_b(g_v, 97, 121))) {
+				return false;
+			}
+			if (!(in_grouping_b(g_v, 97, 121))) {
+				return false;
+			}
+			// atlimit, line 52
+			if (cursor > limitBw) {
+				return false;
+			}
+		} while (false);
+		return true;
+	}
+
+	private boolean r_R1() {
+		if (!(I_p1 <= cursor)) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean r_R2() {
+		if (!(I_p2 <= cursor)) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean r_Step_1a() {
+		int among_var;
+		int v_1;
+		int v_2;
+		// (, line 58
+		// try, line 59
+		v_1 = limit - cursor;
+		lab0: do {
+			// (, line 59
+			// [, line 60
+			ket = cursor;
+			// substring, line 60
+			among_var = find_among_b(a_1, 3);
+			if (among_var == 0) {
+				cursor = limit - v_1;
+				break lab0;
+			}
+			// ], line 60
+			bra = cursor;
+			switch (among_var) {
+			case 0:
+				cursor = limit - v_1;
+				break lab0;
+			case 1:
+				// (, line 62
+				// delete, line 62
+				slice_del();
+				break;
+			}
+		} while (false);
+		// [, line 65
+		ket = cursor;
+		// substring, line 65
+		among_var = find_among_b(a_2, 6);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 65
+		bra = cursor;
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 66
+			// <-, line 66
+			slice_from("ss");
+			break;
+		case 2:
+			// (, line 68
+			// or, line 68
+			lab1: do {
+				v_2 = limit - cursor;
+				lab2: do {
+					// (, line 68
+					// hop, line 68
+					{
+						int c = cursor - 2;
+						if (limitBw > c || c > limit) {
+							break lab2;
+						}
+						cursor = c;
+					}
+					// <-, line 68
+					slice_from("i");
+					break lab1;
+				} while (false);
+				cursor = limit - v_2;
+				// <-, line 68
+				slice_from("ie");
+			} while (false);
+			break;
+		case 3:
+			// (, line 69
+			// next, line 69
+			if (cursor <= limitBw) {
+				return false;
+			}
+			cursor--;
+			// gopast, line 69
+			golab3: while (true) {
+				lab4: do {
+					if (!(in_grouping_b(g_v, 97, 121))) {
+						break lab4;
+					}
+					break golab3;
+				} while (false);
+				if (cursor <= limitBw) {
+					return false;
+				}
+				cursor--;
+			}
+			// delete, line 69
+			slice_del();
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_Step_1b() {
+		int among_var;
+		int v_1;
+		int v_3;
+		int v_4;
+		// (, line 74
+		// [, line 75
+		ket = cursor;
+		// substring, line 75
+		among_var = find_among_b(a_4, 6);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 75
+		bra = cursor;
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 77
+			// call R1, line 77
+			if (!r_R1()) {
+				return false;
+			}
+			// <-, line 77
+			slice_from("ee");
+			break;
+		case 2:
+			// (, line 79
+			// test, line 80
+			v_1 = limit - cursor;
+			// gopast, line 80
+			golab0: while (true) {
+				lab1: do {
+					if (!(in_grouping_b(g_v, 97, 121))) {
+						break lab1;
+					}
+					break golab0;
+				} while (false);
+				if (cursor <= limitBw) {
+					return false;
+				}
+				cursor--;
+			}
+			cursor = limit - v_1;
+			// delete, line 80
+			slice_del();
+			// test, line 81
+			v_3 = limit - cursor;
+			// substring, line 81
+			among_var = find_among_b(a_3, 13);
+			if (among_var == 0) {
+				return false;
+			}
+			cursor = limit - v_3;
+			switch (among_var) {
+			case 0:
+				return false;
+			case 1:
+			// (, line 83
+			// <+, line 83
+			{
+				int c = cursor;
+				insert(cursor, cursor, "e");
+				cursor = c;
+			}
+				break;
+			case 2:
+				// (, line 86
+				// [, line 86
+				ket = cursor;
+				// next, line 86
+				if (cursor <= limitBw) {
+					return false;
+				}
+				cursor--;
+				// ], line 86
+				bra = cursor;
+				// delete, line 86
+				slice_del();
+				break;
+			case 3:
+				// (, line 87
+				// atmark, line 87
+				if (cursor != I_p1) {
+					return false;
+				}
+				// test, line 87
+				v_4 = limit - cursor;
+				// call shortv, line 87
+				if (!r_shortv()) {
+					return false;
+				}
+				cursor = limit - v_4;
+			// <+, line 87
+			{
+				int c = cursor;
+				insert(cursor, cursor, "e");
+				cursor = c;
+			}
+				break;
+			}
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_Step_1c() {
+		int v_1;
+		int v_2;
+		// (, line 93
+		// [, line 94
+		ket = cursor;
+		// or, line 94
+		lab0: do {
+			v_1 = limit - cursor;
+			lab1: do {
+				// literal, line 94
+				if (!(eq_s_b(1, "y"))) {
+					break lab1;
+				}
+				break lab0;
+			} while (false);
+			cursor = limit - v_1;
+			// literal, line 94
+			if (!(eq_s_b(1, "Y"))) {
+				return false;
+			}
+		} while (false);
+		// ], line 94
+		bra = cursor;
+		if (!(out_grouping_b(g_v, 97, 121))) {
+			return false;
+		}
+		// not, line 95
+		{
+			v_2 = limit - cursor;
+			lab2: do {
+				// atlimit, line 95
+				if (cursor > limitBw) {
+					break lab2;
+				}
+				return false;
+			} while (false);
+			cursor = limit - v_2;
+		}
+		// <-, line 96
+		slice_from("i");
+		return true;
+	}
+
+	private boolean r_Step_2() {
+		int among_var;
+		// (, line 99
+		// [, line 100
+		ket = cursor;
+		// substring, line 100
+		among_var = find_among_b(a_5, 24);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 100
+		bra = cursor;
+		// call R1, line 100
+		if (!r_R1()) {
+			return false;
+		}
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 101
+			// <-, line 101
+			slice_from("tion");
+			break;
+		case 2:
+			// (, line 102
+			// <-, line 102
+			slice_from("ence");
+			break;
+		case 3:
+			// (, line 103
+			// <-, line 103
+			slice_from("ance");
+			break;
+		case 4:
+			// (, line 104
+			// <-, line 104
+			slice_from("able");
+			break;
+		case 5:
+			// (, line 105
+			// <-, line 105
+			slice_from("ent");
+			break;
+		case 6:
+			// (, line 107
+			// <-, line 107
+			slice_from("ize");
+			break;
+		case 7:
+			// (, line 109
+			// <-, line 109
+			slice_from("ate");
+			break;
+		case 8:
+			// (, line 111
+			// <-, line 111
+			slice_from("al");
+			break;
+		case 9:
+			// (, line 112
+			// <-, line 112
+			slice_from("ful");
+			break;
+		case 10:
+			// (, line 114
+			// <-, line 114
+			slice_from("ous");
+			break;
+		case 11:
+			// (, line 116
+			// <-, line 116
+			slice_from("ive");
+			break;
+		case 12:
+			// (, line 118
+			// <-, line 118
+			slice_from("ble");
+			break;
+		case 13:
+			// (, line 119
+			// literal, line 119
+			if (!(eq_s_b(1, "l"))) {
+				return false;
+			}
+			// <-, line 119
+			slice_from("og");
+			break;
+		case 14:
+			// (, line 120
+			// <-, line 120
+			slice_from("ful");
+			break;
+		case 15:
+			// (, line 121
+			// <-, line 121
+			slice_from("less");
+			break;
+		case 16:
+			// (, line 122
+			if (!(in_grouping_b(g_valid_LI, 99, 116))) {
+				return false;
+			}
+			// delete, line 122
+			slice_del();
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_Step_3() {
+		int among_var;
+		// (, line 126
+		// [, line 127
+		ket = cursor;
+		// substring, line 127
+		among_var = find_among_b(a_6, 9);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 127
+		bra = cursor;
+		// call R1, line 127
+		if (!r_R1()) {
+			return false;
+		}
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 128
+			// <-, line 128
+			slice_from("tion");
+			break;
+		case 2:
+			// (, line 129
+			// <-, line 129
+			slice_from("ate");
+			break;
+		case 3:
+			// (, line 130
+			// <-, line 130
+			slice_from("al");
+			break;
+		case 4:
+			// (, line 132
+			// <-, line 132
+			slice_from("ic");
+			break;
+		case 5:
+			// (, line 134
+			// delete, line 134
+			slice_del();
+			break;
+		case 6:
+			// (, line 136
+			// call R2, line 136
+			if (!r_R2()) {
+				return false;
+			}
+			// delete, line 136
+			slice_del();
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_Step_4() {
+		int among_var;
+		int v_1;
+		// (, line 140
+		// [, line 141
+		ket = cursor;
+		// substring, line 141
+		among_var = find_among_b(a_7, 18);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 141
+		bra = cursor;
+		// call R2, line 141
+		if (!r_R2()) {
+			return false;
+		}
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 144
+			// delete, line 144
+			slice_del();
+			break;
+		case 2:
+			// (, line 145
+			// or, line 145
+			lab0: do {
+				v_1 = limit - cursor;
+				lab1: do {
+					// literal, line 145
+					if (!(eq_s_b(1, "s"))) {
+						break lab1;
+					}
+					break lab0;
+				} while (false);
+				cursor = limit - v_1;
+				// literal, line 145
+				if (!(eq_s_b(1, "t"))) {
+					return false;
+				}
+			} while (false);
+			// delete, line 145
+			slice_del();
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_Step_5() {
+		int among_var;
+		int v_1;
+		int v_2;
+		// (, line 149
+		// [, line 150
+		ket = cursor;
+		// substring, line 150
+		among_var = find_among_b(a_8, 2);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 150
+		bra = cursor;
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 151
+			// or, line 151
+			lab0: do {
+				v_1 = limit - cursor;
+				lab1: do {
+					// call R2, line 151
+					if (!r_R2()) {
+						break lab1;
+					}
+					break lab0;
+				} while (false);
+				cursor = limit - v_1;
+				// (, line 151
+				// call R1, line 151
+				if (!r_R1()) {
+					return false;
+				}
+				// not, line 151
+				{
+					v_2 = limit - cursor;
+					lab2: do {
+						// call shortv, line 151
+						if (!r_shortv()) {
+							break lab2;
+						}
+						return false;
+					} while (false);
+					cursor = limit - v_2;
+				}
+			} while (false);
+			// delete, line 151
+			slice_del();
+			break;
+		case 2:
+			// (, line 152
+			// call R2, line 152
+			if (!r_R2()) {
+				return false;
+			}
+			// literal, line 152
+			if (!(eq_s_b(1, "l"))) {
+				return false;
+			}
+			// delete, line 152
+			slice_del();
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_exception2() {
+		// (, line 156
+		// [, line 158
+		ket = cursor;
+		// substring, line 158
+		if (find_among_b(a_9, 8) == 0) {
+			return false;
+		}
+		// ], line 158
+		bra = cursor;
+		// atlimit, line 158
+		if (cursor > limitBw) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean r_exception1() {
+		int among_var;
+		// (, line 168
+		// [, line 170
+		bra = cursor;
+		// substring, line 170
+		among_var = find_among(a_10, 18);
+		if (among_var == 0) {
+			return false;
+		}
+		// ], line 170
+		ket = cursor;
+		// atlimit, line 170
+		if (cursor < limit) {
+			return false;
+		}
+		switch (among_var) {
+		case 0:
+			return false;
+		case 1:
+			// (, line 174
+			// <-, line 174
+			slice_from("ski");
+			break;
+		case 2:
+			// (, line 175
+			// <-, line 175
+			slice_from("sky");
+			break;
+		case 3:
+			// (, line 176
+			// <-, line 176
+			slice_from("die");
+			break;
+		case 4:
+			// (, line 177
+			// <-, line 177
+			slice_from("lie");
+			break;
+		case 5:
+			// (, line 178
+			// <-, line 178
+			slice_from("tie");
+			break;
+		case 6:
+			// (, line 182
+			// <-, line 182
+			slice_from("idl");
+			break;
+		case 7:
+			// (, line 183
+			// <-, line 183
+			slice_from("gentl");
+			break;
+		case 8:
+			// (, line 184
+			// <-, line 184
+			slice_from("ugli");
+			break;
+		case 9:
+			// (, line 185
+			// <-, line 185
+			slice_from("earli");
+			break;
+		case 10:
+			// (, line 186
+			// <-, line 186
+			slice_from("onli");
+			break;
+		case 11:
+			// (, line 187
+			// <-, line 187
+			slice_from("singl");
+			break;
+		}
+		return true;
+	}
+
+	private boolean r_postlude() {
+		int v_1;
+		int v_2;
+		// (, line 203
+		// Boolean test Y_found, line 203
+		if (!(B_Y_found)) {
+			return false;
+		}
+		// repeat, line 203
+		replab0: while (true) {
+			v_1 = cursor;
+			lab1: do {
+				// (, line 203
+				// goto, line 203
+				golab2: while (true) {
+					v_2 = cursor;
+					lab3: do {
+						// (, line 203
+						// [, line 203
+						bra = cursor;
+						// literal, line 203
+						if (!(eq_s(1, "Y"))) {
+							break lab3;
+						}
+						// ], line 203
+						ket = cursor;
+						cursor = v_2;
+						break golab2;
+					} while (false);
+					cursor = v_2;
+					if (cursor >= limit) {
+						break lab1;
+					}
+					cursor++;
+				}
+				// <-, line 203
+				slice_from("y");
+				continue replab0;
+			} while (false);
+			cursor = v_1;
+			break replab0;
+		}
+		return true;
+	}
+
+	public boolean stemImpl() {
+		int v_1;
+		int v_2;
+		int v_3;
+		int v_4;
+		int v_5;
+		int v_6;
+		int v_7;
+		int v_8;
+		int v_9;
+		int v_10;
+		int v_11;
+		int v_12;
+		int v_13;
+		// (, line 205
+		// or, line 207
+		lab0: do {
+			v_1 = cursor;
+			lab1: do {
+				// call exception1, line 207
+				if (!r_exception1()) {
+					break lab1;
+				}
+				break lab0;
+			} while (false);
+			cursor = v_1;
+			lab2: do {
+				// not, line 208
+				{
+					v_2 = cursor;
+					lab3: do {
+						// hop, line 208
+						{
+							int c = cursor + 3;
+							if (0 > c || c > limit) {
+								break lab3;
+							}
+							cursor = c;
+						}
+						break lab2;
+					} while (false);
+					cursor = v_2;
+				}
+				break lab0;
+			} while (false);
+			cursor = v_1;
+			// (, line 208
+			// do, line 209
+			v_3 = cursor;
+			lab4: do {
+				// call prelude, line 209
+				if (!r_prelude()) {
+					break lab4;
+				}
+			} while (false);
+			cursor = v_3;
+			// do, line 210
+			v_4 = cursor;
+			lab5: do {
+				// call mark_regions, line 210
+				if (!r_mark_regions()) {
+					break lab5;
+				}
+			} while (false);
+			cursor = v_4;
+			// backwards, line 211
+			limitBw = cursor;
+			cursor = limit;
+			// (, line 211
+			// do, line 213
+			v_5 = limit - cursor;
+			lab6: do {
+				// call Step_1a, line 213
+				if (!r_Step_1a()) {
+					break lab6;
+				}
+			} while (false);
+			cursor = limit - v_5;
+			// or, line 215
+			lab7: do {
+				v_6 = limit - cursor;
+				lab8: do {
+					// call exception2, line 215
+					if (!r_exception2()) {
+						break lab8;
+					}
+					break lab7;
+				} while (false);
+				cursor = limit - v_6;
+				// (, line 215
+				// do, line 217
+				v_7 = limit - cursor;
+				lab9: do {
+					// call Step_1b, line 217
+					if (!r_Step_1b()) {
+						break lab9;
+					}
+				} while (false);
+				cursor = limit - v_7;
+				// do, line 218
+				v_8 = limit - cursor;
+				lab10: do {
+					// call Step_1c, line 218
+					if (!r_Step_1c()) {
+						break lab10;
+					}
+				} while (false);
+				cursor = limit - v_8;
+				// do, line 220
+				v_9 = limit - cursor;
+				lab11: do {
+					// call Step_2, line 220
+					if (!r_Step_2()) {
+						break lab11;
+					}
+				} while (false);
+				cursor = limit - v_9;
+				// do, line 221
+				v_10 = limit - cursor;
+				lab12: do {
+					// call Step_3, line 221
+					if (!r_Step_3()) {
+						break lab12;
+					}
+				} while (false);
+				cursor = limit - v_10;
+				// do, line 222
+				v_11 = limit - cursor;
+				lab13: do {
+					// call Step_4, line 222
+					if (!r_Step_4()) {
+						break lab13;
+					}
+				} while (false);
+				cursor = limit - v_11;
+				// do, line 224
+				v_12 = limit - cursor;
+				lab14: do {
+					// call Step_5, line 224
+					if (!r_Step_5()) {
+						break lab14;
+					}
+				} while (false);
+				cursor = limit - v_12;
+			} while (false);
+			cursor = limitBw;                        // do, line 227
+			v_13 = cursor;
+			lab15: do {
+				// call postlude, line 227
+				if (!r_postlude()) {
+					break lab15;
+				}
+			} while (false);
+			cursor = v_13;
+		} while (false);
+		return true;
+	}
+
+	static class Among {
+		public Among(String s, int substring_i, int result,
+				String methodname, Stemmer methodobject) {
+			this.s_size = s.length();
+			this.s = s.toCharArray();
+			this.substring_i = substring_i;
+			this.result = result;
+			this.methodobject = methodobject;
+			if (methodname.length() == 0) {
+				this.method = null;
+			}
+			else {
+				try {
+					this.method = methodobject.getClass().getDeclaredMethod(methodname, new Class[0]);
+				} catch (NoSuchMethodException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		}
+
+		public final int s_size; /* search string */
+		public final char[] s; /* search string */
+		public final int substring_i; /* index to longest matching substring */
+		public final int result; /* result of the lookup */
+		public final Method method; /* method to use if substring matches */
+		public final Stemmer methodobject; /* object to invoke method on */
+	}
+
+	public static void main(String[] args) {
+		System.out.println(Stemmer.stem("abandoned"));
+	}
 }
