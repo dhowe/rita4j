@@ -1,8 +1,8 @@
 package rita;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
+/**
+ * Adapted from the Porter2/Snowball stemmer here: http://snowball.tartarus.org/algorithms/english/stemmer.html 
+ */
 public class Stemmer {
 
 	protected StringBuffer current;
@@ -19,7 +19,7 @@ public class Stemmer {
 		return s.current.toString();
 	}
 
-	public void setCurrent(String value) {
+	private void setCurrent(String value) {
 		current.replace(0, current.length(), value);
 		cursor = 0;
 		limit = current.length();
@@ -28,13 +28,7 @@ public class Stemmer {
 		ket = limit;
 	}
 
-	public String getCurrent() {
-		String result = current.toString();
-		current = new StringBuffer();
-		return result;
-	}
-
-	protected boolean in_grouping(char[] s, int min, int max) {
+	protected boolean inGrouping(char[] s, int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
 		if (ch > max || ch < min) return false;
@@ -44,7 +38,7 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean in_grouping_b(char[] s, int min, int max) {
+	protected boolean inGroupingB(char[] s, int min, int max) {
 		if (cursor <= limitBw) return false;
 		char ch = current.charAt(cursor - 1);
 		if (ch > max || ch < min) return false;
@@ -54,7 +48,7 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean out_grouping(char[] s, int min, int max) {
+	protected boolean outGrouping(char[] s, int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
 		if (ch > max || ch < min) {
@@ -69,7 +63,7 @@ public class Stemmer {
 		return false;
 	}
 
-	protected boolean out_grouping_b(char[] s, int min, int max) {
+	protected boolean outGroupingB(char[] s, int min, int max) {
 		if (cursor <= limitBw) return false;
 		char ch = current.charAt(cursor - 1);
 		if (ch > max || ch < min) {
@@ -84,7 +78,7 @@ public class Stemmer {
 		return false;
 	}
 
-	protected boolean in_range(int min, int max) {
+	protected boolean inRange(int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
 		if (ch > max || ch < min) return false;
@@ -92,7 +86,7 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean in_range_b(int min, int max) {
+	protected boolean inRangeB(int min, int max) {
 		if (cursor <= limitBw) return false;
 		char ch = current.charAt(cursor - 1);
 		if (ch > max || ch < min) return false;
@@ -100,7 +94,7 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean out_range(int min, int max) {
+	protected boolean outRange(int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
 		if (!(ch > max || ch < min)) return false;
@@ -108,7 +102,7 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean out_range_b(int min, int max) {
+	protected boolean outRangeB(int min, int max) {
 		if (cursor <= limitBw) return false;
 		char ch = current.charAt(cursor - 1);
 		if (!(ch > max || ch < min)) return false;
@@ -116,53 +110,53 @@ public class Stemmer {
 		return true;
 	}
 
-	protected boolean eq_s(int s_size, String s) {
-		if (limit - cursor < s_size) return false;
+	protected boolean eqS(int sSize, String s) {
+		if (limit - cursor < sSize) return false;
 		int i;
-		for (i = 0; i != s_size; i++) {
+		for (i = 0; i != sSize; i++) {
 			if (current.charAt(cursor + i) != s.charAt(i)) return false;
 		}
-		cursor += s_size;
+		cursor += sSize;
 		return true;
 	}
 
-	protected boolean eq_s_b(int s_size, String s) {
-		if (cursor - limitBw < s_size) return false;
+	protected boolean eqSB(int sSize, String s) {
+		if (cursor - limitBw < sSize) return false;
 		int i;
-		for (i = 0; i != s_size; i++) {
-			if (current.charAt(cursor - s_size + i) != s.charAt(i)) return false;
+		for (i = 0; i != sSize; i++) {
+			if (current.charAt(cursor - sSize + i) != s.charAt(i)) return false;
 		}
-		cursor -= s_size;
+		cursor -= sSize;
 		return true;
 	}
 
-	protected boolean eq_v(CharSequence s) {
-		return eq_s(s.length(), s.toString());
+	protected boolean eqV(CharSequence s) {
+		return eqS(s.length(), s.toString());
 	}
 
-	protected boolean eq_v_b(CharSequence s) {
-		return eq_s_b(s.length(), s.toString());
+	protected boolean eqVB(CharSequence s) {
+		return eqSB(s.length(), s.toString());
 	}
 
-	protected int find_among(Among v[], int v_size) {
+	protected int findAmong(Among v[], int vSize) {
 		int i = 0;
-		int j = v_size;
+		int j = vSize;
 
 		int c = cursor;
 		int l = limit;
 
-		int common_i = 0;
-		int common_j = 0;
+		int commonI = 0;
+		int commonJ = 0;
 
-		boolean first_key_inspected = false;
+		boolean firstKeyInspected = false;
 
 		while (true) {
 			int k = i + ((j - i) >> 1);
 			int diff = 0;
-			int common = common_i < common_j ? common_i : common_j; // smaller
+			int common = commonI < commonJ ? commonI : commonJ; // smaller
 			Among w = v[k];
 			int i2;
-			for (i2 = common; i2 < w.s_size; i2++) {
+			for (i2 = common; i2 < w.sSize; i2++) {
 				if (c + common == l) {
 					diff = -1;
 					break;
@@ -173,11 +167,11 @@ public class Stemmer {
 			}
 			if (diff < 0) {
 				j = k;
-				common_j = common;
+				commonJ = common;
 			}
 			else {
 				i = k;
-				common_i = common;
+				commonI = common;
 			}
 			if (j - i <= 1) {
 				if (i > 0) break; // v->s has been inspected
@@ -187,55 +181,41 @@ public class Stemmer {
 				// v->s inspected. This looks messy, but is actually
 				// the optimal approach.
 
-				if (first_key_inspected) break;
-				first_key_inspected = true;
+				if (firstKeyInspected) break;
+				firstKeyInspected = true;
 			}
 		}
 		while (true) {
 			Among w = v[i];
-			if (common_i >= w.s_size) {
-				cursor = c + w.s_size;
-				if (w.method == null) return w.result;
-				boolean res;
-				try {
-					Object resobj = w.method.invoke(w.methodobject,
-							new Object[0]);
-					res = resobj.toString().equals("true");
-				} catch (InvocationTargetException e) {
-					res = false;
-					// FIXME - debug message
-				} catch (IllegalAccessException e) {
-					res = false;
-					// FIXME - debug message
-				}
-				cursor = c + w.s_size;
-				if (res) return w.result;
+			if (commonI >= w.sSize) {
+				cursor = c + w.sSize;
+				return w.result;
 			}
-			i = w.substring_i;
+			i = w.substringI;
 			if (i < 0) return 0;
 		}
 	}
 
-	// find_among_b is for backwards processing. Same comments apply
-	protected int find_among_b(Among v[], int v_size) {
+	// findAmongB is for backwards processing. Same comments apply
+	protected int findAmongB(Among v[], int vSize) {
 		int i = 0;
-		int j = v_size;
+		int j = vSize;
 
 		int c = cursor;
 		int lb = limitBw;
 
-		int common_i = 0;
-		int common_j = 0;
+		int commonI = 0;
+		int commonJ = 0;
 
-		boolean first_key_inspected = false;
+		boolean firstKeyInspected = false;
 
 		while (true) {
 			int k = i + ((j - i) >> 1);
 			int diff = 0;
-			int common = common_i < common_j ? common_i : common_j;
+			int common = commonI < commonJ ? commonI : commonJ;
 			Among w = v[k];
 			int i2;
-			for (i2 = w.s_size - 1 - common; i2 >= 0; i2--) {
+			for (i2 = w.sSize - 1 - common; i2 >= 0; i2--) {
 				if (c - common == lb) {
 					diff = -1;
 					break;
@@ -246,58 +226,43 @@ public class Stemmer {
 			}
 			if (diff < 0) {
 				j = k;
-				common_j = common;
+				commonJ = common;
 			}
 			else {
 				i = k;
-				common_i = common;
+				commonI = common;
 			}
 			if (j - i <= 1) {
 				if (i > 0) break;
 				if (j == i) break;
-				if (first_key_inspected) break;
-				first_key_inspected = true;
+				if (firstKeyInspected) break;
+				firstKeyInspected = true;
 			}
 		}
 		while (true) {
 			Among w = v[i];
-			if (common_i >= w.s_size) {
-				cursor = c - w.s_size;
-				if (w.method == null) return w.result;
-
-				boolean res;
-				try {
-					Object resobj = w.method.invoke(w.methodobject,
-							new Object[0]);
-					res = resobj.toString().equals("true");
-				} catch (InvocationTargetException e) {
-					res = false;
-					// FIXME - debug message
-				} catch (IllegalAccessException e) {
-					res = false;
-					// FIXME - debug message
-				}
-				cursor = c - w.s_size;
-				if (res) return w.result;
+			if (commonI >= w.sSize) {
+				cursor = c - w.sSize;
+				return w.result;
 			}
-			i = w.substring_i;
+			i = w.substringI;
 			if (i < 0) return 0;
 		}
 	}
 
-	/* to replace chars between c_bra and c_ket in current by the
+	/* to replace chars between cBra and cKet in current by the
 	 * chars in s.
 	 */
-	protected int replace_s(int c_bra, int c_ket, String s) {
-		int adjustment = s.length() - (c_ket - c_bra);
-		current.replace(c_bra, c_ket, s);
+	protected int replaceS(int cBra, int cKet, String s) {
+		int adjustment = s.length() - (cKet - cBra);
+		current.replace(cBra, cKet, s);
 		limit += adjustment;
-		if (cursor >= c_ket) cursor += adjustment;
-		else if (cursor > c_bra) cursor = c_bra;
+		if (cursor >= cKet) cursor += adjustment;
+		else if (cursor > cBra) cursor = cBra;
 		return adjustment;
 	}
 
-	protected void slice_check() {
+	protected void sliceCheck() {
 		if (bra < 0 ||
 				bra > ket ||
 				ket > limit ||
@@ -313,216 +278,214 @@ public class Stemmer {
 		}
 	}
 
-	protected void slice_from(String s) {
-		slice_check();
-		replace_s(bra, ket, s);
+	protected void sliceFrom(String s) {
+		sliceCheck();
+		replaceS(bra, ket, s);
 	}
 
-	protected void slice_from(CharSequence s) {
-		slice_from(s.toString());
+	protected void sliceFrom(CharSequence s) {
+		sliceFrom(s.toString());
 	}
 
-	protected void slice_del() {
-		slice_from("");
+	protected void sliceDel() {
+		sliceFrom("");
 	}
 
-	protected void insert(int c_bra, int c_ket, String s) {
-		int adjustment = replace_s(c_bra, c_ket, s);
-		if (c_bra <= bra) bra += adjustment;
-		if (c_bra <= ket) ket += adjustment;
+	protected void insert(int cBra, int cKet, String s) {
+		int adjustment = replaceS(cBra, cKet, s);
+		if (cBra <= bra) bra += adjustment;
+		if (cBra <= ket) ket += adjustment;
 	}
 
-	protected void insert(int c_bra, int c_ket, CharSequence s) {
-		insert(c_bra, c_ket, s.toString());
+	protected void insert(int cBra, int cKet, CharSequence s) {
+		insert(cBra, cKet, s.toString());
 	}
 
 	/* Copy the slice into the supplied StringBuffer */
-	protected StringBuffer slice_to(StringBuffer s) {
-		slice_check();
+	protected StringBuffer sliceTo(StringBuffer s) {
+		sliceCheck();
 		s.replace(0, s.length(), current.substring(bra, ket));
 		return s;
 	}
 
 	/* Copy the slice into the supplied StringBuilder */
-	protected StringBuilder slice_to(StringBuilder s) {
-		slice_check();
+	protected StringBuilder sliceTo(StringBuilder s) {
+		sliceCheck();
 		s.replace(0, s.length(), current.substring(bra, ket));
 		return s;
 	}
 
-	protected StringBuffer assign_to(StringBuffer s) {
+	protected StringBuffer assignTo(StringBuffer s) {
 		s.replace(0, s.length(), current.substring(0, limit));
 		return s;
 	}
 
-	protected StringBuilder assign_to(StringBuilder s) {
+	protected StringBuilder assignTo(StringBuilder s) {
 		s.replace(0, s.length(), current.substring(0, limit));
 		return s;
 	}
-
-	private final static Stemmer methodObject = new Stemmer();
 
 	private final static Among a_0[] = {
-			new Among("arsen", -1, -1, "", methodObject),
-			new Among("commun", -1, -1, "", methodObject),
-			new Among("gener", -1, -1, "", methodObject)
+			new Among("arsen", -1, -1),
+			new Among("commun", -1, -1),
+			new Among("gener", -1, -1)
 	};
 
 	private final static Among a_1[] = {
-			new Among("'", -1, 1, "", methodObject),
-			new Among("'s'", 0, 1, "", methodObject),
-			new Among("'s", -1, 1, "", methodObject)
+			new Among("'", -1, 1),
+			new Among("'s'", 0, 1),
+			new Among("'s", -1, 1)
 	};
 
 	private final static Among a_2[] = {
-			new Among("ied", -1, 2, "", methodObject),
-			new Among("s", -1, 3, "", methodObject),
-			new Among("ies", 1, 2, "", methodObject),
-			new Among("sses", 1, 1, "", methodObject),
-			new Among("ss", 1, -1, "", methodObject),
-			new Among("us", 1, -1, "", methodObject)
+			new Among("ied", -1, 2),
+			new Among("s", -1, 3),
+			new Among("ies", 1, 2),
+			new Among("sses", 1, 1),
+			new Among("ss", 1, -1),
+			new Among("us", 1, -1)
 	};
 
 	private final static Among a_3[] = {
-			new Among("", -1, 3, "", methodObject),
-			new Among("bb", 0, 2, "", methodObject),
-			new Among("dd", 0, 2, "", methodObject),
-			new Among("ff", 0, 2, "", methodObject),
-			new Among("gg", 0, 2, "", methodObject),
-			new Among("bl", 0, 1, "", methodObject),
-			new Among("mm", 0, 2, "", methodObject),
-			new Among("nn", 0, 2, "", methodObject),
-			new Among("pp", 0, 2, "", methodObject),
-			new Among("rr", 0, 2, "", methodObject),
-			new Among("at", 0, 1, "", methodObject),
-			new Among("tt", 0, 2, "", methodObject),
-			new Among("iz", 0, 1, "", methodObject)
+			new Among("", -1, 3),
+			new Among("bb", 0, 2),
+			new Among("dd", 0, 2),
+			new Among("ff", 0, 2),
+			new Among("gg", 0, 2),
+			new Among("bl", 0, 1),
+			new Among("mm", 0, 2),
+			new Among("nn", 0, 2),
+			new Among("pp", 0, 2),
+			new Among("rr", 0, 2),
+			new Among("at", 0, 1),
+			new Among("tt", 0, 2),
+			new Among("iz", 0, 1)
 	};
 
 	private final static Among a_4[] = {
-			new Among("ed", -1, 2, "", methodObject),
-			new Among("eed", 0, 1, "", methodObject),
-			new Among("ing", -1, 2, "", methodObject),
-			new Among("edly", -1, 2, "", methodObject),
-			new Among("eedly", 3, 1, "", methodObject),
-			new Among("ingly", -1, 2, "", methodObject)
+			new Among("ed", -1, 2),
+			new Among("eed", 0, 1),
+			new Among("ing", -1, 2),
+			new Among("edly", -1, 2),
+			new Among("eedly", 3, 1),
+			new Among("ingly", -1, 2)
 	};
 
 	private final static Among a_5[] = {
-			new Among("anci", -1, 3, "", methodObject),
-			new Among("enci", -1, 2, "", methodObject),
-			new Among("ogi", -1, 13, "", methodObject),
-			new Among("li", -1, 16, "", methodObject),
-			new Among("bli", 3, 12, "", methodObject),
-			new Among("abli", 4, 4, "", methodObject),
-			new Among("alli", 3, 8, "", methodObject),
-			new Among("fulli", 3, 14, "", methodObject),
-			new Among("lessli", 3, 15, "", methodObject),
-			new Among("ousli", 3, 10, "", methodObject),
-			new Among("entli", 3, 5, "", methodObject),
-			new Among("aliti", -1, 8, "", methodObject),
-			new Among("biliti", -1, 12, "", methodObject),
-			new Among("iviti", -1, 11, "", methodObject),
-			new Among("tional", -1, 1, "", methodObject),
-			new Among("ational", 14, 7, "", methodObject),
-			new Among("alism", -1, 8, "", methodObject),
-			new Among("ation", -1, 7, "", methodObject),
-			new Among("ization", 17, 6, "", methodObject),
-			new Among("izer", -1, 6, "", methodObject),
-			new Among("ator", -1, 7, "", methodObject),
-			new Among("iveness", -1, 11, "", methodObject),
-			new Among("fulness", -1, 9, "", methodObject),
-			new Among("ousness", -1, 10, "", methodObject)
+			new Among("anci", -1, 3),
+			new Among("enci", -1, 2),
+			new Among("ogi", -1, 13),
+			new Among("li", -1, 16),
+			new Among("bli", 3, 12),
+			new Among("abli", 4, 4),
+			new Among("alli", 3, 8),
+			new Among("fulli", 3, 14),
+			new Among("lessli", 3, 15),
+			new Among("ousli", 3, 10),
+			new Among("entli", 3, 5),
+			new Among("aliti", -1, 8),
+			new Among("biliti", -1, 12),
+			new Among("iviti", -1, 11),
+			new Among("tional", -1, 1),
+			new Among("ational", 14, 7),
+			new Among("alism", -1, 8),
+			new Among("ation", -1, 7),
+			new Among("ization", 17, 6),
+			new Among("izer", -1, 6),
+			new Among("ator", -1, 7),
+			new Among("iveness", -1, 11),
+			new Among("fulness", -1, 9),
+			new Among("ousness", -1, 10)
 	};
 
 	private final static Among a_6[] = {
-			new Among("icate", -1, 4, "", methodObject),
-			new Among("ative", -1, 6, "", methodObject),
-			new Among("alize", -1, 3, "", methodObject),
-			new Among("iciti", -1, 4, "", methodObject),
-			new Among("ical", -1, 4, "", methodObject),
-			new Among("tional", -1, 1, "", methodObject),
-			new Among("ational", 5, 2, "", methodObject),
-			new Among("ful", -1, 5, "", methodObject),
-			new Among("ness", -1, 5, "", methodObject)
+			new Among("icate", -1, 4),
+			new Among("ative", -1, 6),
+			new Among("alize", -1, 3),
+			new Among("iciti", -1, 4),
+			new Among("ical", -1, 4),
+			new Among("tional", -1, 1),
+			new Among("ational", 5, 2),
+			new Among("ful", -1, 5),
+			new Among("ness", -1, 5)
 	};
 
 	private final static Among a_7[] = {
-			new Among("ic", -1, 1, "", methodObject),
-			new Among("ance", -1, 1, "", methodObject),
-			new Among("ence", -1, 1, "", methodObject),
-			new Among("able", -1, 1, "", methodObject),
-			new Among("ible", -1, 1, "", methodObject),
-			new Among("ate", -1, 1, "", methodObject),
-			new Among("ive", -1, 1, "", methodObject),
-			new Among("ize", -1, 1, "", methodObject),
-			new Among("iti", -1, 1, "", methodObject),
-			new Among("al", -1, 1, "", methodObject),
-			new Among("ism", -1, 1, "", methodObject),
-			new Among("ion", -1, 2, "", methodObject),
-			new Among("er", -1, 1, "", methodObject),
-			new Among("ous", -1, 1, "", methodObject),
-			new Among("ant", -1, 1, "", methodObject),
-			new Among("ent", -1, 1, "", methodObject),
-			new Among("ment", 15, 1, "", methodObject),
-			new Among("ement", 16, 1, "", methodObject)
+			new Among("ic", -1, 1),
+			new Among("ance", -1, 1),
+			new Among("ence", -1, 1),
+			new Among("able", -1, 1),
+			new Among("ible", -1, 1),
+			new Among("ate", -1, 1),
+			new Among("ive", -1, 1),
+			new Among("ize", -1, 1),
+			new Among("iti", -1, 1),
+			new Among("al", -1, 1),
+			new Among("ism", -1, 1),
+			new Among("ion", -1, 2),
+			new Among("er", -1, 1),
+			new Among("ous", -1, 1),
+			new Among("ant", -1, 1),
+			new Among("ent", -1, 1),
+			new Among("ment", 15, 1),
+			new Among("ement", 16, 1)
 	};
 
 	private final static Among a_8[] = {
-			new Among("e", -1, 1, "", methodObject),
-			new Among("l", -1, 2, "", methodObject)
+			new Among("e", -1, 1),
+			new Among("l", -1, 2)
 	};
 
 	private final static Among a_9[] = {
-			new Among("succeed", -1, -1, "", methodObject),
-			new Among("proceed", -1, -1, "", methodObject),
-			new Among("exceed", -1, -1, "", methodObject),
-			new Among("canning", -1, -1, "", methodObject),
-			new Among("inning", -1, -1, "", methodObject),
-			new Among("earring", -1, -1, "", methodObject),
-			new Among("herring", -1, -1, "", methodObject),
-			new Among("outing", -1, -1, "", methodObject)
+			new Among("succeed", -1, -1),
+			new Among("proceed", -1, -1),
+			new Among("exceed", -1, -1),
+			new Among("canning", -1, -1),
+			new Among("inning", -1, -1),
+			new Among("earring", -1, -1),
+			new Among("herring", -1, -1),
+			new Among("outing", -1, -1)
 	};
 
 	private final static Among a_10[] = {
-			new Among("andes", -1, -1, "", methodObject),
-			new Among("atlas", -1, -1, "", methodObject),
-			new Among("bias", -1, -1, "", methodObject),
-			new Among("cosmos", -1, -1, "", methodObject),
-			new Among("dying", -1, 3, "", methodObject),
-			new Among("early", -1, 9, "", methodObject),
-			new Among("gently", -1, 7, "", methodObject),
-			new Among("howe", -1, -1, "", methodObject),
-			new Among("idly", -1, 6, "", methodObject),
-			new Among("lying", -1, 4, "", methodObject),
-			new Among("news", -1, -1, "", methodObject),
-			new Among("only", -1, 10, "", methodObject),
-			new Among("singly", -1, 11, "", methodObject),
-			new Among("skies", -1, 2, "", methodObject),
-			new Among("skis", -1, 1, "", methodObject),
-			new Among("sky", -1, -1, "", methodObject),
-			new Among("tying", -1, 5, "", methodObject),
-			new Among("ugly", -1, 8, "", methodObject)
+			new Among("andes", -1, -1),
+			new Among("atlas", -1, -1),
+			new Among("bias", -1, -1),
+			new Among("cosmos", -1, -1),
+			new Among("dying", -1, 3),
+			new Among("early", -1, 9),
+			new Among("gently", -1, 7),
+			new Among("howe", -1, -1),
+			new Among("idly", -1, 6),
+			new Among("lying", -1, 4),
+			new Among("news", -1, -1),
+			new Among("only", -1, 10),
+			new Among("singly", -1, 11),
+			new Among("skies", -1, 2),
+			new Among("skis", -1, 1),
+			new Among("sky", -1, -1),
+			new Among("tying", -1, 5),
+			new Among("ugly", -1, 8)
 	};
 
-	private static final char g_v[] = { 17, 65, 16, 1 };
+	private static final char gV[] = { 17, 65, 16, 1 };
 
-	private static final char g_v_WXY[] = { 1, 17, 65, 208, 1 };
+	private static final char gV_WXY[] = { 1, 17, 65, 208, 1 };
 
-	private static final char g_valid_LI[] = { 55, 141, 2 };
+	private static final char gValid_LI[] = { 55, 141, 2 };
 
-	private boolean B_Y_found;
-	private int I_p2, I_p1;
+	private boolean B_YFound;
+	private int IP2, IP1;
 
-	private boolean r_prelude() {
+	private boolean rPrelude() {
 		int v_1;
 		int v_2;
 		int v_3;
 		int v_4;
 		int v_5;
 		// (, line 25
-		// unset Y_found, line 26
-		B_Y_found = false;
+		// unset YFound, line 26
+		B_YFound = false;
 		// do, line 27
 		v_1 = cursor;
 		lab0: do {
@@ -530,13 +493,13 @@ public class Stemmer {
 			// [, line 27
 			bra = cursor;
 			// literal, line 27
-			if (!(eq_s(1, "'"))) {
+			if (!(eqS(1, "'"))) {
 				break lab0;
 			}
 			// ], line 27
 			ket = cursor;
 			// delete, line 27
-			slice_del();
+			sliceDel();
 		} while (false);
 		cursor = v_1;
 		// do, line 28
@@ -546,15 +509,15 @@ public class Stemmer {
 			// [, line 28
 			bra = cursor;
 			// literal, line 28
-			if (!(eq_s(1, "y"))) {
+			if (!(eqS(1, "y"))) {
 				break lab1;
 			}
 			// ], line 28
 			ket = cursor;
 			// <-, line 28
-			slice_from("Y");
-			// set Y_found, line 28
-			B_Y_found = true;
+			sliceFrom("Y");
+			// set YFound, line 28
+			B_YFound = true;
 		} while (false);
 		cursor = v_2;
 		// do, line 29
@@ -571,13 +534,13 @@ public class Stemmer {
 						v_5 = cursor;
 						lab6: do {
 							// (, line 29
-							if (!(in_grouping(g_v, 97, 121))) {
+							if (!(inGrouping(gV, 97, 121))) {
 								break lab6;
 							}
 							// [, line 29
 							bra = cursor;
 							// literal, line 29
-							if (!(eq_s(1, "y"))) {
+							if (!(eqS(1, "y"))) {
 								break lab6;
 							}
 							// ], line 29
@@ -592,9 +555,9 @@ public class Stemmer {
 						cursor++;
 					}
 					// <-, line 29
-					slice_from("Y");
-					// set Y_found, line 29
-					B_Y_found = true;
+					sliceFrom("Y");
+					// set YFound, line 29
+					B_YFound = true;
 					continue replab3;
 				} while (false);
 				cursor = v_4;
@@ -605,12 +568,12 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_mark_regions() {
+	private boolean rMarkRegions() {
 		int v_1;
 		int v_2;
 		// (, line 32
-		I_p1 = limit;
-		I_p2 = limit;
+		IP1 = limit;
+		IP2 = limit;
 		// do, line 35
 		v_1 = cursor;
 		lab0: do {
@@ -620,7 +583,7 @@ public class Stemmer {
 				v_2 = cursor;
 				lab2: do {
 					// among, line 36
-					if (find_among(a_0, 3) == 0) {
+					if (findAmong(a_0, 3) == 0) {
 						break lab2;
 					}
 					break lab1;
@@ -630,7 +593,7 @@ public class Stemmer {
 				// gopast, line 41
 				golab3: while (true) {
 					lab4: do {
-						if (!(in_grouping(g_v, 97, 121))) {
+						if (!(inGrouping(gV, 97, 121))) {
 							break lab4;
 						}
 						break golab3;
@@ -643,7 +606,7 @@ public class Stemmer {
 				// gopast, line 41
 				golab5: while (true) {
 					lab6: do {
-						if (!(out_grouping(g_v, 97, 121))) {
+						if (!(outGrouping(gV, 97, 121))) {
 							break lab6;
 						}
 						break golab5;
@@ -655,11 +618,11 @@ public class Stemmer {
 				}
 			} while (false);
 			// setmark p1, line 42
-			I_p1 = cursor;
+			IP1 = cursor;
 			// gopast, line 43
 			golab7: while (true) {
 				lab8: do {
-					if (!(in_grouping(g_v, 97, 121))) {
+					if (!(inGrouping(gV, 97, 121))) {
 						break lab8;
 					}
 					break golab7;
@@ -672,7 +635,7 @@ public class Stemmer {
 			// gopast, line 43
 			golab9: while (true) {
 				lab10: do {
-					if (!(out_grouping(g_v, 97, 121))) {
+					if (!(outGrouping(gV, 97, 121))) {
 						break lab10;
 					}
 					break golab9;
@@ -683,13 +646,13 @@ public class Stemmer {
 				cursor++;
 			}
 			// setmark p2, line 43
-			I_p2 = cursor;
+			IP2 = cursor;
 		} while (false);
 		cursor = v_1;
 		return true;
 	}
 
-	private boolean r_shortv() {
+	private boolean rShortv() {
 		int v_1;
 		// (, line 49
 		// or, line 51
@@ -697,23 +660,23 @@ public class Stemmer {
 			v_1 = limit - cursor;
 			lab1: do {
 				// (, line 50
-				if (!(out_grouping_b(g_v_WXY, 89, 121))) {
+				if (!(outGroupingB(gV_WXY, 89, 121))) {
 					break lab1;
 				}
-				if (!(in_grouping_b(g_v, 97, 121))) {
+				if (!(inGroupingB(gV, 97, 121))) {
 					break lab1;
 				}
-				if (!(out_grouping_b(g_v, 97, 121))) {
+				if (!(outGroupingB(gV, 97, 121))) {
 					break lab1;
 				}
 				break lab0;
 			} while (false);
 			cursor = limit - v_1;
 			// (, line 52
-			if (!(out_grouping_b(g_v, 97, 121))) {
+			if (!(outGroupingB(gV, 97, 121))) {
 				return false;
 			}
-			if (!(in_grouping_b(g_v, 97, 121))) {
+			if (!(inGroupingB(gV, 97, 121))) {
 				return false;
 			}
 			// atlimit, line 52
@@ -725,21 +688,21 @@ public class Stemmer {
 	}
 
 	private boolean r_R1() {
-		if (!(I_p1 <= cursor)) {
+		if (!(IP1 <= cursor)) {
 			return false;
 		}
 		return true;
 	}
 
 	private boolean r_R2() {
-		if (!(I_p2 <= cursor)) {
+		if (!(IP2 <= cursor)) {
 			return false;
 		}
 		return true;
 	}
 
 	private boolean r_Step_1a() {
-		int among_var;
+		int amongVar;
 		int v_1;
 		int v_2;
 		// (, line 58
@@ -750,40 +713,40 @@ public class Stemmer {
 			// [, line 60
 			ket = cursor;
 			// substring, line 60
-			among_var = find_among_b(a_1, 3);
-			if (among_var == 0) {
+			amongVar = findAmongB(a_1, 3);
+			if (amongVar == 0) {
 				cursor = limit - v_1;
 				break lab0;
 			}
 			// ], line 60
 			bra = cursor;
-			switch (among_var) {
+			switch (amongVar) {
 			case 0:
 				cursor = limit - v_1;
 				break lab0;
 			case 1:
 				// (, line 62
 				// delete, line 62
-				slice_del();
+				sliceDel();
 				break;
 			}
 		} while (false);
 		// [, line 65
 		ket = cursor;
 		// substring, line 65
-		among_var = find_among_b(a_2, 6);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_2, 6);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 65
 		bra = cursor;
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
 			// (, line 66
 			// <-, line 66
-			slice_from("ss");
+			sliceFrom("ss");
 			break;
 		case 2:
 			// (, line 68
@@ -801,12 +764,12 @@ public class Stemmer {
 						cursor = c;
 					}
 					// <-, line 68
-					slice_from("i");
+					sliceFrom("i");
 					break lab1;
 				} while (false);
 				cursor = limit - v_2;
 				// <-, line 68
-				slice_from("ie");
+				sliceFrom("ie");
 			} while (false);
 			break;
 		case 3:
@@ -819,7 +782,7 @@ public class Stemmer {
 			// gopast, line 69
 			golab3: while (true) {
 				lab4: do {
-					if (!(in_grouping_b(g_v, 97, 121))) {
+					if (!(inGroupingB(gV, 97, 121))) {
 						break lab4;
 					}
 					break golab3;
@@ -830,14 +793,14 @@ public class Stemmer {
 				cursor--;
 			}
 			// delete, line 69
-			slice_del();
+			sliceDel();
 			break;
 		}
 		return true;
 	}
 
 	private boolean r_Step_1b() {
-		int among_var;
+		int amongVar;
 		int v_1;
 		int v_3;
 		int v_4;
@@ -845,13 +808,13 @@ public class Stemmer {
 		// [, line 75
 		ket = cursor;
 		// substring, line 75
-		among_var = find_among_b(a_4, 6);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_4, 6);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 75
 		bra = cursor;
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
@@ -861,7 +824,7 @@ public class Stemmer {
 				return false;
 			}
 			// <-, line 77
-			slice_from("ee");
+			sliceFrom("ee");
 			break;
 		case 2:
 			// (, line 79
@@ -870,7 +833,7 @@ public class Stemmer {
 			// gopast, line 80
 			golab0: while (true) {
 				lab1: do {
-					if (!(in_grouping_b(g_v, 97, 121))) {
+					if (!(inGroupingB(gV, 97, 121))) {
 						break lab1;
 					}
 					break golab0;
@@ -882,16 +845,16 @@ public class Stemmer {
 			}
 			cursor = limit - v_1;
 			// delete, line 80
-			slice_del();
+			sliceDel();
 			// test, line 81
 			v_3 = limit - cursor;
 			// substring, line 81
-			among_var = find_among_b(a_3, 13);
-			if (among_var == 0) {
+			amongVar = findAmongB(a_3, 13);
+			if (amongVar == 0) {
 				return false;
 			}
 			cursor = limit - v_3;
-			switch (among_var) {
+			switch (amongVar) {
 			case 0:
 				return false;
 			case 1:
@@ -915,18 +878,18 @@ public class Stemmer {
 				// ], line 86
 				bra = cursor;
 				// delete, line 86
-				slice_del();
+				sliceDel();
 				break;
 			case 3:
 				// (, line 87
 				// atmark, line 87
-				if (cursor != I_p1) {
+				if (cursor != IP1) {
 					return false;
 				}
 				// test, line 87
 				v_4 = limit - cursor;
 				// call shortv, line 87
-				if (!r_shortv()) {
+				if (!rShortv()) {
 					return false;
 				}
 				cursor = limit - v_4;
@@ -954,20 +917,20 @@ public class Stemmer {
 			v_1 = limit - cursor;
 			lab1: do {
 				// literal, line 94
-				if (!(eq_s_b(1, "y"))) {
+				if (!(eqSB(1, "y"))) {
 					break lab1;
 				}
 				break lab0;
 			} while (false);
 			cursor = limit - v_1;
 			// literal, line 94
-			if (!(eq_s_b(1, "Y"))) {
+			if (!(eqSB(1, "Y"))) {
 				return false;
 			}
 		} while (false);
 		// ], line 94
 		bra = cursor;
-		if (!(out_grouping_b(g_v, 97, 121))) {
+		if (!(outGroupingB(gV, 97, 121))) {
 			return false;
 		}
 		// not, line 95
@@ -983,18 +946,18 @@ public class Stemmer {
 			cursor = limit - v_2;
 		}
 		// <-, line 96
-		slice_from("i");
+		sliceFrom("i");
 		return true;
 	}
 
 	private boolean r_Step_2() {
-		int among_var;
+		int amongVar;
 		// (, line 99
 		// [, line 100
 		ket = cursor;
 		// substring, line 100
-		among_var = find_among_b(a_5, 24);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_5, 24);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 100
@@ -1003,108 +966,108 @@ public class Stemmer {
 		if (!r_R1()) {
 			return false;
 		}
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
 			// (, line 101
 			// <-, line 101
-			slice_from("tion");
+			sliceFrom("tion");
 			break;
 		case 2:
 			// (, line 102
 			// <-, line 102
-			slice_from("ence");
+			sliceFrom("ence");
 			break;
 		case 3:
 			// (, line 103
 			// <-, line 103
-			slice_from("ance");
+			sliceFrom("ance");
 			break;
 		case 4:
 			// (, line 104
 			// <-, line 104
-			slice_from("able");
+			sliceFrom("able");
 			break;
 		case 5:
 			// (, line 105
 			// <-, line 105
-			slice_from("ent");
+			sliceFrom("ent");
 			break;
 		case 6:
 			// (, line 107
 			// <-, line 107
-			slice_from("ize");
+			sliceFrom("ize");
 			break;
 		case 7:
 			// (, line 109
 			// <-, line 109
-			slice_from("ate");
+			sliceFrom("ate");
 			break;
 		case 8:
 			// (, line 111
 			// <-, line 111
-			slice_from("al");
+			sliceFrom("al");
 			break;
 		case 9:
 			// (, line 112
 			// <-, line 112
-			slice_from("ful");
+			sliceFrom("ful");
 			break;
 		case 10:
 			// (, line 114
 			// <-, line 114
-			slice_from("ous");
+			sliceFrom("ous");
 			break;
 		case 11:
 			// (, line 116
 			// <-, line 116
-			slice_from("ive");
+			sliceFrom("ive");
 			break;
 		case 12:
 			// (, line 118
 			// <-, line 118
-			slice_from("ble");
+			sliceFrom("ble");
 			break;
 		case 13:
 			// (, line 119
 			// literal, line 119
-			if (!(eq_s_b(1, "l"))) {
+			if (!(eqSB(1, "l"))) {
 				return false;
 			}
 			// <-, line 119
-			slice_from("og");
+			sliceFrom("og");
 			break;
 		case 14:
 			// (, line 120
 			// <-, line 120
-			slice_from("ful");
+			sliceFrom("ful");
 			break;
 		case 15:
 			// (, line 121
 			// <-, line 121
-			slice_from("less");
+			sliceFrom("less");
 			break;
 		case 16:
 			// (, line 122
-			if (!(in_grouping_b(g_valid_LI, 99, 116))) {
+			if (!(inGroupingB(gValid_LI, 99, 116))) {
 				return false;
 			}
 			// delete, line 122
-			slice_del();
+			sliceDel();
 			break;
 		}
 		return true;
 	}
 
 	private boolean r_Step_3() {
-		int among_var;
+		int amongVar;
 		// (, line 126
 		// [, line 127
 		ket = cursor;
 		// substring, line 127
-		among_var = find_among_b(a_6, 9);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_6, 9);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 127
@@ -1113,33 +1076,33 @@ public class Stemmer {
 		if (!r_R1()) {
 			return false;
 		}
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
 			// (, line 128
 			// <-, line 128
-			slice_from("tion");
+			sliceFrom("tion");
 			break;
 		case 2:
 			// (, line 129
 			// <-, line 129
-			slice_from("ate");
+			sliceFrom("ate");
 			break;
 		case 3:
 			// (, line 130
 			// <-, line 130
-			slice_from("al");
+			sliceFrom("al");
 			break;
 		case 4:
 			// (, line 132
 			// <-, line 132
-			slice_from("ic");
+			sliceFrom("ic");
 			break;
 		case 5:
 			// (, line 134
 			// delete, line 134
-			slice_del();
+			sliceDel();
 			break;
 		case 6:
 			// (, line 136
@@ -1148,21 +1111,21 @@ public class Stemmer {
 				return false;
 			}
 			// delete, line 136
-			slice_del();
+			sliceDel();
 			break;
 		}
 		return true;
 	}
 
 	private boolean r_Step_4() {
-		int among_var;
+		int amongVar;
 		int v_1;
 		// (, line 140
 		// [, line 141
 		ket = cursor;
 		// substring, line 141
-		among_var = find_among_b(a_7, 18);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_7, 18);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 141
@@ -1171,13 +1134,13 @@ public class Stemmer {
 		if (!r_R2()) {
 			return false;
 		}
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
 			// (, line 144
 			// delete, line 144
-			slice_del();
+			sliceDel();
 			break;
 		case 2:
 			// (, line 145
@@ -1186,39 +1149,39 @@ public class Stemmer {
 				v_1 = limit - cursor;
 				lab1: do {
 					// literal, line 145
-					if (!(eq_s_b(1, "s"))) {
+					if (!(eqSB(1, "s"))) {
 						break lab1;
 					}
 					break lab0;
 				} while (false);
 				cursor = limit - v_1;
 				// literal, line 145
-				if (!(eq_s_b(1, "t"))) {
+				if (!(eqSB(1, "t"))) {
 					return false;
 				}
 			} while (false);
 			// delete, line 145
-			slice_del();
+			sliceDel();
 			break;
 		}
 		return true;
 	}
 
 	private boolean r_Step_5() {
-		int among_var;
+		int amongVar;
 		int v_1;
 		int v_2;
 		// (, line 149
 		// [, line 150
 		ket = cursor;
 		// substring, line 150
-		among_var = find_among_b(a_8, 2);
-		if (among_var == 0) {
+		amongVar = findAmongB(a_8, 2);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 150
 		bra = cursor;
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
@@ -1244,7 +1207,7 @@ public class Stemmer {
 					v_2 = limit - cursor;
 					lab2: do {
 						// call shortv, line 151
-						if (!r_shortv()) {
+						if (!rShortv()) {
 							break lab2;
 						}
 						return false;
@@ -1253,7 +1216,7 @@ public class Stemmer {
 				}
 			} while (false);
 			// delete, line 151
-			slice_del();
+			sliceDel();
 			break;
 		case 2:
 			// (, line 152
@@ -1262,22 +1225,22 @@ public class Stemmer {
 				return false;
 			}
 			// literal, line 152
-			if (!(eq_s_b(1, "l"))) {
+			if (!(eqSB(1, "l"))) {
 				return false;
 			}
 			// delete, line 152
-			slice_del();
+			sliceDel();
 			break;
 		}
 		return true;
 	}
 
-	private boolean r_exception2() {
+	private boolean rException2() {
 		// (, line 156
 		// [, line 158
 		ket = cursor;
 		// substring, line 158
-		if (find_among_b(a_9, 8) == 0) {
+		if (findAmongB(a_9, 8) == 0) {
 			return false;
 		}
 		// ], line 158
@@ -1289,14 +1252,14 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_exception1() {
-		int among_var;
+	private boolean rException1() {
+		int amongVar;
 		// (, line 168
 		// [, line 170
 		bra = cursor;
 		// substring, line 170
-		among_var = find_among(a_10, 18);
-		if (among_var == 0) {
+		amongVar = findAmong(a_10, 18);
+		if (amongVar == 0) {
 			return false;
 		}
 		// ], line 170
@@ -1305,74 +1268,74 @@ public class Stemmer {
 		if (cursor < limit) {
 			return false;
 		}
-		switch (among_var) {
+		switch (amongVar) {
 		case 0:
 			return false;
 		case 1:
 			// (, line 174
 			// <-, line 174
-			slice_from("ski");
+			sliceFrom("ski");
 			break;
 		case 2:
 			// (, line 175
 			// <-, line 175
-			slice_from("sky");
+			sliceFrom("sky");
 			break;
 		case 3:
 			// (, line 176
 			// <-, line 176
-			slice_from("die");
+			sliceFrom("die");
 			break;
 		case 4:
 			// (, line 177
 			// <-, line 177
-			slice_from("lie");
+			sliceFrom("lie");
 			break;
 		case 5:
 			// (, line 178
 			// <-, line 178
-			slice_from("tie");
+			sliceFrom("tie");
 			break;
 		case 6:
 			// (, line 182
 			// <-, line 182
-			slice_from("idl");
+			sliceFrom("idl");
 			break;
 		case 7:
 			// (, line 183
 			// <-, line 183
-			slice_from("gentl");
+			sliceFrom("gentl");
 			break;
 		case 8:
 			// (, line 184
 			// <-, line 184
-			slice_from("ugli");
+			sliceFrom("ugli");
 			break;
 		case 9:
 			// (, line 185
 			// <-, line 185
-			slice_from("earli");
+			sliceFrom("earli");
 			break;
 		case 10:
 			// (, line 186
 			// <-, line 186
-			slice_from("onli");
+			sliceFrom("onli");
 			break;
 		case 11:
 			// (, line 187
 			// <-, line 187
-			slice_from("singl");
+			sliceFrom("singl");
 			break;
 		}
 		return true;
 	}
 
-	private boolean r_postlude() {
+	private boolean rPostlude() {
 		int v_1;
 		int v_2;
 		// (, line 203
-		// Boolean test Y_found, line 203
-		if (!(B_Y_found)) {
+		// Boolean test YFound, line 203
+		if (!(B_YFound)) {
 			return false;
 		}
 		// repeat, line 203
@@ -1388,7 +1351,7 @@ public class Stemmer {
 						// [, line 203
 						bra = cursor;
 						// literal, line 203
-						if (!(eq_s(1, "Y"))) {
+						if (!(eqS(1, "Y"))) {
 							break lab3;
 						}
 						// ], line 203
@@ -1403,7 +1366,7 @@ public class Stemmer {
 					cursor++;
 				}
 				// <-, line 203
-				slice_from("y");
+				sliceFrom("y");
 				continue replab0;
 			} while (false);
 			cursor = v_1;
@@ -1412,7 +1375,7 @@ public class Stemmer {
 		return true;
 	}
 
-	public boolean stemImpl() {
+	private boolean stemImpl() {
 		int v_1;
 		int v_2;
 		int v_3;
@@ -1432,7 +1395,7 @@ public class Stemmer {
 			v_1 = cursor;
 			lab1: do {
 				// call exception1, line 207
-				if (!r_exception1()) {
+				if (!rException1()) {
 					break lab1;
 				}
 				break lab0;
@@ -1463,7 +1426,7 @@ public class Stemmer {
 			v_3 = cursor;
 			lab4: do {
 				// call prelude, line 209
-				if (!r_prelude()) {
+				if (!rPrelude()) {
 					break lab4;
 				}
 			} while (false);
@@ -1471,8 +1434,8 @@ public class Stemmer {
 			// do, line 210
 			v_4 = cursor;
 			lab5: do {
-				// call mark_regions, line 210
-				if (!r_mark_regions()) {
+				// call markRegions, line 210
+				if (!rMarkRegions()) {
 					break lab5;
 				}
 			} while (false);
@@ -1495,7 +1458,7 @@ public class Stemmer {
 				v_6 = limit - cursor;
 				lab8: do {
 					// call exception2, line 215
-					if (!r_exception2()) {
+					if (!rException2()) {
 						break lab8;
 					}
 					break lab7;
@@ -1561,7 +1524,7 @@ public class Stemmer {
 			v_13 = cursor;
 			lab15: do {
 				// call postlude, line 227
-				if (!r_postlude()) {
+				if (!rPostlude()) {
 					break lab15;
 				}
 			} while (false);
@@ -1571,31 +1534,31 @@ public class Stemmer {
 	}
 
 	static class Among {
-		public Among(String s, int substring_i, int result,
-				String methodname, Stemmer methodobject) {
-			this.s_size = s.length();
+		private Among(String s, int substringI, int result) {
+				//String methodname, Stemmer methodTarget) {
+			this.sSize = s.length();
 			this.s = s.toCharArray();
-			this.substring_i = substring_i;
+			this.substringI = substringI;
 			this.result = result;
-			this.methodobject = methodobject;
-			if (methodname.length() == 0) {
-				this.method = null;
-			}
-			else {
-				try {
-					this.method = methodobject.getClass().getDeclaredMethod(methodname, new Class[0]);
-				} catch (NoSuchMethodException e) {
-					throw new RuntimeException(e);
-				}
-			}
+//			this.methodobject = methodTarget;
+//			if (methodname.length() == 0) {
+//				this.method = null;
+//			}
+//			else {
+//				try {
+//					this.method = methodTarget.getClass().getDeclaredMethod(methodname, new Class[0]);
+//				} catch (NoSuchMethodException e) {
+//					throw new RuntimeException(e);
+//				}
+//			}
 		}
 
-		public final int s_size; /* search string */
-		public final char[] s; /* search string */
-		public final int substring_i; /* index to longest matching substring */
-		public final int result; /* result of the lookup */
-		public final Method method; /* method to use if substring matches */
-		public final Stemmer methodobject; /* object to invoke method on */
+		private final int sSize; /* search string */
+		private final char[] s; /* search string */
+		private final int substringI; /* index to longest matching substring */
+		private final int result; /* result of the lookup */
+//		private final Method method; /* method to use if substring matches */
+//		private final Stemmer methodobject; /* object to invoke method on */
 	}
 
 	public static void main(String[] args) {
