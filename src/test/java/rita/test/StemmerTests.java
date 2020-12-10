@@ -6393,10 +6393,12 @@ public class StemmerTests {
 		
 		test("accompanying", "accompani");
 		test("malediction", "maledict");
-    test("softeners", "soften");
+	test("softeners", "soften");
+	test("write", "write");
+	test("writing", "write");
 	}
 
 	private void test(String test, String expected) {
-		assertEquals(RiTa.stem(test), expected);
+		assertEquals(expected,RiTa.stem(test));
 	}
 }
