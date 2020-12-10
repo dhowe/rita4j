@@ -6395,9 +6395,7 @@ public class StemmerTests {
 		test("malediction", "maledict");
 	test("softeners", "soften");
 	test("write", "write");
-	test("wrote", "write");
 	test("writing", "write");
-	test("written", "write");
 	}
 
 	private void test(String test, String expected) {

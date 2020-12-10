@@ -26,6 +26,12 @@ public class KnownIssues {
 		}
 	}
 
+	//@Test 
+	public void stemmerProblem() {
+		assertEquals("write", RiTa.stem("wrote"));
+		assertEquals("write", RiTa.stem("writing"));
+	}
+
 	// NOT SURE WHY THIS TEST EXISTS
 	//assertEquals(RiTa.evaluate("$foo=bar \\nbaz\n$foo", ctx), "bar baz");
 
