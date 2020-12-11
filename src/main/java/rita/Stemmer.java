@@ -7,181 +7,185 @@ package rita;
 public class Stemmer {
 
 	private final static Am a0[] = {
-			Am("arsen", -1, -1),
-			Am("commun", -1, -1),
-			Am("gener", -1, -1)
+			am("arsen", -1, -1),
+			am("commun", -1, -1),
+			am("gener", -1, -1)
 	};
 
 	private final static Am a1[] = {
-			Am("'", -1, 1),
-			Am("'s'", 0, 1),
-			Am("'s", -1, 1)
+			am("'", -1, 1),
+			am("'s'", 0, 1),
+			am("'s", -1, 1)
 	};
 
 	private final static Am a2[] = {
-			Am("ied", -1, 2),
-			Am("s", -1, 3),
-			Am("ies", 1, 2),
-			Am("sses", 1, 1),
-			Am("ss", 1, -1),
-			Am("us", 1, -1)
+			am("ied", -1, 2),
+			am("s", -1, 3),
+			am("ies", 1, 2),
+			am("sses", 1, 1),
+			am("ss", 1, -1),
+			am("us", 1, -1)
 	};
 
 	private final static Am a3[] = {
-			Am("", -1, 3),
-			Am("bb", 0, 2),
-			Am("dd", 0, 2),
-			Am("ff", 0, 2),
-			Am("gg", 0, 2),
-			Am("bl", 0, 1),
-			Am("mm", 0, 2),
-			Am("nn", 0, 2),
-			Am("pp", 0, 2),
-			Am("rr", 0, 2),
-			Am("at", 0, 1),
-			Am("tt", 0, 2),
-			Am("iz", 0, 1)
+			am("", -1, 3),
+			am("bb", 0, 2),
+			am("dd", 0, 2),
+			am("ff", 0, 2),
+			am("gg", 0, 2),
+			am("bl", 0, 1),
+			am("mm", 0, 2),
+			am("nn", 0, 2),
+			am("pp", 0, 2),
+			am("rr", 0, 2),
+			am("at", 0, 1),
+			am("tt", 0, 2),
+			am("iz", 0, 1)
 	};
 
 	private final static Am a4[] = {
-			Am("ed", -1, 2),
-			Am("eed", 0, 1),
-			Am("ing", -1, 2),
-			Am("edly", -1, 2),
-			Am("eedly", 3, 1),
-			Am("ingly", -1, 2)
+			am("ed", -1, 2),
+			am("eed", 0, 1),
+			am("ing", -1, 2),
+			am("edly", -1, 2),
+			am("eedly", 3, 1),
+			am("ingly", -1, 2)
 	};
 
 	private final static Am a5[] = {
-			Am("anci", -1, 3),
-			Am("enci", -1, 2),
-			Am("ogi", -1, 13),
-			Am("li", -1, 16),
-			Am("bli", 3, 12),
-			Am("abli", 4, 4),
-			Am("alli", 3, 8),
-			Am("fulli", 3, 14),
-			Am("lessli", 3, 15),
-			Am("ousli", 3, 10),
-			Am("entli", 3, 5),
-			Am("aliti", -1, 8),
-			Am("biliti", -1, 12),
-			Am("iviti", -1, 11),
-			Am("tional", -1, 1),
-			Am("ational", 14, 7),
-			Am("alism", -1, 8),
-			Am("ation", -1, 7),
-			Am("ization", 17, 6),
-			Am("izer", -1, 6),
-			Am("ator", -1, 7),
-			Am("iveness", -1, 11),
-			Am("fulness", -1, 9),
-			Am("ousness", -1, 10)
+			am("anci", -1, 3),
+			am("enci", -1, 2),
+			am("ogi", -1, 13),
+			am("li", -1, 16),
+			am("bli", 3, 12),
+			am("abli", 4, 4),
+			am("alli", 3, 8),
+			am("fulli", 3, 14),
+			am("lessli", 3, 15),
+			am("ousli", 3, 10),
+			am("entli", 3, 5),
+			am("aliti", -1, 8),
+			am("biliti", -1, 12),
+			am("iviti", -1, 11),
+			am("tional", -1, 1),
+			am("ational", 14, 7),
+			am("alism", -1, 8),
+			am("ation", -1, 7),
+			am("ization", 17, 6),
+			am("izer", -1, 6),
+			am("ator", -1, 7),
+			am("iveness", -1, 11),
+			am("fulness", -1, 9),
+			am("ousness", -1, 10)
 	};
 
 	private final static Am a6[] = {
-			Am("icate", -1, 4),
-			Am("ative", -1, 6),
-			Am("alize", -1, 3),
-			Am("iciti", -1, 4),
-			Am("ical", -1, 4),
-			Am("tional", -1, 1),
-			Am("ational", 5, 2),
-			Am("ful", -1, 5),
-			Am("ness", -1, 5)
+			am("icate", -1, 4),
+			am("ative", -1, 6),
+			am("alize", -1, 3),
+			am("iciti", -1, 4),
+			am("ical", -1, 4),
+			am("tional", -1, 1),
+			am("ational", 5, 2),
+			am("ful", -1, 5),
+			am("ness", -1, 5)
 	};
 
 	private final static Am a7[] = {
-			Am("ic", -1, 1),
-			Am("ance", -1, 1),
-			Am("ence", -1, 1),
-			Am("able", -1, 1),
-			Am("ible", -1, 1),
-			Am("ate", -1, 1),
-			Am("ive", -1, 1),
-			Am("ize", -1, 1),
-			Am("iti", -1, 1),
-			Am("al", -1, 1),
-			Am("ism", -1, 1),
-			Am("ion", -1, 2),
-			Am("er", -1, 1),
-			Am("ous", -1, 1),
-			Am("ant", -1, 1),
-			Am("ent", -1, 1),
-			Am("ment", 15, 1),
-			Am("ement", 16, 1)
+			am("ic", -1, 1),
+			am("ance", -1, 1),
+			am("ence", -1, 1),
+			am("able", -1, 1),
+			am("ible", -1, 1),
+			am("ate", -1, 1),
+			am("ive", -1, 1),
+			am("ize", -1, 1),
+			am("iti", -1, 1),
+			am("al", -1, 1),
+			am("ism", -1, 1),
+			am("ion", -1, 2),
+			am("er", -1, 1),
+			am("ous", -1, 1),
+			am("ant", -1, 1),
+			am("ent", -1, 1),
+			am("ment", 15, 1),
+			am("ement", 16, 1)
 	};
 
 	private final static Am a8[] = {
-			Am("e", -1, 1),
-			Am("l", -1, 2)
+			am("e", -1, 1),
+			am("l", -1, 2)
 	};
 
 	private final static Am a9[] = {
-			Am("succeed", -1, -1),
-			Am("proceed", -1, -1),
-			Am("exceed", -1, -1),
-			Am("canning", -1, -1),
-			Am("inning", -1, -1),
-			Am("earring", -1, -1),
-			Am("herring", -1, -1),
-			Am("outing", -1, -1)
+			am("succeed", -1, -1),
+			am("proceed", -1, -1),
+			am("exceed", -1, -1),
+			am("canning", -1, -1),
+			am("inning", -1, -1),
+			am("earring", -1, -1),
+			am("herring", -1, -1),
+			am("outing", -1, -1)
 	};
 
 	private final static Am a10[] = {
-			Am("andes", -1, -1),
-			Am("atlas", -1, -1),
-			Am("bias", -1, -1),
-			Am("cosmos", -1, -1),
-			Am("dying", -1, 3),
-			Am("early", -1, 9),
-			Am("gently", -1, 7),
-			Am("howe", -1, -1),
-			Am("idly", -1, 6),
-			Am("lying", -1, 4),
-			Am("news", -1, -1),
-			Am("only", -1, 10),
-			Am("singly", -1, 11),
-			Am("skies", -1, 2),
-			Am("skis", -1, 1),
-			Am("sky", -1, -1),
-			Am("tying", -1, 5),
-			Am("ugly", -1, 8)
+			am("andes", -1, -1),
+			am("atlas", -1, -1),
+			am("bias", -1, -1),
+			am("cosmos", -1, -1),
+			am("dying", -1, 3),
+			am("early", -1, 9),
+			am("gently", -1, 7),
+			am("howe", -1, -1),
+			am("idly", -1, 6),
+			am("lying", -1, 4),
+			am("news", -1, -1),
+			am("only", -1, 10),
+			am("singly", -1, 11),
+			am("skies", -1, 2),
+			am("skis", -1, 1),
+			am("sky", -1, -1),
+			am("tying", -1, 5),
+			am("ugly", -1, 8)
 	};
 
 	private static final char gV[] = { 17, 65, 16, 1 };
 	private static final char gVwXY[] = { 1, 17, 65, 208, 1 };
 	private static final char gValidLI[] = { 55, 141, 2 };
 
-	private boolean B_YFound;
+	private boolean bYFound;
 	private int ip1, ip2, cursor, limit, limitBw, bra, ket;
 	protected StringBuffer current;
 
-	private Stemmer() {
-		current = new StringBuffer();
-	}
+	//////////////////////// statics ////////////////////////
 
-	public static String stem(String str) {
-		Stemmer s = new Stemmer();
-		if (str.contains(" ")) {
-			return RiTa.untokenize(stem(RiTa.tokenize(str)));
-		}
-		return s._stem(str);
-	}
-	
-	protected String _stem(String word) {
-		setCurrent(word);
-		stemImpl();
-		return current.toString();
-	}
-	
-	public static String[] stem(String[] words) {
+	public static String[] stemAll(String[] words) {
 		Stemmer s = new Stemmer();
 		String[] out = new String[words.length];
 		for (int i = 0; i < words.length; i++) {
 			out[i] = s._stem(words[i]);
 		}
 		return out;
+	}
+
+	public static String stem(String str) {
+		Stemmer s = new Stemmer();
+		if (str.contains(" ")) {
+			return RiTa.untokenize(stemAll(RiTa.tokenize(str)));
+		}
+		return s._stem(str);
+	}
+
+	//////////////////////// members ////////////////////////
+
+	private Stemmer() {
+		current = new StringBuffer();
+	}
+
+	protected String _stem(String word) {
+		setCurrent(word);
+		stemImpl();
+		return current.toString();
 	}
 
 	private void setCurrent(String value) {
@@ -196,9 +200,23 @@ public class Stemmer {
 	protected boolean inGrouping(char[] s, int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
+		String sa = "["; 
+		for (char c : s) {
+			sa += ((int)c) + ",";
+		}
+		sa = sa.substring(0,sa.length()-1)+"]";
+		
+		console.log("inGrouping: "+sa+" min=" + min
+				+ ", max=" + max + ", ch='" + (ch == '\r' ? "\\r" : ch) + "'");
 		if (ch > max || ch < min) return false;
 		ch -= min;
-		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) return false;
+		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) {
+			//if (ch == '\r') ch = '\\r';//System.out.println("HIT");
+			//			console.log("inGrouping: '" + new String(s) + "' min=" + min + ", max=" + max
+			//					+ ", ch='" + (ch == '\r' ? "\\r" : ch) + "', '" + (ch == '\r' ? "\\r" : ch)
+			//					+ "'>>3=" + (ch >> 3) + " s[" + (ch >> 3) + "] ='" + s[ch >> 3] + "'");
+			return false;
+		}
 		cursor++;
 		return true;
 	}
@@ -276,10 +294,13 @@ public class Stemmer {
 	}
 
 	protected boolean eqS(int sSize, String s) {
+		console.log("eqS: " + sSize + "," + s + ", " + this.cursor);
 		if (limit - cursor < sSize) return false;
 		int i;
 		for (i = 0; i != sSize; i++) {
-			if (current.charAt(cursor + i) != s.charAt(i)) return false;
+			if (current.charAt(cursor + i) != s.charAt(i)) {
+				return false;
+			}
 		}
 		cursor += sSize;
 		return true;
@@ -418,7 +439,7 @@ public class Stemmer {
 				ket > limit ||
 				limit > current.length())   // this line could be removed
 		{
-			System.err.println("faulty slice operation");
+			throw new RuntimeException("faulty slice operation");
 			// FIXME: report error somehow.
 			/*
 			fprintf(stderr, "faulty slice operation:\n");
@@ -428,7 +449,12 @@ public class Stemmer {
 		}
 	}
 
+	public String toString() {
+		return "Stemmer[" + this.current + ", " + this.cursor + "]";
+	}
+
 	protected void sliceFrom(String s) {
+		if (1 == 1) throw new RuntimeException();
 		sliceCheck();
 		replaceS(bra, ket, s);
 	}
@@ -475,7 +501,6 @@ public class Stemmer {
 		return s;
 	}
 
-
 	private boolean rPrelude() {
 		int v_1;
 		int v_2;
@@ -484,7 +509,7 @@ public class Stemmer {
 		int v_5;
 		// (, line 25
 		// unset YFound, line 26
-		B_YFound = false;
+		bYFound = false;
 		// do, line 27
 		v_1 = cursor;
 		lab0: do {
@@ -516,7 +541,7 @@ public class Stemmer {
 			// <-, line 28
 			sliceFrom("Y");
 			// set YFound, line 28
-			B_YFound = true;
+			bYFound = true;
 		} while (false);
 		cursor = v_2;
 		// do, line 29
@@ -534,29 +559,36 @@ public class Stemmer {
 						lab6: do {
 							// (, line 29
 							if (!(inGrouping(gV, 97, 121))) {
+								console.log("break lab6.1, " + this.toString());
 								break lab6;
 							}
 							// [, line 29
 							bra = cursor;
 							// literal, line 29
 							if (!(eqS(1, "y"))) {
+								console.log("break lab6.2, " + this.toString());
+
 								break lab6;
 							}
+
 							// ], line 29
 							ket = cursor;
 							cursor = v_5;
 							break golab5;
 						} while (false);
+
 						cursor = v_5;
 						if (cursor >= limit) {
+
 							break lab4;
 						}
 						cursor++;
+						console.log(cursor);
 					}
 					// <-, line 29
 					sliceFrom("Y");
 					// set YFound, line 29
-					B_YFound = true;
+					bYFound = true;
 					continue replab3;
 				} while (false);
 				cursor = v_4;
@@ -700,7 +732,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_1a() {
+	private boolean step1a() {
 		int amongVar;
 		int v_1;
 		int v_2;
@@ -798,7 +830,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_1b() {
+	private boolean step1b() {
 		int amongVar;
 		int v_1;
 		int v_3;
@@ -905,7 +937,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_1c() {
+	private boolean step1c() {
 		int v_1;
 		int v_2;
 		// (, line 93
@@ -949,7 +981,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_2() {
+	private boolean step2() {
 		int amongVar;
 		// (, line 99
 		// [, line 100
@@ -1059,7 +1091,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_3() {
+	private boolean step3() {
 		int amongVar;
 		// (, line 126
 		// [, line 127
@@ -1116,7 +1148,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_4() {
+	private boolean step4() {
 		int amongVar;
 		int v_1;
 		// (, line 140
@@ -1166,7 +1198,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean r_Step_5() {
+	private boolean step5() {
 		int amongVar;
 		int v_1;
 		int v_2;
@@ -1334,7 +1366,7 @@ public class Stemmer {
 		int v_2;
 		// (, line 203
 		// Boolean test YFound, line 203
-		if (!(B_YFound)) {
+		if (!(bYFound)) {
 			return false;
 		}
 		// repeat, line 203
@@ -1375,6 +1407,7 @@ public class Stemmer {
 	}
 
 	private boolean stemImpl() {
+		System.out.println(this.toString());
 		int v_1;
 		int v_2;
 		int v_3;
@@ -1447,7 +1480,7 @@ public class Stemmer {
 			v_5 = limit - cursor;
 			lab6: do {
 				// call Step_1a, line 213
-				if (!r_Step_1a()) {
+				if (!step1a()) {
 					break lab6;
 				}
 			} while (false);
@@ -1468,7 +1501,7 @@ public class Stemmer {
 				v_7 = limit - cursor;
 				lab9: do {
 					// call Step_1b, line 217
-					if (!r_Step_1b()) {
+					if (!step1b()) {
 						break lab9;
 					}
 				} while (false);
@@ -1477,7 +1510,7 @@ public class Stemmer {
 				v_8 = limit - cursor;
 				lab10: do {
 					// call Step_1c, line 218
-					if (!r_Step_1c()) {
+					if (!step1c()) {
 						break lab10;
 					}
 				} while (false);
@@ -1486,7 +1519,7 @@ public class Stemmer {
 				v_9 = limit - cursor;
 				lab11: do {
 					// call Step_2, line 220
-					if (!r_Step_2()) {
+					if (!step2()) {
 						break lab11;
 					}
 				} while (false);
@@ -1495,7 +1528,7 @@ public class Stemmer {
 				v_10 = limit - cursor;
 				lab12: do {
 					// call Step_3, line 221
-					if (!r_Step_3()) {
+					if (!step3()) {
 						break lab12;
 					}
 				} while (false);
@@ -1504,7 +1537,7 @@ public class Stemmer {
 				v_11 = limit - cursor;
 				lab13: do {
 					// call Step_4, line 222
-					if (!r_Step_4()) {
+					if (!step4()) {
 						break lab13;
 					}
 				} while (false);
@@ -1513,7 +1546,7 @@ public class Stemmer {
 				v_12 = limit - cursor;
 				lab14: do {
 					// call Step_5, line 224
-					if (!r_Step_5()) {
+					if (!step5()) {
 						break lab14;
 					}
 				} while (false);
@@ -1529,13 +1562,14 @@ public class Stemmer {
 			} while (false);
 			cursor = v_13;
 		} while (false);
+
 		return true;
 	}
-	
-	private static Am Am(String s, int substringI, int result) {
+
+	private static Am am(String s, int substringI, int result) {
 		return new Am(s, substringI, result);
 	}
-	
+
 	static class Am {
 		private Am(String s, int substringI, int result) {
 			this.sSize = s.length();
@@ -1543,6 +1577,7 @@ public class Stemmer {
 			this.substringI = substringI;
 			this.result = result;
 		}
+
 		private final int sSize; /* search string */
 		private final char[] s; /* search string */
 		private final int substringI; /* index to longest matching substring */
