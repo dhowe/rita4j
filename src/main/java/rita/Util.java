@@ -294,6 +294,14 @@ public class Util {
 	public static final String strOpt(String key, Map<String, Object> opts, String def) {
 		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
 	}
+	
+	public static String[] strsOpt(String key, Map<String, Object> opts) {
+		return strsOpt(key, opts, null);
+	}
+	
+	public static String[] strsOpt(String key, Map<String, Object> opts, String[] def) {
+		return (opts != null) ? (String[]) opts.getOrDefault(key, def) : def;
+	}
 
 	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
 		return mapOpt(key, opts, null);// new HashMap<String, Object>());
@@ -471,4 +479,5 @@ public class Util {
 	public static void main(String[] args) {
 		System.out.println(syllablesFromPhones(new String[] { }));
 	}
+
 }

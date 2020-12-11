@@ -491,25 +491,16 @@ public class RiTaTests {
 
 	@Test
 	public void callConcordance() {
-		Map<String, String> data = RiTa.concordance("The dog ate the cat");
-		Set keys = data.keySet();
+	
+		Map<String, Integer> data = RiTa.concordance("The dog ate the cat");
+		Set<String> keys = data.keySet();
 		assertEquals(5, keys.size());
-		assertEquals("1", data.get("the"));
-		assertEquals("1", data.get("The"));
-		assertEquals("1", data.get("dog"));
+		assertEquals(1, data.get("the"));
+		assertEquals(1, data.get("The"));
+		assertEquals(1, data.get("dog"));
 
-		data = RiTa.concordance("The dog ate the cat", "dog");
-		keys = data.keySet();
-		assertEquals(1, keys.size());
-		assertEquals("dog", (String) keys.toArray()[0]);
-		assertEquals("1", data.get("dog"));
-
-		data = RiTa.concordance("The dog ate the cat", "pig");
-		keys = data.keySet();
-		assertEquals(1, keys.size());
-		assertEquals("pig", (String) keys.toArray()[0]);
-		assertEquals("0", data.get("pig"));
-
+		// TODO: use Util.boolOpt(), etc. for all options!
+		
 		Map<String, Object> defaultOpts = new HashMap<String, Object>();
 		defaultOpts.put("ignoreCase", false);
 		defaultOpts.put("ignoreStopWords", false);
@@ -517,41 +508,23 @@ public class RiTaTests {
 		data = RiTa.concordance("The dog ate the cat", defaultOpts);
 		keys = data.keySet();
 		assertEquals(5, keys.size());
-		assertEquals("1", data.get("the"));
-		assertEquals("1", data.get("The"));
-		assertEquals("1", data.get("dog"));
-
-		data = RiTa.concordance("The dog ate the cat", "dog", defaultOpts);
-		keys = data.keySet();
-		assertEquals(1, keys.size());
-		assertEquals("dog", (String) keys.toArray()[0]);
-		assertEquals("1", data.get("dog"));
+		assertEquals(1, data.get("the"));
+		assertEquals(1, data.get("The"));
+		assertEquals(1, data.get("dog"));
 
 		Map<String, Object> ignoreCase = new HashMap<String, Object>();
 		ignoreCase.put("ignoreCase", true);
 		data = RiTa.concordance("The dog ate the cat", ignoreCase);
 		keys = data.keySet();
 		assertEquals(4, keys.size());
-		assertEquals("2", data.get("the"));
+		assertEquals(2, data.get("the"));
 		assertEquals(null, data.get("The"));
 
 		data = RiTa.concordance("The dog ate the cat");
 		keys = data.keySet();
 		assertEquals(5, keys.size());
-		assertEquals("1", data.get("the"));
-		assertEquals("1", data.get("The"));
-
-		data = RiTa.concordance("The dog ate the cat", "The", ignoreCase);
-		keys = data.keySet();
-		assertEquals(1, keys.size());
-		assertEquals("The", keys.toArray()[0]);
-		assertEquals("0", data.get("The"));
-
-		data = RiTa.concordance("The dog ate the cat", "the", ignoreCase);
-		keys = data.keySet();
-		assertEquals(1, keys.size());
-		assertEquals("the", keys.toArray()[0]);
-		assertEquals("2", data.get("the"));
+		assertEquals(1, data.get("the"));
+		assertEquals(1, data.get("The"));
 
 		Map<String, Object> ignorePunc = new HashMap<String, Object>();
 		ignorePunc.put("ignorePunctuation", true);
@@ -564,16 +537,18 @@ public class RiTaTests {
 		ignoreStopW.put("ignoreStopWords", true);
 		data = RiTa.concordance("The dog ate the cat", ignoreStopW);
 		keys = data.keySet();
-		assertEquals(4, keys.size());
+		assertEquals(3, keys.size());
 		assertEquals(null, data.get("the"));
+		
 		ignoreStopW.clear();
 		ignoreStopW.put("wordsToIgnore", new String[] { "dog", "cat" });
 		data = RiTa.concordance("The dog ate the cat", ignoreStopW);
 		keys = data.keySet();
-		assertEquals(2, keys.size());
+		assertEquals(3, keys.size());
 		assertEquals(null, data.get("dog"));
 		assertEquals(null, data.get("cat"));
-		assertEquals("1", data.get("ate"));
+		assertEquals(1, data.get("ate"));
+		
 		ignoreStopW.clear();
 		ignoreStopW.put("ignoreStopWords", true);
 		ignoreStopW.put("ignoreCase", true);
@@ -590,7 +565,7 @@ public class RiTaTests {
 		data = RiTa.concordance("The Fresh fried fish, Fish fresh fried.", all);
 		keys = data.keySet();
 		assertEquals(2, keys.size());
-		assertEquals("2", data.get("fresh"));
+		assertEquals(2, data.get("fresh"));
 	}
 
 	@Test

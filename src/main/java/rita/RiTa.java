@@ -12,11 +12,6 @@ public class RiTa {
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
 
-	static {
-		concorder = new Concorder();
-		conjugator = new Conjugator();
-	}
-
 	//  UNCOMMENT IF/AS NEEDED:
 	//  protected static Tagger tagger;
 	//  protected static Pluralizer pluralizer;
@@ -56,21 +51,13 @@ public class RiTa {
 		return RiScript.articlize(s);
 	}
 
-	public static Map<String, String> concordance(String text) {
-		return concordance(text, null, null);
+	public static Map<String, Integer> concordance(String text) {
+		return concordance(text, null);
 	}
 
-	public static Map<String, String> concordance(String text, String word) {
-		return concordance(text, word, null);
-	}
-
-	public static Map<String, String> concordance(String text, Map<String, Object> opts) {
-		return concordance(text, null, opts);
-	}
-
-	public static Map<String, String> concordance(String text, String word, Map<String, Object> opts) //TODO
-	{
-		return concorder.concordance(text, word, opts);
+	public static Map<String, Integer> concordance(String text, Map<String, Object> opts) {
+		if (concorder == null) concorder = new Concorder();
+		return concorder.concordance(text, opts);
 	}
 
 	public static String conjugate(String word, Map<String, Object> opts) {
@@ -140,17 +127,21 @@ public class RiTa {
 		return _lexicon().isRhyme(word1, word2, useLTS);
 	}
 
+	public static boolean isStopWord(String word) {
+    return Arrays.asList(RiTa.STOP_WORDS).contains(word.toLowerCase());
+  }
+  
 	public static boolean isVerb(String word) {
 		return Tagger.isVerb(word);
 	}
 
-	public static String[] kwic(String text, String word) {
-		return concorder.kwic(text, word);
+	public static String[] kwic(String word) {
+		return kwic(word, null);
 	}
 
-	public static String[] kwic(String text, String word, Map<String, Object> opts) //parameter mismatch
-	{
-		return kwic(text, word);
+	public static String[] kwic(String word, Map<String, Object> opts) {
+		if (concorder == null) concorder = new Concorder();
+		return concorder.kwic(word, opts);
 	}
 
 	public static String pastParticiple(String verb) {
@@ -442,9 +433,9 @@ public class RiTa {
 	public static final int NORMAL = 9;
 	public static final int INFINITIVE = 1;
 	public static final int GERUND = 2;
-//	public static final int IMPERATIVE = 3;
-//	public static final int BARE_INFINITIVE = 4;
-//	public static final int SUBJUNCTIVE = 5;
+	//	public static final int IMPERATIVE = 3;
+	//	public static final int BARE_INFINITIVE = 4;
+	//	public static final int SUBJUNCTIVE = 5;
 
 	public static final String STRESS = "1";
 	public static final String NOSTRESS = "0";
