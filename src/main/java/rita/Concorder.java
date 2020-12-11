@@ -54,6 +54,10 @@ public class Concorder {
 			throw new RiTaException("Call concordance() first");
 		}
 
+		if (numWords == -1) {
+			numWords = 6;
+		}
+
 		List<String> result = new ArrayList<String>();
 		Map<String, Object> data = this.lookup(word);
 		if (data != null) {
@@ -66,7 +70,7 @@ public class Concorder {
 				}
 			}
 		}
-		return (String[]) result.toArray();
+		return (String[]) result.toArray(new String[result.size()]);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
