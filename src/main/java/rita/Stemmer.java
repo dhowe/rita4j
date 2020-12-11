@@ -207,7 +207,7 @@ public class Stemmer {
 		sa = sa.substring(0,sa.length()-1)+"]";
 		
 		console.log("inGrouping: "+sa+" min=" + min
-				+ ", max=" + max + ", ch='" + (ch == '\r' ? "\\r" : ch) + "'");
+				+ ", max=" + max + ", ch("+cursor+")='" + (int)(char)(ch == '\r' ? "\\r" : ch) + "'");
 		if (ch > max || ch < min) return false;
 		ch -= min;
 		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) {
@@ -454,7 +454,7 @@ public class Stemmer {
 	}
 
 	protected void sliceFrom(String s) {
-		if (1 == 1) throw new RuntimeException();
+		//if (1 == 1) throw new RuntimeException();
 		sliceCheck();
 		replaceS(bra, ket, s);
 	}
