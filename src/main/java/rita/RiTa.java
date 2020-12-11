@@ -139,6 +139,11 @@ public class RiTa {
 		return kwic(word, null);
 	}
 
+	public static String[] kwic(String word, int numWords) {
+		if (concorder == null) concorder = new Concorder();
+		return concorder.kwic(word, numWords);
+	}
+
 	public static String[] kwic(String word, Map<String, Object> opts) {
 		if (concorder == null) concorder = new Concorder();
 		return concorder.kwic(word, opts);
