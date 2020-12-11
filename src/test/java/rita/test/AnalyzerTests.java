@@ -29,6 +29,7 @@ public class AnalyzerTests {
 				"concerti", "concerto",
 				"septa", "septum",
 				"termini", "terminus",
+				"stimuli", "stimulus",
 				"larvae", "larva",
 				"vertebrae", "vertebra",
 				"memorabilia", "memorabilium",
@@ -216,7 +217,7 @@ public class AnalyzerTests {
 		String res1, res2;
 		boolean res3, dbug = false;
 		
-		// testPairs = new String[] {"milieux", "milieu"}; // test one
+		//testPairs = new String[] {"stimuli", "stimulus"}; // test one
 
 		for (int i = 0; i < testPairs.length; i += 2) {
 

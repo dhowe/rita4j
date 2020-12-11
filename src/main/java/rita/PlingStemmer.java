@@ -300,15 +300,18 @@ public class PlingStemmer {
 	}
 
 	public static boolean _checkPluralNoLex(String s) {
+		boolean res = false;
 		if (Arrays.asList(categoryUM_A).contains(s) ||
 				Arrays.asList(categoryON_A).contains(s) ||
 				Arrays.asList(categoryO_I).contains(s) ||
 				Arrays.asList(categoryUS_I).contains(s) ||
 				Arrays.asList(categoryIX_ICES).contains(s)) {
-			return true;
+			res = true;
 		}
-		int idx = Arrays.asList(categoryIRR).indexOf(s);
-		return (idx % 2 == 0) ? true : false;
+		res = res || (Arrays.asList(categoryIRR).indexOf(s) % 2 == 0);
+		//if (res) System.out.println("checkPlural: "+s+" "+res);
+		return res;
 	}
+	
 
 }

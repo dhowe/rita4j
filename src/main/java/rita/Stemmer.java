@@ -1,26 +1,191 @@
 package rita;
 
 /**
- * Adapted from the Porter2/Snowball stemmer here: http://snowball.tartarus.org/algorithms/english/stemmer.html 
+ * Adapted from the Porter2/Snowball stemmer here:
+ * http://snowball.tartarus.org/algorithms/english/stemmer.html
  */
 public class Stemmer {
 
+	private final static Am a0[] = {
+			Am("arsen", -1, -1),
+			Am("commun", -1, -1),
+			Am("gener", -1, -1)
+	};
+
+	private final static Am a1[] = {
+			Am("'", -1, 1),
+			Am("'s'", 0, 1),
+			Am("'s", -1, 1)
+	};
+
+	private final static Am a2[] = {
+			Am("ied", -1, 2),
+			Am("s", -1, 3),
+			Am("ies", 1, 2),
+			Am("sses", 1, 1),
+			Am("ss", 1, -1),
+			Am("us", 1, -1)
+	};
+
+	private final static Am a3[] = {
+			Am("", -1, 3),
+			Am("bb", 0, 2),
+			Am("dd", 0, 2),
+			Am("ff", 0, 2),
+			Am("gg", 0, 2),
+			Am("bl", 0, 1),
+			Am("mm", 0, 2),
+			Am("nn", 0, 2),
+			Am("pp", 0, 2),
+			Am("rr", 0, 2),
+			Am("at", 0, 1),
+			Am("tt", 0, 2),
+			Am("iz", 0, 1)
+	};
+
+	private final static Am a4[] = {
+			Am("ed", -1, 2),
+			Am("eed", 0, 1),
+			Am("ing", -1, 2),
+			Am("edly", -1, 2),
+			Am("eedly", 3, 1),
+			Am("ingly", -1, 2)
+	};
+
+	private final static Am a5[] = {
+			Am("anci", -1, 3),
+			Am("enci", -1, 2),
+			Am("ogi", -1, 13),
+			Am("li", -1, 16),
+			Am("bli", 3, 12),
+			Am("abli", 4, 4),
+			Am("alli", 3, 8),
+			Am("fulli", 3, 14),
+			Am("lessli", 3, 15),
+			Am("ousli", 3, 10),
+			Am("entli", 3, 5),
+			Am("aliti", -1, 8),
+			Am("biliti", -1, 12),
+			Am("iviti", -1, 11),
+			Am("tional", -1, 1),
+			Am("ational", 14, 7),
+			Am("alism", -1, 8),
+			Am("ation", -1, 7),
+			Am("ization", 17, 6),
+			Am("izer", -1, 6),
+			Am("ator", -1, 7),
+			Am("iveness", -1, 11),
+			Am("fulness", -1, 9),
+			Am("ousness", -1, 10)
+	};
+
+	private final static Am a6[] = {
+			Am("icate", -1, 4),
+			Am("ative", -1, 6),
+			Am("alize", -1, 3),
+			Am("iciti", -1, 4),
+			Am("ical", -1, 4),
+			Am("tional", -1, 1),
+			Am("ational", 5, 2),
+			Am("ful", -1, 5),
+			Am("ness", -1, 5)
+	};
+
+	private final static Am a7[] = {
+			Am("ic", -1, 1),
+			Am("ance", -1, 1),
+			Am("ence", -1, 1),
+			Am("able", -1, 1),
+			Am("ible", -1, 1),
+			Am("ate", -1, 1),
+			Am("ive", -1, 1),
+			Am("ize", -1, 1),
+			Am("iti", -1, 1),
+			Am("al", -1, 1),
+			Am("ism", -1, 1),
+			Am("ion", -1, 2),
+			Am("er", -1, 1),
+			Am("ous", -1, 1),
+			Am("ant", -1, 1),
+			Am("ent", -1, 1),
+			Am("ment", 15, 1),
+			Am("ement", 16, 1)
+	};
+
+	private final static Am a8[] = {
+			Am("e", -1, 1),
+			Am("l", -1, 2)
+	};
+
+	private final static Am a9[] = {
+			Am("succeed", -1, -1),
+			Am("proceed", -1, -1),
+			Am("exceed", -1, -1),
+			Am("canning", -1, -1),
+			Am("inning", -1, -1),
+			Am("earring", -1, -1),
+			Am("herring", -1, -1),
+			Am("outing", -1, -1)
+	};
+
+	private final static Am a10[] = {
+			Am("andes", -1, -1),
+			Am("atlas", -1, -1),
+			Am("bias", -1, -1),
+			Am("cosmos", -1, -1),
+			Am("dying", -1, 3),
+			Am("early", -1, 9),
+			Am("gently", -1, 7),
+			Am("howe", -1, -1),
+			Am("idly", -1, 6),
+			Am("lying", -1, 4),
+			Am("news", -1, -1),
+			Am("only", -1, 10),
+			Am("singly", -1, 11),
+			Am("skies", -1, 2),
+			Am("skis", -1, 1),
+			Am("sky", -1, -1),
+			Am("tying", -1, 5),
+			Am("ugly", -1, 8)
+	};
+
+	private static final char gV[] = { 17, 65, 16, 1 };
+	private static final char gVwXY[] = { 1, 17, 65, 208, 1 };
+	private static final char gValidLI[] = { 55, 141, 2 };
+
+	private boolean B_YFound;
+	private int ip1, ip2, cursor, limit, limitBw, bra, ket;
 	protected StringBuffer current;
-	protected int cursor, limit, limitBw, bra, ket;
 
 	private Stemmer() {
 		current = new StringBuffer();
 	}
 
-	public static String stem(String word) {
+	public static String stem(String str) {
 		Stemmer s = new Stemmer();
-		s.setCurrent(word);
-		s.stemImpl();
-		return s.current.toString();
+		if (str.contains(" ")) {
+			return RiTa.untokenize(stem(RiTa.tokenize(str)));
+		}
+		return s._stem(str);
+	}
+	
+	protected String _stem(String word) {
+		setCurrent(word);
+		stemImpl();
+		return current.toString();
+	}
+	
+	public static String[] stem(String[] words) {
+		Stemmer s = new Stemmer();
+		String[] out = new String[words.length];
+		for (int i = 0; i < words.length; i++) {
+			out[i] = s._stem(words[i]);
+		}
+		return out;
 	}
 
 	private void setCurrent(String value) {
-		current.replace(0, current.length(), value);
+		current = new StringBuffer(value);
 		cursor = 0;
 		limit = current.length();
 		limitBw = 0;
@@ -138,30 +303,22 @@ public class Stemmer {
 		return eqSB(s.length(), s.toString());
 	}
 
-	protected int findAmong(Among v[], int vSize) {
-		int i = 0;
-		int j = vSize;
-
-		int c = cursor;
-		int l = limit;
-
-		int commonI = 0;
-		int commonJ = 0;
+	protected int findAmong(Am v[], int vSize) {
+		int i = 0, j = vSize, c = cursor, l = limit;
+		int commonI = 0, commonJ = 0;
 
 		boolean firstKeyInspected = false;
 
 		while (true) {
 			int k = i + ((j - i) >> 1);
-			int diff = 0;
+			int i2, diff = 0;
 			int common = commonI < commonJ ? commonI : commonJ; // smaller
-			Among w = v[k];
-			int i2;
-			for (i2 = common; i2 < w.sSize; i2++) {
+			for (i2 = common; i2 < v[k].sSize; i2++) {
 				if (c + common == l) {
 					diff = -1;
 					break;
 				}
-				diff = current.charAt(c + common) - w.s[i2];
+				diff = current.charAt(c + common) - v[k].s[i2];
 				if (diff != 0) break;
 				common++;
 			}
@@ -186,7 +343,7 @@ public class Stemmer {
 			}
 		}
 		while (true) {
-			Among w = v[i];
+			Am w = v[i];
 			if (commonI >= w.sSize) {
 				cursor = c + w.sSize;
 				return w.result;
@@ -197,23 +354,16 @@ public class Stemmer {
 	}
 
 	// findAmongB is for backwards processing. Same comments apply
-	protected int findAmongB(Among v[], int vSize) {
-		int i = 0;
-		int j = vSize;
-
-		int c = cursor;
-		int lb = limitBw;
-
-		int commonI = 0;
-		int commonJ = 0;
-
+	protected int findAmongB(Am v[], int vSize) {
+		int i = 0, j = vSize, c = cursor, lb = limitBw;
+		int commonI = 0, commonJ = 0;
 		boolean firstKeyInspected = false;
 
 		while (true) {
 			int k = i + ((j - i) >> 1);
 			int diff = 0;
 			int common = commonI < commonJ ? commonI : commonJ;
-			Among w = v[k];
+			Am w = v[k];
 			int i2;
 			for (i2 = w.sSize - 1 - common; i2 >= 0; i2--) {
 				if (c - common == lb) {
@@ -240,7 +390,7 @@ public class Stemmer {
 			}
 		}
 		while (true) {
-			Among w = v[i];
+			Am w = v[i];
 			if (commonI >= w.sSize) {
 				cursor = c - w.sSize;
 				return w.result;
@@ -325,157 +475,6 @@ public class Stemmer {
 		return s;
 	}
 
-	private final static Among a_0[] = {
-			new Among("arsen", -1, -1),
-			new Among("commun", -1, -1),
-			new Among("gener", -1, -1)
-	};
-
-	private final static Among a_1[] = {
-			new Among("'", -1, 1),
-			new Among("'s'", 0, 1),
-			new Among("'s", -1, 1)
-	};
-
-	private final static Among a_2[] = {
-			new Among("ied", -1, 2),
-			new Among("s", -1, 3),
-			new Among("ies", 1, 2),
-			new Among("sses", 1, 1),
-			new Among("ss", 1, -1),
-			new Among("us", 1, -1)
-	};
-
-	private final static Among a_3[] = {
-			new Among("", -1, 3),
-			new Among("bb", 0, 2),
-			new Among("dd", 0, 2),
-			new Among("ff", 0, 2),
-			new Among("gg", 0, 2),
-			new Among("bl", 0, 1),
-			new Among("mm", 0, 2),
-			new Among("nn", 0, 2),
-			new Among("pp", 0, 2),
-			new Among("rr", 0, 2),
-			new Among("at", 0, 1),
-			new Among("tt", 0, 2),
-			new Among("iz", 0, 1)
-	};
-
-	private final static Among a_4[] = {
-			new Among("ed", -1, 2),
-			new Among("eed", 0, 1),
-			new Among("ing", -1, 2),
-			new Among("edly", -1, 2),
-			new Among("eedly", 3, 1),
-			new Among("ingly", -1, 2)
-	};
-
-	private final static Among a_5[] = {
-			new Among("anci", -1, 3),
-			new Among("enci", -1, 2),
-			new Among("ogi", -1, 13),
-			new Among("li", -1, 16),
-			new Among("bli", 3, 12),
-			new Among("abli", 4, 4),
-			new Among("alli", 3, 8),
-			new Among("fulli", 3, 14),
-			new Among("lessli", 3, 15),
-			new Among("ousli", 3, 10),
-			new Among("entli", 3, 5),
-			new Among("aliti", -1, 8),
-			new Among("biliti", -1, 12),
-			new Among("iviti", -1, 11),
-			new Among("tional", -1, 1),
-			new Among("ational", 14, 7),
-			new Among("alism", -1, 8),
-			new Among("ation", -1, 7),
-			new Among("ization", 17, 6),
-			new Among("izer", -1, 6),
-			new Among("ator", -1, 7),
-			new Among("iveness", -1, 11),
-			new Among("fulness", -1, 9),
-			new Among("ousness", -1, 10)
-	};
-
-	private final static Among a_6[] = {
-			new Among("icate", -1, 4),
-			new Among("ative", -1, 6),
-			new Among("alize", -1, 3),
-			new Among("iciti", -1, 4),
-			new Among("ical", -1, 4),
-			new Among("tional", -1, 1),
-			new Among("ational", 5, 2),
-			new Among("ful", -1, 5),
-			new Among("ness", -1, 5)
-	};
-
-	private final static Among a_7[] = {
-			new Among("ic", -1, 1),
-			new Among("ance", -1, 1),
-			new Among("ence", -1, 1),
-			new Among("able", -1, 1),
-			new Among("ible", -1, 1),
-			new Among("ate", -1, 1),
-			new Among("ive", -1, 1),
-			new Among("ize", -1, 1),
-			new Among("iti", -1, 1),
-			new Among("al", -1, 1),
-			new Among("ism", -1, 1),
-			new Among("ion", -1, 2),
-			new Among("er", -1, 1),
-			new Among("ous", -1, 1),
-			new Among("ant", -1, 1),
-			new Among("ent", -1, 1),
-			new Among("ment", 15, 1),
-			new Among("ement", 16, 1)
-	};
-
-	private final static Among a_8[] = {
-			new Among("e", -1, 1),
-			new Among("l", -1, 2)
-	};
-
-	private final static Among a_9[] = {
-			new Among("succeed", -1, -1),
-			new Among("proceed", -1, -1),
-			new Among("exceed", -1, -1),
-			new Among("canning", -1, -1),
-			new Among("inning", -1, -1),
-			new Among("earring", -1, -1),
-			new Among("herring", -1, -1),
-			new Among("outing", -1, -1)
-	};
-
-	private final static Among a_10[] = {
-			new Among("andes", -1, -1),
-			new Among("atlas", -1, -1),
-			new Among("bias", -1, -1),
-			new Among("cosmos", -1, -1),
-			new Among("dying", -1, 3),
-			new Among("early", -1, 9),
-			new Among("gently", -1, 7),
-			new Among("howe", -1, -1),
-			new Among("idly", -1, 6),
-			new Among("lying", -1, 4),
-			new Among("news", -1, -1),
-			new Among("only", -1, 10),
-			new Among("singly", -1, 11),
-			new Among("skies", -1, 2),
-			new Among("skis", -1, 1),
-			new Among("sky", -1, -1),
-			new Among("tying", -1, 5),
-			new Among("ugly", -1, 8)
-	};
-
-	private static final char gV[] = { 17, 65, 16, 1 };
-
-	private static final char gV_WXY[] = { 1, 17, 65, 208, 1 };
-
-	private static final char gValid_LI[] = { 55, 141, 2 };
-
-	private boolean B_YFound;
-	private int IP2, IP1;
 
 	private boolean rPrelude() {
 		int v_1;
@@ -572,8 +571,8 @@ public class Stemmer {
 		int v_1;
 		int v_2;
 		// (, line 32
-		IP1 = limit;
-		IP2 = limit;
+		ip1 = limit;
+		ip2 = limit;
 		// do, line 35
 		v_1 = cursor;
 		lab0: do {
@@ -583,7 +582,7 @@ public class Stemmer {
 				v_2 = cursor;
 				lab2: do {
 					// among, line 36
-					if (findAmong(a_0, 3) == 0) {
+					if (findAmong(a0, 3) == 0) {
 						break lab2;
 					}
 					break lab1;
@@ -618,7 +617,7 @@ public class Stemmer {
 				}
 			} while (false);
 			// setmark p1, line 42
-			IP1 = cursor;
+			ip1 = cursor;
 			// gopast, line 43
 			golab7: while (true) {
 				lab8: do {
@@ -646,7 +645,7 @@ public class Stemmer {
 				cursor++;
 			}
 			// setmark p2, line 43
-			IP2 = cursor;
+			ip2 = cursor;
 		} while (false);
 		cursor = v_1;
 		return true;
@@ -660,7 +659,7 @@ public class Stemmer {
 			v_1 = limit - cursor;
 			lab1: do {
 				// (, line 50
-				if (!(outGroupingB(gV_WXY, 89, 121))) {
+				if (!(outGroupingB(gVwXY, 89, 121))) {
 					break lab1;
 				}
 				if (!(inGroupingB(gV, 97, 121))) {
@@ -688,14 +687,14 @@ public class Stemmer {
 	}
 
 	private boolean r_R1() {
-		if (!(IP1 <= cursor)) {
+		if (!(ip1 <= cursor)) {
 			return false;
 		}
 		return true;
 	}
 
 	private boolean r_R2() {
-		if (!(IP2 <= cursor)) {
+		if (!(ip2 <= cursor)) {
 			return false;
 		}
 		return true;
@@ -713,7 +712,7 @@ public class Stemmer {
 			// [, line 60
 			ket = cursor;
 			// substring, line 60
-			amongVar = findAmongB(a_1, 3);
+			amongVar = findAmongB(a1, 3);
 			if (amongVar == 0) {
 				cursor = limit - v_1;
 				break lab0;
@@ -734,7 +733,7 @@ public class Stemmer {
 		// [, line 65
 		ket = cursor;
 		// substring, line 65
-		amongVar = findAmongB(a_2, 6);
+		amongVar = findAmongB(a2, 6);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -808,7 +807,7 @@ public class Stemmer {
 		// [, line 75
 		ket = cursor;
 		// substring, line 75
-		amongVar = findAmongB(a_4, 6);
+		amongVar = findAmongB(a4, 6);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -849,7 +848,7 @@ public class Stemmer {
 			// test, line 81
 			v_3 = limit - cursor;
 			// substring, line 81
-			amongVar = findAmongB(a_3, 13);
+			amongVar = findAmongB(a3, 13);
 			if (amongVar == 0) {
 				return false;
 			}
@@ -883,7 +882,7 @@ public class Stemmer {
 			case 3:
 				// (, line 87
 				// atmark, line 87
-				if (cursor != IP1) {
+				if (cursor != ip1) {
 					return false;
 				}
 				// test, line 87
@@ -956,7 +955,7 @@ public class Stemmer {
 		// [, line 100
 		ket = cursor;
 		// substring, line 100
-		amongVar = findAmongB(a_5, 24);
+		amongVar = findAmongB(a5, 24);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -1050,7 +1049,7 @@ public class Stemmer {
 			break;
 		case 16:
 			// (, line 122
-			if (!(inGroupingB(gValid_LI, 99, 116))) {
+			if (!(inGroupingB(gValidLI, 99, 116))) {
 				return false;
 			}
 			// delete, line 122
@@ -1066,7 +1065,7 @@ public class Stemmer {
 		// [, line 127
 		ket = cursor;
 		// substring, line 127
-		amongVar = findAmongB(a_6, 9);
+		amongVar = findAmongB(a6, 9);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -1124,7 +1123,7 @@ public class Stemmer {
 		// [, line 141
 		ket = cursor;
 		// substring, line 141
-		amongVar = findAmongB(a_7, 18);
+		amongVar = findAmongB(a7, 18);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -1175,7 +1174,7 @@ public class Stemmer {
 		// [, line 150
 		ket = cursor;
 		// substring, line 150
-		amongVar = findAmongB(a_8, 2);
+		amongVar = findAmongB(a8, 2);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -1240,7 +1239,7 @@ public class Stemmer {
 		// [, line 158
 		ket = cursor;
 		// substring, line 158
-		if (findAmongB(a_9, 8) == 0) {
+		if (findAmongB(a9, 8) == 0) {
 			return false;
 		}
 		// ], line 158
@@ -1258,7 +1257,7 @@ public class Stemmer {
 		// [, line 170
 		bra = cursor;
 		// substring, line 170
-		amongVar = findAmong(a_10, 18);
+		amongVar = findAmong(a10, 18);
 		if (amongVar == 0) {
 			return false;
 		}
@@ -1532,36 +1531,22 @@ public class Stemmer {
 		} while (false);
 		return true;
 	}
-
-	static class Among {
-		private Among(String s, int substringI, int result) {
-				//String methodname, Stemmer methodTarget) {
+	
+	private static Am Am(String s, int substringI, int result) {
+		return new Am(s, substringI, result);
+	}
+	
+	static class Am {
+		private Am(String s, int substringI, int result) {
 			this.sSize = s.length();
 			this.s = s.toCharArray();
 			this.substringI = substringI;
 			this.result = result;
-//			this.methodobject = methodTarget;
-//			if (methodname.length() == 0) {
-//				this.method = null;
-//			}
-//			else {
-//				try {
-//					this.method = methodTarget.getClass().getDeclaredMethod(methodname, new Class[0]);
-//				} catch (NoSuchMethodException e) {
-//					throw new RuntimeException(e);
-//				}
-//			}
 		}
-
 		private final int sSize; /* search string */
 		private final char[] s; /* search string */
 		private final int substringI; /* index to longest matching substring */
 		private final int result; /* result of the lookup */
-//		private final Method method; /* method to use if substring matches */
-//		private final Stemmer methodobject; /* object to invoke method on */
 	}
 
-	public static void main(String[] args) {
-		System.out.println(Stemmer.stem("abandoned"));
-	}
 }
