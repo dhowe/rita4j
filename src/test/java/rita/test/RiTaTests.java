@@ -569,6 +569,55 @@ public class RiTaTests {
 	}
 
 	@Test
+	public void callKwic(){
+		String[] result;
+		RiTa.concordance("A sentence includes cat.");
+		result = RiTa.kwic("cat");
+		assertEquals("A sentence includes cat.", result[0]);
+
+		RiTa.concordance("Cats are beautiful.");
+		result = RiTa.kwic("cat");
+		assertEquals(0, result.length);
+
+		RiTa.concordance("This is a very very long sentence includes cat with many many words after it and before it.");
+		result = RiTa.kwic("cat");
+		assertEquals("a very very long sentence includes cat with many many words after it", result[0]);
+
+		RiTa.concordance("A sentence includes cat in the middle. Another sentence includes cat in the middle.");
+		result = RiTa.kwic("cat");
+		assertEquals("A sentence includes cat in the middle. Another sentence", result[0]);
+		assertEquals("the middle. Another sentence includes cat in the middle.", result[1]);
+
+		RiTa.concordance("A sentence includes cat. Another sentence includes cat.");
+		result = RiTa.kwic("cat");
+		assertEquals(1, result.length);
+		assertEquals("A sentence includes cat. Another sentence includes cat.", result[0]);
+
+		RiTa.concordance("A sentence includes cat. Another sentence includes cat.");
+		result = RiTa.kwic("cat", 4);
+		assertEquals("A sentence includes cat. Another sentence includes", result[0]);
+		assertEquals(". Another sentence includes cat.", result[1]);
+
+		RiTa.concordance("The dog ate the cat, what a tragedy! Little Kali loves the cat, it was her best friend.");
+		result = RiTa.kwic("cat", 4);
+		assertEquals("The dog ate the cat, what a tragedy", result[0]);
+		assertEquals("Little Kali loves the cat, it was her", result[1]);
+
+		Map<String,Object> opts = new HashMap<String, Object>();
+		opts.put("numWords", 4);
+
+		RiTa.concordance("A sentence includes cat. Another sentence includes cat.");
+		result = RiTa.kwic("cat", opts);
+		assertEquals("A sentence includes cat. Another sentence includes", result[0]);
+		assertEquals(". Another sentence includes cat.", result[1]);
+
+		RiTa.concordance("The dog ate the cat, what a tragedy! Little Kali loves the cat, it was her best friend.");
+		result = RiTa.kwic("cat", opts);
+		assertEquals("The dog ate the cat, what a tragedy", result[0]);
+		assertEquals("Little Kali loves the cat, it was her", result[1]);
+	}
+
+	@Test
 	public void callSentences() {
 		assertArrayEquals(new String[] { "" }, RiTa.sentences(""));
 		String[] input = {
