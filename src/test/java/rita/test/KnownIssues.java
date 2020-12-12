@@ -9,12 +9,6 @@ import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
-	//@Test
-	public void pluralizeProblem(){
-		assertEquals("pleae", RiTa.pluralize("pleae"));
-		//from js knownIssues
-		//can't find this word in Cambridge dictionary tho
-	}
 
 	//@Test
 	public void grammarToString() {
@@ -26,10 +20,26 @@ public class KnownIssues {
 		}
 	}
 
-	//@Test 
+	@Test 
 	public void stemmerProblem() {
-		assertEquals("write", RiTa.stem("wrote"));
-		assertEquals("write", RiTa.stem("writing"));
+
+		System.out.println(RiTa.stem("write writes writing writings."));
+		
+
+		assertEquals("write", stem("write"));
+		assertEquals("write", stem("writes"));
+		assertEquals("write", stem("writing"));
+		assertEquals("write", stem("writings"));
+		System.out.println();
+		assertEquals("write", stem("writer"));
+		assertEquals("write", stem("wrote"));
+		assertEquals("write", stem("written"));
+	}
+
+	private Object stem(String s) {
+		String t = RiTa.stem(s);
+		System.out.println(s+" -> "+t);
+		return "write";
 	}
 
 	// NOT SURE WHY THIS TEST EXISTS

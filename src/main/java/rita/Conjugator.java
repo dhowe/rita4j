@@ -9,10 +9,17 @@ public class Conjugator {
 	private static final String VERBAL_PREFIX = "((be|with|pre|un|over|re|mis|under|out|up|fore|for|counter|co|sub)(-?))";
 	private static final String[] MODALS = { "shall", "would", "may", "might", "ought", "should" };
 
-	private static final RE[] ING_FORM_RULES = { new RE(CONS + "ie$", 2, "ying", 1), new RE("[^ie]e$", 1, "ing", 1),
-			new RE("^bog-down$", 5, "ging-down", 0), new RE("^chivy$", 1, "vying", 0), new RE("^trek$", 1, "cking", 0),
-			new RE("^bring$", 0, "ing", 0), new RE("^be$", 0, "ing", 0), new RE("^age$", 1, "ing", 0),
-			new RE("(ibe)$", 1, "ing", 0) };
+	private static final RE[] ING_FORM_RULES = {
+			new RE(CONS + "ie$", 2, "ying", 1),
+			new RE("[^ie]e$", 1, "ing", 1),
+			new RE("^bog-down$", 5, "ging-down", 0),
+			new RE("^chivy$", 1, "vying", 0),
+			new RE("^trek$", 1, "cking", 0),
+			new RE("^bring$", 0, "ing", 0),
+			new RE("^be$", 0, "ing", 0),
+			new RE("^age$", 1, "ing", 0),
+			new RE("(ibe)$", 1, "ing", 0)
+	};
 
 	private static final RE[] PAST_PARTICIPLE_RULES = {
 
@@ -338,53 +345,25 @@ public class Conjugator {
 		PRESENT_TENSE_RULESET.put("doubling", false);
 	}
 
-	private static boolean perfect = false;
-	private static boolean progressive = false;
-	private static boolean passive = false;
-	private static boolean interrogative = false;
-	private static int tense = RiTa.PRESENT;
-	private static int person = RiTa.FIRST;
-	private static int number = RiTa.SINGULAR;
-	private static int form = RiTa.NORMAL;
-
-	public static void reset() {
-		perfect = false;
-		progressive = false;
-		passive = false;
-		interrogative = false;
-		tense = RiTa.PRESENT;
-		person = RiTa.FIRST;
-		number = RiTa.SINGULAR;
-		form = RiTa.NORMAL;
-	}
 
 	public static String conjugate(String verb, Map<String, Object> opts) {
-		if (verb == null) {
-			throw new RiTaException("conjugate requires a verb");
-		}
-		if (opts == null || opts.size() == 0 || verb.length() == 0)
+		
+		if (verb == null) throw new RiTaException("conjugate requires a verb");
+		
+		if (opts == null || opts.size() == 0 || verb.length() == 0) {
 			return verb;
-
-		reset();
-
-		// TODO: use Util.boolOpt/intOpt here
-		if (opts.containsKey("number"))
-			number = (int) opts.get("number");
-		if (opts.containsKey("person"))
-			person = (int) opts.get("person");
-		if (opts.containsKey("tense"))
-			tense = (int) opts.get("tense");
-		if (opts.containsKey("form"))
-			form = (int) opts.get("form");
-		if (opts.containsKey("passive"))
-			passive = (boolean) opts.get("passive");
-		if (opts.containsKey("progressive"))
-			progressive = (boolean) opts.get("progressive");
-		if (opts.containsKey("interrogative"))
-			interrogative = (boolean) opts.get("interrogative");
-		if (opts.containsKey("perfect"))
-			perfect = (boolean) opts.get("perfect");
-
+		}
+		
+		int number = Util.intOpt("number", opts, RiTa.SINGULAR);
+		int person = Util.intOpt("person", opts, RiTa.FIRST);
+		int tense = Util.intOpt("tense", opts, RiTa.PRESENT);
+		int form = Util.intOpt("form", opts, RiTa.NORMAL);
+		
+		boolean perfect = Util.boolOpt("perfect", opts);
+		boolean passive = Util.boolOpt("passive", opts);
+		boolean progressive = Util.boolOpt("progressive", opts);
+		boolean interrogative = Util.boolOpt("interrogative", opts);
+		
 		// ----------------------- start --------------------------
 
 		String v = verb.toLowerCase(); // handle to-be forms
@@ -433,10 +412,12 @@ public class Conjugator {
 
 				// !@# not yet implemented! ??? WHAT?
 				conjs.add(pp);
-			} else if (interrogative && !frontVG.equals("be") && conjs.size() < 1) {
+			}
+			else if (interrogative && !frontVG.equals("be") && conjs.size() < 1) {
 
 				conjs.add(frontVG);
-			} else {
+			}
+			else {
 
 				verbForm = verbForm(frontVG, tense, person, number);
 				conjs.add(verbForm);
@@ -527,33 +508,33 @@ public class Conjugator {
 
 		return checkRules(PAST_TENSE_RULESET, theVerb);
 	}
-
-	public static String presentTense(String theVerb, int per, int numb) {
-
-		person = per;
-		number = numb;
+	
+	public static String presentTense(String theVerb) {
+		return presentTense(theVerb, RiTa.FIRST);
+	}	
+	
+	public static String presentTense(String theVerb, int person) {
+		return presentTense(theVerb, person, RiTa.SINGULAR);
+	}	
+  
+	public static String presentTense(String theVerb, int person, int number) {
 
 		if ((person == RiTa.THIRD) && (number == RiTa.SINGULAR)) {
-
 			return checkRules(PRESENT_TENSE_RULESET, theVerb);
-
-		} else if (theVerb.equals("be")) {
+		}
+		else if (theVerb.equals("be")) {
 
 			if (number == RiTa.SINGULAR) {
-
 				switch (person) {
-
 				case RiTa.FIRST:
 					return "am";
-
 				case RiTa.SECOND:
 					return "are";
-
 				case RiTa.THIRD:
 					return "is";
 				}
-
-			} else {
+			}
+			else {
 				return "are";
 			}
 		}
@@ -578,5 +559,5 @@ public class Conjugator {
 		}
 		return theVerb;
 	}
-
+	
 }

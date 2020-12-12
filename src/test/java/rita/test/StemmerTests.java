@@ -8,7 +8,8 @@ import org.junit.jupiter.api.Test;
 public class StemmerTests {
 
 	@Test
-	public void testStem1() { // only from a-c
+	public void testStem1() { 
+	
 		test("accompanying", "accompani");
 		test("malediction", "maledict");
 		test("softeners", "soften");
@@ -18,22 +19,23 @@ public class StemmerTests {
 	}
 	
 	@Test
-	public void testStem2() { // only from a-c
-  	test("'", "'");
-    test("''", "''");
-    test("'a", "'a");
-    test("'s", "'s");
-    test("'aa", "aa");
-    test("'as", "as");
-    test("'''", "'");
-    test("'a'", "a");
-    test("'s'", "s");
-    test("'aa'", "aa");
-    test("'as'", "as");
-    test("a", "a");
-    test("a'", "a'");
-    test("a''", "a'");
-    test("aa'", "aa");
+	public void testStem2() {
+  	// only from a-c
+		test("'", "'");
+		test("''", "''");
+		test("'a", "'a");
+		test("'s", "'s");
+		test("'aa", "aa");
+		test("'as", "as");
+		test("'''", "'");
+		test("'a'", "a");
+		test("'s'", "s");
+		test("'aa'", "aa");
+		test("'as'", "as");
+		test("a", "a");
+		test("a'", "a'");
+		test("a''", "a'");
+		test("aa'", "aa");
 		test("aback", "aback");
 		test("abandon", "abandon");
 		test("abandoned", "abandon");
@@ -6400,15 +6402,9 @@ public class StemmerTests {
 		test("cyprus", "cyprus");
 		test("cyrus", "cyrus");
 		test("cyttaria", "cyttaria");
-		
-		test("accompanying", "accompani");
-		test("malediction", "maledict");
-	test("softeners", "soften");
-	test("write", "write");
-	test("writing", "write");
 	}
 
 	private void test(String test, String expected) {
-		assertEquals(expected,RiTa.stem(test));
+		assertEquals(expected, RiTa.stem(test));
 	}
 }
