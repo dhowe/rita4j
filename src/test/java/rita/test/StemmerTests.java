@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 public class StemmerTests {
 
 	@Test
-	public void callStem1() { 
+	public void testStem1() { 
 	
 		test("accompanying", "accompani");
 		test("malediction", "maledict");
@@ -19,7 +19,7 @@ public class StemmerTests {
 	}
 	
 	@Test
-	public void callStem2() { 
+	public void testStem2() { 
   	// only from a-c
 		test("'", "'");
 		test("''", "''");
