@@ -20,7 +20,7 @@ public class KnownIssues {
 		}
 	}
 
-	@Test 
+	//@Test 
 	public void stemmerProblem() {
 
 		System.out.println(RiTa.stem("write writes writing writings."));

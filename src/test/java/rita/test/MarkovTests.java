@@ -27,11 +27,18 @@ public class MarkovTests {
 	public void callConstructor() {
 		Markov rm = new Markov(3);
 		assertTrue(rm != null);
+		assertTrue(rm.n == 3);
 	}
 
 	@Test
-	public void callCreateMarkov() {
-		assertTrue(RiTa.createMarkov(3) != null);
+	public void callMarkov() {
+		Markov rm = RiTa.markov(3);
+		assertTrue(rm != null);
+		assertTrue(rm.n == 3);
+
+		rm = RiTa.markov(4, Util.opts());
+		assertTrue(rm != null);
+		assertTrue(rm.n == 4);
 	}
 
 	@Test

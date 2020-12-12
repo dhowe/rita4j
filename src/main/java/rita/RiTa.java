@@ -128,9 +128,9 @@ public class RiTa {
 	}
 
 	public static boolean isStopWord(String word) {
-    return Arrays.asList(RiTa.STOP_WORDS).contains(word.toLowerCase());
-  }
-  
+		return Arrays.asList(RiTa.STOP_WORDS).contains(word.toLowerCase());
+	}
+
 	public static boolean isVerb(String word) {
 		return Tagger.isVerb(word);
 	}
@@ -289,6 +289,26 @@ public class RiTa {
 		return RiScript.eval(word, ctx, opts);
 	}
 
+	public static Grammar grammar() {
+		return grammar(null, null);
+	}
+
+	public static Grammar grammar(Map<String, Object> rules) {
+		return grammar(rules, null);
+	}
+
+	public static Grammar grammar(Map<String, Object> rules, Map<String, Object> context) {
+		return new Grammar(rules, context);
+	}
+	
+	public static Markov markov(int n) {
+		return markov(n, null);
+	}
+
+	public static Markov markov(int n, Map<String, Object> options) {		
+		return new Markov(n, options);
+	}
+
 	public static String stresses(String text) {
 		return _analyzer().analyze(text).get("stresses");
 	}
@@ -399,10 +419,6 @@ public class RiTa {
 			}
 		}
 		return RiTa.lexicon;
-	}
-
-	public static Markov createMarkov(int n) {
-		return new Markov(n);
 	}
 
 	static Analyzer _analyzer() {
