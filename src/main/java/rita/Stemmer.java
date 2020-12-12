@@ -184,7 +184,7 @@ public class Stemmer {
 
 	protected String _stem(String word) {
 		setCurrent(word);
-		stemImpl();
+		stemEnglish();
 		return current.toString();
 	}
 
@@ -200,21 +200,9 @@ public class Stemmer {
 	protected boolean inGrouping(char[] s, int min, int max) {
 		if (cursor >= limit) return false;
 		char ch = current.charAt(cursor);
-		String sa = "["; 
-		for (char c : s) {
-			sa += ((int)c) + ",";
-		}
-		sa = sa.substring(0,sa.length()-1)+"]";
-		
-		console.log("inGrouping: "+sa+" min=" + min
-				+ ", max=" + max + ", ch("+cursor+")='" + (int)(char)(ch == '\r' ? "\\r" : ch) + "'");
 		if (ch > max || ch < min) return false;
 		ch -= min;
 		if ((s[ch >> 3] & (0X1 << (ch & 0X7))) == 0) {
-			//if (ch == '\r') ch = '\\r';//System.out.println("HIT");
-			//			console.log("inGrouping: '" + new String(s) + "' min=" + min + ", max=" + max
-			//					+ ", ch='" + (ch == '\r' ? "\\r" : ch) + "', '" + (ch == '\r' ? "\\r" : ch)
-			//					+ "'>>3=" + (ch >> 3) + " s[" + (ch >> 3) + "] ='" + s[ch >> 3] + "'");
 			return false;
 		}
 		cursor++;
@@ -294,7 +282,6 @@ public class Stemmer {
 	}
 
 	protected boolean eqS(int sSize, String s) {
-		console.log("eqS: " + sSize + "," + s + ", " + this.cursor);
 		if (limit - cursor < sSize) return false;
 		int i;
 		for (i = 0; i != sSize; i++) {
@@ -559,15 +546,12 @@ public class Stemmer {
 						lab6: do {
 							// (, line 29
 							if (!(inGrouping(gV, 97, 121))) {
-								console.log("break lab6.1, " + this.toString());
 								break lab6;
 							}
 							// [, line 29
 							bra = cursor;
 							// literal, line 29
 							if (!(eqS(1, "y"))) {
-								console.log("break lab6.2, " + this.toString());
-
 								break lab6;
 							}
 
@@ -583,7 +567,6 @@ public class Stemmer {
 							break lab4;
 						}
 						cursor++;
-						console.log(cursor);
 					}
 					// <-, line 29
 					sliceFrom("Y");
@@ -1406,8 +1389,7 @@ public class Stemmer {
 		return true;
 	}
 
-	private boolean stemImpl() {
-		System.out.println(this.toString());
+	private boolean stemEnglish() {
 		int v_1;
 		int v_2;
 		int v_3;

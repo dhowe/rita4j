@@ -11,7 +11,6 @@ public class StemmerTests {
 	public void callStem1() { 
 	
 		test("accompanying", "accompani");
-		if (1==1) return;
 		test("malediction", "maledict");
 		test("softeners", "soften");
 		test("write", "write");
