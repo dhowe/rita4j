@@ -12,15 +12,8 @@ public class RiTa {
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
 
-	//  UNCOMMENT IF/AS NEEDED:
-	//  protected static Tagger tagger;
-	//  protected static Pluralizer pluralizer;
-	//  protected static Tokenizer tokenizer;
-	//  protected static Syllabifier syllabifier;
-	//  protected static Stemmer stemmer;
-	//	protected static Inflector inflector;
-
-	public static Map<String, Function<String, String>> addTransform(String name, Function<String, String> func) {
+	public static Map<String, Function<String, String>> addTransform(
+			String name, Function<String, String> func) {
 		if (func != null) {
 			RiScript.transforms.put(name, func);
 		}
@@ -300,12 +293,12 @@ public class RiTa {
 	public static Grammar grammar(Map<String, Object> rules, Map<String, Object> context) {
 		return new Grammar(rules, context);
 	}
-	
+
 	public static Markov markov(int n) {
 		return markov(n, null);
 	}
 
-	public static Markov markov(int n, Map<String, Object> options) {		
+	public static Markov markov(int n, Map<String, Object> options) {
 		return new Markov(n, options);
 	}
 
@@ -496,6 +489,7 @@ public class RiTa {
 
 	public static void main(String[] args) {
 		System.out.println(RiTa.analyze("absolot"));
+		System.out.println(RiTa.evaluate("( newt | ginko | salamander)"));
 	}
 
 }
