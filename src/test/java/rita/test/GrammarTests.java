@@ -23,10 +23,27 @@ public class GrammarTests {
 
 	static Map<String, Object> TT = opts("trace", true);
 
+
 	@Test
 	public void callConstructor() {
-		Grammar gr = new Grammar();
-		assertTrue(gr instanceof Grammar);
+		Grammar gr1 = new Grammar();
+		assertTrue(gr1 instanceof Grammar);
+	}
+	
+	@Test
+	public void callConstructorJSON() {
+
+		Grammar gr1 = new Grammar(sentences1);
+		assertTrue(gr1 instanceof Grammar);
+		
+		Grammar gr2 = Grammar.fromJSON(sentences1);
+		assertTrue(gr2 instanceof Grammar);
+		
+		Grammar gr3 = RiTa.grammar(sentences1);
+		assertTrue(gr3 instanceof Grammar);
+		
+		assertTrue(gr1.toString().equals(gr2.toString()));
+		assertTrue(gr2.toString().equals(gr3.toString()));
 	}
 
 	@Test

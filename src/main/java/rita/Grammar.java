@@ -10,25 +10,12 @@ public class Grammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	public static Grammar fromJSON(String json) {
-		return fromJSON(json, null);
+	public static Grammar fromJSON(String rules) {
+		return fromJSON(rules, null);
 	}
 
-	public static Grammar fromJSON(String json, Map<String, Object> context) {
-		Grammar g = new Grammar(null, context);
-		if (json != null) {
-			try {
-				@SuppressWarnings("rawtypes")
-				Map map = new Gson().fromJson(json, Map.class);
-				for (Object o : map.keySet()) {
-					g.addRule((String) o, map.get(o));
-				}
-			} catch (JsonSyntaxException e) {
-				throw new RiTaException("Grammar appears to be invalid JSON"
-						+ ", please check it at http://jsonlint.com/\n" + json);
-			}
-		}
-		return g;
+	public static Grammar fromJSON(String rules, Map<String, Object> context) {
+		return new Grammar(rules, context);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -38,7 +25,16 @@ public class Grammar {
 	protected RiScript compiler;
 
 	public Grammar() {
-		this(null);
+		this((Map<String, Object>) null);
+	}
+
+	public Grammar(String json) {
+		this(json, null);
+	}
+
+	public Grammar(String json, Map<String, Object> context) {
+		this((Map<String, Object>) null, context);
+		parseJSON(json);
 	}
 
 	public Grammar(Map<String, Object> rules) {
@@ -175,6 +171,21 @@ public class Grammar {
 			if (i < opts.length - 1) res += " | ";
 		}
 		return res + ")";
+	}
+
+	protected void parseJSON(String json) {
+		if (json != null) {
+			try {
+				@SuppressWarnings("rawtypes")
+				Map map = new Gson().fromJson(json, Map.class);
+				for (Object o : map.keySet()) {
+					this.addRule((String) o, map.get(o));
+				}
+			} catch (JsonSyntaxException e) {
+				throw new RiTaException("Grammar appears to be invalid JSON"
+						+ ", please check it at http://jsonlint.com/\n" + json);
+			}
+		}
 	}
 
 	/*private static Map<String, Object> parseJson(String rules) {

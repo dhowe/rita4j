@@ -283,14 +283,22 @@ public class RiTa {
 	}
 
 	public static Grammar grammar() {
-		return grammar(null, null);
+		return grammar((String)null);
 	}
 
+	public static Grammar grammar(String rules) {
+		return grammar(rules, null);
+	}
+	
 	public static Grammar grammar(Map<String, Object> rules) {
 		return grammar(rules, null);
 	}
 
 	public static Grammar grammar(Map<String, Object> rules, Map<String, Object> context) {
+		return new Grammar(rules, context);
+	}
+	
+	public static Grammar grammar(String rules, Map<String, Object> context) {
 		return new Grammar(rules, context);
 	}
 
