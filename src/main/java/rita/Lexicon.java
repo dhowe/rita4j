@@ -1,10 +1,13 @@
 package rita;
 
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Lexicon {
 
@@ -28,15 +31,22 @@ public class Lexicon {
 			throw new RiTaException("No dictionary path specified!");
 		}
 
-		URL resource = RiTa.class.getResource(file);
-		if (resource == null) {
+//		URL resource = RiTa.class.getResource(file);
+//		System.out.println("FOUND:" + resource);
+//		if (resource == null) {
+//			throw new RiTaException("Unable to load lexicon from: " + file);
+//		}
+
+		InputStream is = RiTa.class.getResourceAsStream(file);
+		if (is == null) {
 			throw new RiTaException("Unable to load lexicon from: " + file);
 		}
 
 		try {
-			return Files.readAllLines(Paths.get(resource.toURI()));
+			return new BufferedReader(new InputStreamReader(is))
+					.lines().collect(Collectors.toList());
 		} catch (Exception e) {
-			throw new RiTaException("Unable to read lexicon from: " + file);
+			throw new RiTaException("Unable to read lines from: " + file, e);
 		}
 	}
 

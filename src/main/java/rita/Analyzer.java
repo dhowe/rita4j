@@ -165,7 +165,7 @@ public class Analyzer {
 	}*/
 
 	public static void main(String[] args) {
-		System.out.println(Tagger.tag("dog"));
+		System.out.println(Tagger.tag("dog")[0]);
 	}
 
 }

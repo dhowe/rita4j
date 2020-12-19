@@ -413,7 +413,6 @@ public class RiTa {
 			try {
 				RiTa.lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
-				//if (1==1)throw e;
 				throw new RiTaException("Cannot load dictionary at "
 						+ DICT_PATH + " " + System.getProperty("user.dir"), e);
 			}
