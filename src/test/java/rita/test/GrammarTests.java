@@ -23,35 +23,41 @@ public class GrammarTests {
 
 	static Map<String, Object> TT = opts("trace", true);
 
-
 	@Test
 	public void callConstructor() {
 		Grammar gr1 = new Grammar();
 		assertTrue(gr1 instanceof Grammar);
 	}
-	
+
+//	@Test
+//	public void haikuJSON() {
+//		String haikuGrammar = "{    \"$start\": \"$line5 % $line7 % $line5\",    \"$line5\": \"$syl1 $syl4 |$syl1 $syl3 $syl1 |$syl1 $syl1 $syl3 | $syl1 $syl2 $syl2 | $syl1 $syl2 $syl1 $syl1 | $syl1 $syl1 $syl2 $syl1 | $syl1 $syl1 $syl1 $syl2 | $syl1 $syl1 $syl1 $syl1 $syl1 | $syl2 $syl3 | $syl2 $syl2 $syl1 | $syl2 $syl1 $syl2 | $syl2 $syl1 $syl1 $syl1 | $syl3 $syl2 | $syl3 $syl1 $syl1 | $syl4 $syl1 | $syl5\",    \"$line7\": \"$syl1 $syl1 $line5 | $syl2 $line5 | $line5 $syl1 $syl1 | $line5 $syl2\",    \"$syl1\": \"red | white | black | sky | dawns | breaks | falls | leaf | rain | pool | my | your | sun | clouds | blue | green | night | day | dawn | dusk | birds | fly | grass | tree | branch | through | hell | zen | smile | gray | wave | sea | through | sound | mind | smoke | cranes | fish\",    \"$syl2\": \"drifting | purple | mountains | skyline | city | faces | toward | empty | buddhist | temple | japan | under | ocean | thinking | zooming | rushing | over | rice field | rising | falling | sparkling | snowflake\",    \"$syl3\": \"sunrises | pheasant farms | people farms | samurai | juniper | fishing boats | far away | kimonos | evenings | peasant rain | sad snow fall\",    \"$syl4\": \"aluminum | yakitori | the east village | west of the sun |  chrysanthemums | cherry blossoms\",    \"$syl5\": \"resolutional | non-elemental | rolling foothills rise | toward mountains higher | out over this country | in the springtime again\"}";
+//		Grammar g = Grammar.fromJSON(haikuGrammar);
+//		System.out.println(g.expand());
+//	}
+
 	@Test
 	public void callConstructorJSON() {
 
 		Grammar gr1 = new Grammar(sentences1);
 		assertTrue(gr1 instanceof Grammar);
-		
+
 		Grammar gr2 = Grammar.fromJSON(sentences1);
 		assertTrue(gr2 instanceof Grammar);
-		
+
 		Grammar gr3 = RiTa.grammar(sentences1);
 		assertTrue(gr3 instanceof Grammar);
-		
+
 		assertTrue(gr1.toString().equals(gr2.toString()));
 		assertTrue(gr2.toString().equals(gr3.toString()));
 	}
 
 	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
-    Map<String, Object> g = opts("start", "[$x=$y b].ucf()", "y", "(a | a)");
-    eq(RiTa.evaluate(new Grammar(g).expand()),"A b");
-  }
-	
+		Map<String, Object> g = opts("start", "[$x=$y b].ucf()", "y", "(a | a)");
+		eq(RiTa.evaluate(new Grammar(g).expand()), "A b");
+	}
+
 	@Test
 	public void supportSeqTransform() {
 		String[] seq = { "a", "b", "c", "d" };
@@ -67,7 +73,7 @@ public class GrammarTests {
 		rg = new Grammar(opts("start", rule));
 		for (int i = 0; i < 4; i++) {
 			String res = rg.expand();
-//			console.log(i+ ": "+ res);
+			//			console.log(i+ ": "+ res);
 			eq(res, seq[i].toUpperCase());
 		}
 	}
@@ -84,7 +90,7 @@ public class GrammarTests {
 			result.add(res);
 		}
 		containsAll(result, seq);
-//if (1==1) return;
+		//if (1==1) return;
 		result.clear();
 		rule = "(" + String.join("|", seq) + ").rseq().capitalize()";
 		rg = new Grammar(opts("start", rule));
@@ -200,9 +206,9 @@ public class GrammarTests {
 	@Test
 	public void throwOnMissingRules() {
 		Grammar rg = new Grammar();
- 		assertThrows(RiTaException.class, () -> rg.expand());
-		
- 		Grammar rg2 = new Grammar(opts("start", "My rule"));
+		assertThrows(RiTaException.class, () -> rg.expand());
+
+		Grammar rg2 = new Grammar(opts("start", "My rule"));
 		assertThrows(RiTaException.class, () -> rg2.expand("bad"));
 	}
 
@@ -368,7 +374,6 @@ public class GrammarTests {
 		eq(res, "bad feelings");
 	}
 
-	
 	@Test
 	public void allowContextInExpand() {
 		Grammar rg;

@@ -34,6 +34,9 @@ public class Grammar {
 
 	public Grammar(String json, Map<String, Object> context) {
 		this((Map<String, Object>) null, context);
+		System.out.println(json);
+		System.out.println();
+		System.out.println(json.replaceAll("\"", "\\\""));
 		parseJSON(json);
 	}
 
@@ -183,7 +186,7 @@ public class Grammar {
 				}
 			} catch (JsonSyntaxException e) {
 				throw new RiTaException("Grammar appears to be invalid JSON"
-						+ ", please check it at http://jsonlint.com/\n" + json);
+						+ ", please check it at http://jsonlint.com/\n" + json, e);
 			}
 		}
 	}

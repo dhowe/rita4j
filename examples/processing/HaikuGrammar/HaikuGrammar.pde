@@ -1,7 +1,6 @@
-//font = loadFont('../../data/Resagokr.otf');
 import rita.*;
 
-Grammar grammar;
+RiGrammar grammar;
 String[] lines = {"click to", "generate", "a haiku"};
 
 void setup()
@@ -12,9 +11,8 @@ void setup()
   textSize(30);
   textAlign(CENTER);
 
-  String json = String.join("", loadStrings("haiku.json"));
-  grammar = Grammar.fromJSON(json);
-  println(grammar);
+  grammar = new RiGrammar(this);
+  grammar.loadFrom("haiku.yaml");
 }
 
 void draw()
@@ -28,7 +26,6 @@ void mouseReleased()
 {
   String result = grammar.expand();
   String[] haiku = result.split("%");
-  for (int i = 0; i < lines.length; i++) {
+  for (int i = 0; i < lines.length; i++)
     lines[i] = haiku[i];
-  }
 }
