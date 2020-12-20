@@ -13,7 +13,7 @@ or [unpkg](https://unpkg.com/rita/) !
 * Via [maven central](https://search.maven.org/artifact/org.rednoise/rita)
 * Or directly in maven:
 
-```
+```xml
 <dependency>
   <groupId>org.rednoise</groupId>
   <artifactId>rita</artifactId>
@@ -23,7 +23,7 @@ or [unpkg](https://unpkg.com/rita/) !
 
 
 ### Building
-```
+```sh
 $ git clone https://github.com/dhowe/rita.git
 $ cd rita
 $ mvn install      # when done, you should see "BUILD SUCCESS"
