@@ -10,7 +10,7 @@ RiTa is a toolkit for natural language and generative literature. It is implemen
 
 * For JavaScript, see this [repo](https://github.com/dhowe/ritajs) or use it with [npm](https://www.npmjs.com/package/rita)  or [unpkg](https://unpkg.com/browse/rita/dist/) !
 * A simple [Processing example](#in-processing) 
-* A simple [Java example]](#a-simple-example-java)
+* A simple [Java example](#a-simple-example-java)
 * For [Developers](#developing)
 
 ### Installation
