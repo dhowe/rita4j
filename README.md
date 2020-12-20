@@ -372,12 +372,7 @@ This project exists only because of the people who contribute. Thank you!
 <a href="https://github.com/dhowe/RiTa/graphs/contributors"><img src="https://opencollective.com/RiTa/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
-
-Become a financial contributor and help us sustain our community. [[Contribute](https://opencollective.com/RiTa/contribute)]
-
-#### Individuals
-
-<a href="https://opencollective.com/RiTa"><img src="https://opencollective.com/RiTa/individuals.svg?width=890"></a>
+<script src="https://opencollective.com/:rita/:contribute/button.js" color="blue"></script>
 
 #### Organizations
 
