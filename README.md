@@ -1,7 +1,12 @@
 ![Java CI with Maven](https://github.com/dhowe/rita2/workflows/Java%20CI%20with%20Maven/badge.svg)
 
-# RiTa
-Ongoing development of the RiTa (2.x) Java library
+## RiTa: generative language tools for Java
+
+<a href="http://rednoise.org/rita"><img height="80" src="http://rednoise.org/rita/img/RiTa-logo3.png"/></a>
+
+RiTa is a toolkit for natural language and generative literature. It is implemented in Java and JavaScript, with a common API for both, and it is free/libre/open-source via the GPL license.
+
+###
 
 For JavaScript, see this [repo](https://github.com/dhowe/ritajs) 
 or use it with [npm](https://www.npmjs.com/package/rita) 
