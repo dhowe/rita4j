@@ -4,7 +4,7 @@
 Ongoing development of the RiTa (2.x) Java library
 
 For JavaScript, see this [repo](https://github.com/dhowe/ritajs) 
-or try it via [npm](https://www.npmjs.com/package/rita) 
+or use it with [npm](https://www.npmjs.com/package/rita) 
 or [unpkg](https://unpkg.com/rita/) !
 
 ### Installation
