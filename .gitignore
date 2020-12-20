@@ -55,6 +55,7 @@ bin/
 tmp/
 .metadata
 .classpath
+.settings
 .project
 *.tmp
 *.bak
