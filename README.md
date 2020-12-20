@@ -3,7 +3,24 @@
 # RiTa 2.0
 Ongoing development of the RiTa library version (Java)
 
-For JavaScript, see [this repo](https://github.com/dhowe/ritajs) and/or try it via [npm](https://www.npmjs.com/package/rita) or [unpkg](https://unpkg.com/rita/)!
+For JavaScript, see this [repo](https://github.com/dhowe/ritajs) 
+or try it via [npm](https://www.npmjs.com/package/rita) 
+or [unpkg](https://unpkg.com/rita/)!
+
+### Installation
+
+* Via [github packages](https://github.com/dhowe/rita/packages/)
+* Via [maven central](https://search.maven.org/artifact/org.rednoise/rita)
+* Or directly in maven:
+
+```
+<dependency>
+  <groupId>org.rednoise</groupId>
+  <artifactId>rita</artifactId>
+  <version>2.0.2</version>
+</dependency>
+```
+
 
 ### Building
 ```
