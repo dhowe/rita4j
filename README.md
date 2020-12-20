@@ -315,7 +315,7 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.
 
 ## A Simple Example (Java)
 
-&nbsp; &nbsp; For JavaScript examples, go [here](https://github.com/dhowe/RiTaJS#a-simple-sketch)
+&nbsp; &nbsp; For JavaScript examples, go [here](https://github.com/dhowe/ritajs#a-simple-sketch)
 
 1. Create a new Java project in Eclipse (or your IDE of choice)
 2. Download [rita.jar](http://rednoise.org/rita/download/rita.jar) and add it to the build path for the project. In eclipse: 'Project' > 'Properties' > 'Java Build Path' > 'Libraries' > 'Add External JARs...'
@@ -327,8 +327,7 @@ public class SimpleExample {
 
   public static void main(String[] args) {
 
-    RiString rs = new RiString("The elephant took a bite!");
-    System.out.println(rs.features());
+    System.out.println(RiTa.features("The elephant took a bite!"));
   }
 }
 ```
@@ -352,8 +351,7 @@ void setup() {
   textSize(20);
   noStroke();
 
-  RiString rs = new RiString("The elephant took a bite!");
-  Map data = rs.features();
+  Map data = RiTa.features("The elephant took a bite!");
 
   float y = 15;
   for (Iterator it = data.keySet().iterator(); it.hasNext();) {
