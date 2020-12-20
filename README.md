@@ -376,18 +376,3 @@ This project exists only because of the people who contribute. Thank you!
   <img src="https://opencollective.com/rita/contribute/button@2x.png?color=blue" width=300 />
 </a>
 
-#### Organizations
-
-Support this project with your organization. Your logo will show up here with a link to your website. [[Contribute](https://opencollective.com/RiTa/contribute)]
-
-<a href="https://opencollective.com/RiTa/organization/0/website"><img src="https://opencollective.com/RiTa/organization/0/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/1/website"><img src="https://opencollective.com/RiTa/organization/1/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/2/website"><img src="https://opencollective.com/RiTa/organization/2/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/3/website"><img src="https://opencollective.com/RiTa/organization/3/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/4/website"><img src="https://opencollective.com/RiTa/organization/4/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/5/website"><img src="https://opencollective.com/RiTa/organization/5/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/6/website"><img src="https://opencollective.com/RiTa/organization/6/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/7/website"><img src="https://opencollective.com/RiTa/organization/7/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/8/website"><img src="https://opencollective.com/RiTa/organization/8/avatar.svg"></a>
-<a href="https://opencollective.com/RiTa/organization/9/website"><img src="https://opencollective.com/RiTa/organization/9/avatar.svg"></a>
-
