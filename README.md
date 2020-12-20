@@ -327,7 +327,7 @@ public class SimpleExample {
 
   public static void main(String[] args) {
 
-    System.out.println(RiTa.features("The elephant took a bite!"));
+    System.out.println(RiTa.analyze("The elephant took a bite!"));
   }
 }
 ```
@@ -351,7 +351,7 @@ void setup() {
   textSize(20);
   noStroke();
 
-  Map data = RiTa.features("The elephant took a bite!");
+  Map data = RiTa.analyze("The elephant took a bite!");
 
   float y = 15;
   for (Iterator it = data.keySet().iterator(); it.hasNext();) {
