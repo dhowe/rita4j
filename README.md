@@ -311,10 +311,65 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.
 2. In eclipse, File->Import->Maven->Existing Maven Projects and select your 'rita' folder
 3. Right-click on project, and select 'Run-as' -> 'Maven install' or 'JUnit tests'
 
+<br/>
 
-&nbsp;
+## A Simple Example (Java)
+
+&nbsp; &nbsp; For JavaScript examples, go [here](https://github.com/dhowe/RiTaJS#a-simple-sketch)
+
+1. Create a new Java project in Eclipse (or your IDE of choice)
+2. Download [rita.jar](http://rednoise.org/rita/download/rita.jar) and add it to the build path for the project. In eclipse: 'Project' > 'Properties' > 'Java Build Path' > 'Libraries' > 'Add External JARs...'
+3. Create and run a new class, SimpleExample.java, with the following code:
+```Java
+import rita.*;
+
+public class SimpleExample {
+
+  public static void main(String[] args) {
+
+    RiString rs = new RiString("The elephant took a bite!");
+    System.out.println(rs.features());
+  }
+}
+```
+
+## In Processing
+
+To install:
+
+1. Open Processing and select 'Sketch' menu > 'Import Library...' > 'Add Library...'
+2. Search for 'RiTa' and then install it
+
+Create an example sketch as follows (and/or see the included examples):
+```java
+import rita.*;
+import java.util.*;
+
+void setup() {
+
+  size(600, 200);
+  background(50);
+  textSize(20);
+  noStroke();
+
+  RiString rs = new RiString("The elephant took a bite!");
+  Map data = rs.features();
+
+  float y = 15;
+  for (Iterator it = data.keySet().iterator(); it.hasNext();) {
+    String key = (String) it.next();
+    text(key + ": " + data.get(key), 25, y += 26);
+  }
+}
+```
+
 
 #### Can I contribute?
  
 Please! We are looking for more coders to help out... Just press *Fork* at the top of this github page and get started!
+
+
+&nbsp;
+
+#### Support us with a monthly donation and [become a backer!](https://opencollective.com/rita#backer)
 
