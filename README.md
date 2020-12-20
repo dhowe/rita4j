@@ -372,7 +372,7 @@ This project exists only because of the people who contribute. Thank you!
 <a href="https://github.com/dhowe/RiTa/graphs/contributors"><img src="https://opencollective.com/RiTa/contributors.svg?width=890&button=false" /></a>
 
 ### Financial Contributors
-<script src="https://opencollective.com/:rita/:contribute/button.js" color="blue"></script>
+<script src="https://opencollective.com/rita/contribute/button.js" color="blue"></script>
 
 #### Organizations
 
