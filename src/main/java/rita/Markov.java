@@ -16,7 +16,7 @@ public class Markov {
 	public Node root;
 	public List<String> input;
 	protected Function<String, String[]> _tokenize;
-	//protected Function<String[], String> _untokenize;
+	protected Function<String[], String> _untokenize;
 
 	protected int mlm, treeifyTimes, maxAttempts = 999;
 	protected boolean trace, disableInputChecks, logDuplicates;
@@ -145,17 +145,19 @@ public class Markov {
 				tokens.add(next);
 				if (next.token.equals(Markov.SE)) {
 					tokens.remove(tokens.size() - 1);
-					if (tokens.size() >= minLength) {
-						List<String> rawtoks = new ArrayList<>();
-						tokens.forEach(t -> rawtoks.add(t.token));
 
-						if (isSubArrayList(rawtoks, this.input)) {
+					if (tokens.size() >= minLength) {
+
+						List<String> stringToks = new ArrayList<>();
+						tokens.forEach(t -> stringToks.add(t.token));
+
+						if (isSubArrayList(stringToks, this.input)) {
 							fail(tokens, "in input", ++tries);
 							tokens = new ArrayList<>();// to reset tokens
 							break;
 						}
 
-						String sent = this._flatten(tokens);
+						String sent = this._flatten(stringToks);
 						if (!allowDups && result.contains(sent)) {
 							fail(tokens, "is dup", ++tries);
 							tokens = new ArrayList<>();// to reset tokens
@@ -294,9 +296,11 @@ public class Markov {
 	}
 
 	public Map<String, Object> probabilities(String[] path, double temp) {
+		
 		Map<String, Object> probs = new HashMap<String, Object>();
 		Node parent = this._pathTo(path);
 		if (parent != null) {
+			
 			Node[] children = parent.childNodes();
 			List<Integer> weights = new ArrayList<>();
 			for (Node n : children) {
@@ -305,10 +309,16 @@ public class Markov {
 			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
 			double[] pdist = RandGen.ndist(wArr, temp);
 			for (int i = 0; i < children.length; i++) {
+				
 				probs.put(children[i].token, pdist[i]);
 			}
 		}
 		return probs;
+	}
+
+	public int size() {
+
+		return this.root.childCount();
 	}
 
 	////////////////////////////// end API ////////////////////////////////
@@ -458,10 +468,11 @@ public class Markov {
 		return node; // can be undefined
 	}
 
-	public String _flatten(Node[] nodes) {
+	private String _flatten(Node[] nodes) {
 		if (nodes == null || nodes.length == 0) {
 			return "";
 		}
+
 		else {
 			String res = new String();
 			for (int i = 0; i < nodes.length; i++) {
@@ -474,20 +485,20 @@ public class Markov {
 		}
 	}
 
-	public String _flatten(List<Node> tokens) {
-		return _flatten(tokens.toArray(new Node[tokens.size()]));
+	private String _flatten(String[] tokens) {
+		return this.doUntokenize(tokens);
 	}
 
-	public void _logError(int tries, List<Node> toks, String msg) {
+	private String _flatten(List<String> tokens) {
+		return _flatten(tokens.toArray(new String[tokens.size()]));
+	}
+
+	private void _logError(int tries, List<Node> toks, String msg) {
 		if (this.trace) {
 			System.out.println(tries + " FAIL" + (msg.length() > 0
 					? "(" + msg + ")"
-					: "") + ": " + this._flatten(toks));
+					: "") + ": " + this._flatten(toks.toArray(new Node[0])));
 		}
-	}
-
-	public int size() {
-		return this.root.childCount();
 	}
 
 	private boolean isSubArrayList(List<String> find, List<String> arr) {
@@ -563,8 +574,8 @@ public class Markov {
 
 	public class Node {
 
+		public String token;
 		protected Node parent;
-		protected String token;
 		protected int count = 0, numChildren = -1;
 		protected Map<String, Node> children;
 
@@ -581,7 +592,7 @@ public class Markov {
 			token = word;
 			count = cnt;
 		}
-
+		
 		// Find a (direct) child node with matching token
 		public Node child(Node word) {
 			return this.child(word.token); // JC: delegate to other method
@@ -699,12 +710,17 @@ public class Markov {
 
 	static final Comparator<Markov.Node> byCount = new Comparator<Markov.Node>() {
 		public int compare(Markov.Node a, Markov.Node b) {
-			return b.count != a.count ? b.count - a.count : b.token.toLowerCase().compareTo(a.token.toLowerCase());
+			return b.count != a.count ? b.count - a.count
+					: b.token.toLowerCase().compareTo(a.token.toLowerCase());
 		}
 	};
 
 	private String[] doTokenize(String s) {
 		return this._tokenize != null ? this._tokenize.apply(s) : RiTa.tokenize(s);
+	}
+
+	private String doUntokenize(String[] s) {
+		return this._untokenize != null ? this._untokenize.apply(s) : RiTa.untokenize(s);
 	}
 
 	public static void main(String[] args) {

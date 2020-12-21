@@ -43,12 +43,14 @@ public class MarkovTests {
 
 	@Test
 	public void callRandomSelect() {
+		// TODO: compare these tests to JS version and add comments below.
+		//       why are the expected values not being used?
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
 		double[] expected = { 2, 2, 1.75, 1.55 };
 		double[] temps = { .5, 1, 2, 10 };
-		for (int x = 0; x < 100; x++) { // repeat 100 times
-			ArrayList<double[]> distrs = new ArrayList<double[]>();
-			ArrayList<Double> results = new ArrayList<Double>();
+		for (int x = 0; x < 10; x++) { // repeat 100 times
+			List<double[]> distrs = new ArrayList<double[]>();
+			List<Double> results = new ArrayList<Double>();
 
 			for (double t : temps) {
 				double[] r = RandGen.ndist(weights, t);
@@ -57,7 +59,6 @@ public class MarkovTests {
 
 			int numTests = 10000;
 			double[] mathExpectation = new double[temps.length];
-
 			for (int i = 0; i < distrs.size(); i++) {
 				double[] distr = distrs.get(i);
 				double exp = 0;
@@ -66,6 +67,8 @@ public class MarkovTests {
 				}
 				mathExpectation[i] = exp;
 			}
+			// System.out.println(Arrays.toString(mathExpectation));
+			//[1.9995862274865503, 1.9740881265419985, 1.8551142981725457, 1.8898448665172576]
 
 			for (double[] sm : distrs) {
 				int sum = 0;
@@ -155,14 +158,13 @@ public class MarkovTests {
 		rm.addText(txt);
 		Markov.Node[] toks = rm.initSentence();
 		eq(toks.length, 1);
-		eq(rm._flatten(toks), "The");
+		eq(toks[0].token, "The");
 
 		rm = new Markov(4);
 		rm.addText(RiTa.sentences(sample));
 		toks = rm.initSentence(new String[] { "I", "also" });
 		eq(toks.length, 2);
-		String a = rm._flatten(toks);
-		eq(a, new String("I also"));
+		eq(toks[0].token+" "+toks[1].token, new String("I also"));
 	}
 
 	@Test

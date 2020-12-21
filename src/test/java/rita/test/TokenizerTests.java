@@ -59,6 +59,7 @@ public class TokenizerTests {
 	@Test
 	public void callTokenize() {
 
+		arrayEq(RiTa.tokenize(null), new String[0] );
 		arrayEq(RiTa.tokenize(""), new String[] { "" });
 		arrayEq(RiTa.tokenize("The dog"), new String[] { "The", "dog" });
 

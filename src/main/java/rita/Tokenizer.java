@@ -13,6 +13,14 @@ import java.util.regex.Pattern;
  */
 public class Tokenizer {
 
+	public static String[] tokenize(String words) {
+		return tokenize(words, null);
+	}
+
+	public static String untokenize(String[] arr) {
+		return untokenize(arr, " ");
+	}
+
 	public static String[] sentences(String text, Pattern pattern) {
 		if (text == null || text.length() == 0) return new String[] { text };
 		if (pattern == null) pattern = SPLITTER;
@@ -29,11 +37,7 @@ public class Tokenizer {
 				? new String[] { text }
 				: unescapeAbbrevs(arr);
 	}
-
-	public static String untokenize(String[] arr) {
-		return untokenize(arr, " ");
-	}
-
+	
 	public static String untokenize(String[] arr, String delim) {
 
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
@@ -42,9 +46,11 @@ public class Tokenizer {
 		boolean lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 		boolean afterQuote = false, midSentence = false, nextNoSpace = false;
 
+		if (arr == null || arr.length == 0) return "";
+
 		if (arr.length > 0) withinQuote = QUOTES.matcher(arr[0]).matches();
 
-		String result = arr.length > 0 ? arr[0] : "";
+		String result = arr[0]; // start with first token
 
 		for (int i = 1; i < arr.length; i++) {
 
@@ -54,15 +60,15 @@ public class Tokenizer {
 			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches();
 			//thisNAPunct = NA_PUNCT.matcher(arr[i]).matches();
 			thisQuote = QUOTES.matcher(arr[i]).matches();
-			thisLBracket = LEFTBRACKETS.matcher(arr[i]).matches();
-			thisRBracket = RIGHTBRACKETS.matcher(arr[i]).matches();
+			thisLBracket = LBRACKS.matcher(arr[i]).matches();
+			thisRBracket = RBRACKS.matcher(arr[i]).matches();
 			thisDomin = DOMIN.matcher(arr[i]).matches();
 			lastComma = arr[i - 1].equals(",");
 			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches();
 			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches();
 			lastQuote = QUOTES.matcher(arr[i - 1]).matches();
-			lastLBracket = LEFTBRACKETS.matcher(arr[i - 1]).matches();
-			lastRBracket = RIGHTBRACKETS.matcher(arr[i - 1]).matches();
+			lastLBracket = LBRACKS.matcher(arr[i - 1]).matches();
+			lastRBracket = RBRACKS.matcher(arr[i - 1]).matches();
 			lastEndWithS = arr[i - 1].charAt(arr[i - 1].length() - 1) == 's'
 					&& !arr[i - 1].equals("is") && !arr[i - 1].equals("Is") && !arr[i - 1].equals("IS");
 			lastIsWWW = WWW.matcher(arr[i - 1]).matches();
@@ -129,35 +135,31 @@ public class Tokenizer {
 		return result.trim();
 	}
 
-	public static String[] tokenize(String words) {
-		return tokenize(words, null);
-	}
-
 	public static String[] tokenize(String words, String regex) {
 
-		if (words == null || words.length() == 0) {
-			return new String[] { "" };
-		}
+		if (words == null) return new String[0];
+		if (words.length() == 0) return new String[] { "" };
 
+		// handle a regex argument
 		if (regex != null) return words.split(regex);
 
 		words = words.trim();
 
-		for (int i = 0; i < TOKENIZE_PART1.length; i++) {
-			words = TOKENIZE_PART1[i].matcher(words)
-					.replaceAll(TOKENIZE_STRINGS1[i]);
+		for (int i = 0; i < TOKPAT1.length; i++) {
+			words = TOKPAT1[i].matcher(words)
+					.replaceAll(TOKREP1[i]);
 		}
 
 		if (RiTa.SPLIT_CONTRACTIONS) {
-			for (int i = 0; i < TOKENIZE_PART2.length; i++) {
-				words = TOKENIZE_PART2[i].matcher(words)
-						.replaceAll(TOKENIZE_STRINGS2[i]);
+			for (int i = 0; i < TOKPAT2.length; i++) {
+				words = TOKPAT2[i].matcher(words)
+						.replaceAll(TOKREP2[i]);
 			}
 		}
 
-		for (int i = 0; i < TOKENIZE_PART3.length; i++) {
-			words = TOKENIZE_PART3[i].matcher(words)
-					.replaceAll(TOKENIZE_STRINGS3[i]);
+		for (int i = 0; i < TOKPAT3.length; i++) {
+			words = TOKPAT3[i].matcher(words)
+					.replaceAll(TOKREP3[i]);
 		}
 
 		words = words.trim();
@@ -165,18 +167,39 @@ public class Tokenizer {
 		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
 			if (token.contains("_")) {
-				// TODO: compile
-				result[i] = token.replaceAll("([a-zA-Z]|[\\,\\.])_([a-zA-Z])", "$1 $2");
+				result[i] = UNDERSCORE.matcher(token).replaceAll("$1 $2");
 			}
 		}
 		return result;
 	}
+	
+	private static String[] unescapeAbbrevs(String[] arr) {
+		for (int i = 0; i < arr.length; i++) {
+			arr[i] = arr[i].replaceAll(DELIM, ".");
+		}
+		return arr;
+	}
 
+	private static String escapeAbbrevs(String text) {
+
+		String[] abbrevs = RiTa.ABRV;
+		for (int i = 0; i < abbrevs.length; i++) {
+			String abv = abbrevs[i];
+			int idx = text.indexOf(abv);
+			while (idx > -1) {
+				text = text.replace(abv, abv.replace(".", DELIM));
+				idx = text.indexOf(abv);
+			}
+		}
+		return text;
+	}
+
+	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
 	private static final Pattern SPLITTER = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
-	private static final Pattern LEFTBRACKETS = Pattern.compile("^[\\[\\(\\{⟨]+$");
-	private static final Pattern RIGHTBRACKETS = Pattern.compile("^[\\)\\]\\}⟩]+$");
+	private static final Pattern LBRACKS = Pattern.compile("^[\\[\\(\\{⟨]+$");
+	private static final Pattern RBRACKS = Pattern.compile("^[\\)\\]\\}⟩]+$");
 
-	//no space before the punctuation
+	// no space before the punctuation
 	private static final Pattern NB_PUNCT = Pattern.compile("^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$");
 
 	// no space after the punctuation
@@ -187,7 +210,7 @@ public class Tokenizer {
 	private static final Pattern WWW = Pattern.compile("^(www[0-9]?|WWW[0-9]?)$");
 	private static final Pattern DOMIN = Pattern.compile("^(com|org|edu|net|xyz|gov|int|eu|hk|tw|cn|de|ch|fr)$");
 
-	private static final Pattern[] TOKENIZE_PART1 = new Pattern[] {
+	private static final Pattern[] TOKPAT1 = new Pattern[] {
 			//save abbreviation ------------------------------------
 			Pattern.compile("([Ee])[.]([Gg])[.]"),//e.g
 			Pattern.compile("([Ii])[.]([Ee])[.]"),//i.e
@@ -227,7 +250,7 @@ public class Tokenizer {
 			Pattern.compile("'([SMD]) "),
 	};
 
-	private static final Pattern[] TOKENIZE_PART2 = new Pattern[] {
+	private static final Pattern[] TOKPAT2 = new Pattern[] {
 			Pattern.compile("([Cc])an['’]t"),
 			Pattern.compile("([Dd])idn['’]t"),
 			Pattern.compile("([CcWw])ouldn['’]t"),
@@ -238,7 +261,7 @@ public class Tokenizer {
 			Pattern.compile("['’]re "),
 	};
 
-	private static final Pattern[] TOKENIZE_PART3 = new Pattern[] {
+	private static final Pattern[] TOKPAT3 = new Pattern[] {
 			Pattern.compile(" ([A-Z]) \\."),
 			Pattern.compile("\\s+"),
 			Pattern.compile("^\\s+"),
@@ -275,7 +298,7 @@ public class Tokenizer {
 	};
 
 	private static final String DELIM = "___";
-	private static final String[] TOKENIZE_STRINGS1 = new String[] {
+	private static final String[] TOKREP1 = new String[] {
 			"_$1$2_",
 			"_$1$2_",
 			"_$1$2_",
@@ -313,7 +336,7 @@ public class Tokenizer {
 			" \'$1 ",
 	};
 
-	private static final String[] TOKENIZE_STRINGS2 = new String[] {
+	private static final String[] TOKREP2 = new String[] {
 			"$1an not",
 			"$1id not",
 			"$1ould not",
@@ -324,7 +347,7 @@ public class Tokenizer {
 			" are ",
 	};
 
-	private static final String[] TOKENIZE_STRINGS3 = new String[] {
+	private static final String[] TOKREP3 = new String[] {
 			" $1. ",
 			" ",
 			"",
@@ -359,38 +382,11 @@ public class Tokenizer {
 			"$1.", // Prof.
 	};
 
-	//////////////////////////////////////////////////////////////////
-
-	private static String[] unescapeAbbrevs(String[] arr) {
-		for (int i = 0; i < arr.length; i++) {
-			arr[i] = arr[i].replaceAll(DELIM, ".");
-		}
-		return arr;
-	}
-
-	private static String escapeAbbrevs(String text) {
-
-		String[] abbrevs = RiTa.ABRV;
-		for (int i = 0; i < abbrevs.length; i++) {
-			String abv = abbrevs[i];
-			int idx = text.indexOf(abv);
-			while (idx > -1) {
-				text = text.replace(abv, abv.replace(".", DELIM));
-				idx = text.indexOf(abv);
-			}
-		}
-		return text;
-	}
-
 	static {
-		if (TOKENIZE_PART1.length != TOKENIZE_STRINGS1.length) {
-			throw new RiTaException("Invalid State [1]");
-		}
-		if (TOKENIZE_PART2.length != TOKENIZE_STRINGS2.length) {
-			throw new RiTaException("Invalid State [2]");
-		}
-		if (TOKENIZE_PART3.length != TOKENIZE_STRINGS3.length) {
-			throw new RiTaException("Invalid State [3]");
+		if (TOKPAT1.length != TOKREP1.length 
+				|| TOKPAT2.length != TOKREP2.length 
+				|| TOKPAT3.length != TOKREP3.length) {
+			throw new RiTaException("Invalid Tokenizer");
 		}
 	}
 }
