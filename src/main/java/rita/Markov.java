@@ -18,7 +18,7 @@ public class Markov {
 	protected Function<String, String[]> _tokenize;
 	//protected Function<String[], String> _untokenize;
 
-	protected int mlm, treeifyTimes, maxAttempts = 99;
+	protected int mlm, treeifyTimes, maxAttempts = 999;
 	protected boolean trace, disableInputChecks, logDuplicates;
 
 	public Markov(int n) {
