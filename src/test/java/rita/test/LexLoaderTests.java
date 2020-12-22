@@ -26,6 +26,6 @@ public class LexLoaderTests {
 		timeMs = Duration.between(now, Instant.now()).toMillis();
 		//console.log("2) "+numWords + " words in " + timeMs + "ms");
 		assertTrue(numWords > 22000);
-		assertTrue(timeMs < 20);
+		assertTrue(timeMs < 50);
 	}
 }
