@@ -226,7 +226,7 @@ public class MarkovTests {
 		eq(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
-			console.log(i+") " + s);
+			//console.log(i+") " + s);
 			String firstL = String.valueOf(s.charAt(0));
 			eq(firstL, firstL.toUpperCase());
 			assertTrue(s.matches("(.*)[?.!]$"), "FAIL: bad last char in \"" + s + "\"");
@@ -235,7 +235,7 @@ public class MarkovTests {
 		rm = new Markov(4);
 		rm.addText(sample);
 		String[] s = rm.generate();
-		console.log("X) " + s[0]);
+		//console.log("X) " + s[0]);
 		String firstL = String.valueOf(s[0].charAt(0));
 		assertTrue(s != null && firstL == firstL.toUpperCase());
 		assertTrue(s[0].matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
