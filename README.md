@@ -13,6 +13,8 @@ RiTa is a toolkit for natural language and generative literature. It is implemen
 * A simple [Java example](#a-simple-example-java)
 * For [Developers](#developing)
 
+:warning: _RiTa v2.0 contains breaking changes! Please see these [release notes](https://rednoise.org/rita/#whats-new-wrapper)._ :warning:
+
 ### Installation
 
 * Via [github packages](https://github.com/dhowe/rita/packages/)
