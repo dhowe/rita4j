@@ -140,7 +140,7 @@ public class LexiconTests {
 					hm.clear();
 					hm.put("pos", pos[j]);
 					String result = RiTa.randomWord(hm);
-					String best = RiTa.pos(result)[0];//.bestPos(result);// private
+					String best = Tagger.allTags(result)[0];
 					if (!best.equals(pos[j])) {
 						System.out.println(result + ": " + pos[j] + " ?= "
 								+ best + "/" + Tagger.allTags(result)[0]);
