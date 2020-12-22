@@ -497,7 +497,7 @@ public class Util {
 
 		if (phones == null || phones.length() < 1) return "";
 
-		String[] syllables = phones.trim().split(RiTa.WORD_BOUNDARY);
+		String[] syllables = phones.trim().split(" ");
 		StringBuffer ipaPhones = new StringBuffer();
 
 		boolean needStress = true;

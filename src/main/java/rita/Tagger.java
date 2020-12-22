@@ -11,7 +11,7 @@ public class Tagger {
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
 
 	private static String[] massNouns = Util.MASS_NOUNS;
-	private static Lexicon lexicon = RiTa._lexicon();
+	private static Lexicon lexicon = RiTa.lexicon();
 
 	private Tagger() {
 		/* static class */

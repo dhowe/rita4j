@@ -158,7 +158,7 @@ public class Inflector {
 		}
 
 		String sing = RiTa.singularize(word);
-		Map<String, String[]> dict = RiTa._lexicon().dict;
+		Map<String, String[]> dict = RiTa.lexicon().dict;
 		String[] pos, data = dict.get(sing);
 
 		// Is singularized form different and n lexicon as 'nn'?

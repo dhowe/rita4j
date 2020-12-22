@@ -64,7 +64,7 @@ public class LexiconTests {
 
 	@Test
 	public void handleAnAugmentedLexicon() {
-		Lexicon lexicon = RiTa._lexicon();
+		Lexicon lexicon = RiTa.lexicon();
 		lexicon.dict.put("deg", new String[] { "d-eh1-g", "nn" });
 		lexicon.dict.put("wadly", new String[] { "w-ae1-d l-iy", "rb" });
 
@@ -81,7 +81,7 @@ public class LexiconTests {
 
 	@Test
 	public void hanldeACustomLexicon() {
-		Lexicon lexicon = RiTa._lexicon();
+		Lexicon lexicon = RiTa.lexicon();
 		Map<String, String[]> orig = lexicon.dict;
 		Map<String, String[]> data = new HashMap<String, String[]>();
 		data.put("dog", new String[] { "d-ao1-g", "nn" });
@@ -118,7 +118,7 @@ public class LexiconTests {
 			// TODO: occasional problem here, examples: beaux
 
 			// No vbg, No -ness, -ism
-			String pos = RiTa._lexicon().posData(result);
+			String pos = RiTa.lexicon().posData(result);
 			//if (pos == null) System.out.println("FAIL:" + plural + "/" + sing + ": " + pos);
 			//if (pos == null) bad.put(plural, sing);
 			assertTrue(pos == null || pos.indexOf("vbg") < 0, "fail at " + result);
@@ -139,7 +139,7 @@ public class LexiconTests {
 				hm.clear();
 				hm.put("pos", pos[j]);
 				String result = RiTa.randomWord(hm);
-				String best = RiTa._lexicon().bestPos(result);// private
+				String best = RiTa.lexicon().bestPos(result);// private
 				//System.out.println(result+": "+pos[j]+" ?= "+best);
 				assertEquals(pos[j], best);
 			}
@@ -380,7 +380,7 @@ public class LexiconTests {
 	@Test
 	public void callToPhoneArray() {
 
-		String[] result = RiTa._lexicon().toPhoneArray(RiTa._lexicon().rawPhones("tornado", false));
+		String[] result = RiTa.lexicon().toPhoneArray(RiTa.lexicon().rawPhones("tornado", false));
 		String[] ans = { "t", "ao", "r", "n", "ey", "d", "ow" };
 		assertArrayEquals(result, ans);
 	}

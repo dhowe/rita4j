@@ -38,11 +38,11 @@ public class Analyzer {
 	public String[] analyzeWord(String word) {
 		return this.analyzeWord(word, null);
 	}
-	
+
 	public String[] analyzeWord(String word, Map<String, Object> opts) {
 
-		boolean useRaw = false;
-		String rawPhones = RiTa._lexicon().rawPhones(word, true);
+		boolean useRaw = false; // Util.boolOpt("rawPhones", opts);
+		String rawPhones = RiTa.lexicon().rawPhones(word, true);
 
 		// TODO: add cache
 
@@ -50,13 +50,13 @@ public class Analyzer {
 		if (rawPhones == null && word.endsWith("s")) {
 
 			String sing = RiTa.singularize(word);
-			rawPhones = RiTa._lexicon().rawPhones(sing, true);
+			rawPhones = RiTa.lexicon().rawPhones(sing, true);
 			if (rawPhones != null) rawPhones += "-z"; // add 's' phone
 		}
-		
+
 		// TODO: what about verb forms here??
 
-		// now use the lts engine
+		// now use the lts engine if needed
 		if (rawPhones == null) {
 
 			String[] ltsPhones = RiTa.lts.computePhones(word);

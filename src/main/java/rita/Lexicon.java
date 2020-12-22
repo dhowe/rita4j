@@ -729,7 +729,7 @@ public class Lexicon {
 
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
-		console.log(RiTa._lexicon().randomWord(null));
+		console.log(RiTa.lexicon().randomWord(null));
 		//		System.out.println(lex.dict.get("dog")[0]);
 		//		System.out.println(lex.dict.get("dog")[1]);
 		//		System.out.println(lex._rawPhones("dog"));

@@ -27,7 +27,7 @@ void draw()
   text(word, 80, 50);
 
   textSize(18);
-  text("/"+Util.arpaToIPA(phones)+ "/", 80, 80);
+  text(ipaPhones(word), 80, 80);
 
   textSize(14);
   text(pos.toUpperCase(), 80, 105);
@@ -67,4 +67,9 @@ void nextWord() { // every 4 sec
 
   addStresses(ss, sy, bubbles);
   addSyllables(sy, bubbles);
+}
+
+String ipaPhones(String aWord) {
+  String raw = RiTa.lexicon().rawPhones(aWord);
+  return "/" + Util.arpaToIPA(raw) + "/";
 }

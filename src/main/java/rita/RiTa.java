@@ -32,7 +32,7 @@ public class RiTa {
 	}
 
 	public static String[] alliterations(String word, Map<String, Object> opts) {
-		return _lexicon().alliterations(word, opts);
+		return lexicon().alliterations(word, opts);
 	}
 
 	public static Map<String, String> analyze(String word) {
@@ -67,7 +67,7 @@ public class RiTa {
 	}
 
 	public static boolean hasWord(String word) {
-		return _lexicon().hasWord(word);
+		return lexicon().hasWord(word);
 	}
 
 	public static boolean isAbbreviation(String input) {
@@ -93,11 +93,11 @@ public class RiTa {
 	}
 
 	public static boolean isAlliteration(String word1, String word2) {
-		return _lexicon().isAlliteration(word1, word2, false);//TODO default?
+		return lexicon().isAlliteration(word1, word2, false);//TODO default?
 	}
 
 	public static boolean isAlliteration(String word1, String word2, boolean useLTS) {
-		return _lexicon().isAlliteration(word1, word2, useLTS);
+		return lexicon().isAlliteration(word1, word2, useLTS);
 	}
 
 	public static boolean isNoun(String word) {
@@ -113,11 +113,11 @@ public class RiTa {
 	}
 
 	public static boolean isRhyme(String word1, String word2) {
-		return _lexicon().isRhyme(word1, word2, false);//TODO default?
+		return lexicon().isRhyme(word1, word2, false);//TODO default?
 	}
 
 	public static boolean isRhyme(String word1, String word2, boolean useLTS) {
-		return _lexicon().isRhyme(word1, word2, useLTS);
+		return lexicon().isRhyme(word1, word2, useLTS);
 	}
 
 	public static boolean isStopWord(String word) {
@@ -151,7 +151,7 @@ public class RiTa {
 	}
 
 	public static String phones(String text, Map<String, Object> opts) {
-		return _analyzer().analyze(text).get("phones");
+		return _analyzer().analyze(text, opts).get("phones");
 	}
 
 	public static String posInline(String text, Map<String, Object> opts) {
@@ -247,11 +247,11 @@ public class RiTa {
 	}
 
 	public static String randomWord() {
-		return _lexicon().randomWord(null);
+		return lexicon().randomWord(null);
 	}
 
 	public static String randomWord(Map<String, Object> opts) {
-		return _lexicon().randomWord(opts);
+		return lexicon().randomWord(opts);
 	}
 
 	public static String randomWord(String pos) {
@@ -267,11 +267,11 @@ public class RiTa {
 	}
 
 	public static String[] rhymes(String word) {
-		return _lexicon().rhymes(word);
+		return lexicon().rhymes(word);
 	}
 
 	public static String[] rhymes(String word, Map<String, Object> opts) {
-		return _lexicon().rhymes(word, opts);
+		return lexicon().rhymes(word, opts);
 	}
 
 	public static String evaluate(String word) {
@@ -323,31 +323,31 @@ public class RiTa {
 	}
 
 	public static String[] soundsLike(String word) {
-		return _lexicon().soundsLike(word);
+		return lexicon().soundsLike(word);
 	}
 
 	public static String[] spellsLike(String word) {
-		return _lexicon().spellsLike(word);
+		return lexicon().spellsLike(word);
 	}
 
 	public static String[] search() {
-		return _lexicon().search(null);
+		return lexicon().search(null);
 	}
 
 	public static String[] search(String word) {
-		return _lexicon().search(word);
+		return lexicon().search(word);
 	}
 
 	public static String[] soundsLike(String word, Map<String, Object> opts) {
-		return _lexicon().soundsLike(word, opts);
+		return lexicon().soundsLike(word, opts);
 	}
 
 	public static String[] spellsLike(String word, Map<String, Object> opts) {
-		return _lexicon().spellsLike(word, opts);
+		return lexicon().spellsLike(word, opts);
 	}
 
 	public static String[] search(String word, Map<String, Object> opts) {
-		return _lexicon().search(word, opts);
+		return lexicon().search(word, opts);
 	}
 
 	public static String singularize(String word) {
@@ -407,12 +407,12 @@ public class RiTa {
 	}
 
 	public static String[] words(Pattern regex) {
-		return _lexicon().words(regex);
+		return lexicon().words(regex);
 	}
 
 	// //////////////////////////////////////////////////////////////////////////
 
-	public static Lexicon _lexicon() {
+	public static Lexicon lexicon() { // singleton
 		if (RiTa.lexicon == null) {
 			RiTa.lts = new LetterToSound();
 			try {
@@ -427,7 +427,7 @@ public class RiTa {
 
 	static Analyzer _analyzer() {
 		if (analyzer == null) {
-			RiTa._lexicon();
+			RiTa.lexicon();
 			RiTa.analyzer = new Analyzer();
 		}
 		return RiTa.analyzer;
@@ -436,12 +436,9 @@ public class RiTa {
 	// STATICS
 	public static boolean SILENT = false;
 	public static boolean SILENCE_LTS = true;
-	public static boolean LEX_WARN = false;
-	public static boolean LTS_WARN = false;
 	public static boolean SPLIT_CONTRACTIONS = false;
 
 	public static String PHONEME_BOUNDARY = "-";
-	public static String WORD_BOUNDARY = " ";
 	public static String SYLLABLE_BOUNDARY = "/";
 	public static String SENTENCE_BOUNDARY = "|";
 	public static String DICT_PATH = "rita_dict.js";
