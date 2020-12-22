@@ -294,11 +294,11 @@ public class Util {
 	public static final String strOpt(String key, Map<String, Object> opts, String def) {
 		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
 	}
-	
+
 	public static String[] strsOpt(String key, Map<String, Object> opts) {
 		return strsOpt(key, opts, null);
 	}
-	
+
 	public static String[] strsOpt(String key, Map<String, Object> opts, String[] def) {
 		return (opts != null) ? (String[]) opts.getOrDefault(key, def) : def;
 	}
@@ -476,8 +476,173 @@ public class Util {
 		return contains(s, Character.toString(c));
 	}
 
+	/**
+	 * Converts an Arpabet phonemic transcription to an IPA phonemic
+	 * transcription. Note that, somewhat unusually, the stress symbol will
+	 * precede the vowel rather than the syllable. This is because Arpabet does
+	 * not mark syllable boundaries.
+	 *
+	 * Arpabet is the set of phonemes used by the CMU Pronouncing Dictionary. IPA
+	 * is the International Phonetic Alphabet.
+	 *
+	 * @param phones
+	 *               The Arpabet phonemic transcription to convert:
+	 * @return The IPA equivalent of s.
+	 * @throws IllegalArgumentException
+	 *                                  if a phoneme is unknown.
+	 */
+	public static String arpaToIPA(String phones) {
+
+		//System.out.println("Phoneme.arpaToIPA("+phones+")");
+
+		if (phones == null || phones.length() < 1) return "";
+
+		String[] syllables = phones.trim().split(RiTa.WORD_BOUNDARY);
+		StringBuffer ipaPhones = new StringBuffer();
+
+		boolean needStress = true;
+
+		if (syllables.length == 1) { // one-syllable words dont get stresses
+			// syllables[0] = syllables[0].replaceAll("[\\d]", "");
+			needStress = false;
+		}
+
+		for (int i = 0; i < syllables.length; i++) {
+
+			String ipa = syllableToIPA(syllables[i], needStress);
+			if (ipaPhones.length() > 0 && !ipa.startsWith(IPA_STRESS)
+					&& !ipa.startsWith(IPA_2NDSTRESS)) {
+				ipa = " " + ipa;
+			}
+			ipaPhones.append(ipa);
+		}
+
+		return ipaPhones.toString();
+	}
+
+	protected static String syllableToIPA(String arpaSyl, Boolean needStress) {
+
+		boolean primarystressed = false, secondarydStressed = false, isAHStressed = false,
+				isAEStressed = false, isAOStressed = false, isUWStressed = false,
+				isAAStressed = false, isIYStressed = false, isERStressed = false;
+
+		StringBuffer ipaSyl = new StringBuffer();
+		String[] arpaPhones = arpaSyl.trim().split(RiTa.PHONEME_BOUNDARY);
+
+		for (int i = 0; i < arpaPhones.length; i++) {
+
+			String arpaPhone = arpaPhones[i];
+
+			char stress = arpaPhone.charAt(arpaPhone.length() - 1);
+
+			if (stress == RiTa.NOSTRESS) {// no stress
+				arpaPhone = arpaPhone.substring(0, arpaPhone.length() - 1);
+			}
+			else if (stress == RiTa.STRESS) { // primary stress
+				arpaPhone = arpaPhone.substring(0, arpaPhone.length() - 1);
+				primarystressed = true;
+
+				if (arpaPhone.equals("aa")) isAAStressed = true;
+				else if (arpaPhone.equals("er")) isUWStressed = true;
+				else if (arpaPhone.equals("iy")) isIYStressed = true;
+				else if (arpaPhone.equals("ao")) isUWStressed = true;
+				else if (arpaPhone.equals("uw")) isUWStressed = true;
+				else if (arpaPhone.equals("ah")) isAHStressed = true;
+				else if (arpaPhone.equals("ae") && arpaPhones.length > 2 // 'at'
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("th") // e.g. for 'thank', 'ae1' is always 'æ'
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("dh") // 'that'
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("m") // 'man'
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("k")) {// 'catnip'
+					isAEStressed = true;
+				}
+			}
+			else if (stress == '2') {// secondary stress
+				arpaPhone = arpaPhone.substring(0, arpaPhone.length() - 1);
+				secondarydStressed = true;
+
+				if (arpaPhone.equals("ah")) isAHStressed = true;
+			}
+
+			String IPASyl = phoneToIPA(arpaPhone);
+
+			if (isAAStressed || isERStressed || isIYStressed
+					|| isAOStressed || isUWStressed) {
+				IPASyl += "ː";
+			}
+			else if (isAHStressed) IPASyl = "ʌ";
+			else if (isAEStressed) IPASyl = "ɑː";
+
+			isAAStressed = isERStressed = isIYStressed = isAOStressed = isUWStressed = isAHStressed = isAEStressed = false;
+
+			ipaSyl.append(IPASyl);
+		}
+
+		if (needStress && primarystressed) {
+			ipaSyl.insert(0, IPA_STRESS);
+		}
+		else if (needStress && secondarydStressed) {
+			ipaSyl.insert(0, IPA_2NDSTRESS);
+		}
+
+		return ipaSyl.toString();
+	}
+
+	private static String phoneToIPA(String arpaPhone) {
+		String ipaPhoneme = arpaMap.get(arpaPhone);
+		if (ipaPhoneme == null) {
+			throw new RiTaException("Unexpected phoneme: " + arpaPhone);
+		}
+		return ipaPhoneme;
+	}
+
+	private static final String IPA_STRESS = "ˈ", IPA_2NDSTRESS = "ˌ";
+
+	private static final Map<String, String> arpaMap;
+	static {
+		arpaMap = new HashMap<String, String>();
+		arpaMap.put("aa", "ɑ"); // ɑ or ɒ
+		arpaMap.put("ae", "æ"); // ɑː or æ 
+		arpaMap.put("ah", "ə"); // ə for 'sofa', 'alone'; ʌ for 'but', 'sun'
+		arpaMap.put("ao", "ɔ");
+		arpaMap.put("aw", "aʊ");
+		arpaMap.put("ay", "aɪ");
+		arpaMap.put("b", "b");
+		arpaMap.put("ch", "tʃ");
+		arpaMap.put("d", "d");
+		arpaMap.put("dh", "ð");
+		arpaMap.put("eh", "ɛ");
+		arpaMap.put("er", "ə"); // ə or ɚ 
+		arpaMap.put("ey", "eɪ");
+		arpaMap.put("f", "f");
+		arpaMap.put("g", "g"); // g or ɡ (view the difference in notepad)
+		arpaMap.put("hh", "h");
+		arpaMap.put("ih", "ɪ");
+		arpaMap.put("iy", "i");
+		arpaMap.put("jh", "dʒ");
+		arpaMap.put("k", "k");
+		arpaMap.put("l", "l");
+		arpaMap.put("m", "m");
+		arpaMap.put("ng", "ŋ");
+		arpaMap.put("n", "n");
+		arpaMap.put("ow", "əʊ"); // əʊ for NAmE; or oʊ in BrE
+		arpaMap.put("oy", "ɔɪ");
+		arpaMap.put("p", "p");
+		arpaMap.put("r", "ɹ"); // r or ɹ
+		arpaMap.put("sh", "ʃ");
+		arpaMap.put("s", "s");
+		arpaMap.put("th", "θ");
+		arpaMap.put("t", "t");
+		arpaMap.put("uh", "ʊ");
+		arpaMap.put("uw", "u");
+		arpaMap.put("v", "v");
+		arpaMap.put("w", "w");
+		arpaMap.put("y", "j");
+		arpaMap.put("z", "z");
+		arpaMap.put("zh", "ʒ");
+	}
+
 	public static void main(String[] args) {
-		System.out.println(syllablesFromPhones(new String[] { }));
+		System.out.println(Util.arpaToIPA("dog"));
 	}
 
 }

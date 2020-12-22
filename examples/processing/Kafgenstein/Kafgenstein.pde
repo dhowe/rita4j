@@ -1,9 +1,9 @@
 import rita.*;
 
-RiMarkov markov;
 String line = "click to (re)generate!";
 String[] files = { "wittgenstein.txt", "kafka.txt" };
 int x = 160, y = 240;
+Markov markov;
 
 void setup()
 {
@@ -13,7 +13,7 @@ void setup()
   textFont(createFont("times", 16));
 
   // create a markov model w' n=3 from the files
-  markov = new RiMarkov(4);
+  markov = RiTa.markov(4);
   markov.loadFrom(files, this);
 }
 

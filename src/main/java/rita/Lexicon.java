@@ -368,9 +368,8 @@ public class Lexicon {
 
 	public String randomWord(Map<String, Object> opts) {
 
-		int minLength = Util.intOpt("minLength", opts, 4);
-		opts = this.parseArgs(opts);
-		opts.put("minLength", minLength); // default to 4, not 3
+		opts = this.parseArgs(opts);     // default to 4, not 3
+		opts.put("minLength", Util.intOpt("minLength", opts, 4)); 
 
 		String tpos = (String) opts.get("targetPos");
 		String[] words = dict.keySet().toArray(EA);
@@ -598,17 +597,9 @@ public class Lexicon {
 		return Util.contains(RiTa.VOWELS, c);
 	}
 
-	private boolean isVowel(String c) {
-		return c != null && RiTa.VOWELS.contains(c);
-	}
-
 	private boolean isConsonant(char c) {
-		return isConsonant(Character.toString(c));
-	}
-
-	private boolean isConsonant(String p) {
-		return (p.length() == 1 && RiTa.VOWELS.indexOf(p) < 0
-				&& "^[a-z\u00C0-\u00ff]+$".matches(p)); // TODO: precompile
+		return RiTa.VOWELS.indexOf(c) < 0 &&// TODO: precompile
+				"^[a-z\u00C0-\u00ff]+$".matches(Character.toString(c)); 
 	}
 
 	private String lastStressedPhoneToEnd(String word) {
@@ -738,7 +729,7 @@ public class Lexicon {
 
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
-		console.log(RiTa.stresses("abatements"));
+		console.log(RiTa._lexicon().randomWord(null));
 		//		System.out.println(lex.dict.get("dog")[0]);
 		//		System.out.println(lex.dict.get("dog")[1]);
 		//		System.out.println(lex._rawPhones("dog"));

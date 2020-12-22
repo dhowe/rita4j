@@ -246,6 +246,10 @@ public class RiTa {
 		RandGen.seed(theSeed);
 	}
 
+	public static String randomWord() {
+		return _lexicon().randomWord(null);
+	}
+
 	public static String randomWord(Map<String, Object> opts) {
 		return _lexicon().randomWord(opts);
 	}
@@ -283,13 +287,13 @@ public class RiTa {
 	}
 
 	public static Grammar grammar() {
-		return grammar((String)null);
+		return grammar((String) null);
 	}
 
 	public static Grammar grammar(String rules) {
 		return grammar(rules, null);
 	}
-	
+
 	public static Grammar grammar(Map<String, Object> rules) {
 		return grammar(rules, null);
 	}
@@ -297,7 +301,7 @@ public class RiTa {
 	public static Grammar grammar(Map<String, Object> rules, Map<String, Object> context) {
 		return new Grammar(rules, context);
 	}
-	
+
 	public static Grammar grammar(String rules, Map<String, Object> context) {
 		return new Grammar(rules, context);
 	}
@@ -458,13 +462,11 @@ public class RiTa {
 	//	public static final int BARE_INFINITIVE = 4;
 	//	public static final int SUBJUNCTIVE = 5;
 
-	public static final String STRESS = "1";
-	public static final String NOSTRESS = "0";
+	public static final char STRESS = '1',  NOSTRESS = '0';
 	public static final String VOWELS = "aeiou";
 	public static final String VERSION = "2";
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
-	public static final String[] FEATURES = { "TOKENS", "STRESSES", "PHONEMES", "SYLLABLES", "POS", "TEXT" };
 
 	public static String[] ABRV = {
 			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
@@ -494,6 +496,9 @@ public class RiTa {
 			"won't", "ok", "they're", "yeah", "mine", "we're", "what's", "shall",
 			"she's", "hello", "okay", "here's", "less"
 	};
+
+	public static String[] PHONES = { "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f", "g", "hh", "ih", "iy", "jh", "k",
+			"l", "m", "n", "ng", "ow", "oy", "p", "r", "s", "sh", "t", "th", "uh", "uw", "v", "w", "y", "z", "zh" };
 
 	public static void main(String[] args) {
 		System.out.println(RiTa.analyze("absolot"));

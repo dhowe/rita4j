@@ -1,30 +1,19 @@
 import rita.*;
 
-RiLexicon lexicon;
-int maxWordLength = 12;
-String pos="", word="", sy, ph, ss;
+String pos="", word="", phones;
+int last = -9999, maxWordLength = 12, colors[];
 Bubble[] bubbles = new Bubble[maxWordLength];
-StringDict tagsDict;
-color[] colors;
 
 void setup()
 {
   size(600, 300);
-
-  noStroke();
   textFont(createFont("Georgia", 36));
-
-  // load Lexicon
-  lexicon = new RiLexicon();
+  noStroke();
 
   colors = colorGradient();
-
-  // initialize bubbles
-  for (int i = 0; i < bubbles.length; i++)
+  for (int i = 0; i < bubbles.length; i++) {
     bubbles[i] = new Bubble();
-
-  // start a timer
-  RiTa.timer(this, 4.0);
+  }
 }
 
 
@@ -32,52 +21,46 @@ void draw()
 {
   background(255);
 
-  // float gap = width/((float)colors.length+1);
-  // for (int i = 0; i < colors.length; i++) {
-  //   fill(colors[i]);
-  //   ellipse((colors.length-i) * gap, height-2*gap, gap, gap);
-  // }
-
-  // the word
   fill(56, 66, 90);
-  textAlign(LEFT);
   textSize(36);
-  text(word, 80, 100);
+  textAlign(LEFT);
+  text(word, 80, 50);
 
-  // pos Tag
-  fill(100);
+  textSize(18);
+  text("/"+Util.arpaToIPA(phones)+ "/", 80, 80);
+
   textSize(14);
-  text(pos.toUpperCase(), 20, 30);
+  text(pos.toUpperCase(), 80, 105);
 
-  for (int i = 0; i < bubbles.length; i++)
+  for (int i = 0; i < bubbles.length; i++) {
     bubbles[i].draw(i);
+  }
+
+  int now = millis();
+  if (now - last > 4000) { // timer
+    last = now;
+    nextWord();
+  }
 }
 
 
-void onRiTaEvent(RiTaEvent re) { // called every 4 sec by timer
+void nextWord() { // every 4 sec
 
   // random word with <= 12 letters
   do {
-    word = lexicon.randomWord();
-  }
-  while (word.length() > maxWordLength);
+    word = RiTa.randomWord();
+  } while (word.length() > maxWordLength);
 
   // get various features
-  sy = RiTa.getSyllables(word);
-  ph = RiTa.getPhonemes(word);
-  ss = RiTa.getStresses(word);
+  String sy = RiTa.syllables(word);
+  String ss = RiTa.stresses(word);
+  phones = RiTa.phones(word);
 
-  // get (WordNet-style) pos-tags
-  String[] tags = RiTa.getPosTags(word, true);
-  pos = tagName(tags[0]);
+  // get (WordNet-style) pos-tag
+  pos = tagName(RiTa.pos(word, true)[0]);
 
-  // restart the bubbles
-  for (int i = 0; i < bubbles.length; i++) {
-    bubbles[i].reset();
-  }
-
-  // update the bubbles for the new word
-  String[] phs = ph.split("-");
+  // update the bubbles
+  String[] phs = phones.split("-");
   for (int i = 0; i < phs.length; i++) {
     bubbles[i].update(phs[i], i*50+100);
   }

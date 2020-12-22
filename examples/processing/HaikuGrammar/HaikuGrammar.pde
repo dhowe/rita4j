@@ -1,6 +1,6 @@
 import rita.*;
 
-RiGrammar grammar;
+Grammar grammar;
 String[] lines = {"click to", "generate", "a haiku"};
 
 void setup()
@@ -11,8 +11,8 @@ void setup()
   textSize(30);
   textAlign(CENTER);
 
-  grammar = new RiGrammar(this);
-  grammar.loadFrom("haiku.yaml");
+  String json = String.join("\n", loadStrings("haiku.json"));
+  grammar = RiTa.grammar(json);
 }
 
 void draw()

@@ -1,6 +1,6 @@
 class Bubble {
 
-  int r; // radius of circle
+  int r; // radius
   String ph; // phoneme
   color c; // color
   int t; // timer
@@ -28,6 +28,7 @@ class Bubble {
   }
 
   void update(String phoneme, float x) {
+    reset();
     ph = phoneme;
     xpos = x;
     ypos = 150;
@@ -37,13 +38,11 @@ class Bubble {
 
   // adjust distance according to syllable
   void adjustDistance(int dis) {
-
     xpos += (r == 40) ? dis : 0.7 * dis;
   }
 
   // adjust the size of the circle
   void grow() {
-
     r = 41;
     sz = 0.5;
   }
@@ -63,7 +62,6 @@ class Bubble {
     text(ph, xpos, ypos-5);
 
     if (sz < 10) sz *= 1.1;
-
     if (++t > 100 + 2 * i) {
       speed += gravity;
       ypos += speed;

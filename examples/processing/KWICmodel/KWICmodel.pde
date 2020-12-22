@@ -3,10 +3,10 @@ import rita.*;
 HashMap args;
 float buttonX = 150;
 String[] kwic, buttons = {
-  "Gregor", "Samsa",  "family",  "being", 
-  "clerk",  "room",  "violin",  "window"
+  "Gregor", "Samsa", "family", "being", 
+  "clerk", "room", "violin", "window"
 };
-String data, over, word = buttons[7];
+String txt, over, word = buttons[7];
 
 void setup() {
   size(800, 500);
@@ -18,14 +18,14 @@ void setup() {
   args.put("ignoreStopWords", true);
   args.put("wordCount", 6);
 
-  data = RiTa.loadString("kafka.txt", this);
+  String[] txt = loadStrings("kafka.txt");
+  RiTa.concordance(String.join("\n", txt));
 }
 
 void draw() {
 
-  if (kwic == null)
-    kwic = RiTa.kwic(data, word, args);
-    
+  kwic = RiTa.kwic(word, 6);
+
   background(255);
   drawButtons();
 
@@ -37,7 +37,7 @@ void draw() {
     float x = width / 2f, y = i * 20 + 75;
 
     if (y > height - 20) return;
-    
+
     fill(0);
     textAlign(RIGHT);
     text(parts[0], x - tw, y);
@@ -54,7 +54,7 @@ void draw() {
 
 void drawButtons() {
 
-  float posX = buttonX, posY = 40;
+  float posX = buttonX;
   for (int i = 0; i < buttons.length; i++) {
     stroke(200);
     boolean on = word.equals(buttons[i]);
@@ -95,7 +95,6 @@ void mouseMoved() {
 }
 
 boolean inside(float mx, float my, float posX, float tw) {
-
-  return (mx >= posX-5 && mx <= posX + tw+5 && my >= 25 && my <= 44);
+  return (mx >= posX-5 && mx <= posX + tw+5 
+    && my >= 25 && my <= 44);
 }
- 
