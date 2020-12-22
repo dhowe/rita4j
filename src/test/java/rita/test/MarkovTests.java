@@ -222,14 +222,11 @@ public class MarkovTests {
 		Map<String, Object> hm = opts("disableInputChecks", true);
 		Markov rm = new Markov(4, hm);
 		rm.addText(RiTa.sentences(sample));
-		String[] sents = new String[0];
-		for (int i = 0; i < 100; i++) {
-			sents = rm.generate(5);
-		}//repeat 100 times make sure generate dont throw error
-		//		System.out.println(Arrays.toString(sents));
+		String[] sents = rm.generate(5);
 		eq(sents.length, 5);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
+			console.log(i+") " + s);
 			String firstL = String.valueOf(s.charAt(0));
 			eq(firstL, firstL.toUpperCase());
 			assertTrue(s.matches("(.*)[?.!]$"), "FAIL: bad last char in \"" + s + "\"");
@@ -238,7 +235,7 @@ public class MarkovTests {
 		rm = new Markov(4);
 		rm.addText(sample);
 		String[] s = rm.generate();
-		// console.log(i + ") " + s);
+		console.log("X) " + s[0]);
 		String firstL = String.valueOf(s[0].charAt(0));
 		assertTrue(s != null && firstL == firstL.toUpperCase());
 		assertTrue(s[0].matches("(.*)[!?.]$"), "FAIL: bad last char in \"" + s + "\"");
