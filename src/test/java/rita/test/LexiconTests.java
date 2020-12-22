@@ -133,18 +133,22 @@ public class LexiconTests {
 	public void callRandomWordPos() {
 		String[] pos = { "nn", "jj", "jjr", "wp" };
 		Map<String, Object> hm = new HashMap<String, Object>();
+		for (int k = 0; k < 1000; k++) {
 
-		for (int j = 0; j < pos.length; j++) {
-			for (int i = 0; i < 5; i++) {
-				hm.clear();
-				hm.put("pos", pos[j]);
-				String result = RiTa.randomWord(hm);
-				String best = RiTa.lexicon().bestPos(result);// private
-				//System.out.println(result+": "+pos[j]+" ?= "+best);
-				assertEquals(pos[j], best);
+			for (int j = 0; j < pos.length; j++) {
+				for (int i = 0; i < 5; i++) {
+					hm.clear();
+					hm.put("pos", pos[j]);
+					String result = RiTa.randomWord(hm);
+					String best = RiTa.pos(result)[0];//.bestPos(result);// private
+					if (!best.equals(pos[j])) {
+						System.out.println(result + ": " + pos[j] + " ?= "
+								+ best + "/" + Tagger.allTags(result)[0]);
+					}
+					assertEquals(pos[j], best);
+				}
 			}
 		}
-
 	}
 
 	@Test
@@ -801,16 +805,16 @@ public class LexiconTests {
 		assertTrue(!RiTa.isRhyme("hose", "house"));
 		assertTrue(!RiTa.isRhyme("sieve", "mellow"));
 
-		assertTrue(RiTa.isRhyme("mouse", "house")); 
+		assertTrue(RiTa.isRhyme("mouse", "house"));
 
 		assertTrue(RiTa.isRhyme("yo", "bro"));
 		assertTrue(!RiTa.isRhyme("swag", "grab"));
-		
+
 		assertTrue(RiTa.isRhyme("weight", "eight"));
 		assertTrue(RiTa.isRhyme("eight", "weight"));
 
 		assertTrue(RiTa.isRhyme("sieve", "give"));
-		
+
 		assertTrue(RiTa.isRhyme("solo", "yoyo"));
 		assertTrue(RiTa.isRhyme("yoyo", "jojo"));
 

@@ -1,23 +1,11 @@
 import rita.*;
 
-/*
- * Note: Java-only, requires a local WordNet installation
- * Grab one here: http://rednoise.org/rita-archive/WordNet-3.1.zip
- * install it, and update the path below 
- */
-
-RiWordNet wordnet; 
-
+int last = -9999;
 String text = "Last Wednesday we decided to visit the zoo. We arrived the next morning after we breakfasted, cashed in our passes and entered. We walked toward the first exhibits. I looked up at a giraffe as it stared back at me. I stepped nervously to the next area. One of the lions gazed at me as he lazed in the shade while the others napped. One of my friends first knocked then banged on the tempered glass in front of the monkey's cage. They howled and screamed at us as we hurried to another exhibit where we stopped and gawked at plumed birds. After we rested, we headed for the petting zoo where we petted wooly sheep who only glanced at us but the goats butted each other and nipped our clothes when we ventured too near their closed pen. Later, our tired group nudged their way through the crowded paths and exited the turnstiled gate. Our car bumped, jerked and swayed as we dozed during the relaxed ride home.";
 
 void setup()
 {
   size(600, 400);   
-
-  // load wordnet, ignoring compound & uppercase words
-  wordnet = new RiWordNet("/WordNet-3.1", true, true);   
-
-  RiTa.timer(this, 2f);
 }
 
 void draw() {
@@ -26,11 +14,17 @@ void draw() {
   textLeading(20);
   background(250);
   text(text, 50, 30, 500, 10000);
+
+  int now = millis();
+  if (now - last > 2000) {
+    last = now;
+    nextWord();
+  }
 }
 
 //  replace a random word in the paragraph with one
 //  from wordnet with the same (basic) part-of-speech 
-void onRiTaEvent(RiTaEvent e)
+void nextWord()
 {   
   String[] words = text.split(" ");
 
@@ -41,22 +35,23 @@ void onRiTaEvent(RiTaEvent e)
     // only words of 3 or more chars
     if (words[i].length() < 3) continue;
 
-    String pos = wordnet.getBestPos(words[i].toLowerCase());  
+    String pos = Tagger.allTags(words[i].toLowerCase())[0];  
 
     if (pos != null) 
     {
       // get the synset
-      String[] syns = wordnet.getSynonyms(words[i], pos);
+      String[] syns = RiTa.rhymes(words[i]);
 
-      // only words with >1 synonyms
+      // only words with >1 rhymes
       if (syns.length<2) continue;
 
-      // pick a random synonym
+      // pick a random rhyme
       int randIdx = (int)random(0, syns.length);
       String newStr = syns[randIdx];
 
-      if (Character.isUpperCase(words[i].charAt(0)))              
-        newStr = RiTa.upperCaseFirst(newStr); // keep capitals
+      if (Character.isUpperCase(words[i].charAt(0))) {             
+        newStr = RiTa.capitalize(newStr); // keep capitals
+      }
 
       //println("replace: "+words[i]+" -> "+newStr);
 

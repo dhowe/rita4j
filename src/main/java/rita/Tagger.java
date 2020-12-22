@@ -70,13 +70,11 @@ public class Tagger {
 	}
 
 	public static String[] tag(String words, Map<String, Object> opts) {
-		boolean simple = Util.boolOpt("simple", opts);
-		return tag(words, simple);
+		return tag(words, Util.boolOpt("simple", opts));
 	}
 
 	public static String[] tag(String[] words, Map<String, Object> opts) {
-		boolean simple = Util.boolOpt("simple", opts);
-		return tag(words, simple);
+		return tag(words, Util.boolOpt("simple", opts));
 	}
 
 	public static String[] tag(String words, boolean useSimpleTags) {
@@ -85,7 +83,10 @@ public class Tagger {
 	}
 
 	public static String[] tag(String[] wordsArr, boolean useSimpleTags) {
-		if (wordsArr == null || wordsArr.length == 0) return new String[0];
+		
+		if (wordsArr == null || wordsArr.length == 0) {
+			return new String[0];
+		}
 
 		boolean dbug = false;
 
@@ -106,7 +107,7 @@ public class Tagger {
 				continue;
 			}
 			else {
-				choices2d[i] = posOptions(word); // all options
+				choices2d[i] = allTags(word); // all options
 				if (dbug) System.out.println(word + " " + choices2d[i].length);
 				result[i] = choices2d[i][0]; // first option
 			}
@@ -118,21 +119,27 @@ public class Tagger {
 		if (dbug) System.out.println(tags.length);
 		if (useSimpleTags) {
 			for (int i = 0; i < tags.length; i++) {
-				if (Arrays.asList(NOUNS).contains(tags[i]))
+				if (Arrays.asList(NOUNS).contains(tags[i])) {
 					tags[i] = "n";
-				else if (Arrays.asList(VERBS).contains(tags[i]))
+				}
+				else if (Arrays.asList(VERBS).contains(tags[i])) {
 					tags[i] = "v";
-				else if (Arrays.asList(ADJ).contains(tags[i]))
+				}
+				else if (Arrays.asList(ADJ).contains(tags[i])) {
 					tags[i] = "a";
-				else if (Arrays.asList(ADV).contains(tags[i]))
+				}
+				else if (Arrays.asList(ADV).contains(tags[i])) {
 					tags[i] = "r";
-				else
+				}
+				else {
 					tags[i] = "-"; // default: other
+				}
 			}
 			if (dbug) System.out.println("simple: " + Arrays.toString(tags));
 		}
 		if (dbug) System.out.println("Tags : " + Arrays.toString(tags));
-		return ((tags == null) ? new String[] { } : tags);
+		
+		return (tags == null) ? new String[] { } : tags;
 	}
 
 	public static boolean isAdjective(String word) {
@@ -203,7 +210,7 @@ public class Tagger {
 						}
 					}
 
-					if (dbug) _logCustom("1a", word, tag);
+					if (dbug) logCustom("1a", word, tag);
 				}
 
 				// transform 1b: DT, {RB | RBR | RBS} --> DT, {JJ |
@@ -211,7 +218,7 @@ public class Tagger {
 				else if (tag.startsWith("rb")) {
 
 					tag = (tag.length() > 2) ? "jj" + tag.charAt(2) : "jj";
-					if (dbug) _logCustom("1b", word, tag);
+					if (dbug) logCustom("1b", word, tag);
 				}
 			}
 
@@ -250,7 +257,7 @@ public class Tagger {
 			//transform 7(dch): convert a vb to vbn when following vbz/'has'  (She has ridden, He has rode)
 		    if (tag.equals("vbd") && i > 0 && result[i - 1].matches("^(vbz)$")) {
 		        tag = "vbn";
-		        if (dbug) _logCustom("7", word, tag);
+		        if (dbug) logCustom("7", word, tag);
 		    }
 
 			// transform 8: convert a common noun to a present
@@ -260,7 +267,7 @@ public class Tagger {
 				// DH: fixed here -- add check on choices2d for any verb: eg. // "morning"
 				if (hasTag(choices2d[i], "vb")) {
 					tag = "vbg";
-					if (dbug) _logCustom("8", word, tag);
+					if (dbug) logCustom("8", word, tag);
 				}
 			}
 
@@ -269,7 +276,7 @@ public class Tagger {
 			// dances)
 			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && results[i - 1].matches("^(nn|prp|nnp)$")) {
 				tag = "vbz";
-				if (dbug) _logCustom("9", word, tag);
+				if (dbug) logCustom("9", word, tag);
 			}
 
 			// transform 10(dch): convert common nouns to proper
@@ -280,7 +287,7 @@ public class Tagger {
 				// or when it is at the start of a sentence but can't be found in the dictionary
 				if (i != 0 || words.length == 1 || (i == 0 && !lexHas("nn", RiTa.singularize(word).toLowerCase()))) {
 					tag = tag.endsWith("s") ? "nnps" : "nnp";
-					if (dbug) _logCustom("10", word, tag);
+					if (dbug) logCustom("10", word, tag);
 				}
 			}
 
@@ -289,7 +296,7 @@ public class Tagger {
 			if (i < result.length - 1 && tag.equals("nns") && results[i + 1].startsWith("rb") &&
 					hasTag(choices2d[i], "vbz")) {
 				tag = "vbz";
-				if (dbug) _logCustom("11", word, tag);
+				if (dbug) logCustom("11", word, tag);
 			}
 
 			// transform 12(dch): convert plural nouns which have an entry for their base
@@ -303,7 +310,7 @@ public class Tagger {
 					// if word is ends with s or es and is "nns" and has a vb
 					if (lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
-						if (dbug) _logCustom("12", word, tag);
+						if (dbug) logCustom("12", word, tag);
 					}
 				} // if only word and not in lexicon
 				else if (words.length == 1 && choices2d[i].length == 0) {
@@ -311,7 +318,7 @@ public class Tagger {
 					// only return vbz when the stem is vb but not nn
 					if (!lexHas("nn", RiTa.singularize(word)) && lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
-						if (dbug) _logCustom("12", word, tag);
+						if (dbug) logCustom("12", word, tag);
 					}
 
 				}
@@ -322,7 +329,7 @@ public class Tagger {
 			if (tag.equals("vb") || (tag.equals("nn") && hasTag(choices2d[i], "vb"))) {
 				if (i > 0 && results[i - 1].matches("^(nns|nnps|prp)$")) {
 					tag = "vbp";
-					if (dbug) _logCustom("13", word, tag);
+					if (dbug) logCustom("13", word, tag);
 				}
 			}
 
@@ -332,14 +339,28 @@ public class Tagger {
 		return result;
 	}
 
-	private static String[] posOptions(String word) {
+	/**
+	 * Return the array of all pos tags from the lexicon,
+	 * or the best guess(es) if not found.
+	 */
+	public static String[] allTags(String word) {
+		return allTags(word, false);
+	}
+	
+	/**
+	 * Return the array of all pos tags from the lexicon,
+	 * or the best guess(es) if not found, unless if noDerivations
+	 * is true, in which case null is returned if the word is not
+	 * in the lexicon
+	 */
+	public static String[] allTags(String word, boolean noDerivations) {
 		String[] posdata = lexicon.posArr(word); 
 		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
 		return posdata;
 	}
 
-	private static String[] derivePosData(String word) {
+	static String[] derivePosData(String word) {
 		/*
 		 * Try for a verb or noun inflection VBD Verb, past tense VBG Verb, gerund or
 		 * present participle VBN Verb, past participle VBP Verb, non-3rd person
@@ -353,8 +374,7 @@ public class Tagger {
 			pos = lexicon.posArr(check);
 			
 			if (Arrays.asList(pos).contains("vb")) {
-				String[] result = { "vbz" };
-				return result;
+				return new String[] { "vbz" };
 			}
 
 		}
@@ -374,7 +394,7 @@ public class Tagger {
 				checkPluralNounOrVerb(RiTa.singularize(word), result);
 			}
 
-			if (result.size() > 0) return result.toArray(new String[0]);
+			return result.toArray(new String[result.size()]);
 
 		}
 		else if (word.endsWith("ed")) { // simple past or past participle
@@ -403,31 +423,24 @@ public class Tagger {
 			}
 		}
 
-		String[] result = new String[1];
-
 		// Check if this could be a plural noun form
 		if (isLikelyPlural(word)) {
-			result[0] = "nns";
-			return result;
+			return new String[] {"nns" };
 		}
 
 		if (word.equals("the") || word.equals("a")) {
-			result[0] = "dt";
-			return result;
+			return new String[] { "dt" };
 		}
 
 		// Give up with a best guess
 		if (word.endsWith("ly")) {
-			result[0] = "rb";
-		}
-		else {
-			result[0] = word.endsWith("s") ? "nns" : "nn";
+			return new String[] { "rb" };
 		}
 
-		return result;
+		return new String[] { word.endsWith("s") ? "nns" : "nn" };
 	}
 
-	private static void _logCustom(String i, String frm, String to) {
+	private static void logCustom(String i, String frm, String to) {
 		System.out.println("\n  Custom(" + i + ") tagged '" + frm + "' -> '" + to + "'\n\n");
 	}
 
@@ -476,7 +489,7 @@ public class Tagger {
 	}
 
 	private static boolean checkType(String word, String[] tagArray) {
-		return Arrays.asList(posOptions(word)).stream()
+		return Arrays.asList(allTags(word)).stream()
 				.filter(p -> Arrays.asList(tagArray).contains(p))
 				.collect(Collectors.toList()).size() > 0;
 	}

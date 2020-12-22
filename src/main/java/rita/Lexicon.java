@@ -31,12 +31,6 @@ public class Lexicon {
 			throw new RiTaException("No dictionary path specified!");
 		}
 
-//		URL resource = RiTa.class.getResource(file);
-//		System.out.println("FOUND:" + resource);
-//		if (resource == null) {
-//			throw new RiTaException("Unable to load lexicon from: " + file);
-//		}
-
 		InputStream is = RiTa.class.getResourceAsStream(file);
 		if (is == null) {
 			throw new RiTaException("Unable to load lexicon from: " + file);
@@ -282,7 +276,7 @@ public class Lexicon {
 			regex = regex.substring(1, regex.length() - 1);
 		}
 
-		Analyzer analyzer = RE.test("(stresses|phones)", type) ? RiTa._analyzer() : null;
+		Analyzer analyzer = RE.test("(stresses|phones)", type) ? RiTa.analyzer() : null;
 		Pattern re = Pattern.compile(regex);
 		opts = this.parseArgs(opts);
 		//console.log(opts);
@@ -369,7 +363,7 @@ public class Lexicon {
 	public String randomWord(Map<String, Object> opts) {
 
 		opts = this.parseArgs(opts);     // default to 4, not 3
-		opts.put("minLength", Util.intOpt("minLength", opts, 4)); 
+		opts.put("minLength", Util.intOpt("minLength", opts, 4));
 
 		String tpos = (String) opts.get("targetPos");
 		String[] words = dict.keySet().toArray(EA);
@@ -523,17 +517,10 @@ public class Lexicon {
 	}
 
 	public String posData(String word) {
-
 		String[] rdata = lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
 				? rdata[1].replaceAll("'", E).replaceAll("\\]", E)
 				: null;
-	}
-
-	public String bestPos(String word) {
-
-		String[] pl = posArr(word);
-		return (pl.length > 0) ? pl[0] : null;
 	}
 
 	public String rawPhones(String word) {
@@ -599,7 +586,7 @@ public class Lexicon {
 
 	private boolean isConsonant(char c) {
 		return RiTa.VOWELS.indexOf(c) < 0 &&// TODO: precompile
-				"^[a-z\u00C0-\u00ff]+$".matches(Character.toString(c)); 
+				"^[a-z\u00C0-\u00ff]+$".matches(Character.toString(c));
 	}
 
 	private String lastStressedPhoneToEnd(String word) {

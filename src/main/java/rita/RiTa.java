@@ -5,9 +5,9 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 
 public class RiTa {
-	protected static Lexicon lexicon;
-	protected static Analyzer analyzer;
 
+	protected static Lexicon _lexicon;
+	protected static Analyzer _analyzer;
 	protected static Concorder concorder;
 	protected static Conjugator conjugator;
 	protected static LetterToSound lts;
@@ -36,11 +36,10 @@ public class RiTa {
 	}
 
 	public static Map<String, String> analyze(String word) {
-		return _analyzer().analyze(word);
+		return analyzer().analyze(word);
 	}
 
 	public static String articlize(String s) {
-
 		return RiScript.articlize(s);
 	}
 
@@ -93,11 +92,11 @@ public class RiTa {
 	}
 
 	public static boolean isAlliteration(String word1, String word2) {
-		return lexicon().isAlliteration(word1, word2, false);//TODO default?
+		return lexicon().isAlliteration(word1, word2, false);
 	}
 
-	public static boolean isAlliteration(String word1, String word2, boolean useLTS) {
-		return lexicon().isAlliteration(word1, word2, useLTS);
+	public static boolean isAlliteration(String word1, String word2, boolean noLTS) {
+		return lexicon().isAlliteration(word1, word2, noLTS);
 	}
 
 	public static boolean isNoun(String word) {
@@ -113,11 +112,11 @@ public class RiTa {
 	}
 
 	public static boolean isRhyme(String word1, String word2) {
-		return lexicon().isRhyme(word1, word2, false);//TODO default?
+		return lexicon().isRhyme(word1, word2, false);
 	}
 
-	public static boolean isRhyme(String word1, String word2, boolean useLTS) {
-		return lexicon().isRhyme(word1, word2, useLTS);
+	public static boolean isRhyme(String word1, String word2, boolean noLTS) {
+		return lexicon().isRhyme(word1, word2, noLTS);
 	}
 
 	public static boolean isStopWord(String word) {
@@ -151,7 +150,7 @@ public class RiTa {
 	}
 
 	public static String phones(String text, Map<String, Object> opts) {
-		return _analyzer().analyze(text, opts).get("phones");
+		return analyzer().analyze(text, opts).get("phones");
 	}
 
 	public static String posInline(String text, Map<String, Object> opts) {
@@ -315,11 +314,11 @@ public class RiTa {
 	}
 
 	public static String stresses(String text) {
-		return _analyzer().analyze(text).get("stresses");
+		return analyzer().analyze(text).get("stresses");
 	}
 
 	public static String syllables(String text) {
-		return _analyzer().analyze(text).get("syllables");
+		return analyzer().analyze(text).get("syllables");
 	}
 
 	public static String[] soundsLike(String word) {
@@ -383,7 +382,7 @@ public class RiTa {
 	}
 
 	public static String[] tokenize(String text, String regex) {
-		return Tokenizer.tokenize(text, regex); // TODO: add tests
+		return Tokenizer.tokenize(text, regex);
 	}
 
 	public static String untokenize(String[] words) {
@@ -391,7 +390,7 @@ public class RiTa {
 	}
 
 	public static String untokenize(String[] words, String delim) {
-		return Tokenizer.untokenize(words, delim); // TODO: add tests
+		return Tokenizer.untokenize(words, delim);
 	}
 
 	public static String[] words() {
@@ -410,30 +409,36 @@ public class RiTa {
 		return lexicon().words(regex);
 	}
 
-	// //////////////////////////////////////////////////////////////////////////
+	// /////////////////////////// niapi /////////////////////////////////
+
+	public static String capitalize(String s) {
+		return s == null || s.length() == 0 ? ""
+				: String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
+	}
 
 	public static Lexicon lexicon() { // singleton
-		if (RiTa.lexicon == null) {
+		if (RiTa._lexicon == null) {
 			RiTa.lts = new LetterToSound();
 			try {
-				RiTa.lexicon = new Lexicon(DICT_PATH);
+				RiTa._lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
 				throw new RiTaException("Cannot load dictionary at "
 						+ DICT_PATH + " " + System.getProperty("user.dir"), e);
 			}
 		}
-		return RiTa.lexicon;
+		return RiTa._lexicon;
 	}
 
-	static Analyzer _analyzer() {
-		if (analyzer == null) {
+	public static Analyzer analyzer() {
+		if (_analyzer == null) {
 			RiTa.lexicon();
-			RiTa.analyzer = new Analyzer();
+			RiTa._analyzer = new Analyzer();
 		}
-		return RiTa.analyzer;
+		return RiTa._analyzer;
 	}
 
-	// STATICS
+	// /////////////////////////// static /////////////////////////////////
+
 	public static boolean SILENT = false;
 	public static boolean SILENCE_LTS = true;
 	public static boolean SPLIT_CONTRACTIONS = false;
@@ -459,7 +464,7 @@ public class RiTa {
 	//	public static final int BARE_INFINITIVE = 4;
 	//	public static final int SUBJUNCTIVE = 5;
 
-	public static final char STRESS = '1',  NOSTRESS = '0';
+	public static final char STRESS = '1', NOSTRESS = '0';
 	public static final String VOWELS = "aeiou";
 	public static final String VERSION = "2";
 

@@ -252,20 +252,19 @@ public class RiScript {
 	};
 
 	private static final Function<String, String> articlize = s -> {
-		return RiTa.articlize((s != null ? s : ""));
+		return RiTa.articlize(s);
 	};
 
 	private static final Function<String, String> pluralize = s -> {
-		return RiTa.pluralize((s != null ? s : ""));
-	};
-
-	private static final Function<String, String> quotify = s -> {
-		return "&quot;" + (s != null ? s : "") + "&quot;";
+		return RiTa.pluralize(s);
 	};
 
 	private static final Function<String, String> capitalize = s -> {
-		if (s == null || s.length() < 1) return "";
-		return String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
+		return RiTa.capitalize(s);
+	};
+	
+	private static final Function<String, String> quotify = s -> {
+		return "&quot;" + (s != null ? s : "") + "&quot;";
 	};
 
 	private static final Map.Entry<String, Object>[] transformMap = new Map.Entry[] {
