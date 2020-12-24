@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class Lexicon {
 
 	private static int MAP_SIZE = 30000;
-	private static String EA[] = { }, E = "";
+	private static String EA[] = {}; 
 	private static String DELIM = ":";
 
 	public Map<String, String[]> dict; // data
@@ -76,7 +76,7 @@ public class Lexicon {
 			return EA;
 		}
 
-		String[] words = dict.keySet().toArray(EA);
+		String[] words = words();
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);
@@ -87,13 +87,20 @@ public class Lexicon {
 			if (targetPos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
+				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
+
+			// TODO: use 'rdata', phones here
+
+			// if new word is not in dictionary
+			//String phones = rdata != null ? rdata[0] : this.rawPhones(word);
+
 			String c2 = this.firstPhone(this.firstStressedSyl(word));
 			if (phone.equals(c2)) result.add(word);
 			if (result.size() >= limit) break;
 		}
 
-		return result.toArray(EA);
+		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
 
 	public boolean hasWord(String word) {
@@ -230,7 +237,7 @@ public class Lexicon {
 	}
 
 	private Map<String, Object> parseArgs(Map<String, Object> opts) {
-		String tpos = Util.strOpt("pos", opts, E);
+		String tpos = Util.strOpt("pos", opts, "");
 		boolean pluralize = false;
 		boolean conjugate = false;
 		if (tpos.length() > 0) {
@@ -242,11 +249,11 @@ public class Lexicon {
 			else if (tpos.equals("a")) tpos = "jj";
 		}
 		if (opts == null) opts = new HashMap<>();
-		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
 		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
+		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
 		opts.put("minLength", Util.intOpt("minLength", opts, 3));
-		opts.put("maxLength", Util.intOpt("maxLength", opts, Integer.MAX_VALUE));
-		opts.put("limit", Util.intOpt("limit", opts, Integer.MAX_VALUE));
+		opts.put("maxLength", Util.intOpt("maxLength", opts));
+		opts.put("limit", Util.intOpt("limit", opts, 10));
 		opts.put("pluralize", pluralize);
 		opts.put("conjugate", conjugate);
 		opts.put("targetPos", tpos);
@@ -259,17 +266,17 @@ public class Lexicon {
 
 	public String[] search(String regex, Map<String, Object> opts) {
 
-		String[] words = dict.keySet().toArray(EA);
+		String[] words = words();
 		if (regex == null) return words;
 
-		String type = Util.strOpt("type", opts, E);
+		String type = Util.strOpt("type", opts, "");
 		int limit = Util.intOpt("limit", opts);
 
 		if (type.equals("stresses")) {
 			// if we have a stress string without slashes
 			// add them to the regex pattern
 			if (RE.test("^[01]+$", regex)) {
-				regex = String.join("/", regex.split(E));
+				regex = String.join("/", regex.split(""));
 			}
 		}
 		if (RE.test("^/.*/$", regex)) {
@@ -293,7 +300,13 @@ public class Lexicon {
 			if (((String) opts.get("targetPos")).length() > 0) {
 				word = matchPos(word, rdata, opts, false);
 				if (word == null) continue;
+				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
+
+			// TODO: use 'data' here if possible
+
+			// if new word is not in dictionary
+			//String phones = rdata != null ? rdata[0] : this.rawPhones(word);
 
 			if (type.equals("stresses")) {
 				String stresses = analyzer.analyzeWord(word)[1];
@@ -306,11 +319,11 @@ public class Lexicon {
 			else {
 				if (RE.test(re, word)) result.add(word);
 			}
-			if (limit > 0 && result.size() >= limit) break;
+			if (result.size() >= limit) break;
 		}
 
 		RiTa.SILENCE_LTS = tmp;
-		return result.toArray(EA);
+		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
 
 	public String[] soundsLike(String word) {
@@ -345,9 +358,6 @@ public class Lexicon {
 
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
-		int actualLimit = Util.intOpt("limit", opts, Integer.MAX_VALUE);
-		opts.put("limit", Integer.MAX_VALUE);
-
 		opts.put("type", "letter");
 		String[] simLetter = similarByType(word, opts);
 		if (simLetter.length < 1) return EA;
@@ -357,7 +367,8 @@ public class Lexicon {
 		if (simSound.length < 1) return EA;
 
 		String[] result = intersect(simSound, simLetter);
-		return Arrays.copyOfRange(result, 0, Math.min(result.length, actualLimit));
+		return Arrays.copyOfRange(result, 0,
+				Math.min(result.length, Util.intOpt("limit", opts)));
 	}
 
 	public String randomWord(Map<String, Object> opts) {
@@ -365,8 +376,8 @@ public class Lexicon {
 		opts = this.parseArgs(opts);     // default to 4, not 3
 		opts.put("minLength", Util.intOpt("minLength", opts, 4));
 
-		String tpos = (String) opts.get("targetPos");
-		String[] words = dict.keySet().toArray(EA);
+		String[] words = words();
+		String tpos = Util.strOpt("targetPos", opts);
 		int ran = (int) Math.floor(RandGen.random(words.length));
 		for (int k = 0; k < words.length; k++) {
 			int j = (ran + k) % words.length;
@@ -396,8 +407,8 @@ public class Lexicon {
 		String phone = this.lastStressedPhoneToEnd(theWord);
 		if (phone == null) return EA;
 
-		ArrayList<String> result = new ArrayList<>();
-		String[] words = dict.keySet().toArray(EA);
+		String[] words = words();
+		List<String> result = new ArrayList<>();
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);
@@ -410,14 +421,18 @@ public class Lexicon {
 			if (tpos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
+				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
 
+			// if new word is not in dictionary
+			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
+
 			// check for the rhyme
-			if (rdata[0].endsWith(phone)) result.add(word);
+			if (phones.endsWith(phone)) result.add(word);
 			if (result.size() >= limit) break;
 		}
 
-		return result.toArray(EA);
+		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
 
 	public String[] similarByType(String theWord, Map<String, Object> opts) {
@@ -431,7 +446,7 @@ public class Lexicon {
 
 		String input = theWord.toLowerCase();
 		String variations = input + "||" + input + "s||" + input + "es";
-		String[] phonesA = null, words = dict.keySet().toArray(EA);
+		String[] phonesA = null, words = words();
 
 		if (sound) {
 			phonesA = this.toPhoneArray(this.rawPhones(input));
@@ -449,13 +464,16 @@ public class Lexicon {
 			if (tpos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
+				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
+
+			// if new word is not in dictionary
+			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
 
 			int med = -1;
 			String[] phonesB;
 			if (sound) {
-				phonesB = rdata[0].replaceAll("1", "")
-						.replaceAll(" ", "-").split("-");
+				phonesB = phones.replaceAll("1", "").replaceAll(" ", "-").split("-");
 				med = minEditDist(phonesA, phonesB);
 			}
 			else {
@@ -469,38 +487,40 @@ public class Lexicon {
 				result.add(word);
 			}
 			// another best to add
-			else if (med == minVal) {
+			else if (med == minVal && result.size() < limit) {
 				result.add(word);
 			}
-			if (result.size() == limit) break;
 		}
 
-		return result.toArray(EA);
+		int count = Math.min(result.size(), limit);
+		return result.subList(0, count).toArray(new String[count]);
 	}
 
 	public String[] toPhoneArray(String raw) {
 		ArrayList<String> result = new ArrayList<String>();
-		String sofar = E;
+		String sofar = "";
 		for (int i = 0; i < raw.length(); i++) {
 			if (raw.charAt(i) == ' ' || raw.charAt(i) == '-') {
 				result.add(sofar);
-				sofar = E;
+				sofar = "";
 			}
 			else if (raw.charAt(i) != '1' && raw.charAt(i) != '0') {
 				sofar += raw.charAt(i);
 			}
 		}
 		result.add(sofar);
-		return result.toArray(EA);
+		return result.toArray(new String[result.size()]);
 	}
 
 	public String[] words() {
-		return dict.keySet().toArray(EA);
+		Set<String> keys = dict.keySet();
+		return keys.toArray(new String[keys.size()]);
 	}
 
 	public String[] words(Pattern regex) {
-		if (regex == null) return dict.keySet().toArray(EA);
-		return dict.keySet().stream()
+		Set<String> keys = dict.keySet();
+		if (regex == null) return keys.toArray(new String[keys.size()]);
+		return keys.stream()
 				.filter(word -> regex.matcher(word).matches())
 				.toArray(String[]::new);
 	}
@@ -511,7 +531,7 @@ public class Lexicon {
 		// https://stackoverflow.com/questions/17863319/java-find-intersection-of-two-arrays
 		Set<String> s1 = new HashSet<String>(Arrays.asList(a));
 		s1.retainAll(Arrays.asList(b));
-		String[] result = s1.toArray(EA);
+		String[] result = s1.toArray(new String[s1.size()]);
 		Arrays.sort(result);
 		return result;
 	}
@@ -519,7 +539,7 @@ public class Lexicon {
 	public String posData(String word) {
 		String[] rdata = lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
-				? rdata[1].replaceAll("'", E).replaceAll("\\]", E)
+				? rdata[1].replaceAll("'", "").replaceAll("\\]", "")
 				: null;
 	}
 
@@ -539,8 +559,8 @@ public class Lexicon {
 
 			String[] phones = RiTa.lts.computePhones(word);
 			if (phones != null && phones.length > 0) {
-				return Util.syllablesFromPhones(phones).trim();
-				//.replaceAll("\\[", E).replaceAll("'", E);
+				return Util.syllabifyPhones(phones).trim(); // TODO: why?
+				//.replaceAll("\\[", "").replaceAll("'", "");
 			}
 		}
 		return null;
@@ -548,7 +568,7 @@ public class Lexicon {
 
 	String[] posArr(String word) {
 		String pl = posData(word);
-		return (pl != null) ? pl.split(" ") : EA;
+		return (pl != null) ? pl.split(" ") : new String[0];
 	}
 
 	private String[] lookupRaw(String word) {
@@ -568,7 +588,7 @@ public class Lexicon {
 
 		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
 		{
-			String line = lines.get(i).replaceAll("[\"'\\[\\]]", E);
+			String line = lines.get(i).replaceAll("[\"'\\[\\]]", "");
 			String[] parts = line.split(DELIM);
 			if (parts == null || parts.length != 2) {
 				throw new RiTaException("Illegal entry: " + line);
@@ -620,7 +640,7 @@ public class Lexicon {
 
 		String[] syllables = raw.split(" ");
 		String lastSyllable = syllables[syllables.length - 1];
-		lastSyllable = lastSyllable.replace("[^a-z-1 ]", E);
+		lastSyllable = lastSyllable.replace("[^a-z-1 ]", "");
 
 		int idx = -1;
 		for (int i = 0; i < lastSyllable.length(); i++) {
@@ -641,7 +661,7 @@ public class Lexicon {
 	private String firstStressedSyl(String word, boolean noLts) {
 
 		String raw = rawPhones(word, noLts);
-		if (raw == null || raw.equals(E)) return null;
+		if (raw == null || raw.equals("")) return null;
 		raw = raw.trim();
 		int idx = raw.indexOf(RiTa.STRESS);
 		if (idx < 0) return null;

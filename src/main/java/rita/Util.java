@@ -30,7 +30,7 @@ public class Util {
 	}
 
 	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L171
-	static final String syllablesFromPhones(String[] input) {
+	static final String syllabifyPhones(String[] input) {
 
 		boolean dbug = false;
 
@@ -272,7 +272,7 @@ public class Util {
 	}
 
 	public static final int intOpt(String key, Map<String, Object> opts) {
-		return intOpt(key, opts, -1);
+		return intOpt(key, opts, Integer.MAX_VALUE);
 	}
 
 	public static final int intOpt(String key, Map<String, Object> opts, int def) {
@@ -280,7 +280,7 @@ public class Util {
 	}
 
 	public static final float floatOpt(String key, Map<String, Object> opts) {
-		return floatOpt(key, opts, -1);
+		return floatOpt(key, opts, Float.MAX_VALUE);
 	}
 
 	public static final float floatOpt(String key, Map<String, Object> opts, float def) {

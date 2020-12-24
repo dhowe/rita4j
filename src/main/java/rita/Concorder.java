@@ -45,7 +45,7 @@ public class Concorder {
 		if (text != null) concordance(text, opts);
 		String[] words = Util.strsOpt("words", opts);
 		if (words != null) concordance(words, opts);
-		return this.kwic(word, Util.intOpt("numWords", opts));
+		return this.kwic(word, Util.intOpt("numWords", opts, -1));
 	}
 
 	public String[] kwic(String word, int numWords) {

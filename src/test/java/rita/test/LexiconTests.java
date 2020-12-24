@@ -113,8 +113,8 @@ public class LexiconTests {
 						+ result + " (" + "isPlural=" + Inflector.isPlural(result) +
 						"), singularized is " + RiTa.singularize(result) + ")");
 			}
-			assertTrue(!result.endsWith("ness"));
-			assertTrue(!result.endsWith("isms"));
+			assertFalse(result.endsWith("ness"));
+			assertFalse(result.endsWith("isms"));
 			// TODO: occasional problem here, examples: beaux
 
 			// No vbg, No -ness, -ism
@@ -133,22 +133,20 @@ public class LexiconTests {
 	public void callRandomWordPos() {
 		String[] pos = { "nn", "jj", "jjr", "wp" };
 		Map<String, Object> hm = new HashMap<String, Object>();
-		for (int k = 0; k < 1000; k++) {
-
-			for (int j = 0; j < pos.length; j++) {
-				for (int i = 0; i < 5; i++) {
-					hm.clear();
-					hm.put("pos", pos[j]);
-					String result = RiTa.randomWord(hm);
-					String best = Tagger.allTags(result)[0];
-					if (!best.equals(pos[j])) {
-						System.out.println(result + ": " + pos[j] + " ?= "
-								+ best + "/" + Tagger.allTags(result)[0]);
-					}
-					assertEquals(pos[j], best);
+		for (int j = 0; j < pos.length; j++) {
+			for (int i = 0; i < 5; i++) {
+				hm.clear();
+				hm.put("pos", pos[j]);
+				String result = RiTa.randomWord(hm);
+				String best = Tagger.allTags(result)[0];
+				if (!best.equals(pos[j])) {
+					System.out.println(result + ": " + pos[j] + " ?= "
+							+ best + "/" + Tagger.allTags(result)[0]);
 				}
+				assertEquals(pos[j], best);
 			}
 		}
+
 	}
 
 	@Test
@@ -541,12 +539,12 @@ public class LexiconTests {
 		//		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight")).contains("weight"));
 
-		assertTrue(!Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("this")).contains("these"));
+		assertFalse(Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
+		assertFalse(Arrays.asList(RiTa.rhymes("this")).contains("these"));
 
-		assertTrue(!Arrays.asList(RiTa.rhymes("hose")).contains("house"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
+		assertFalse(Arrays.asList(RiTa.rhymes("hose")).contains("house"));
+		assertFalse(Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
+		assertFalse(Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
 
 	}
 
@@ -555,14 +553,14 @@ public class LexiconTests {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("pos", "v");
 
-		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 		assertTrue(Arrays.asList(RiTa.rhymes("tense", hm)).contains("sense"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("shore", hm)).contains("more"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("this")).contains("these"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("hose")).contains("house"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
+		assertFalse(Arrays.asList(RiTa.rhymes("shore", hm)).contains("more"));
+		assertFalse(Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
+		assertFalse(Arrays.asList(RiTa.rhymes("this")).contains("these"));
+		assertFalse(Arrays.asList(RiTa.rhymes("hose")).contains("house"));
+		assertFalse(Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
+		assertFalse(Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
 
 		hm.clear();
 		hm.put("pos", "a");
@@ -571,8 +569,8 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("pos", "n");
 		assertTrue(Arrays.asList(RiTa.rhymes("toy", hm)).contains("boy"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("sieve", hm)).contains("give"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("crab", hm)).contains("drab"));
+		assertFalse(Arrays.asList(RiTa.rhymes("sieve", hm)).contains("give"));
+		assertFalse(Arrays.asList(RiTa.rhymes("crab", hm)).contains("drab"));
 
 		hm.clear();
 		hm.put("pos", "nn");
@@ -582,6 +580,11 @@ public class LexiconTests {
 		String[] rhymes = RiTa.rhymes("weight", opts("pos", "vb"));
 		assertFalse(Arrays.asList(rhymes).contains("eight"));
 		assertTrue(Arrays.asList(rhymes).contains("hate"));
+		
+		rhymes = RiTa.rhymes("abated", opts("pos", "vbd"));
+		assertTrue(Arrays.asList(rhymes).contains("annihilated"));
+		assertTrue(Arrays.asList(rhymes).contains("allocated"));
+		assertFalse(Arrays.asList(rhymes).contains("condensed"));
 	}
 
 	@Test
@@ -592,24 +595,31 @@ public class LexiconTests {
 
 		hm.clear();
 		hm.put("numSyllables", 2);
-		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 		assertTrue(Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
 
 		hm.clear();
 		hm.put("numSyllables", 3);
-		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
-		assertTrue(!Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
+		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertFalse(Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
+		
+    // special case, where word is not in dictionary
+		String[] rhymes = RiTa.rhymes("abated", opts("numSyllables", 3));
+		assertTrue(Arrays.asList(rhymes).contains("elated"));
+		assertFalse(Arrays.asList(rhymes).contains("abated"));
+		assertFalse(Arrays.asList(rhymes).contains("allocated"));
+		assertFalse(Arrays.asList(rhymes).contains("condensed"));
 	}
 
 	@Test
 	public void callRhymesWordLength() {
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("minLength", 4);
-		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 
 		hm.clear();
 		hm.put("maxLength", 2);
-		assertTrue(!Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
+		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 	}
 
 	@Test
@@ -705,12 +715,12 @@ public class LexiconTests {
 		result = RiTa.soundsLike("tornado");
 		assertArrayEquals(result, new String[] { "torpedo" });
 
-		result = RiTa.soundsLike("try");  // why?
+		result = RiTa.soundsLike("try", opts("limit", 50));  // why?
 		answer = new String[] { "cry", "dry", "fry", "pry", /*"rye",*/
 				"tie", "tray", "tree", "tribe", "tried", "tripe", "trite", "true", "wry" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("try", opts("minDistance", 2));
+		result = RiTa.soundsLike("try", opts("minDistance", 2, "limit", 50));
 		//console.log(result);
 		assertTrue(result.length > answer.length); // more
 
@@ -790,9 +800,9 @@ public class LexiconTests {
 	@Test
 	public void callIsRhyme() {
 
-		assertTrue(!RiTa.isRhyme("", ""));
-		assertTrue(!RiTa.isRhyme("apple", "polo"));
-		assertTrue(!RiTa.isRhyme("this", "these"));
+		assertFalse(RiTa.isRhyme("", ""));
+		assertFalse(RiTa.isRhyme("apple", "polo"));
+		assertFalse(RiTa.isRhyme("this", "these"));
 
 		assertTrue(RiTa.isRhyme("cat", "hat"));
 		assertTrue(RiTa.isRhyme("yellow", "mellow"));
@@ -802,13 +812,13 @@ public class LexiconTests {
 		assertTrue(RiTa.isRhyme("tense", "sense"));
 		assertTrue(RiTa.isRhyme("crab", "drab"));
 		assertTrue(RiTa.isRhyme("shore", "more"));
-		assertTrue(!RiTa.isRhyme("hose", "house"));
-		assertTrue(!RiTa.isRhyme("sieve", "mellow"));
+		assertFalse(RiTa.isRhyme("hose", "house"));
+		assertFalse(RiTa.isRhyme("sieve", "mellow"));
 
 		assertTrue(RiTa.isRhyme("mouse", "house"));
 
 		assertTrue(RiTa.isRhyme("yo", "bro"));
-		assertTrue(!RiTa.isRhyme("swag", "grab"));
+		assertFalse(RiTa.isRhyme("swag", "grab"));
 
 		assertTrue(RiTa.isRhyme("weight", "eight"));
 		assertTrue(RiTa.isRhyme("eight", "weight"));
@@ -839,12 +849,12 @@ public class LexiconTests {
 		assertTrue(RiTa.isAlliteration("BIG", "BAD")); // CAPITAL LETTERS
 
 		// False
-		assertTrue(!RiTa.isAlliteration("", ""));
-		assertTrue(!RiTa.isAlliteration("wind", "withdraw"));
-		assertTrue(!RiTa.isAlliteration("solo", "tomorrow"));
-		assertTrue(!RiTa.isAlliteration("solo", "yoyo"));
-		assertTrue(!RiTa.isAlliteration("yoyo", "jojo"));
-		assertTrue(!RiTa.isAlliteration("cat", "access"));
+		assertFalse(RiTa.isAlliteration("", ""));
+		assertFalse(RiTa.isAlliteration("wind", "withdraw"));
+		assertFalse(RiTa.isAlliteration("solo", "tomorrow"));
+		assertFalse(RiTa.isAlliteration("solo", "yoyo"));
+		assertFalse(RiTa.isAlliteration("yoyo", "jojo"));
+		assertFalse(RiTa.isAlliteration("cat", "access"));
 
 		assertTrue(RiTa.isAlliteration("unsung", "sine"));
 		assertTrue(RiTa.isAlliteration("job", "gene"));
@@ -856,9 +866,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isAlliteration("cat", "kitchen"));
 
 		// not counting assonance
-		assertTrue(!RiTa.isAlliteration("octopus", "oblong"));
-		assertTrue(!RiTa.isAlliteration("omen", "open"));
-		assertTrue(!RiTa.isAlliteration("amicable", "atmosphere"));
+		assertFalse(RiTa.isAlliteration("octopus", "oblong"));
+		assertFalse(RiTa.isAlliteration("omen", "open"));
+		assertFalse(RiTa.isAlliteration("amicable", "atmosphere"));
 
 		assertTrue(RiTa.isAlliteration("this", "these"));
 		assertTrue(RiTa.isAlliteration("psychology", "cholera"));

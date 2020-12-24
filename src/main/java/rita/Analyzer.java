@@ -65,7 +65,7 @@ public class Analyzer {
 				if (!RiTa.SILENT && !RiTa.SILENCE_LTS && word.matches("[a-zA-Z]+")) {
 					System.out.println("[RiTa] Used LTS-rules for '" + word + "'");
 				}
-				rawPhones = Util.syllablesFromPhones(ltsPhones);
+				rawPhones = Util.syllabifyPhones(ltsPhones);
 			}
 			else {
 				// phones = word;
@@ -99,70 +99,6 @@ public class Analyzer {
 
 		return new String[] { phones, stresses, syllables };
 	}
-
-	/*public Map<String, String> analyzeX(String text) {
-	
-		Map<String, String> features = new HashMap<String, String>();
-		String phones = "", syllables = "", stresses = "";
-	
-		String[] words = RiTa.tokenize(text), tags = RiTa.pos(text);
-	
-		features.put("tokens", String.join(" ", words));
-		features.put("pos", String.join(" ", tags));
-	
-		for (int i = 0, l = words.length; i < l; i++) {
-	
-			boolean useRaw = false;
-			String rawPhones = RiTa._lexicon()._rawPhones(words[i], true);
-	
-			if (rawPhones.length() == 0) {
-	
-				String[] ltsPhones = RiTa.lts.computePhones(words[i]);
-				if (ltsPhones != null && ltsPhones.length > 0) {
-	
-					if (!RiTa.SILENT && !RiTa.SILENCE_LTS && words[i].matches("/[a-zA-Z]+/)")) {
-						System.out.println("[RiTa] Used LTS-rules for '" + words[i] + "'");
-					}
-	
-					rawPhones = Util.syllablesFromPhones(ltsPhones);
-	
-				}
-				else {
-					// phones = words[i];
-					rawPhones = words[i];
-					useRaw = true;
-				}
-			}
-	
-			phones += rawPhones.replaceAll("[0-2]", "").replaceAll(" ", DELIM) + " ";
-			syllables += rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
-	
-			if (!useRaw) {
-				String[] stressyls = rawPhones.split(" ");
-				for (int j = 0; j < stressyls.length; j++) {
-	
-					if (stressyls[j].length() == 0 || stressyls[j] == null) continue;
-	
-					stresses += (stressyls[j].indexOf(RiTa.STRESSED) > -1) ? RiTa.STRESSED : RiTa.UNSTRESSED;
-	
-					if (j < stressyls.length - 1) stresses += SLASH;
-				}
-			}
-			else {
-	
-				stresses += words[i];
-			}
-	
-			if (!stresses.endsWith(" ")) stresses += " ";
-		}
-	
-		features.put("phones", phones.trim());
-		features.put("stresses", stresses.trim());
-		features.put("syllables", syllables.trim());
-	
-		// System.out.print("analysis features: "+features);
-		return features;
-	}*/
 
 	public static void main(String[] args) {
 		System.out.println(Tagger.tag("dog")[0]);
