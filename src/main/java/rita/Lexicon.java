@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 public class Lexicon {
 
 	private static int MAP_SIZE = 30000;
-	private static String EA[] = {}; 
+	private static String EA[] = { };
 	private static String DELIM = ":";
 
 	public Map<String, String[]> dict; // data
@@ -145,21 +145,16 @@ public class Lexicon {
 		boolean pluralize = (boolean) opts.get("pluralize");
 		boolean conjugate = (boolean) opts.get("conjugate");
 
-		if (strict) {
-			if (!targetPos.equals(rdata[1].split(" ")[0])) {
-				return null;
-			}
-		}
-		else {
-			if (!Arrays.asList(rdata[1].split(" ")).contains(targetPos)) {
-				return null;
-			}
+		String[] posArr = rdata[1].split(" ");
+		if (strict && !targetPos.equals(posArr[0]) ||
+				!Arrays.asList(posArr).contains(targetPos)) {
+			return null;
 		}
 
 		// we've matched our pos, pluralize or inflect if needed
 		String result = word;
 		if (pluralize) {
-			if (isMassNoun(word, rdata[1])) return null;
+			if (word.endsWith("ness") || word.endsWith("ism")) return null;
 			result = RiTa.pluralize(word);
 		}
 		else if (conjugate) { // inflect
@@ -170,6 +165,7 @@ public class Lexicon {
 		if (!result.equals(word) && numSyllables > 0) {
 			boolean tmp = RiTa.SILENCE_LTS;
 			RiTa.SILENCE_LTS = true;
+			// TODO: use rdata here if possible
 			int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;
 			RiTa.SILENCE_LTS = tmp;
 			// reject if syllable count has changed

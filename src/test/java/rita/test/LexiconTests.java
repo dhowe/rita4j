@@ -261,7 +261,7 @@ public class LexiconTests {
 		hm.put("pos", "nns");
 		res = RiTa.search("010", hm);
 		assertArrayEquals(res,
-				new String[] { "abandonments", "abatements", "abbreviations", "abdomens", "abductions" });
+				new String[] { "abalone", "abandonments", "abatements", "abbreviations", "abdomens" });
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
@@ -427,6 +427,7 @@ public class LexiconTests {
 		hm.clear();
 		hm.put("minLength", 13);
 		hm.put("pos", "rb");
+		hm.put("limit", 100);
 
 		assertArrayEquals(RiTa.alliterations("dog", hm), new String[] {
 				"coincidentally",
@@ -472,15 +473,14 @@ public class LexiconTests {
 		result = RiTa.alliterations("umbrella", opts("silent", true));
 		assertTrue(result.length < 1);
 
-		result = RiTa.alliterations("cat");
-
+		result = RiTa.alliterations("cat", opts("limit", 100));
+		assertTrue(result.length == 100);
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));
 		}
-		assertTrue(result.length > 1000);
 
-		result = RiTa.alliterations("dog");
-		assertTrue(result.length > 1000);
+		result = RiTa.alliterations("dog", opts("limit", 100));
+		assertTrue(result.length == 100);
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(RiTa.isAlliteration(result[i], "dog"));
 		}
@@ -488,7 +488,6 @@ public class LexiconTests {
 		Map<String, Object> hm = new HashMap<String, Object>();
 
 		hm.put("minLength", 15);
-
 		result = RiTa.alliterations("dog", hm);
 		assertTrue(result.length > 0 && result.length < 5, "got length=" + result.length);
 		for (int i = 0; i < result.length; i++) {
@@ -529,23 +528,19 @@ public class LexiconTests {
 		assertTrue(Arrays.asList(RiTa.rhymes("toy")).contains("boy"));
 		assertTrue(Arrays.asList(RiTa.rhymes("sieve")).contains("give"));
 
-		assertTrue(Arrays.asList(RiTa.rhymes("tense")).contains("sense"));
 		assertTrue(Arrays.asList(RiTa.rhymes("crab")).contains("drab"));
-		assertTrue(Arrays.asList(RiTa.rhymes("shore")).contains("more"));
-
 		assertTrue(Arrays.asList(RiTa.rhymes("mouse")).contains("house"));
-
-		assertTrue(Arrays.asList(RiTa.rhymes("weight")).contains("eight"));
-		//		System.out.println(Arrays.asList(RiTa.rhymes("eight")));
-		assertTrue(Arrays.asList(RiTa.rhymes("eight")).contains("weight"));
-
 		assertFalse(Arrays.asList(RiTa.rhymes("apple")).contains("polo"));
 		assertFalse(Arrays.asList(RiTa.rhymes("this")).contains("these"));
 
 		assertFalse(Arrays.asList(RiTa.rhymes("hose")).contains("house"));
 		assertFalse(Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
 		assertFalse(Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
-
+		
+		assertTrue(Arrays.asList(RiTa.rhymes("tense", opts("limit", 100))).contains("sense"));
+		assertTrue(Arrays.asList(RiTa.rhymes("shore",opts("limit", 100))).contains("more"));
+		assertTrue(Arrays.asList(RiTa.rhymes("weight",opts("limit", 100))).contains("eight"));
+		assertTrue(Arrays.asList(RiTa.rhymes("eight",opts("limit", 100))).contains("weight"));
 	}
 
 	@Test
@@ -574,14 +569,15 @@ public class LexiconTests {
 
 		hm.clear();
 		hm.put("pos", "nn");
+		hm.put("limit", 100);
 		assertTrue(Arrays.asList(RiTa.rhymes("mouse", hm)).contains("house"));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight", hm)).contains("weight"));
 
-		String[] rhymes = RiTa.rhymes("weight", opts("pos", "vb"));
+		String[] rhymes = RiTa.rhymes("weight", opts("pos", "vb", "limit", 100));
 		assertFalse(Arrays.asList(rhymes).contains("eight"));
 		assertTrue(Arrays.asList(rhymes).contains("hate"));
 		
-		rhymes = RiTa.rhymes("abated", opts("pos", "vbd"));
+		rhymes = RiTa.rhymes("abated", opts("pos", "vbd", "limit", 100));
 		assertTrue(Arrays.asList(rhymes).contains("annihilated"));
 		assertTrue(Arrays.asList(rhymes).contains("allocated"));
 		assertFalse(Arrays.asList(rhymes).contains("condensed"));
@@ -629,14 +625,7 @@ public class LexiconTests {
 		// TODO: use opts()
 
 		Map<String, Object> hm = new HashMap<String, Object>();
-		hm.put("minLength", 6);
-		hm.put("maxLength", 6);
-
-		result = RiTa.spellsLike("banana", hm);
-		assertArrayEquals(result, new String[] { "cabana" });
-
-		hm.clear();
-
+		
 		result = RiTa.spellsLike("");
 		assertArrayEquals(result, new String[] { });
 
@@ -646,6 +635,8 @@ public class LexiconTests {
 		hm.put("minLength", 6);
 		hm.put("maxLength", 6);
 		result = RiTa.spellsLike("banana", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(6, r.length()));
+
 		assertArrayEquals(result, new String[] { "cabana" });
 
 		hm.clear();
@@ -657,31 +648,38 @@ public class LexiconTests {
 		assertArrayEquals(result, new String[] { "torpedo" });
 
 		result = RiTa.spellsLike("ice");
-		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice" });
+		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "lice", "nice", "rice", "vice" });
 
 		hm.clear();
 		hm.put("minDistance", 1);
+		hm.put("minLength", 4);
 		result = RiTa.spellsLike("ice", hm);
-		assertArrayEquals(result, new String[] { "ace", "dice", "iced", "icy", "ire", "nice", "rice", "vice" });
+		assertArrayEquals(result, new String[] { "dice", "iced",  "lice", "nice", "rice", "vice" });
 
 		hm.clear();
 		hm.put("minDistance", 2);
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
+		hm.put("limit", 20);
 		result = RiTa.spellsLike("ice", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(3, r.length()));
+
 		assertTrue(result.length > 10);
 
 		hm.clear();
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
-		hm.put("minDistance", 0);
 		result = RiTa.spellsLike("ice", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(3, r.length()));
+
 		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
 
 		hm.clear();
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
 		result = RiTa.spellsLike("ice", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(3, r.length()));
+
 		assertArrayEquals(result, new String[] { "ace", "icy", "ire" });
 
 		hm.clear();
@@ -689,6 +687,8 @@ public class LexiconTests {
 		hm.put("minLength", 3);
 		hm.put("maxLength", 3);
 		result = RiTa.spellsLike("ice", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(3, r.length()));
+
 		assertArrayEquals(result, new String[] { "ace", "ire" });
 
 		hm.clear();
@@ -697,6 +697,7 @@ public class LexiconTests {
 		hm.put("pos", "v");
 		hm.put("limit", 5);
 		result = RiTa.spellsLike("ice", hm);
+		Arrays.asList(result).forEach(r -> assertEquals(4, r.length()));
 		assertArrayEquals(result, new String[] { "ache", "bide", "bite", "cite", "dine" });
 
 		hm.clear();
@@ -705,7 +706,8 @@ public class LexiconTests {
 		hm.put("pos", "nns");
 		hm.put("limit", 5);
 		result = RiTa.spellsLike("ice", hm);
-		assertArrayEquals(result, new String[] { "aches", "acres", "aides", "apices", "axes" });
+		Arrays.asList(result).forEach(r -> assertEquals(4, r.length()));
+		assertArrayEquals(result, new String[] { "dice", "rice"  });
 	}
 
 	@Test
@@ -740,10 +742,10 @@ public class LexiconTests {
 		eql(result, answer);*/
 
 		result = RiTa.soundsLike("cat", opts("limit", 5));
-		answer = new String[] { "abashed", "abate", "abbey", "abbot", "abet" };
+		answer = new String[] { "bat", "cab", "cache", "calf", "calve" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("cat", opts("minLength", 2, "maxLength", 4));
+		result = RiTa.soundsLike("cat", opts("minLength", 2, "maxLength", 4, "limit", 50));
 		answer = new String[] { "bat", "cab", "calf", "can", "cant", "cap", "cash", "cast", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
 				"kite", "mat", "matt", "pat", "rat", "sat", "tat", "that", "vat" };
 		eql(result, answer);
@@ -753,46 +755,36 @@ public class LexiconTests {
 				"maxLength", 5,
 				"pos", "jj",
 				"limit", 8));
-		answer = new String[] { "acute", "aged", "airy", "alert", "arty", "awed", "awry", "azure" };
-		eql(result, answer); //what??
+		answer = new String[] { "catty", "curt" };
+		eql(result, answer);
 	}
 
 	@Test
-	public void callSoundsLikeMatchSpelling() {
+	public void callSoundsLikeMatchSpelling() { // TODO: use opts()
 		String[] result, answer;
-		Map<String, Object> hm = new HashMap<String, Object>();
-		hm.put("matchSpelling", true);
 
-		result = RiTa.soundsLike("try", hm);
-		answer = new String[] { "cry", "dry", "fry", "pry", "tray", "wry" };
+		result = RiTa.soundsLike("try", opts("matchSpelling", true));
+		answer = new String[] { "cry", "dry", "fry", "pry", "tray" };
 		eql(result, answer);
 
-		hm.put("maxLength", 3);
-		result = RiTa.soundsLike("try", hm);
+		result = RiTa.soundsLike("try", opts("matchSpelling", true, "maxLength", 3));
 		answer = new String[] { "cry", "dry", "fry", "pry", "wry" };
 		eql(result, answer);
 
-		hm.clear();
-		hm.put("matchSpelling", true);
-		hm.put("minLength", 4);
-		result = RiTa.soundsLike("try", hm);
+
+		result = RiTa.soundsLike("try", opts("matchSpelling", true, "minLength", 4));
 		answer = new String[] { "tray" };
 		eql(result, answer);
 
-		hm.clear();
-		hm.put("matchSpelling", true);
-		hm.put("limit", 3);
-		result = RiTa.soundsLike("try", hm);
+		result = RiTa.soundsLike("try", opts("matchSpelling", true, "limit", 3));
 		answer = new String[] { "cry", "dry", "fry" };
 		eql(result, answer);
 
-		hm.clear();
-		hm.put("matchSpelling", true);
-		result = RiTa.soundsLike("daddy", hm);
+		result = RiTa.soundsLike("daddy", opts("matchSpelling", true));
 		answer = new String[] { "dandy", "paddy" };
 		eql(result, answer);
 
-		result = RiTa.soundsLike("banana", hm);
+		result = RiTa.soundsLike("banana", opts("matchSpelling", true));
 		answer = new String[] { "bonanza" };
 		eql(result, answer);
 	}
@@ -894,8 +886,9 @@ public class LexiconTests {
 		Arrays.sort(b);// hack
 		String s = "";
 		boolean ok = a.length == b.length;
-		for (int i = 0; i < a.length; i++) {
-			s += i + ") " + a[i] + " " + (i < b.length ? b[i] : "NA") + "\n";
+		int len = Math.max(a.length, b.length); 
+		for (int i = 0; i < len; i++) {
+			s += i + ") " + (i < a.length ? a[i] : "NA") + " " + (i < b.length ? b[i] : "NA") + "\n";
 			if (ok && !a[i].equals(b[i])) ok = false;
 		}
 		if (!ok) System.err.println(s);

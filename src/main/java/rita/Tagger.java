@@ -3,14 +3,13 @@ package rita;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Tagger {
+public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	public static final String[] ADJ = { "jj", "jjr", "jjs" };
 	public static final String[] ADV = { "rb", "rbr", "rbs", "rp" };
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
 
-	private static String[] massNouns = Util.MASS_NOUNS;
 	private static Lexicon lexicon = RiTa.lexicon();
 
 	private Tagger() {
@@ -205,7 +204,7 @@ public class Tagger {
 					// (NNS)
 
 					if (word.matches("^.*[^s]s$")) {
-						if (!Arrays.asList(massNouns).contains(word)) {
+						if (!Arrays.asList(Util.MASS_NOUNS).contains(word)) {
 							tag = "nns";
 						}
 					}
@@ -357,6 +356,7 @@ public class Tagger {
 		String[] posdata = lexicon.posArr(word); 
 		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
+		if (posdata.length == 0)throw new RuntimeException("Invalid Tagger state for: "+word);
 		return posdata;
 	}
 
