@@ -351,7 +351,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		String[] posdata = RiTa.lexicon().posArr(word);
 		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0) posdata = derivePosData(word);
-		if (posdata.length == 0) throw new RuntimeException("Invalid Tagger state for: " + word);
+		if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
 		return posdata;
 	}
 
@@ -369,10 +369,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			String check = word.substring(0, word.length() - 3) + "y";
 			pos = lexicon.posArr(check);
 
-			if (Arrays.asList(pos).contains("vb")) {
-				return new String[] { "vbz" };
-			}
-
+			if (Arrays.asList(pos).contains("vb")) return new String[] { "vbz" };
 		}
 		else if (word.endsWith("s")) { // plural noun or vbz
 
@@ -389,8 +386,8 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				// singularize and test (eg 'thieves')
 				checkPluralNounOrVerb(RiTa.singularize(word), result);
 			}
-
-			return result.toArray(new String[result.size()]);
+			
+			if (result.size() > 0) return result.toArray(new String[result.size()]);
 
 		}
 		else if (word.endsWith("ed")) { // simple past or past participle

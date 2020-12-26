@@ -87,6 +87,23 @@ public class RiTa {
 		return tagger.isAdverb(word);
 	}
 
+	public static boolean isVowel(char c) {
+		return RiTa.VOWELS.indexOf(c) > -1;
+	}
+
+	public static boolean isVowel(String c) {
+		return RiTa.VOWELS.indexOf(c) > -1;
+	}
+
+	public static boolean isConsonant(char c) {
+		return isConsonant(Character.toString(c));
+	}
+
+	public static boolean isConsonant(String c) {
+		return RiTa.VOWELS.indexOf(c) < 0 && // TODO: precompile
+				"^[a-z\u00C0-\u00ff]+$".matches(c);
+	}
+
 	public static boolean isAlliteration(String word1, String word2) {
 		return lexicon().isAlliteration(word1, word2, false);
 	}
@@ -101,6 +118,10 @@ public class RiTa {
 
 	public static boolean isPunctuation(String text) {
 		return text != null && text.length() > 0 && ONLY_PUNCT.matcher(text).matches();
+	}
+
+	public static boolean isPunctuation(char c) {
+		return isPunctuation(Character.toString(c));
 	}
 
 	public static boolean isQuestion(String sentence) { // remove?
@@ -423,8 +444,8 @@ public class RiTa {
 		}
 		return _lexicon;
 	}
-	private static Lexicon _lexicon;
 
+	private static Lexicon _lexicon;
 
 	// /////////////////////////// static /////////////////////////////////
 

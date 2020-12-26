@@ -118,7 +118,7 @@ public class Lexicon {
 		String c2 = firstPhone(firstStressedSyl(word2, noLts));
 
 		return c1.length() > 0 && c2.length() > 0
-				&& !isVowel(c1.charAt(0)) && c1.equals(c2);
+				&& !RiTa.isVowel(c1.charAt(0)) && c1.equals(c2);
 	}
 
 	public boolean isRhyme(String word1, String word2, boolean noLts) {
@@ -591,15 +591,6 @@ public class Lexicon {
 			//if (i < 10) System.out.println(parts[0].trim()
 			// +": "+parts[1].split(",")[0]);
 		}
-	}
-
-	private boolean isVowel(char c) {
-		return Util.contains(RiTa.VOWELS, c);
-	}
-
-	private boolean isConsonant(char c) {
-		return RiTa.VOWELS.indexOf(c) < 0 &&// TODO: precompile
-				"^[a-z\u00C0-\u00ff]+$".matches(Character.toString(c));
 	}
 
 	private String lastStressedPhoneToEnd(String word) {

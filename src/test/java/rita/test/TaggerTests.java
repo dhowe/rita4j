@@ -80,6 +80,12 @@ public class TaggerTests {
 	}
 
 	@Test
+	public void callAllPos() {
+		arrayEq(RiTa.pos("monkey"), new String[] { "nn" });
+		arrayEq(RiTa.pos("monkey's"), new String[] { "nns" });
+	}
+	
+	@Test
 	public void callPos() {
 
 		String[] result, answer, resultArr, answerArr;
