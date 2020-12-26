@@ -22,8 +22,7 @@ void draw() {
   }
 }
 
-//  replace a random word in the paragraph with one
-//  from wordnet with the same (basic) part-of-speech 
+//  replace a random word in the paragraph every 2 sec
 void nextWord()
 {   
   String[] words = text.split(" ");

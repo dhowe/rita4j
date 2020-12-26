@@ -8,6 +8,8 @@ public class Analyzer {
 	public static final String SLASH = "/";
 	public static final String DELIM = "-";
 
+	protected LetterToSound lts;
+
 	public Map<String, String> analyze(String text) {
 		return this.analyze(text, null);
 	}
@@ -59,7 +61,7 @@ public class Analyzer {
 		// now use the lts engine if needed
 		if (rawPhones == null) {
 
-			String[] ltsPhones = RiTa.lts.computePhones(word);
+			String[] ltsPhones = computePhones(word);
 			if (ltsPhones != null && ltsPhones.length > 0) {
 
 				if (!RiTa.SILENT && !RiTa.SILENCE_LTS && word.matches("[a-zA-Z]+")) {
@@ -84,7 +86,7 @@ public class Analyzer {
 		if (!useRaw) {
 			String[] stressyls = rawPhones.split(" ");
 			for (int j = 0; j < stressyls.length; j++) {
-				if (/*stressyls[j] == null ||*/stressyls[j].length() == 0) continue;
+				if (stressyls[j].length() == 0) continue;
 				stresses += (stressyls[j].indexOf(RiTa.STRESS) > -1)
 						? RiTa.STRESS
 						: RiTa.NOSTRESS;
@@ -100,6 +102,11 @@ public class Analyzer {
 		return new String[] { phones, stresses, syllables };
 	}
 
+	public String[] computePhones(String word) {
+		if (lts == null) lts = new LetterToSound();
+		return lts.buildPhones(word);
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(Tagger.tag("dog")[0]);
 	}

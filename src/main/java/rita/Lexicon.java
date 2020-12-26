@@ -279,7 +279,6 @@ public class Lexicon {
 			regex = regex.substring(1, regex.length() - 1);
 		}
 
-		Analyzer analyzer = RE.test("(stresses|phones)", type) ? RiTa.analyzer() : null;
 		Pattern re = Pattern.compile(regex);
 		opts = this.parseArgs(opts);
 		//console.log(opts);
@@ -305,11 +304,11 @@ public class Lexicon {
 			//String phones = rdata != null ? rdata[0] : this.rawPhones(word);
 
 			if (type.equals("stresses")) {
-				String stresses = analyzer.analyzeWord(word)[1];
+				String stresses = RiTa.analyzer.analyzeWord(word)[1];
 				if (RE.test(re, stresses)) result.add(word);
 			}
 			if (type.equals("phones")) {
-				String phones = analyzer.analyzeWord(word)[0];
+				String phones = RiTa.analyzer.analyzeWord(word)[0];
 				if (RE.test(re, phones)) result.add(word);
 			}
 			else {
@@ -551,9 +550,7 @@ public class Lexicon {
 		}
 
 		if (!noLts) { // check lts otherwise
-			if (RiTa.lts == null) throw new RiTaException("Null LTS");
-
-			String[] phones = RiTa.lts.computePhones(word);
+			String[] phones = RiTa.analyzer.computePhones(word);
 			if (phones != null && phones.length > 0) {
 				return Util.syllabifyPhones(phones).trim(); // TODO: why?
 				//.replaceAll("\\[", "").replaceAll("'", "");

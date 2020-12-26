@@ -7,10 +7,8 @@ import java.util.regex.Pattern;
 public class RiTa {
 
 	protected static Lexicon _lexicon;
-	protected static Analyzer _analyzer;
-	protected static Concorder concorder;
-	protected static Conjugator conjugator;
-	protected static LetterToSound lts;
+	protected static Analyzer analyzer = new Analyzer();
+	protected static Concorder concorder = new Concorder();
 
 	public static Map<String, Function<String, String>> addTransform(
 			String name, Function<String, String> func) {
@@ -36,7 +34,7 @@ public class RiTa {
 	}
 
 	public static Map<String, String> analyze(String word) {
-		return analyzer().analyze(word);
+		return analyzer.analyze(word);
 	}
 
 	public static String articlize(String s) {
@@ -48,7 +46,6 @@ public class RiTa {
 	}
 
 	public static Map<String, Integer> concordance(String text, Map<String, Object> opts) {
-		if (concorder == null) concorder = new Concorder();
 		return concorder.concordance(text, opts);
 	}
 
@@ -57,7 +54,6 @@ public class RiTa {
 	}
 
 	public static String conjugate(String word) {
-
 		return conjugate(word, null);
 	}
 
@@ -150,7 +146,7 @@ public class RiTa {
 	}
 
 	public static String phones(String text, Map<String, Object> opts) {
-		return analyzer().analyze(text, opts).get("phones");
+		return analyzer.analyze(text, opts).get("phones");
 	}
 
 	public static String posInline(String text, Map<String, Object> opts) {
@@ -314,11 +310,11 @@ public class RiTa {
 	}
 
 	public static String stresses(String text) {
-		return analyzer().analyze(text).get("stresses");
+		return analyzer.analyze(text).get("stresses");
 	}
 
 	public static String syllables(String text) {
-		return analyzer().analyze(text).get("syllables");
+		return analyzer.analyze(text).get("syllables");
 	}
 
 	public static String[] soundsLike(String word) {
@@ -418,7 +414,6 @@ public class RiTa {
 
 	public static Lexicon lexicon() { // singleton
 		if (RiTa._lexicon == null) {
-			RiTa.lts = new LetterToSound();
 			try {
 				RiTa._lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
@@ -429,13 +424,6 @@ public class RiTa {
 		return RiTa._lexicon;
 	}
 
-	public static Analyzer analyzer() {
-		if (_analyzer == null) {
-			RiTa.lexicon();
-			RiTa._analyzer = new Analyzer();
-		}
-		return RiTa._analyzer;
-	}
 
 	// /////////////////////////// static /////////////////////////////////
 
@@ -445,7 +433,6 @@ public class RiTa {
 
 	public static String PHONEME_BOUNDARY = "-";
 	public static String SYLLABLE_BOUNDARY = "/";
-	public static String SENTENCE_BOUNDARY = "|";
 	public static String DICT_PATH = "rita_dict.js";
 
 	// CONSTANTS

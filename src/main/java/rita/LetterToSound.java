@@ -25,7 +25,7 @@ public class LetterToSound { // in-progress
 		}
 	}
 
-	public String[] computePhones(String word) {
+	public String[] buildPhones(String word) {
 
 		if (word == null || word.length() < 1 || RiTa.isPunctuation(word)) {
 			return null;
@@ -67,7 +67,7 @@ public class LetterToSound { // in-progress
 			((FinalState) currentState).append((ArrayList<String>) phoneList);
 		}
 		
-		return phoneList.toArray(new String[0]);
+		return phoneList.toArray(new String[phoneList.size()]);
 	}
 
 	protected char[] getFullBuff(String word) {
@@ -13335,6 +13335,6 @@ public class LetterToSound { // in-progress
 
 	public static void main(String[] args) {
 		LetterToSound lts = new LetterToSound();
-		System.out.println(Arrays.asList(lts.computePhones("Laggin")));
+		System.out.println(Arrays.asList(lts.buildPhones("Laggin")));
 	}
 }
