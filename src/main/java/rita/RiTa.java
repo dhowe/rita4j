@@ -6,9 +6,9 @@ import java.util.regex.Pattern;
 
 public class RiTa {
 
-	protected static Lexicon _lexicon;
-	protected static Analyzer analyzer = new Analyzer();
-	protected static Concorder concorder = new Concorder();
+	public static Tagger tagger = new Tagger();
+	public static Analyzer analyzer = new Analyzer();
+	public static Concorder concorder = new Concorder();
 
 	public static Map<String, Function<String, String>> addTransform(
 			String name, Function<String, String> func) {
@@ -80,11 +80,11 @@ public class RiTa {
 	}
 
 	public static boolean isAdjective(String word) {
-		return Tagger.isAdjective(word);
+		return tagger.isAdjective(word);
 	}
 
 	public static boolean isAdverb(String word) {
-		return Tagger.isAdverb(word);
+		return tagger.isAdverb(word);
 	}
 
 	public static boolean isAlliteration(String word1, String word2) {
@@ -96,7 +96,7 @@ public class RiTa {
 	}
 
 	public static boolean isNoun(String word) {
-		return Tagger.isNoun(word);
+		return tagger.isNoun(word);
 	}
 
 	public static boolean isPunctuation(String text) {
@@ -120,7 +120,7 @@ public class RiTa {
 	}
 
 	public static boolean isVerb(String word) {
-		return Tagger.isVerb(word);
+		return tagger.isVerb(word);
 	}
 
 	public static String[] kwic(String word) {
@@ -158,7 +158,7 @@ public class RiTa {
 	}
 
 	public static String posInline(String text, boolean useSimpleTags) {
-		return Tagger.tagInline(text, useSimpleTags);
+		return tagger.tagInline(text, useSimpleTags);
 	}
 
 	public static String[] pos(String text) {
@@ -170,7 +170,7 @@ public class RiTa {
 	}
 
 	public static String[] pos(String text, boolean useSimpleTags) {
-		return Tagger.tag(text, useSimpleTags);
+		return tagger.tag(text, useSimpleTags);
 	}
 
 	public static String[] pos(String[] text, Map<String, Object> opts) {
@@ -182,7 +182,7 @@ public class RiTa {
 	}
 
 	public static String[] pos(String[] text, boolean useSimpleTags) {
-		return Tagger.tag(text, useSimpleTags);
+		return tagger.tag(text, useSimpleTags);
 	}
 
 	public static String pluralize(String word) {
@@ -413,16 +413,17 @@ public class RiTa {
 	}
 
 	public static Lexicon lexicon() { // singleton
-		if (RiTa._lexicon == null) {
+		if (_lexicon == null) {
 			try {
-				RiTa._lexicon = new Lexicon(DICT_PATH);
+				_lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
 				throw new RiTaException("Cannot load dictionary at "
 						+ DICT_PATH + " " + System.getProperty("user.dir"), e);
 			}
 		}
-		return RiTa._lexicon;
+		return _lexicon;
 	}
+	private static Lexicon _lexicon;
 
 
 	// /////////////////////////// static /////////////////////////////////

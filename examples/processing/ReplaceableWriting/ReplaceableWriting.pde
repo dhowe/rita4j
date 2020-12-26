@@ -34,7 +34,7 @@ void nextWord()
     // only words of 3 or more chars
     if (words[i].length() < 3) continue;
 
-    String pos = Tagger.allTags(words[i].toLowerCase())[0];  
+    String pos = RiTa.tagger.allTags(words[i].toLowerCase())[0];  
 
     if (pos != null) 
     {

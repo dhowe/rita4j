@@ -16,7 +16,7 @@ public class Analyzer {
 
 	public Map<String, String> analyze(String text, Map<String, Object> opts) {
 		String[] words = Tokenizer.tokenize(text);
-		String[] tags = Tagger.tag(text, opts); // don't fail if no lexicon
+		String[] tags = RiTa.tagger.tag(text, opts); // don't fail if no lexicon
 
 		String phones = "", stresses = "", syllables = "";
 		for (int i = 0; i < words.length; i++) {
@@ -107,8 +107,4 @@ public class Analyzer {
 		return lts.buildPhones(word);
 	}
 	
-	public static void main(String[] args) {
-		System.out.println(Tagger.tag("dog")[0]);
-	}
-
 }
