@@ -377,10 +377,10 @@ public class RiTa {
 	public static String[] sentences(String text) {
 		return sentences(text, (Pattern) null);
 	}
-
-	public static String[] sentences(String text, Map<String, Object> opts) {
-		return sentences(text, Util.strOpt("pattern", opts));
-	}
+//
+//	public static String[] sentences(String text, Map<String, Object> opts) {
+//		return sentences(text, Util.strOpt("pattern", opts));
+//	}
 
 	public static String[] sentences(String text, String regex) {
 		return sentences(text, Pattern.compile(regex));

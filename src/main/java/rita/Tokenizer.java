@@ -7,9 +7,8 @@ import java.util.regex.Pattern;
 
 /**
  * NOTE: Based on the Penn Treebank tokenization standard, with the following
- * differences:
- * In Penn, double quotes (") are changed to doubled forward and backward single
- * quotes (`` and '')
+ * difference: In Penn, double quotes (") are changed to doubled forward and backward single
+ * quotes (`` and '').
  */
 public class Tokenizer {
 
@@ -22,22 +21,27 @@ public class Tokenizer {
 	}
 
 	public static String[] sentences(String text, Pattern pattern) {
-		if (text == null || text.length() == 0) return new String[] { text };
+
+		if (text == null || text.length() == 0) {
+			return new String[] { text };
+		}
+
+		String clean = LINEBREAKS.matcher(text).replaceAll(" ");
+
 		if (pattern == null) pattern = SPLITTER;
 
-		String clean = text.replaceAll("(\r?\n)+", " "); // TODO: compile
-		List<String> allMatches = new ArrayList<String>();
-
 		Matcher m = pattern.matcher(escapeAbbrevs(clean));
+		List<String> allMatches = new ArrayList<String>();
 		while (m.find()) {
 			allMatches.add(m.group());
 		}
+
 		String[] arr = allMatches.toArray(new String[0]);
-		return (arr == null || arr.length == 0)
+		return arr.length == 0
 				? new String[] { text }
 				: unescapeAbbrevs(arr);
 	}
-	
+
 	public static String untokenize(String[] arr, String delim) {
 
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
@@ -172,7 +176,7 @@ public class Tokenizer {
 		}
 		return result;
 	}
-	
+
 	private static String[] unescapeAbbrevs(String[] arr) {
 		for (int i = 0; i < arr.length; i++) {
 			arr[i] = arr[i].replaceAll(DELIM, ".");
@@ -382,9 +386,11 @@ public class Tokenizer {
 			"$1.", // Prof.
 	};
 
+	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
+
 	static {
-		if (TOKPAT1.length != TOKREP1.length 
-				|| TOKPAT2.length != TOKREP2.length 
+		if (TOKPAT1.length != TOKREP1.length
+				|| TOKPAT2.length != TOKREP2.length
 				|| TOKPAT3.length != TOKREP3.length) {
 			throw new RiTaException("Invalid Tokenizer");
 		}

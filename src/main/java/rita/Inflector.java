@@ -5,6 +5,78 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 public class Inflector {
+	
+	public static final String singularize(String word) {
+		return singularize(word, null);
+	}
+
+	public static final String singularize(String word, Map<String, Object> opts) {
+		return adjustNumber(word, SINGULARIZE, Util.boolOpt("dbug", opts));
+	}
+
+	public static final String pluralize(String word) {
+		return pluralize(word, null);
+	}
+
+	public static final String pluralize(String word, Map<String, Object> opts) {
+		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
+	}
+
+	public static final boolean isPlural(String word) {
+		return isPlural(word, false);
+	}
+
+	public static final boolean isPlural(String word, boolean dbug) {
+
+		if (word == null || word.length() < 1) return false;
+
+		word = word.toLowerCase();
+
+		if (Arrays.asList(Util.MASS_NOUNS).contains(word)) {
+			return true;
+		}
+
+		String sing = RiTa.singularize(word);
+		Map<String, String[]> dict = RiTa.lexicon().dict;
+		String[] pos, data = dict.get(sing);
+
+		// Is singularized form different and n lexicon as 'nn'?
+		if (!sing.equals(word) && data != null && data.length == 2) {
+			pos = data[1].split(" ");
+			if (Arrays.asList(pos).contains("nn")) return true;
+		}
+
+		// A general modal form? (for example, ends in 'ness')
+		if (word.endsWith("ness") && sing.equals(RiTa.pluralize(word))) {
+			return true;
+		}
+
+		// Is word without final 's in lexicon as 'nn'?
+		if (word.endsWith("s")) {
+			data = dict.get(word.substring(0, word.length() - 1));
+			if (data != null && data.length == 2) {
+				pos = data[1].split(" ");
+				for (int i = 0; i < pos.length; i++) {
+					if (Arrays.asList(pos).contains("nn")) return true;
+				}
+			}
+		}
+
+		if (RE.test(DEFAULT_IS_PLURAL, word)) return true;
+
+		RE[] rules = SINGULAR_RULES;
+		for (int i = 0; i < rules.length; i++) {
+			RE rule = rules[i];
+			if (rule.applies(word)) {
+				if (dbug) console.log(word + " hit -> " + rule);
+				return true;
+			}
+		}
+
+		if (dbug) console.log("isPlural: no rules hit for '" + word + "'");
+
+		return false;
+	}
 
 	// all singular nouns ending with e in the dict, this should avoid any future bug with es -> e
 	// is it better generate the list when used or not? TODO: a better way to deal with this
@@ -125,75 +197,4 @@ public class Inflector {
 		return word;
 	}
 
-	public static final String singularize(String word) {
-		return singularize(word, null);
-	}
-
-	public static final String singularize(String word, Map<String, Object> opts) {
-		return adjustNumber(word, SINGULARIZE, Util.boolOpt("dbug", opts));
-	}
-
-	public static final String pluralize(String word) {
-		return pluralize(word, null);
-	}
-
-	public static final String pluralize(String word, Map<String, Object> opts) {
-		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
-	}
-
-	public static final boolean isPlural(String word) {
-		return isPlural(word, false);
-	}
-
-	public static final boolean isPlural(String word, boolean dbug) {
-
-		if (word == null || word.length() < 1) return false;
-
-		word = word.toLowerCase();
-
-		if (Arrays.asList(Util.MASS_NOUNS).contains(word)) {
-			return true;
-		}
-
-		String sing = RiTa.singularize(word);
-		Map<String, String[]> dict = RiTa.lexicon().dict;
-		String[] pos, data = dict.get(sing);
-
-		// Is singularized form different and n lexicon as 'nn'?
-		if (!sing.equals(word) && data != null && data.length == 2) {
-			pos = data[1].split(" ");
-			if (Arrays.asList(pos).contains("nn")) return true;
-		}
-
-		// A general modal form? (for example, ends in 'ness')
-		if (word.endsWith("ness") && sing.equals(RiTa.pluralize(word))) {
-			return true;
-		}
-
-		// Is word without final 's in lexicon as 'nn'?
-		if (word.endsWith("s")) {
-			data = dict.get(word.substring(0, word.length() - 1));
-			if (data != null && data.length == 2) {
-				pos = data[1].split(" ");
-				for (int i = 0; i < pos.length; i++) {
-					if (Arrays.asList(pos).contains("nn")) return true;
-				}
-			}
-		}
-
-		if (RE.test(DEFAULT_IS_PLURAL, word)) return true;
-
-		RE[] rules = SINGULAR_RULES;
-		for (int i = 0; i < rules.length; i++) {
-			RE rule = rules[i];
-			if (rule.applies(word)) {
-				if (dbug) console.log(word + " hit -> " + rule);
-				return true;
-			}
-		}
-
-		if (dbug) console.log("isPlural: no rules hit for '" + word + "'");
-
-		return false;
-	}
 }
