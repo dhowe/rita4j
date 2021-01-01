@@ -97,7 +97,7 @@ public class ConjugatorTests {
 		eq("swum", RiTa.pastParticiple("swim"));
 		
 		// Example of using opts
-		eq(RiTa.conjugate("be", Util.opts("form", RiTa.GERUND)), "being");
+		eq(RiTa.conjugate("be", RiTa.opts("form", RiTa.GERUND)), "being");
 		
 		Map<String, Object> args = new HashMap<String, Object>();
 		s = new String[] { "swim", "need", "open" };

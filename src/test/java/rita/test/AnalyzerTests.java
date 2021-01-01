@@ -224,8 +224,8 @@ public class AnalyzerTests {
 
 			if (dbug) console.log(testPairs[i] + "/" + testPairs[i + 1]);
 
-			res1 = Inflector.singularize(testPairs[i], Util.opts("dbug", dbug));
-			res2 = Inflector.pluralize(testPairs[i + 1], Util.opts("dbug", dbug));
+			res1 = Inflector.singularize(testPairs[i], RiTa.opts("dbug", dbug));
+			res2 = Inflector.pluralize(testPairs[i + 1], RiTa.opts("dbug", dbug));
 			res3 = Inflector.isPlural(testPairs[i], dbug);
 
 			// singularize

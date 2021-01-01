@@ -89,7 +89,7 @@ public class Concorder {
 				if (data == null) {
 
 					String key = compareKey(words[j]);
-					model.put(key, Util.opts("key", key, "word", words[j], "indexes", new int[] { j }));
+					model.put(key, RiTa.opts("key", key, "word", words[j], "indexes", new int[] { j }));
 				}
 				else {
 					data.put("indexes", arrayExtend((int[]) data.get("indexes"), j));

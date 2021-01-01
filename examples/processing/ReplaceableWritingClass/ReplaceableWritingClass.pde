@@ -45,7 +45,7 @@ void nextWord()
     if (fpos != null) 
     {
       // get the synset
-      String[] syns = RiTa.rhymes(word, Util.opts("pos", fpos));
+      String[] syns = RiTa.rhymes(word, RiTa.opts("pos", fpos));
 
       // only words with >1 rhymes
       if (syns.length<2) continue;

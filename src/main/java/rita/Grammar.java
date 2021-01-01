@@ -209,7 +209,7 @@ public class Grammar {
 	}*/
 
 	public static void main(String[] args) {
-		System.out.println(new Grammar(Util.opts("start", "(a | b | c)")));
+		System.out.println(new Grammar(RiTa.opts("start", "(a | b | c)")));
 		System.out.println(Grammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
 	}
 

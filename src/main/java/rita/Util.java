@@ -5,6 +5,65 @@ import java.util.*;
 
 public class Util {
 
+	public static final Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		if (m1 != null) result.putAll(m1);
+		if (m2 != null) result.putAll(m2);
+		return result;
+	}
+
+	public static final boolean boolOpt(String key, Map<String, Object> opts) {
+		return boolOpt(key, opts, false);
+	}
+
+	public static final boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
+		return (opts != null) ? (boolean) opts.getOrDefault(key, def) : def;
+	}
+
+	public static final int intOpt(String key, Map<String, Object> opts) {
+		return intOpt(key, opts, Integer.MAX_VALUE);
+	}
+
+	public static final int intOpt(String key, Map<String, Object> opts, int def) {
+		return (opts != null) ? (int) opts.getOrDefault(key, def) : def;
+	}
+
+	public static final float floatOpt(String key, Map<String, Object> opts) {
+		return floatOpt(key, opts, Float.MAX_VALUE);
+	}
+
+	public static final float floatOpt(String key, Map<String, Object> opts, float def) {
+		return (opts != null) ? (float) opts.getOrDefault(key, def) : def;
+	}
+
+	public static final String strOpt(String key, Map<String, Object> opts) {
+		return strOpt(key, opts, null);
+	}
+
+	public static final String strOpt(String key, Map<String, Object> opts, String def) {
+		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
+	}
+
+	public static String[] strsOpt(String key, Map<String, Object> opts) {
+		return strsOpt(key, opts, null);
+	}
+
+	public static String[] strsOpt(String key, Map<String, Object> opts, String[] def) {
+		return (opts != null) ? (String[]) opts.getOrDefault(key, def) : def;
+	}
+
+	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
+		return mapOpt(key, opts, null);// new HashMap<String, Object>());
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
+		return opts != null ? (Map<String, Object>) opts.getOrDefault(key, def) : def;
+		// if (opts == null) return def;
+		//Object val = opts.get(key);
+		//return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
+	}
+	
 	// Takes a syllabification and turns it into a string of phonemes,
 	// delimited with dashes, with spaces between syllables
 	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L450 ?
@@ -24,12 +83,11 @@ public class Util {
 			data.addAll(onset);
 			data.addAll(nucleus);
 			data.addAll(coda);
-			ret.add(String.join("-", data.toArray(new String[0])));
+			ret.add(String.join("-", data.toArray(new String[data.size()])));
 		}
-		return String.join(" ", ret.toArray(new String[0]));
+		return String.join(" ", ret.toArray(new String[ret.size()]));
 	}
 
-	// see js and/or https://github.com/dhowe/RiTa/blob/master/java/rita/support/LetterToSound.java#L171
 	static final String syllabifyPhones(String[] input) {
 
 		boolean dbug = false;
@@ -151,10 +209,6 @@ public class Util {
 			return false;
 		}
 	}
-	//
-	//	public static final boolean isNode() {
-	//		return false;
-	//	}
 
 	public static final Object invokeStatic(Method method, Object... args) {
 		return invoke(null, method, args);
@@ -256,64 +310,7 @@ public class Util {
 		return result.toArray(new Method[0]);
 	}
 
-	public static final Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
-		Map<String, Object> result = new HashMap<String, Object>();
-		if (m1 != null) result.putAll(m1);
-		if (m2 != null) result.putAll(m2);
-		return result;
-	}
-
-	public static final boolean boolOpt(String key, Map<String, Object> opts) {
-		return boolOpt(key, opts, false);
-	}
-
-	public static final boolean boolOpt(String key, Map<String, Object> opts, boolean def) {
-		return (opts != null) ? (boolean) opts.getOrDefault(key, def) : def;
-	}
-
-	public static final int intOpt(String key, Map<String, Object> opts) {
-		return intOpt(key, opts, Integer.MAX_VALUE);
-	}
-
-	public static final int intOpt(String key, Map<String, Object> opts, int def) {
-		return (opts != null) ? (int) opts.getOrDefault(key, def) : def;
-	}
-
-	public static final float floatOpt(String key, Map<String, Object> opts) {
-		return floatOpt(key, opts, Float.MAX_VALUE);
-	}
-
-	public static final float floatOpt(String key, Map<String, Object> opts, float def) {
-		return (opts != null) ? (float) opts.getOrDefault(key, def) : def;
-	}
-
-	public static final String strOpt(String key, Map<String, Object> opts) {
-		return strOpt(key, opts, null);
-	}
-
-	public static final String strOpt(String key, Map<String, Object> opts, String def) {
-		return (opts != null) ? (String) opts.getOrDefault(key, def) : def;
-	}
-
-	public static String[] strsOpt(String key, Map<String, Object> opts) {
-		return strsOpt(key, opts, null);
-	}
-
-	public static String[] strsOpt(String key, Map<String, Object> opts, String[] def) {
-		return (opts != null) ? (String[]) opts.getOrDefault(key, def) : def;
-	}
-
-	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts) {
-		return mapOpt(key, opts, null);// new HashMap<String, Object>());
-	}
-
-	@SuppressWarnings("unchecked")
-	public static final Map<String, Object> mapOpt(String key, Map<String, Object> opts, Map<String, Object> def) {
-		return opts != null ? (Map<String, Object>) opts.getOrDefault(key, def) : def;
-		// if (opts == null) return def;
-		//Object val = opts.get(key);
-		//return (val == null || !(val instanceof Map)) ? def : (Map<String, Object>) val;
-	}
+	
 
 	public static final String[] shuffle(String[] arr) { // shuffle array //TODO what is the type of second arg
 		String[] newArray = arr;
@@ -336,36 +333,6 @@ public class Util {
 		 * }
 		 */
 		return newArray;
-	}
-
-	public static final Map<String, Object> opts() {
-		return new HashMap<String, Object>();
-	}
-
-	public static final Map<String, Object> opts(String key, Object val) {
-		return opts(new String[] { key }, new Object[] { val });
-	}
-
-	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2) {
-		return opts(new String[] { key1, key2 }, new Object[] { val1, val2 });
-	}
-
-	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
-		return opts(new String[] { key1, key2, key3 }, new Object[] { val1, val2, val3 });
-	}
-
-	public static final Map<String, Object> opts(String key1, Object val1,
-			String key2, Object val2, String key3, Object val3, String key4, Object val4) {
-		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
-	}
-
-	public static final Map<String, Object> opts(String[] keys, Object[] vals) {
-		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
-		Map<String, Object> data = new HashMap<String, Object>();
-		for (int i = 0; i < keys.length; i++) {
-			data.put(keys[i], vals[i]);
-		}
-		return data;
 	}
 
 	public static final List<?> slice(List<?> arr, int from) {

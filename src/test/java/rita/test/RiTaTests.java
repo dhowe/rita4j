@@ -10,7 +10,6 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Test;
 
-import rita.RiTa;
 import rita.*;
 
 import java.util.HashMap;
@@ -25,6 +24,20 @@ public class RiTaTests {
 		assertTrue(RiTa.hasWord("dog"));
 	}
 
+	@Test
+	public void callOptsWithMap() {
+		Map<String, Object> opts, res;
+		opts = new HashMap<String, Object>();
+		opts.put("context", RiTa.opts("a", "b"));
+		res = Util.mapOpt("context", opts);
+		assertTrue(res.equals(RiTa.opts("a", "b")));
+
+		opts = new HashMap<String, Object>();
+		opts.put("context", RiTa.opts("a", "b"));
+		res = Util.mapOpt("contextX", opts);
+		assertNull(res);
+	}
+	
 	@Test
 	public void callRandomOrdering() {
 		//int

@@ -7,7 +7,7 @@ import java.util.*;
 import org.junit.jupiter.api.Test;
 
 import rita.*;
-import static rita.Util.*;
+import static rita.RiTa.*;
 
 public class LexiconTests {
 

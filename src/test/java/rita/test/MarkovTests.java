@@ -1,6 +1,6 @@
 package rita.test;
 
-import static rita.Util.opts;
+import static rita.RiTa.opts;
 
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +36,7 @@ public class MarkovTests {
 		assertTrue(rm != null);
 		assertTrue(rm.n == 3);
 
-		rm = RiTa.markov(4, Util.opts());
+		rm = RiTa.markov(4, RiTa.opts());
 		assertTrue(rm != null);
 		assertTrue(rm.n == 4);
 	}

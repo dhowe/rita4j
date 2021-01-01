@@ -8,7 +8,7 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
-import static rita.Util.opts;
+import static rita.RiTa.opts;
 
 public class TaggerTests {
 

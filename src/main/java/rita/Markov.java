@@ -1,6 +1,6 @@
 package rita;
 
-import static rita.Util.opts;
+import static rita.RiTa.opts;
 
 import java.text.DecimalFormat;
 

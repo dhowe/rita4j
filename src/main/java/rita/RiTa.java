@@ -26,7 +26,7 @@ public class RiTa {
 	}
 
 	public static String[] alliterations(String word, int minWordLength) {
-		return alliterations(word, Util.opts("minLength", minWordLength));
+		return alliterations(word, opts("minLength", minWordLength));
 	}
 
 	public static String[] alliterations(String word, Map<String, Object> opts) {
@@ -271,15 +271,15 @@ public class RiTa {
 	}
 
 	public static String randomWord(String pos) {
-		return randomWord(Util.opts("pos", pos));
+		return randomWord(opts("pos", pos));
 	}
 
 	public static String randomWord(int syllables) {
-		return randomWord(Util.opts("numSyllables", syllables));
+		return randomWord(opts("numSyllables", syllables));
 	}
 
 	public static String randomWord(String pos, int syllables) {
-		return randomWord(Util.opts("pos", pos, "numSyllables", syllables));
+		return randomWord(opts("pos", pos, "numSyllables", syllables));
 	}
 
 	public static String[] rhymes(String word) {
@@ -511,6 +511,36 @@ public class RiTa {
 	public static String[] PHONES = { "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f", "g", "hh", "ih", "iy", "jh", "k",
 			"l", "m", "n", "ng", "ow", "oy", "p", "r", "s", "sh", "t", "th", "uh", "uw", "v", "w", "y", "z", "zh" };
 
+	public static final Map<String, Object> opts() {
+		return new HashMap<String, Object>();
+	}
+
+	public static final Map<String, Object> opts(String key, Object val) {
+		return opts(new String[] { key }, new Object[] { val });
+	}
+
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2) {
+		return opts(new String[] { key1, key2 }, new Object[] { val1, val2 });
+	}
+
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
+		return opts(new String[] { key1, key2, key3 }, new Object[] { val1, val2, val3 });
+	}
+
+	public static final Map<String, Object> opts(String key1, Object val1,
+			String key2, Object val2, String key3, Object val3, String key4, Object val4) {
+		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
+	}
+
+	public static final Map<String, Object> opts(String[] keys, Object[] vals) {
+		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
+		Map<String, Object> data = new HashMap<String, Object>();
+		for (int i = 0; i < keys.length; i++) {
+			data.put(keys[i], vals[i]);
+		}
+		return data;
+	}
+	
 	public static void main(String[] args) {
 		System.out.println(RiTa.analyze("absolot"));
 		System.out.println(RiTa.evaluate("( newt | ginko | salamander)"));

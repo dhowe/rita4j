@@ -1,7 +1,7 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static rita.Util.opts;
+import static rita.RiTa.opts;
 
 import java.util.*;
 import java.util.function.Function;

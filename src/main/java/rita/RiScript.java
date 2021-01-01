@@ -237,7 +237,7 @@ public class RiScript {
 
 	public static String articlize(String s) {
 		if (s == null || s.length() < 1) return "";
-		String phones = RiTa.phones(s, Util.opts("silent", true));
+		String phones = RiTa.phones(s, RiTa.opts("silent", true));
 		//System.out.println(phones+" " + phones.substring(0,1));
 		return (phones != null && phones.length() > 0 && RE.test("[aeiou]",
 				phones.substring(0, 1)) ? "an " : "a ") + s;
@@ -291,11 +291,11 @@ public class RiScript {
 
 	public static void main(String[] args) {
 		//		RiScript rs = new RiScript();
-		//		Map<String, Object> opts = Util.opts();
-		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, Util.opts("trace", true));
+		//		Map<String, Object> opts = RiTa.opts();
+		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, RiTa.opts("trace", true));
 		//		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
 		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
-		new RiScript().lex("$1foo", Util.opts("trace", true));
+		new RiScript().lex("$1foo", RiTa.opts("trace", true));
 	}
 }
 

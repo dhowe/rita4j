@@ -197,12 +197,12 @@ public class Lexicon {
 		}
 	}
 
-	private static final Map<String, Object> S1P_PAST = Util.opts(
+	private static final Map<String, Object> S1P_PAST = RiTa.opts(
 			"number", RiTa.SINGULAR,
 			"person", RiTa.FIRST,
 			"tense", RiTa.PAST);
 
-	private static final Map<String, Object> S3P_PRES = Util.opts(
+	private static final Map<String, Object> S3P_PRES = RiTa.opts(
 			"number", RiTa.SINGULAR,
 			"person", RiTa.THIRD,
 			"tense", RiTa.PRESENT);
