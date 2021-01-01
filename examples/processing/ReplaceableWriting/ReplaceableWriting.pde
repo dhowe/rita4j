@@ -1,5 +1,6 @@
 
 import rita.*;
+import java.util.*;
 
 int last = -9999;
 
@@ -7,12 +8,17 @@ String txt = "Last Wednesday we decided to visit the zoo. We arrived the next mo
 
 void setup() {
 
-  size(600, 400);
+  size(600, 480);
   noStroke();
   textSize(17.5);
+  textLeading(24);
 }
 
 void draw() {
+  background(20, 30, 55);
+  fill(250, 240, 230);
+  text(txt, 50, 30, 500, height);
+
   int now = millis();
   if (now - last > 2000) {
     last = now;
@@ -20,12 +26,8 @@ void draw() {
   }
 }
 
-
-
 void nextWord() { // replaces a random word in the text
-  println("nextWord");
-}
-/*
+
   String[] words = RiTa.tokenize(txt); // split into words
 
   // loop from a random spot
@@ -34,51 +36,53 @@ void nextWord() { // replaces a random word in the text
 
     int idx = i % words.length;
     String word = words[idx].toLowerCase();
-    if (word.length < 3) continue; // len >= 3
+    if (word.length() < 3) continue; // len >= 3
+
+    String pos = RiTa.tagger.allTags(word)[0];
+    Map opts = RiTa.opts("pos", pos);
 
     // find related words
-    String pos = RiTa.tagger.allTags(word)[0];
-    String[] rhymes = RiTa.rhymes(word, { 
-      pos
-    }
-    );
-    String[] sounds = RiTa.soundsLike(word, { 
-      pos
-    }
-    );
-    String[] spells = RiTa.spellsLike(word, { 
-      pos
-    }
-    );
-    let similars = [...rhymes, ...sounds, ...spells];
+    String[] rhymes = RiTa.rhymes(word, opts);
+    String[] sounds = RiTa.soundsLike(word, opts);
+    String[] spells = RiTa.spellsLike(word, opts);
+    String[] similars = merge(rhymes, sounds, spells);
 
     // only words with 2 or more similars
-    if (similars.length < 2) {
-      console.log("No sims for "+word);
-      continue;
-    }
+    if (similars.length < 2) continue;
 
     // pick a random similar
-    let next = RiTa.random(similars);
+    String next = RiTa.random(similars);
 
-    if (next.includes(word) || word.includes(next)) {
-      continue;                     // skip substrings
+    if (next.contains(word) || word.contains(next)) {
+      continue;  // skip substrings
     }
-    if (/[A-Z]/.test(words[idx][0])) {
+
+    if (Character.isUpperCase(words[idx].charAt(0))) {
       next = RiTa.capitalize(next); // keep capitals
     }
 
-    console.log("replace(" + idx + "): " + word + " -> " + next);
-
-    words[idx] = next;             // do replacement
+    println("replace("+pos+"): " + word + " -> " + next);
+    words[idx] = next;  // do replacement
     break;
   }
 
-  // recombine into string and display
-  txt = RiTa.untokenize(words); 
-  background(20, 30, 55);
-  fill(250, 240, 230);
-  text(txt, 50, 30, 500, height);
+  // recombine for display
+  txt = RiTa.untokenize(words);
+}
 
-  setTimeout(nextWord, 2000);
-}*/
+String[] merge(String[]... arrays) {
+  String[] dest = null;
+  int length = 0, destPos = 0;
+  for (String[] array : arrays) {
+    length += array.length;
+  }
+  for (String[] array : arrays) {
+    if (dest == null) {
+      dest = Arrays.copyOf(array, length);
+    } else {
+      System.arraycopy(array, 0, dest, destPos, array.length);
+    }
+    destPos += array.length;
+  }
+  return dest;
+}
