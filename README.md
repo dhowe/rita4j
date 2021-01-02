@@ -105,14 +105,16 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
    </td>
  </tr>
 </table>
-&nbsp;
 
 ## RiScript
 
 RiScript is a writer-focused scripting language integrated with RiTa. It enables simple generative primitives within plain text for dynamic expansion at runtime. RiScript primitives can be used as part of any [RiTa grammar](https://rednoise.org/rita/reference/RiTa/grammar/) or executed directly using [RiTa.evaluate()](https://rednoise.org/rita/reference/RiTa/evaluate/). For full documentation, see [this page](https://rednoise.org/rita/reference/riscript.html).
 
+<br>
+
 <hr>
 
+<br>
 
 ### Developing (Java)
 ```sh
