@@ -25,7 +25,7 @@ RiTa is a toolkit for natural language and generative literature. It is implemen
 <dependency>
   <groupId>org.rednoise</groupId>
   <artifactId>rita</artifactId>
-  <version>2.0.2</version>
+  <version>2.0.20</version>
 </dependency>
 ```
 
