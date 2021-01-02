@@ -1,6 +1,6 @@
 ![Java CI with Maven](https://github.com/dhowe/rita/workflows/Java%20CI%20with%20Maven/badge.svg) <a href="http://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="npm version"></a> <a href="https://www.npmjs.com/package/rita"><img src="https://img.shields.io/npm/v/rita.svg" alt="npm version"></a>
 
-## RiTa: generative language tools for Java
+## RiTa: tools for generative writing and natural language
 
 RiTa is a toolkit for natural language and generative literature. It is implemented in Java and JavaScript, with a common API for both, and it is free/libre/open-source via the GPL license.
 
