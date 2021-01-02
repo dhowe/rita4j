@@ -2,7 +2,7 @@
 
 ## RiTa: generative language tools for Java
 
-<a href="https://rednoise.org/rita/"><img height="80" src="https://rednoise.org/rita/img/RiTaLogo.png"></a>
+<a href="https://rednoise.org/rita/"><img height="60" src="https://rednoise.org/rita/img/RiTaLogo.png"></a>
 
 RiTa is a toolkit for natural language and generative literature. It is implemented in Java and JavaScript, with a common API for both, and it is free/libre/open-source via the GPL license.
 
