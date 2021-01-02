@@ -2,8 +2,6 @@
 
 ## RiTa: generative language tools for Java
 
-<a href="https://rednoise.org/rita/"><img height="60" src="https://rednoise.org/rita/img/RiTaLogo.png"></a>
-
 RiTa is a toolkit for natural language and generative literature. It is implemented in Java and JavaScript, with a common API for both, and it is free/libre/open-source via the GPL license.
 
 ###
@@ -113,16 +111,18 @@ RiTa is a toolkit for natural language and generative literature. It is implemen
 
 RiScript is a writer-focused scripting language integrated with RiTa. It enables simple generative primitives within plain text for dynamic expansion at runtime. RiScript primitives can be used as part of any [RiTa grammar](https://rednoise.org/rita/reference/RiTa/grammar/) or executed directly using [RiTa.evaluate()](https://rednoise.org/rita/reference/RiTa/evaluate/). For full documentation, see [this page](https://rednoise.org/rita/reference/riscript.html).
 
+<hr>
 
-&nbsp;
 
-### Developing
+### Developing (Java)
 ```sh
 $ git clone https://github.com/dhowe/rita.git
 $ cd rita
 $ mvn install      # when done, you should see "BUILD SUCCESS"
 ```
 The project requires a minimum version of Java 8 and Maven 3.6 to build.
+
+<br/>
 
 ### Eclipse
 1. Do steps above under **Building**
