@@ -1,4 +1,4 @@
-![Java CI with Maven](https://github.com/dhowe/rita/workflows/Java%20CI%20with%20Maven/badge.svg) <a href="http://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="npm version"></a> <a href="https://www.npmjs.com/package/rita"><img src="https://img.shields.io/npm/v/rita.svg" alt="npm version"></a>
+![Java CI with Maven](https://github.com/dhowe/rita/workflows/Java%20CI%20with%20Maven/badge.svg) ![Maven Central](https://img.shields.io/maven-central/v/org.rednoise/rita) <a href="http://www.gnu.org/licenses/gpl-3.0.en.html"><img src="https://img.shields.io/badge/license-GPL-orange.svg" alt="npm version"></a> <a href="https://spectrum.chat/rita"><img src="https://img.shields.io/badge/spectrum-chat-%23b14344"/></a>
 
 ## RiTa: a toolkit for generative writing and natural language
 
@@ -6,12 +6,12 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
 
 ###
 
-* For JavaScript, see this [repo](https://github.com/dhowe/ritajs) or use it with [npm](https://www.npmjs.com/package/rita)  or [unpkg](https://unpkg.com/browse/rita/dist/) !
+* For JavaScript, see this [repo](https://github.com/dhowe/ritajs) or use it with [npm](https://www.npmjs.com/package/rita) or [unpkg](https://unpkg.com/browse/rita/dist/) !
 * A simple [Processing example](#in-processing) 
 * A simple [Java example](#a-simple-example-java)
 * For [Developers](#developing)
 
-:warning: Version 2.0 contains breaking changes! Please see these [release notes](https://rednoise.org/rita/#whats-new-wrapper). :warning:
+:warning: Version 2.0 contains breaking changes! Please check the [release notes](https://rednoise.org/rita/#whats-new-wrapper)
 
 ### Installation
 
