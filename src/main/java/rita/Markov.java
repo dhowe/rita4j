@@ -7,6 +7,9 @@ import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Function;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
 public class Markov {
 
 	public static String SS = "<s>", SE = "</s>";
@@ -70,25 +73,36 @@ public class Markov {
 	public void addText(String[] sents, int multiplier) {
 
 		// add new tokens for each sentence start/end
-		List<String> toAdd = new ArrayList<String>();
 		List<String> tokens = new ArrayList<String>();
 		for (int k = 0; k < multiplier; k++) {
 			for (int i = 0; i < sents.length; i++) {
 				String[] words = this.doTokenize(sents[i]);
-				toAdd.clear(); // Q: is toAdd needed here?
-				toAdd.add(Markov.SS);
-				toAdd.addAll(Arrays.asList(words));
-				toAdd.add(Markov.SE);
-				tokens.addAll(toAdd);
+				tokens.add(Markov.SS);
+				tokens.addAll(Arrays.asList(words));
+				tokens.add(Markov.SE);
 			}
-			this.treeify(tokens.toArray(new String[0]));
+			this.treeify(tokens.toArray(new String[tokens.size()]));
 		}
 
 		if (!this.disableInputChecks || this.mlm != 0) {
 			this.input.addAll(tokens);
 		}
 	}
-
+	
+	/*TODO: ? 
+	public void addTokens(String[] words) {
+		this.addTokens(words, 1);
+	}
+	
+	public void addTokens(String[] words, int multiplier) {
+		for (int k = 0; k < multiplier; k++) {
+			this.treeify(words);
+		}
+		if (!this.disableInputChecks || this.mlm != 0) {
+			this.input.addAll(Arrays.asList(words));
+		}
+	}*/
+	
 	public String toString() {
 		return this.root.asTree().replaceAll("\\{\\}", "");
 	}
@@ -296,11 +310,11 @@ public class Markov {
 	}
 
 	public Map<String, Object> probabilities(String[] path, double temp) {
-		
+
 		Map<String, Object> probs = new HashMap<String, Object>();
 		Node parent = this._pathTo(path);
 		if (parent != null) {
-			
+
 			Node[] children = parent.childNodes();
 			List<Integer> weights = new ArrayList<>();
 			for (Node n : children) {
@@ -309,7 +323,7 @@ public class Markov {
 			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
 			double[] pdist = RandGen.ndist(wArr, temp);
 			for (int i = 0; i < children.length; i++) {
-				
+
 				probs.put(children[i].token, pdist[i]);
 			}
 		}
@@ -592,10 +606,10 @@ public class Markov {
 			token = word;
 			count = cnt;
 		}
-		
+
 		// Find a (direct) child node with matching token
 		public Node child(Node word) {
-			return this.child(word.token); // JC: delegate to other method
+			return this.child(word.token);
 		}
 
 		// Find a (direct) child node with matching token
@@ -728,4 +742,5 @@ public class Markov {
 		rm.addText("The");
 		System.out.println(rm.root.asTree());
 	}
+
 }

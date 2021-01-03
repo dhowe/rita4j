@@ -5,6 +5,7 @@ import static rita.RiTa.opts;
 import org.junit.jupiter.api.Test;
 
 import rita.*;
+import rita.Markov.Node;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -164,7 +165,7 @@ public class MarkovTests {
 		rm.addText(RiTa.sentences(sample));
 		toks = rm.initSentence(new String[] { "I", "also" });
 		eq(toks.length, 2);
-		eq(toks[0].token+" "+toks[1].token, new String("I also"));
+		eq(toks[0].token + " " + toks[1].token, new String("I also"));
 	}
 
 	@Test
@@ -541,8 +542,16 @@ public class MarkovTests {
 		eq(rm.probability(check), expected);
 
 		eq(rm.probability(new String[] { }), 0);
-
 	}
+
+	/* TODO: ?
+	@Test
+	public void callAddTokens() {
+		Markov rm = new Markov(4);
+		String[] tokens = RiTa.tokenize(sample);
+		rm.addTokens(tokens);
+		eq(rm.size(), tokens.length);
+	} */
 
 	@Test
 	public void callAddText() {
@@ -557,13 +566,13 @@ public class MarkovTests {
 
 		eq(rm.size(), count + sents.length);
 
-		// TODO:
-		//    String[] ss = rm.root.child(Markov.SS);
-		//    String[] result = {"One", "Achieving", "For", "He", "However", "I", "Although"};
-		//    assertArrayEquals(Object.keys(ss.children), result);
+		//TODO:
+		//		Node child = rm.root.child(Markov.SS);
+		//		String[] result = { "One", "Achieving", "For", "He", "However", "I", "Although" };
+		//		assertArrayEquals(Object.keys(child.), result);
 		//
-		//    String[] se = rm.root.child(Markov.SE);
-		//    assertArrayEquals(Object.keys(se.children), new String[] {Markov.SS});
+		//		String[] se = rm.root.child(Markov.SE);
+		//		assertArrayEquals(Object.keys(se.children), new String[] { Markov.SS });
 
 	}
 
@@ -634,15 +643,14 @@ public class MarkovTests {
 		assertTrue(rm.input == null);
 	}
 
-	@Test
-	public void serializeAndDeserialize() {
-		Markov rm = new Markov(4, opts("disableInputChecks", true));
-		rm.addText(new String[] { "I ate the dog." });
-		// TODO: fromJSON
-		// Markov copy = Markov.fromJSON(rm.toJSON());
-		//		markovEquals(rm, copy);
-		//		eq(copy.generate(), rm.generate());
-	}
+//	@Test
+//	public void serializeAndDeserialize() {
+//		Markov rm = new Markov(4, opts("disableInputChecks", true));
+//		rm.addText(new String[] { "I ate the dog." });
+//		Markov copy = Markov.fromJSON(rm.toJSON());
+//		assertEquals(rm, copy);
+//		assertEquals(copy.generate(), rm.generate());
+//	}
 
 	/* Helpers */
 
