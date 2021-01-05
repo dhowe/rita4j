@@ -60,7 +60,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/kwic/index.html">RiTa.kwic()</a><br/>
       <a href="./RiTa/markov/index.html">RiTa.markov()</a><br/>
     </td>
-    <td style="vertical-align: top; padding-top: 40px">
+     <td style="vertical-align: top; padding-top: 40px"><br/>
       <a href="./RiTa/pastParticiple/index.html">RiTa.pastParticiple()</a><br/>
       <a href="./RiTa/phones/index.html">RiTa.phones()</a><br/>
       <a href="./RiTa/pos/index.html">RiTa.pos()</a><br/>
