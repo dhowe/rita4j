@@ -26,7 +26,7 @@ jobs:
     - name: List files
       run: ls -R
     - name: Run Tests
-      run: mvn test   branches: [ master ]
+      run: mvn test
 
 jobs:
   build:
