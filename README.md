@@ -60,7 +60,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/kwic/index.html">RiTa.kwic()</a><br/>
       <a href="./RiTa/markov/index.html">RiTa.markov()</a><br/>
     </td>
-    <td style="vertical-align: top; padding-top: 25px">
+    <td style="vertical-align: top; padding-top: 40px">
       <a href="./RiTa/pastParticiple/index.html">RiTa.pastParticiple()</a><br/>
       <a href="./RiTa/phones/index.html">RiTa.phones()</a><br/>
       <a href="./RiTa/pos/index.html">RiTa.pos()</a><br/>
@@ -83,7 +83,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/untokenize/index.html">RiTa.untokenize()</a><br/><br/>
       <!--a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/-->
     </td>
-    <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
+    <td style="vertical-align: top; padding-top: 40px; min-width: 25px">
       <a href="https://rednoise.org/rita/reference/Markov/addText/index.html">addText()</a><br/>
       <a href="https://rednoise.org/rita/reference/Markov/completions/index.html">completions()</a><br/>
       <a href="https://rednoise.org/rita/reference/Markov/generate/index.html">generate()</a><br/>
@@ -94,7 +94,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="https://rednoise.org/rita/reference/Markov/toJSON/index.html">toJSON()</a><br/>
       <a href="https://rednoise.org/rita/reference/Markov/fromJSON/index.html">fromJSON()</a><br/>
     </td>
-    <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
+    <td style="vertical-align: top; padding-top: 40px; min-width: 125px">
       <a href="https://rednoise.org/rita/reference/Grammar/addRule/index.html">addRule()</a><br/>
       <a href="https://rednoise.org/rita/reference/Grammar/addRules/index.html">addRules()</a><br/>
       <a href="https://rednoise.org/rita/reference/Grammar/expand/index.html">expand()</a><br/>
