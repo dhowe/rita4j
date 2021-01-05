@@ -9,7 +9,7 @@ on:
   pull_request:
  
 jobs:
-  build:
+  build-osx-latest:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
@@ -28,8 +28,7 @@ jobs:
     - name: Run Tests
       run: mvn test
 
-jobs:
-  build:
+  build-osx-catalina:
     runs-on: macos-10.15
     steps:
     - uses: actions/checkout@v2
