@@ -22,7 +22,7 @@ public class Markov {
 	protected Function<String[], String> _untokenize;
 
 	protected int mlm, treeifyTimes, maxAttempts;
-	protected boolean trace, disableInputChecks, logDuplicates;
+	protected boolean trace, disableInputChecks;// logDuplicates;
 
 	public Markov(int n) {
 		this(n, null);
@@ -40,7 +40,7 @@ public class Markov {
 
 		this.trace = Util.boolOpt("trace", opts);
 		this.maxAttempts = Util.intOpt("maxAttempts", opts, 999);
-		this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
+		//this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
 
 		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
