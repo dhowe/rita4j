@@ -333,7 +333,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		return result;
 	}
 
-	/**
+	/*
 	 * Return the array of all pos tags from the lexicon,
 	 * or the best guess(es) if not found.
 	 */
@@ -341,7 +341,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		return allTags(word, false);
 	}
 
-	/**
+	/*
 	 * Return the array of all pos tags from the lexicon,
 	 * or the best guess(es) if not found, unless if noDerivations
 	 * is true, in which case null is returned if the word is not
