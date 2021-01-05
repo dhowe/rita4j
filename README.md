@@ -135,7 +135,7 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.
 
 ## A Simple Example (Java)
 
-&nbsp; &nbsp; For JavaScript examples, go [here](https://github.com/dhowe/ritajs#a-simple-sketch)
+&nbsp; &nbsp; For online examples in JavaScript, see [this page](https://rednoise.org/rita/#examples)
 
 1. Create a new Java project in Eclipse (or your IDE of choice)
 2. Download [rita.jar](http://rednoise.org/rita/download/rita.jar) and add it to the build path for the project. In eclipse: 'Project' > 'Properties' > 'Java Build Path' > 'Libraries' > 'Add External JARs...'
