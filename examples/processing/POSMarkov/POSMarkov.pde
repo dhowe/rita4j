@@ -3,7 +3,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-RiMarkov markov;
+Markov markov;
 Map<String, List<String>> dictionary = new HashMap <String, List<String>>();
 
 String[] files = { "wittgenstein.txt", "kafka.txt" };
@@ -20,8 +20,8 @@ void setup()
   fill(0);
 
   // create a markov model from file[0]
-  markov = new RiMarkov(4);
-  markov.loadFrom(files[0], this);
+  markov = new Markov(4);
+  markov.addText(join(loadStrings(files[0]), ""));
 
   // load the vocabulary from file[1]
   vocabulary = loadStrings(files[1]);
@@ -38,16 +38,16 @@ void draw()
 
 void mouseClicked()
 {
-  if (!markov.ready()) return;
+  if (markov.size() <= 0) return;
   x = y = 50;
 
-  String[] lines = markov.generateSentences(5);
+  String[] lines = markov.generate(5);
   String[] linesInPos = linesInPos(lines);
   String[] convertedLines = PosToText(lines, linesInPos, dictionary);
 
-  line = RiTa.join(lines, " ");
-  lineInPos = RiTa.join(linesInPos, " ");
-  newline = RiTa.join(convertedLines, " ");
+  line = join(lines, " ");
+  lineInPos = join(linesInPos, " ");
+  newline = join(convertedLines, " ");
 }
 
 String[] linesInPos(String[] lines) {
@@ -55,7 +55,7 @@ String[] linesInPos(String[] lines) {
   String[] linesInPos = new String[lines.length];
   for (int i = 0; i < lines.length; i++) {
     linesInPos[i] = "";
-    String[] posTags = RiTa.getPosTags(lines[i]);
+    String[] posTags = RiTa.pos(lines[i]);
 
     for (int j = 0; j < posTags.length; j++) 
       linesInPos[i] += posTags[j]+" ";
@@ -111,7 +111,12 @@ Map generateDictionary(String[] lines) {
     String[] words = split(line, ' ');
 
     for (int j = 0; j < words.length; j++) {
-      String[] posTags = RiTa.getPosTags(words[j]);
+      String[] posTags;
+      try {
+        posTags = RiTa.pos(words[j]);
+      } catch (NullPointerException e) {
+        posTags = new String[0];
+      }
       if (posTags.length > 0 && posTags[0].matches("[a-zA-Z\u0024]++")) {
         List<String> myList = dictionary.get(posTags[0]);
         if (myList == null) {
