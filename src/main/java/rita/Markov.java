@@ -21,7 +21,7 @@ public class Markov {
 	protected Function<String, String[]> _tokenize;
 	protected Function<String[], String> _untokenize;
 
-	protected int mlm, treeifyTimes, maxAttempts = 999;
+	protected int mlm, treeifyTimes, maxAttempts;
 	protected boolean trace, disableInputChecks, logDuplicates;
 
 	public Markov(int n) {
@@ -39,7 +39,7 @@ public class Markov {
 		}
 
 		this.trace = Util.boolOpt("trace", opts);
-		this.maxAttempts = Util.intOpt("maxAttempts", opts, 99);
+		this.maxAttempts = Util.intOpt("maxAttempts", opts, 999);
 		this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
 
@@ -88,7 +88,7 @@ public class Markov {
 			this.input.addAll(tokens);
 		}
 	}
-	
+
 	/*TODO: ? 
 	public void addTokens(String[] words) {
 		this.addTokens(words, 1);
@@ -102,7 +102,7 @@ public class Markov {
 			this.input.addAll(Arrays.asList(words));
 		}
 	}*/
-	
+
 	public String toString() {
 		return this.root.asTree().replaceAll("\\{\\}", "");
 	}
@@ -138,7 +138,8 @@ public class Markov {
 				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
 			}
 
-			if (tokens.size() == 0) throw new RiTaException("[Markov] No sentence starts with: '" + startTokens + "'");
+			if (tokens.size() == 0) throw new RiTaException(
+					"[Markov] No sentence starts with: '" + startTokens + "'");
 
 			while (tokens.size() != 0 && tokens.size() < maxLength) {
 				Node[] tokensArray = tokens.toArray(new Node[tokens.size()]);
