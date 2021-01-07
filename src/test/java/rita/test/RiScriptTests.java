@@ -1160,6 +1160,15 @@ public class RiScriptTests {
 
 	}
 
+	@Test
+	public void showLiteralDollarSigns_ENTITIES() {
+		Map<String, Object> ctx = opts();
+		assertEq(RiTa.evaluate("This is &#x00024", ctx), "This is $");
+		assertEq(RiTa.evaluate("This is &#36", ctx), "This is $");
+		ctx = opts("dollar", "&#36");
+		assertEq(RiTa.evaluate("This is $dollar", ctx), "This is $");
+	}
+
 	// Operators
 	@Test
 	public void invokeAssignmentOperators_OPERATORS() {
