@@ -125,9 +125,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		ChoiceState choice = sequences.get(++this.indexer);
 		if (choice == null) {
 			choice = new ChoiceState(this, ctx);
-			if (!choice.type.equals(ChoiceState.SIMPLE)) {
+			//if (!choice.type.equals(ChoiceState.SIMPLE)) {
 				sequences.put(choice.id, choice);
-			}
+			//}
 		}
 
 		if (trace) System.out.println("visitChoice: '" + ctx.getText()

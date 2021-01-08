@@ -283,7 +283,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void resolvelRecursiveExpressions_EVALUATION() {
+	public void resolveRecursiveExpressions_EVALUATION() {
 		Map<String, Object> ctx = opts("a", "a", "b", "b");
 		assertEq(RiTa.evaluate("(a|a)", ctx), "a");
 
@@ -828,6 +828,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveRseqTransforms_TRANSFORM() {
+		
 		String[] options = { "a", "b", "c", "d" };
 		ArrayList<String> result = new ArrayList<String>();
 		String rule = "(a | b | c | d).rseq()";
@@ -892,16 +893,33 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void resolveNorepTransforms_TRANSFORM() {
-		String rule = "(a | b | c | d).norep()";
+	public void resolveDefaultNoRepTransforms_TRANSFORM() {
+		String rule = "(a | b | c | d)";
 		RiScript rs = new RiScript();
 		String last = null;
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 100; i++) {
 			String res = rs.evaluate(rule, null);
 			//System.out.println(i+") "+res);
 			assertTrue(!res.equals(last));
 			last = res;
 		}
+	}
+	
+	public void resolveRepsTransforms_TRANSFORM() {
+		String rule = "(a | b | c | d).reps()";
+		RiScript rs = new RiScript();
+		String last = null;
+		boolean ok = false;
+		for (int i = 0; i < 1000; i++) { // should repeat in 1000
+			String res = rs.evaluate(rule, null);
+			if (res.equals(last)) {
+				ok = true;
+				break;
+			}
+			//System.out.println(i+") "+res);
+			last = res;
+		}
+		assertTrue(ok);
 	}
 
 	@Test

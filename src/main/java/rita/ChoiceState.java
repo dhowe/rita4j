@@ -4,15 +4,14 @@ import java.util.*;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser.*;
 
 // JS: this is an inner class in Visitor
 
 public class ChoiceState {
 
-	static final String SIMPLE = "", RSEQUENCE = "rseq", SEQUENCE = "seq", NOREPEAT = "norep";
-	static final String[] TYPES = { RSEQUENCE, SEQUENCE, NOREPEAT };
+	static final String SIMPLE = "", RSEQUENCE = "rseq", SEQUENCE = "seq", REPEATS = "reps";
+	static final String[] TYPES = { RSEQUENCE, SEQUENCE, REPEATS };
 
 	int id;
 	String type;
@@ -38,8 +37,9 @@ public class ChoiceState {
 			WeightContext wctx = w.weight(); // handle weight
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
-			for (int j = 0; j < weight; j++)
+			for (int j = 0; j < weight; j++) {
 				options.add(expr);
+			}
 		}
 
 		this.handleSequence(ctx);
@@ -69,9 +69,9 @@ public class ChoiceState {
 		if (options.size() == 0) return null;
 		if (options.size() == 1) return options.get(0);
 		if (type.equals(ChoiceState.SEQUENCE)) return selectSequence();
-		if (type.equals(ChoiceState.NOREPEAT)) return selectNoRepeat();
 		if (type.equals(ChoiceState.RSEQUENCE)) return selectRandSequence();
-		return RandGen.randomItem(this.options);//randomElement(); // SIMPLE
+		if (type.equals(ChoiceState.REPEATS)) return RandGen.randomItem(this.options);
+		return selectNoRepeat(); // default, no repeats
 	}
 
 	protected ParserRuleContext selectNoRepeat() {
