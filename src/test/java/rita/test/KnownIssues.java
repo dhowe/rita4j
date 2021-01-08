@@ -9,11 +9,6 @@ import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
-	//@Test
-	public void showingLiteralDollarSign() {
-		assertEquals("This is $100", RiTa.evaluate("This is &#36100"));
-		assertEquals("This is $100", RiTa.evaluate("This is &#x00024100"));
-	}
 
 	//@Test
 	public void grammarToString() {

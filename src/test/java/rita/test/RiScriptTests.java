@@ -1137,6 +1137,9 @@ public class RiScriptTests {
 		for (String e : arr2) {
 			assertEq(RiTa.evaluate("The " + e + " symbol"), "The ] symbol", e);
 		}
+		
+		assertEq("This is $100", RiTa.evaluate("This is &#36;100"));
+		assertEq("This is $100", RiTa.evaluate("This is &#x00024;100"));
 	}
 
 	@Test
