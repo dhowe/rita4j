@@ -6,16 +6,16 @@ import java.util.function.Function;
 
 import com.google.gson.*;
 
-public class Grammar {
+public class RiGrammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
 
-	public static Grammar fromJSON(String rules) {
+	public static RiGrammar fromJSON(String rules) {
 		return fromJSON(rules, null);
 	}
 
-	public static Grammar fromJSON(String rules, Map<String, Object> context) {
-		return new Grammar(rules, context);
+	public static RiGrammar fromJSON(String rules, Map<String, Object> context) {
+		return new RiGrammar(rules, context);
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -24,24 +24,24 @@ public class Grammar {
 	protected Map<String, Object> context;
 	protected RiScript compiler;
 
-	public Grammar() {
+	public RiGrammar() {
 		this((Map<String, Object>) null);
 	}
 
-	public Grammar(String json) {
+	public RiGrammar(String json) {
 		this(json, null);
 	}
 
-	public Grammar(String json, Map<String, Object> context) {
+	public RiGrammar(String json, Map<String, Object> context) {
 		this((Map<String, Object>) null, context);
 		parseJSON(json);
 	}
 
-	public Grammar(Map<String, Object> rules) {
+	public RiGrammar(Map<String, Object> rules) {
 		this(rules, null);
 	}
 
-	public Grammar(Map<String, Object> rules, Map<String, Object> context) {
+	public RiGrammar(Map<String, Object> rules, Map<String, Object> context) {
 		this.context = context;
 		this.compiler = new RiScript();
 		if (rules != null) this.rules = rules;
@@ -72,18 +72,18 @@ public class Grammar {
 		return this.compiler.evaluate((String) o, ctx, opts);
 	}
 
-	public Grammar addRules(Map<String, Object> rules) {
+	public RiGrammar addRules(Map<String, Object> rules) {
 		for (Entry<String, Object> entry : rules.entrySet()) {
 			this.rules.put(entry.getKey(), entry.getValue());
 		}
 		return this;
 	}
 
-	public Grammar addRule(String name, String[] rule) {
+	public RiGrammar addRule(String name, String[] rule) {
 		return this.addRule(name, joinChoice(rule));
 	}
 
-	public Grammar addRule(String name, String rule) {
+	public RiGrammar addRule(String name, String rule) {
 		if (name.startsWith("$")) name = name.substring(1);
 		if (RE.test("\\|", rule) && !RE.test("^\\([^\\(\\)]*\\)$", rule)) {
 			rule = '(' + rule + ')';
@@ -123,7 +123,7 @@ public class Grammar {
 		return sb.toString();
 	}
 
-	public Grammar removeRule(String name) {
+	public RiGrammar removeRule(String name) {
 		if (name != null) {
 			if (name.startsWith("$")) name = name.substring(1);
 			this.rules.remove(name);
@@ -131,7 +131,7 @@ public class Grammar {
 		return this;
 	}
 
-	public Grammar addTransform(String name, Function<String, String> f) {
+	public RiGrammar addTransform(String name, Function<String, String> f) {
 		RiTa.addTransform(name, f);
 		return this;
 	}
@@ -141,8 +141,8 @@ public class Grammar {
 	}
 
 	public boolean equals(Object o) {
-		return (o != null && o instanceof Grammar)
-				&& this.rules.equals(((Grammar) o).rules);
+		return (o != null && o instanceof RiGrammar)
+				&& this.rules.equals(((RiGrammar) o).rules);
 	}
 
 	/////////////////////////// helpers ////////////////////////////
@@ -209,8 +209,8 @@ public class Grammar {
 	}*/
 
 	public static void main(String[] args) {
-		System.out.println(new Grammar(RiTa.opts("start", "(a | b | c)")));
-		System.out.println(Grammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
+		System.out.println(new RiGrammar(RiTa.opts("start", "(a | b | c)")));
+		System.out.println(RiGrammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
 	}
 
 }

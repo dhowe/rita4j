@@ -5,7 +5,7 @@ import static rita.RiTa.opts;
 import org.junit.jupiter.api.Test;
 
 import rita.*;
-import rita.Markov.Node;
+import rita.RiMarkov.Node;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -26,14 +26,14 @@ public class MarkovTests {
 
 	@Test
 	public void callConstructor() {
-		Markov rm = new Markov(3);
+		RiMarkov rm = new RiMarkov(3);
 		assertTrue(rm != null);
 		assertTrue(rm.n == 3);
 	}
 
 	@Test
 	public void callMarkov() {
-		Markov rm = RiTa.markov(3);
+		RiMarkov rm = RiTa.markov(3);
 		assertTrue(rm != null);
 		assertTrue(rm.n == 3);
 
@@ -154,14 +154,14 @@ public class MarkovTests {
 
 	@Test
 	public void callInitSentence() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		String txt = "The young boy ate it. The fat boy gave up.";
 		rm.addText(txt);
-		Markov.Node[] toks = rm.initSentence();
+		RiMarkov.Node[] toks = rm.initSentence();
 		eq(toks.length, 1);
 		eq(toks[0].token, "The");
 
-		rm = new Markov(4);
+		rm = new RiMarkov(4);
 		rm.addText(RiTa.sentences(sample));
 		toks = rm.initSentence(new String[] { "I", "also" });
 		eq(toks.length, 2);
@@ -170,7 +170,7 @@ public class MarkovTests {
 
 	@Test
 	public void throwOnFailedGenerate() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		rm.addText(RiTa.sentences("just two sentences. should fail."));
 		assertThrows(RiTaException.class, () -> rm.generate(5));
 	}
@@ -179,7 +179,7 @@ public class MarkovTests {
 	public void generateNonEnglishSentences() {
 		String text = "家 安 春 夢 家 安 春 夢 ！ 家 安 春 夢 德 安 春 夢 ？ 家 安 春 夢 安 安 春 夢 。";
 		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		rm.addText(sentArray);
 		Map<String, Object> hm = opts();
 		hm.put("startTokens", "家");
@@ -204,7 +204,7 @@ public class MarkovTests {
 		};
 		hm.put("tokenize", tokenize);
 		hm.put("untokenize", untokenize);
-		Markov rm = new Markov(4, hm);
+		RiMarkov rm = new RiMarkov(4, hm);
 		rm.addText(sentArray);
 
 		hm.clear();
@@ -221,7 +221,7 @@ public class MarkovTests {
 	@Test
 	public void callGenerate() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
-		Markov rm = new Markov(4, hm);
+		RiMarkov rm = new RiMarkov(4, hm);
 		rm.addText(RiTa.sentences(sample));
 		String[] sents = rm.generate(5);
 		eq(sents.length, 5);
@@ -233,7 +233,7 @@ public class MarkovTests {
 			assertTrue(s.matches("(.*)[?.!]$"), "FAIL: bad last char in \"" + s + "\"");
 		}
 
-		rm = new Markov(4);
+		rm = new RiMarkov(4);
 		rm.addText(sample);
 		String[] s = rm.generate();
 		//console.log("X) " + s[0]);
@@ -246,7 +246,7 @@ public class MarkovTests {
 
 	@Test
 	public void callGenerateMinMaxLength() {
-		Markov rm = new Markov(4, opts("disableInputChecks", true));
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
 		int minLength = 7;
 		int maxLength = 20;
 		rm.addText(RiTa.sentences(sample));
@@ -261,7 +261,7 @@ public class MarkovTests {
 			assertTrue(num >= minLength && num <= maxLength);
 		}
 
-		rm = new Markov(4, opts("disableInputChecks", true));
+		rm = new RiMarkov(4, opts("disableInputChecks", true));
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
 			minLength = (3 + i);
@@ -278,7 +278,7 @@ public class MarkovTests {
 
 	@Test
 	public void callGenerateStart() {
-		Markov rm = new Markov(4, opts("disableInputChecks", true));
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
@@ -304,7 +304,7 @@ public class MarkovTests {
 
 	@Test
 	public void callGenerateStartArray() {
-		Markov rm = new Markov(4, opts("disableInputChecks", true));
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
@@ -326,7 +326,7 @@ public class MarkovTests {
 			assertTrue(arr[0].startsWith(start[0]));
 		}
 
-		rm = new Markov(4, opts("disableInputChecks", true));
+		rm = new RiMarkov(4, opts("disableInputChecks", true));
 		rm.addText(RiTa.sentences(sample));
 
 		String[] start2 = { "One", "reason" };
@@ -353,7 +353,7 @@ public class MarkovTests {
 	@Test
 	public void callGenerateMLM() {
 		int mlms = 10;
-		Markov rm = new Markov(3, opts("maxLengthMatch", mlms, "trace", false));
+		RiMarkov rm = new RiMarkov(3, opts("maxLengthMatch", mlms, "trace", false));
 		rm.addText(RiTa.sentences(sample3));
 		String[] sents = rm.generate(5);
 		for (int i = 0; i < sents.length; i++) {
@@ -380,7 +380,7 @@ public class MarkovTests {
 
 	@Test
 	public void callCompletions() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		rm.addText((sample));
 
 		String[] res = rm.completions("people lie is".split(" "));
@@ -406,7 +406,7 @@ public class MarkovTests {
 
 		// ///////////////////// ///////////////////// /////////////////////
 
-		rm = new Markov(4);
+		rm = new RiMarkov(4);
 		rm.addText((sample2));
 
 		res = rm.completions(new String[] { "I" }, new String[] { "not" });
@@ -431,7 +431,7 @@ public class MarkovTests {
 
 	@Test
 	public void callProbabilities() {
-		Markov rm = new Markov(3);
+		RiMarkov rm = new RiMarkov(3);
 		rm.addText((sample));
 
 		String[] checks = { "reason", "people", "personal", "the", "is", "XXX" };
@@ -454,7 +454,7 @@ public class MarkovTests {
 
 	@Test
 	public void callProbabilitiesArray() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		rm.addText(sample2);
 
 		Map<String, Object> res = rm.probabilities("the".split(" "));
@@ -503,21 +503,21 @@ public class MarkovTests {
 	@Test
 	public void callProbability() {
 		String text = "the dog ate the boy the";
-		Markov rm = new Markov(3);
+		RiMarkov rm = new RiMarkov(3);
 		rm.addText(text);
 		eq(rm.probability("dog"), (double) 1 / 6);
 		eq(rm.probability("cat"), 0.0);
 		eq(rm.probability("the"), .5);
 
 		text = "the dog ate the boy that the dog found.";
-		rm = new Markov(3);
+		rm = new RiMarkov(3);
 		rm.addText(text);
 
 		eq(rm.probability("the"), .3);
 		eq(rm.probability("dog"), .2);
 		eq(rm.probability("cat"), 0.0);
 
-		rm = new Markov(3);
+		rm = new RiMarkov(3);
 		rm.addText(sample);
 		eq(rm.probability("power"), 0.017045454545454544);
 
@@ -525,7 +525,7 @@ public class MarkovTests {
 
 	@Test
 	public void callProbabilityArray() {
-		Markov rm = new Markov(3);
+		RiMarkov rm = new RiMarkov(3);
 		rm.addText(sample);
 		float expected = 0;
 
@@ -555,7 +555,7 @@ public class MarkovTests {
 
 	@Test
 	public void callAddText() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		String[] sents = RiTa.sentences(sample);
 		int count = sents.length;
 		for (int i = 0; i < sents.length; i++) {
@@ -578,10 +578,10 @@ public class MarkovTests {
 
 	@Test
 	public void callNodeChildCount() {
-		Markov rm = new Markov(2);
+		RiMarkov rm = new RiMarkov(2);
 		eq(0, rm.root.childCount());
 
-		rm = new Markov(2);
+		rm = new RiMarkov(2);
 		rm.addText("The");
 		eq(3, rm.root.childCount());
 		eq(1, rm.root.child("The").childCount());
@@ -590,16 +590,16 @@ public class MarkovTests {
 	@Test
 	public void callToString() {
 
-		Markov rm;
+		RiMarkov rm;
 		String exp;
 
-		rm = new Markov(2);
+		rm = new RiMarkov(2);
 		exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
 		rm.addText("The");
 		//console.log(exp +"\n"+ rm.toString().replaceAll("\n", " "));
 		eq(exp, rm.toString().replaceAll("\n", " "));
 
-		rm = new Markov(2);
+		rm = new RiMarkov(2);
 		exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
 		rm.addText("The dog ate the cat");
 		//console.log(rm.toString());
@@ -609,16 +609,16 @@ public class MarkovTests {
 	@Test
 	public void callSize() {
 
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		eq(rm.size(), 0);
 		String[] tokens = RiTa.tokenize(sample);
 		String[] sents = RiTa.sentences(sample);
-		rm = new Markov(3);
+		rm = new RiMarkov(3);
 		rm.addText(sample);
 		eq(rm.size(), tokens.length + sents.length * 2);
 
-		Markov rm2 = new Markov(4);
-		rm2 = new Markov(3);
+		RiMarkov rm2 = new RiMarkov(4);
+		rm2 = new RiMarkov(3);
 		rm2.addText(sents);
 		eq(rm.size(), rm2.size());
 
@@ -626,7 +626,7 @@ public class MarkovTests {
 
 	@Test
 	public void failForSentenceInput() {
-		Markov rm = new Markov(4);
+		RiMarkov rm = new RiMarkov(4);
 		rm.addText(new String[] { "I ate the dog." });
 		//rm.generate();
 		assertThrows(RiTaException.class, () -> rm.generate());
@@ -634,11 +634,11 @@ public class MarkovTests {
 
 	@Test
 	public void handleDisableInputChecks() {
-		Markov rm = new Markov(4, opts("disableInputChecks", false));
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", false));
 		rm.addText("I ate the dog.");
 		assertTrue(rm.input instanceof Object);
 
-		rm = new Markov(4, opts("disableInputChecks", true));
+		rm = new RiMarkov(4, opts("disableInputChecks", true));
 		rm.addText("I ate the dog.");
 		assertTrue(rm.input == null);
 	}

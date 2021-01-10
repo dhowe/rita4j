@@ -10,7 +10,7 @@ import java.util.function.Function;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class Markov {
+public class RiMarkov {
 
 	public static String SS = "<s>", SE = "</s>";
 	private static DecimalFormat DF = new DecimalFormat("0.000");
@@ -24,12 +24,12 @@ public class Markov {
 	protected int mlm, treeifyTimes, maxAttempts;
 	protected boolean trace, disableInputChecks;// logDuplicates;
 
-	public Markov(int n) {
+	public RiMarkov(int n) {
 		this(n, null);
 	}
 
 	@SuppressWarnings("unchecked")
-	public Markov(int n, Map<String, Object> opts) {
+	public RiMarkov(int n, Map<String, Object> opts) {
 
 		this.n = n;
 		this.root = new Node("ROOT");
@@ -77,9 +77,9 @@ public class Markov {
 		for (int k = 0; k < multiplier; k++) {
 			for (int i = 0; i < sents.length; i++) {
 				String[] words = this.doTokenize(sents[i]);
-				tokens.add(Markov.SS);
+				tokens.add(RiMarkov.SS);
 				tokens.addAll(Arrays.asList(words));
-				tokens.add(Markov.SE);
+				tokens.add(RiMarkov.SE);
 			}
 			this.treeify(tokens.toArray(new String[tokens.size()]));
 		}
@@ -158,7 +158,7 @@ public class Markov {
 				}
 
 				tokens.add(next);
-				if (next.token.equals(Markov.SE)) {
+				if (next.token.equals(RiMarkov.SE)) {
 					tokens.remove(tokens.size() - 1);
 
 					if (tokens.size() >= minLength) {
@@ -417,7 +417,7 @@ public class Markov {
 
 		List<Node> tokens = new ArrayList<>();
 		if (initWith == null) {
-			tokens.add(root.child(Markov.SS).pselect());
+			tokens.add(root.child(RiMarkov.SS).pselect());
 		}
 		else {
 			if (initWith.length > 0) {
@@ -431,7 +431,7 @@ public class Markov {
 				}
 			}
 			else {
-				tokens.add(this.root.child(Markov.SS).pselect());
+				tokens.add(this.root.child(RiMarkov.SS).pselect());
 			}
 		}
 		return tokens.toArray(new Node[tokens.size()]);
@@ -660,7 +660,7 @@ public class Markov {
 				int sum = 0;
 				if (this.children == null) return 0;
 				for (String k : this.children.keySet()) {
-					if (k == null || (excludeMetaTags && (k.equals(Markov.SS) || k.equals(Markov.SE)))) {
+					if (k == null || (excludeMetaTags && (k.equals(RiMarkov.SS) || k.equals(RiMarkov.SE)))) {
 						continue;
 					}
 					sum += this.children.get(k).count;
@@ -723,8 +723,8 @@ public class Markov {
 		}
 	}
 
-	static final Comparator<Markov.Node> byCount = new Comparator<Markov.Node>() {
-		public int compare(Markov.Node a, Markov.Node b) {
+	static final Comparator<RiMarkov.Node> byCount = new Comparator<RiMarkov.Node>() {
+		public int compare(RiMarkov.Node a, RiMarkov.Node b) {
 			return b.count != a.count ? b.count - a.count
 					: b.token.toLowerCase().compareTo(a.token.toLowerCase());
 		}
@@ -739,7 +739,7 @@ public class Markov {
 	}
 
 	public static void main(String[] args) {
-		Markov rm = new Markov(2);
+		RiMarkov rm = new RiMarkov(2);
 		rm.addText("The");
 		System.out.println(rm.root.asTree());
 	}

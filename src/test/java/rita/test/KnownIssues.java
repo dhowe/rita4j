@@ -13,8 +13,8 @@ public class KnownIssues {
 	//@Test
 	public void grammarToString() {
 		for (String g : GrammarTests.grammars) { //  KnownIssues
-			Grammar rg = Grammar.fromJSON(g);
-			Grammar rg2 = Grammar.fromJSON(rg.toJSON());
+			RiGrammar rg = RiGrammar.fromJSON(g);
+			RiGrammar rg2 = RiGrammar.fromJSON(rg.toJSON());
 			assertTrue(rg2.toString().equals(rg.toString()));
 			assertTrue(rg.equals(rg2));
 		}

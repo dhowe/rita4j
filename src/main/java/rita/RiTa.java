@@ -302,32 +302,32 @@ public class RiTa {
 		return RiScript.eval(word, ctx, opts);
 	}
 
-	public static Grammar grammar() {
+	public static RiGrammar grammar() {
 		return grammar((String) null);
 	}
 
-	public static Grammar grammar(String rules) {
+	public static RiGrammar grammar(String rules) {
 		return grammar(rules, null);
 	}
 
-	public static Grammar grammar(Map<String, Object> rules) {
+	public static RiGrammar grammar(Map<String, Object> rules) {
 		return grammar(rules, null);
 	}
 
-	public static Grammar grammar(Map<String, Object> rules, Map<String, Object> context) {
-		return new Grammar(rules, context);
+	public static RiGrammar grammar(Map<String, Object> rules, Map<String, Object> context) {
+		return new RiGrammar(rules, context);
 	}
 
-	public static Grammar grammar(String rules, Map<String, Object> context) {
-		return new Grammar(rules, context);
+	public static RiGrammar grammar(String rules, Map<String, Object> context) {
+		return new RiGrammar(rules, context);
 	}
 
-	public static Markov markov(int n) {
+	public static RiMarkov markov(int n) {
 		return markov(n, null);
 	}
 
-	public static Markov markov(int n, Map<String, Object> options) {
-		return new Markov(n, options);
+	public static RiMarkov markov(int n, Map<String, Object> options) {
+		return new RiMarkov(n, options);
 	}
 
 	public static String stresses(String text) {

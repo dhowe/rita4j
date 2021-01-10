@@ -4,10 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 
-import com.ibm.icu.util.TimeZone.SystemTimeZoneType;
-
-import rita.Markov.Node;
-
 public abstract class RandGen {
 
 	private static Random generator;
@@ -219,6 +215,6 @@ public abstract class RandGen {
 	public static void main(String[] args) {
 		Integer[] ints = new Integer[] { 1, 2, 3, 4, 5, 6 };
 		Integer[] rand = randomOrdering(ints);
-		console.log(rand);
+		//console.log(rand);
 	}
 }
