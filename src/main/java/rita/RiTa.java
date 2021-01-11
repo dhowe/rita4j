@@ -57,10 +57,6 @@ public class RiTa {
 		return conjugate(word, null);
 	}
 
-	public static String env() {
-		return "Java";
-	}
-
 	public static boolean hasWord(String word) {
 		return lexicon().hasWord(word);
 	}
@@ -217,43 +213,7 @@ public class RiTa {
 	public static String presentParticiple(String verb) {
 		return Conjugator.presentParticiple(verb);
 	}
-
-	public static float random() {
-		return RandGen.random();
-	}
-
-	public static float random(float max) {
-		return RandGen.random(max);
-	}
-
-	public static float random(float min, float max) {
-		return RandGen.random(min, max);
-	}
-
-	public static <T> T random(T[] type) {
-		return (T) RandGen.randomItem(type);
-	}
-
-	public static <T> T random(Collection<T> c) {
-		return (T) RandGen.randomItem(c);
-	}
-
-	public static final float random(float[] arr) {
-		return RandGen.randomItem(arr);
-	}
-
-	public static final boolean random(boolean[] arr) {
-		return RandGen.randomItem(arr);
-	}
-
-	public static final int random(int[] arr) {
-		return RandGen.randomItem(arr);
-	}
-
-	public static final double random(double[] arr) {
-		return RandGen.randomItem(arr);
-	}
-
+ 
 	public static int[] randomOrdering(int num) {
 		return RandGen.randomOrdering(num);
 	}
@@ -377,10 +337,6 @@ public class RiTa {
 	public static String[] sentences(String text) {
 		return sentences(text, (Pattern) null);
 	}
-	//
-	//	public static String[] sentences(String text, Map<String, Object> opts) {
-	//		return sentences(text, Util.strOpt("pattern", opts));
-	//	}
 
 	public static String[] sentences(String text, String regex) {
 		return sentences(text, Pattern.compile(regex));
@@ -427,6 +383,46 @@ public class RiTa {
 	}
 
 	// /////////////////////////// niapi /////////////////////////////////
+	
+	public static String env() {
+		return "Java";
+	}
+
+	public static float random() { // niapi
+		return RandGen.random();
+	}
+
+	public static float random(float max) {
+		return RandGen.random(max);
+	}
+
+	public static float random(float min, float max) {
+		return RandGen.random(min, max);
+	}
+
+	public static <T> T random(T[] type) {
+		return (T) RandGen.randomItem(type);
+	}
+
+	public static <T> T random(Collection<T> c) {
+		return (T) RandGen.randomItem(c);
+	}
+
+	public static final float random(float[] arr) {
+		return RandGen.randomItem(arr);
+	}
+
+	public static final boolean random(boolean[] arr) {
+		return RandGen.randomItem(arr);
+	}
+
+	public static final int random(int[] arr) {
+		return RandGen.randomItem(arr);
+	}
+
+	public static final double random(double[] arr) {
+		return RandGen.randomItem(arr);
+	}
 
 	public static String capitalize(String s) {
 		return s == null || s.length() == 0 ? ""
