@@ -264,7 +264,7 @@ public class RiScript {
 	};
 	
 	private static final Function<String, String> quotify = s -> {
-		return "&quot;" + (s != null ? s : "") + "&quot;";
+		return "&#8220;" + (s != null ? s : "") + "&#8221;";
 	};
 
 	private static final Map.Entry<String, Object>[] transformMap = new Map.Entry[] {
@@ -278,6 +278,7 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("norep", identity),
 			new AbstractMap.SimpleEntry<String, Object>("s", pluralize),
+			new AbstractMap.SimpleEntry<String, Object>("uppercase", uc),
 			new AbstractMap.SimpleEntry<String, Object>("uc", uc)
 	};
 

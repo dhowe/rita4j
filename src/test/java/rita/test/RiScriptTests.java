@@ -26,7 +26,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("().articlize()"), "");
 		assertEq(RiTa.evaluate("().capitalize()"), "");
 		assertEq(RiTa.evaluate("().pluralize()"), "");
-		assertEq(RiTa.evaluate("().quotify()"), "\"\"");
+		assertEq(RiTa.evaluate("().quotify()"), "“”");
 		assertEq(RiTa.evaluate("().art()"), "");
 		
 		assertEq(RiTa.evaluate("().toLowerCase()", null, ST), ""); // ?
@@ -453,7 +453,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveTransformsOnLiterals_ASSIGN() {
-		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?"), "How many \"teeth\" do you have?");
+		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?"), "How many “teeth” do you have?");
 		// NEXT: CONSIDER adding context to RiTa.Grammar/grammar.expand
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("That is (ant).articlize().", ctx), "That is an ant.");
@@ -466,7 +466,7 @@ public class RiScriptTests {
 	public void resolveTransformsOnPhrases_ASSIGN() {
 		Map<String, Object> ctx = opts("adj", "awful");
 		assertEq(RiTa.evaluate("($adj tooth).articlize()", ctx), "an awful tooth");
-		assertEq(RiTa.evaluate("How many (bad teeth).quotify()?", opts()), "How many \"bad teeth\"?");
+		assertEq(RiTa.evaluate("How many (bad teeth).quotify()?", opts()), "How many “bad teeth”?");
 		assertEq(RiTa.evaluate("(awful tooth).articlize()", opts()), "an awful tooth");
 		assertEq(RiTa.evaluate("$adj teeth", ctx), "awful teeth");
 		assertEq(RiTa.evaluate("an ($adj tooth)", ctx), "an awful tooth");
@@ -1016,7 +1016,7 @@ public class RiScriptTests {
 	public void resolveHandleTransformsOnLiterals_TRANSFORM() {
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("How many (teeth).toUpperCase() do you have?", ctx), "How many TEETH do you have?");
-		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?", ctx), "How many \"teeth\" do you have?");
+		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?", ctx), "How many “teeth” do you have?");
 		assertEq(RiTa.evaluate("That is (ant).articlize()."), "That is an ant.");
 	}
 

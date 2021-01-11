@@ -6381,27 +6381,6 @@ public class StemmerTests {
 		test("cutter", "cutter");
 		test("cutters", "cutter");
 		test("cutthroat", "cutthroat");
-		test("cutting", "cut");
-		test("cuttle", "cuttl");
-		test("cuvier", "cuvier");
-		test("cycle", "cycl");
-		test("cycles", "cycl");
-		test("cyclopean", "cyclopean");
-		test("cylinder", "cylind");
-		test("cylinders", "cylind");
-		test("cylindrical", "cylindr");
-		test("cymbal", "cymbal");
-		test("cymindis", "cymindi");
-		test("cynara", "cynara");
-		test("cynic", "cynic");
-		test("cynical", "cynic");
-		test("cynicism", "cynic");
-		test("cynucus", "cynucus");
-		test("cyperus", "cyperus");
-		test("cypress", "cypress");
-		test("cyprus", "cyprus");
-		test("cyrus", "cyrus");
-		test("cyttaria", "cyttaria");
 	}
 
 	private void test(String test, String expected) {
