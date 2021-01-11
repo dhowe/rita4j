@@ -377,10 +377,10 @@ public class RiTa {
 	public static String[] sentences(String text) {
 		return sentences(text, (Pattern) null);
 	}
-//
-//	public static String[] sentences(String text, Map<String, Object> opts) {
-//		return sentences(text, Util.strOpt("pattern", opts));
-//	}
+	//
+	//	public static String[] sentences(String text, Map<String, Object> opts) {
+	//		return sentences(text, Util.strOpt("pattern", opts));
+	//	}
 
 	public static String[] sentences(String text, String regex) {
 		return sentences(text, Pattern.compile(regex));
@@ -532,6 +532,14 @@ public class RiTa {
 		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
 	}
 
+	public static final Map<String, Object> opts(String key1, Object val1,
+			String key2, Object val2, String key3, Object val3, String key4,
+			Object val4, String key5, Object val5) {
+		return opts(
+				new String[] { key1, key2, key3, key4, key5 },
+				new Object[] { val1, val2, val3, val4, val5 });
+	}
+
 	public static final Map<String, Object> opts(String[] keys, Object[] vals) {
 		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -540,7 +548,7 @@ public class RiTa {
 		}
 		return data;
 	}
-	
+
 	public static void main(String[] args) {
 		System.out.println(RiTa.analyze("absolot"));
 		System.out.println(RiTa.evaluate("( newt | ginko | salamander)"));

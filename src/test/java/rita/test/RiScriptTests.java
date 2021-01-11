@@ -283,23 +283,17 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void resolvelRecursiveExpressions_EVALUATION() {
+	public void resolveRecursiveExpressions_EVALUATION() {
+		
 		Map<String, Object> ctx = opts("a", "a", "b", "b");
 		assertEq(RiTa.evaluate("(a|a)", ctx), "a");
 
-		ctx.clear();
-		ctx.put("a", "$b");
-		ctx.put("b", "(c | c)");
+		ctx = opts("a", "$b", "b", "(c | c)");
 		assertEq(RiTa.evaluate("$a", ctx), "c");
 		assertEq(RiTa.evaluate("$k = $a\n$k", ctx), "c");
 		assertEq(RiTa.evaluate("$s = $a\n$a = $b\n$c = $d\n$d = c\n$s", ctx), "c");
 
-		ctx.clear();
-		ctx.put("s", "$a");
-		ctx.put("a", "$b");
-		ctx.put("b", "$c");
-		ctx.put("c", "$d");
-		ctx.put("d", "c");
+		ctx = opts("s", "$a", "a", "$b", "b", "$c", "c", "$d", "d", "c");
 		assertEq(RiTa.evaluate("$s", ctx), "c");
 	}
 
