@@ -277,6 +277,7 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("norep", identity),
+			new AbstractMap.SimpleEntry<String, Object>("s", pluralize),
 			new AbstractMap.SimpleEntry<String, Object>("uc", uc)
 	};
 
@@ -295,7 +296,7 @@ public class RiScript {
 		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, RiTa.opts("trace", true));
 		//		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
 		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
-		new RiScript().lex("$1foo", RiTa.opts("trace", true));
+		//new RiScript().lex("$1foo", RiTa.opts("trace", true));
 	}
 }
 

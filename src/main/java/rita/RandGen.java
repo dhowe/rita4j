@@ -108,17 +108,8 @@ public abstract class RandGen {
 		return result;
 	}
 
-	private static final <T> void swap(T[] arr, int i, int j) {
-		T tmp = arr[i];
-		arr[i] = arr[j];
-		arr[j] = tmp;
-	}
-
-	///////////////////////////////////////////////////////////////
-
 	public static final <T> T randomItem(T[] arr) {
 		return arr[(int) Math.floor(random() * arr.length)];
-		// return typeof func === 'function' ? func(item) : item;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -210,6 +201,12 @@ public abstract class RandGen {
 			}
 		}
 		return probs.length - 1;
+	}
+	
+	private static final <T> void swap(T[] arr, int i, int j) {
+		T tmp = arr[i];
+		arr[i] = arr[j];
+		arr[j] = tmp;
 	}
 
 	public static void main(String[] args) {
