@@ -12,61 +12,61 @@ import java.util.Map;
 public class ConjugatorTests {
 
 	@Test
-	public void callPastParticiple() {
-		eq(RiTa.pastParticiple("sleep"), "slept");
-		eq(RiTa.pastParticiple("withhold"), "withheld");
+	public void callPastPart() {
+		eq(RiTa.pastPart("sleep"), "slept");
+		eq(RiTa.pastPart("withhold"), "withheld");
 
-		eq(RiTa.pastParticiple("cut"), "cut");
-		eq(RiTa.pastParticiple("go"), "gone");
-		eq(RiTa.pastParticiple("swim"), "swum");
-		eq(RiTa.pastParticiple("would"), "would");
-		eq(RiTa.pastParticiple("might"), "might");
-		eq(RiTa.pastParticiple("run"), "run");
-		eq(RiTa.pastParticiple("speak"), "spoken");
-		eq(RiTa.pastParticiple("break"), "broken");
-		eq(RiTa.pastParticiple(""), "");
+		eq(RiTa.pastPart("cut"), "cut");
+		eq(RiTa.pastPart("go"), "gone");
+		eq(RiTa.pastPart("swim"), "swum");
+		eq(RiTa.pastPart("would"), "would");
+		eq(RiTa.pastPart("might"), "might");
+		eq(RiTa.pastPart("run"), "run");
+		eq(RiTa.pastPart("speak"), "spoken");
+		eq(RiTa.pastPart("break"), "broken");
+		eq(RiTa.pastPart(""), "");
 
 		// PROBLEMS
 
-		eq(RiTa.pastParticiple("awake"), "awoken");
-		eq(RiTa.pastParticiple("become"), "became");
-		eq(RiTa.pastParticiple("drink"), "drunk");
-		eq(RiTa.pastParticiple("plead"), "pled");
-		eq(RiTa.pastParticiple("run"), "run");
-		eq(RiTa.pastParticiple("shine"), "shone");
+		eq(RiTa.pastPart("awake"), "awoken");
+		eq(RiTa.pastPart("become"), "became");
+		eq(RiTa.pastPart("drink"), "drunk");
+		eq(RiTa.pastPart("plead"), "pled");
+		eq(RiTa.pastPart("run"), "run");
+		eq(RiTa.pastPart("shine"), "shone");
 		// or shined
-		eq(RiTa.pastParticiple("shrink"), "shrunk");
+		eq(RiTa.pastPart("shrink"), "shrunk");
 		// or shrunken
-		eq(RiTa.pastParticiple("stink"), "stunk");
-		eq(RiTa.pastParticiple("study"), "studied");
+		eq(RiTa.pastPart("stink"), "stunk");
+		eq(RiTa.pastPart("study"), "studied");
 	}
 
 	@Test
-	public void callPresentParticiple() {
+	public void callPresentPart() {
 
-		eq(RiTa.presentParticiple("sleep"), "sleeping");
-		eq(RiTa.presentParticiple("withhold"), "withholding");
+		eq(RiTa.presentPart("sleep"), "sleeping");
+		eq(RiTa.presentPart("withhold"), "withholding");
 
-		eq(RiTa.presentParticiple("cut"), "cutting");
-		eq(RiTa.presentParticiple("go"), "going");
-		eq(RiTa.presentParticiple("run"), "running");
-		eq(RiTa.presentParticiple("speak"), "speaking");
-		eq(RiTa.presentParticiple("break"), "breaking");
-		eq(RiTa.presentParticiple("become"), "becoming");
-		eq(RiTa.presentParticiple("plead"), "pleading");
-		eq(RiTa.presentParticiple("awake"), "awaking");
-		eq(RiTa.presentParticiple("study"), "studying");
+		eq(RiTa.presentPart("cut"), "cutting");
+		eq(RiTa.presentPart("go"), "going");
+		eq(RiTa.presentPart("run"), "running");
+		eq(RiTa.presentPart("speak"), "speaking");
+		eq(RiTa.presentPart("break"), "breaking");
+		eq(RiTa.presentPart("become"), "becoming");
+		eq(RiTa.presentPart("plead"), "pleading");
+		eq(RiTa.presentPart("awake"), "awaking");
+		eq(RiTa.presentPart("study"), "studying");
 
-		eq(RiTa.presentParticiple("lie"), "lying");
-		eq(RiTa.presentParticiple("swim"), "swimming");
-		eq(RiTa.presentParticiple("run"), "running");
-		eq(RiTa.presentParticiple("dig"), "digging");
-		eq(RiTa.presentParticiple("set"), "setting");
-		eq(RiTa.presentParticiple("speak"), "speaking");
-		eq(RiTa.presentParticiple("bring"), "bringing");
-		eq(RiTa.presentParticiple("speak"), "speaking");
+		eq(RiTa.presentPart("lie"), "lying");
+		eq(RiTa.presentPart("swim"), "swimming");
+		eq(RiTa.presentPart("run"), "running");
+		eq(RiTa.presentPart("dig"), "digging");
+		eq(RiTa.presentPart("set"), "setting");
+		eq(RiTa.presentPart("speak"), "speaking");
+		eq(RiTa.presentPart("bring"), "bringing");
+		eq(RiTa.presentPart("speak"), "speaking");
 
-		eq(RiTa.presentParticiple(""), "");
+		eq(RiTa.presentPart(""), "");
 	}
 
 	@Test
@@ -94,7 +94,7 @@ public class ConjugatorTests {
 
 		String[] s, a;
 
-		eq("swum", RiTa.pastParticiple("swim"));
+		eq("swum", RiTa.pastPart("swim"));
 		
 		// Example of using opts
 		eq(RiTa.conjugate("be", RiTa.opts("form", RiTa.GERUND)), "being");

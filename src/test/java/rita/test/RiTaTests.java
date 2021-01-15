@@ -197,113 +197,111 @@ public class RiTaTests {
 	}
 
 	@Test
-	public void callIsAbbreviation() { // TODO add second parameter tests
+	public void callIsAbbrev() { // TODO add second parameter tests
 
-		assertTrue(RiTa.isAbbreviation("Dr."));
-		assertTrue(!RiTa.isAbbreviation("dr."));
+		assertTrue(RiTa.isAbbrev("Dr."));
+		assertTrue(!RiTa.isAbbrev("dr."));
 		// T in java
 
-		assertTrue(!RiTa.isAbbreviation("DR."));
+		assertTrue(!RiTa.isAbbrev("DR."));
 		// F in Processing.lowercase is true but uppercase is false
-		assertTrue(!RiTa.isAbbreviation("Dr. "));
+		assertTrue(!RiTa.isAbbrev("Dr. "));
 		// space
-		assertTrue(!RiTa.isAbbreviation(" Dr."));
+		assertTrue(!RiTa.isAbbrev(" Dr."));
 		// space
-		assertTrue(!RiTa.isAbbreviation("  Dr."));
+		assertTrue(!RiTa.isAbbrev("  Dr."));
 		// double space
-		assertTrue(!RiTa.isAbbreviation("Dr.  "));
+		assertTrue(!RiTa.isAbbrev("Dr.  "));
 		// double space
-		assertTrue(!RiTa.isAbbreviation("   Dr."));
+		assertTrue(!RiTa.isAbbrev("   Dr."));
 		// tab space
-		assertTrue(!RiTa.isAbbreviation("Dr.    "));
+		assertTrue(!RiTa.isAbbrev("Dr.    "));
 		// tab space
-		assertTrue(!RiTa.isAbbreviation("Dr"));
-		assertTrue(!RiTa.isAbbreviation("Doctor"));
-		assertTrue(!RiTa.isAbbreviation("Doctor."));
+		assertTrue(!RiTa.isAbbrev("Dr"));
+		assertTrue(!RiTa.isAbbrev("Doctor"));
+		assertTrue(!RiTa.isAbbrev("Doctor."));
 
-		assertTrue(RiTa.isAbbreviation("Prof."));
-		assertTrue(!RiTa.isAbbreviation("prof."));
+		assertTrue(RiTa.isAbbrev("Prof."));
+		assertTrue(!RiTa.isAbbrev("prof."));
 		// T in java
-		assertTrue(!RiTa.isAbbreviation("PRFO."));
+		assertTrue(!RiTa.isAbbrev("PRFO."));
 		// F in Processing. lowercase is true but uppercase is false
-		assertTrue(!RiTa.isAbbreviation("PrFo."));
+		assertTrue(!RiTa.isAbbrev("PrFo."));
 		// F in Processing. lowercase is true but uppercase is false
-		assertTrue(!RiTa.isAbbreviation("Professor"));
-		assertTrue(!RiTa.isAbbreviation("professor"));
-		assertTrue(!RiTa.isAbbreviation("PROFESSOR"));
-		assertTrue(!RiTa.isAbbreviation("Professor."));
+		assertTrue(!RiTa.isAbbrev("Professor"));
+		assertTrue(!RiTa.isAbbrev("professor"));
+		assertTrue(!RiTa.isAbbrev("PROFESSOR"));
+		assertTrue(!RiTa.isAbbrev("Professor."));
 
-		assertTrue(!RiTa.isAbbreviation("@#$%^&*()"));
+		assertTrue(!RiTa.isAbbrev("@#$%^&*()"));
 
-		assertTrue(!RiTa.isAbbreviation(""));
-		assertTrue(!RiTa.isAbbreviation(null));
-		// assertTrue(!RiTa.isAbbreviation(undefined)); //no undefined in JAVA
-		// assertTrue(!RiTa.isAbbreviation(1)); //no wrong datatype in JAVA
+		assertTrue(!RiTa.isAbbrev(""));
+		assertTrue(!RiTa.isAbbrev(null));
 	}
 
 	@Test
-	public void callIsPunctuation() {
+	public void callIsPunct() {
 
-		assertTrue(!RiTa.isPunctuation("What the"));
-		assertTrue(!RiTa.isPunctuation("What ! the"));
-		assertTrue(!RiTa.isPunctuation(".#\"\\!@i$%&}<>"));
+		assertTrue(!RiTa.isPunct("What the"));
+		assertTrue(!RiTa.isPunct("What ! the"));
+		assertTrue(!RiTa.isPunct(".#\"\\!@i$%&}<>"));
 
-		assertTrue(RiTa.isPunctuation("!"));
-		assertTrue(RiTa.isPunctuation("?"));
-		assertTrue(RiTa.isPunctuation("?!"));
-		assertTrue(RiTa.isPunctuation("."));
-		assertTrue(RiTa.isPunctuation(".."));
-		assertTrue(RiTa.isPunctuation("..."));
-		assertTrue(RiTa.isPunctuation("...."));
-		assertTrue(RiTa.isPunctuation("%..."));
+		assertTrue(RiTa.isPunct("!"));
+		assertTrue(RiTa.isPunct("?"));
+		assertTrue(RiTa.isPunct("?!"));
+		assertTrue(RiTa.isPunct("."));
+		assertTrue(RiTa.isPunct(".."));
+		assertTrue(RiTa.isPunct("..."));
+		assertTrue(RiTa.isPunct("...."));
+		assertTrue(RiTa.isPunct("%..."));
 
-		assertTrue(!RiTa.isPunctuation("! "));
+		assertTrue(!RiTa.isPunct("! "));
 		// space
-		assertTrue(!RiTa.isPunctuation(" !"));
+		assertTrue(!RiTa.isPunct(" !"));
 		// space
-		assertTrue(!RiTa.isPunctuation("!  "));
+		assertTrue(!RiTa.isPunct("!  "));
 		// double space
-		assertTrue(!RiTa.isPunctuation("  !"));
+		assertTrue(!RiTa.isPunct("  !"));
 		// double space
-		assertTrue(!RiTa.isPunctuation("!  "));
+		assertTrue(!RiTa.isPunct("!  "));
 		// tab space
-		assertTrue(!RiTa.isPunctuation("   !"));
+		assertTrue(!RiTa.isPunct("   !"));
 
 		String punct;
 
 		punct = "$%&^,";
 		String[] punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunctuation(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]));
 		}
 
 		punct = ",;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunctuation(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]));
 		}
 
 		// TODO: also test multiple characters strings here ****
 		punct = "\"��������`'";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunctuation(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]));
 		}
 
 		punct = "\"��������`',;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunctuation(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]));
 		}
 
 		// TODO: and here...
 		String nopunct = "Helloasdfnals  FgG   \t kjdhfakjsdhf askjdfh aaf98762348576";
 		punctArr = nopunct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(!RiTa.isPunctuation(punctArr[i]));
+			assertTrue(!RiTa.isPunct(punctArr[i]));
 		}
 
-		assertTrue(!RiTa.isPunctuation(""));
+		assertTrue(!RiTa.isPunct(""));
 
 	}
 

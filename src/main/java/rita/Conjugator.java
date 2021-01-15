@@ -385,17 +385,17 @@ public class Conjugator {
 		}
 
 		if (passive) {
-			conjs.add(pastParticiple(frontVG));
+			conjs.add(pastPart(frontVG));
 			frontVG = "be";
 		}
 
 		if (progressive) {
-			conjs.add(presentParticiple(frontVG));
+			conjs.add(presentPart(frontVG));
 			frontVG = "be";
 		}
 
 		if (perfect) {
-			conjs.add(pastParticiple(frontVG));
+			conjs.add(pastPart(frontVG));
 			frontVG = "have";
 		}
 
@@ -408,7 +408,7 @@ public class Conjugator {
 		if (frontVG != null) {
 			if (form == RiTa.GERUND) { // gerund - use ING form
 
-				String pp = presentParticiple(frontVG);
+				String pp = presentPart(frontVG);
 
 				// !@# not yet implemented! ??? WHAT?
 				conjs.add(pp);
@@ -541,11 +541,11 @@ public class Conjugator {
 		return theVerb;
 	}
 
-	public static String presentParticiple(String verb) {
+	public static String presentPart(String verb) {
 		return verb.equals("be") ? "being" : checkRules(PRESENT_PARTICIPLE_RULESET, verb);
 	}
 
-	public static String pastParticiple(String verb) {
+	public static String pastPart(String verb) {
 		return checkRules(PAST_PARTICIPLE_RULESET, verb);
 	}
 

@@ -101,7 +101,7 @@ public class Concorder {
 
 	private boolean isIgnorable(String key) {
 		
-		if (this.ignorePunctuation && RiTa.isPunctuation(key)) {
+		if (this.ignorePunctuation && RiTa.isPunct(key)) {
 			return true;
 		}
 		

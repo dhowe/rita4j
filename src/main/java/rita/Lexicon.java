@@ -185,9 +185,9 @@ public class Lexicon {
 		case "vbd":
 			return RiTa.conjugate(word, S1P_PAST);
 		case "vbg":
-			return RiTa.presentParticiple(word);
+			return RiTa.presentPart(word);
 		case "vbn":
-			return RiTa.pastParticiple(word);
+			return RiTa.pastPart(word);
 		case "vbp":
 			return word;// RiTa.conjugate(word); // no args
 		case "vbz":

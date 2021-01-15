@@ -45,7 +45,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		String sb = "";
 		for (int i = 0; i < words.length; i++) {
 			sb += words[i];
-			if (!RiTa.isPunctuation(words[i])) {
+			if (!RiTa.isPunct(words[i])) {
 				sb += delimiter + tags[i];
 			}
 			sb += ' ';

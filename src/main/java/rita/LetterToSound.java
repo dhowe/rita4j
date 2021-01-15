@@ -27,7 +27,7 @@ public class LetterToSound { // in-progress
 
 	public String[] buildPhones(String word) {
 
-		if (word == null || word.length() < 1 || RiTa.isPunctuation(word)) {
+		if (word == null || word.length() < 1 || RiTa.isPunct(word)) {
 			return null;
 		}
 		

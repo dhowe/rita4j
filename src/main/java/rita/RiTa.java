@@ -61,15 +61,15 @@ public class RiTa {
 		return lexicon().hasWord(word);
 	}
 
-	public static boolean isAbbreviation(String input) {
-		return isAbbreviation(input, false);
+	public static boolean isAbbrev(String input) {
+		return isAbbrev(input, false);
 	}
 
-	public static boolean isAbbreviation(String input, Map<String, Object> opts) {
-		return isAbbreviation(input, Util.boolOpt("ignoreCase", opts));
+	public static boolean isAbbrev(String input, Map<String, Object> opts) {
+		return isAbbrev(input, Util.boolOpt("ignoreCase", opts));
 	}
 
-	public static boolean isAbbreviation(String input, boolean ignoreCase) {
+	public static boolean isAbbrev(String input, boolean ignoreCase) {
 		if (input == null) return false;
 		if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1);
 		return Arrays.stream(ABRV).anyMatch(input::equals);
@@ -112,12 +112,12 @@ public class RiTa {
 		return tagger.isNoun(word);
 	}
 
-	public static boolean isPunctuation(String text) {
+	public static boolean isPunct(String text) {
 		return text != null && text.length() > 0 && ONLY_PUNCT.matcher(text).matches();
 	}
 
-	public static boolean isPunctuation(char c) {
-		return isPunctuation(Character.toString(c));
+	public static boolean isPunct(char c) {
+		return isPunct(Character.toString(c));
 	}
 
 	public static boolean isQuestion(String sentence) { // remove?
@@ -154,8 +154,8 @@ public class RiTa {
 		return concorder.kwic(word, opts);
 	}
 
-	public static String pastParticiple(String verb) {
-		return Conjugator.pastParticiple(verb);
+	public static String pastPart(String verb) {
+		return Conjugator.pastPart(verb);
 	}
 
 	public static String phones(String text) {
@@ -210,8 +210,8 @@ public class RiTa {
 		return Inflector.pluralize(word, opts);
 	}
 
-	public static String presentParticiple(String verb) {
-		return Conjugator.presentParticiple(verb);
+	public static String presentPart(String verb) {
+		return Conjugator.presentPart(verb);
 	}
  
 	public static int[] randomOrdering(int num) {
