@@ -309,7 +309,7 @@ public class RiTa {
 	public static String[] search() {
 		return lexicon().search(null);
 	}
-
+	
 	public static String[] search(String word) {
 		return lexicon().search(word);
 	}
@@ -381,6 +381,13 @@ public class RiTa {
 	public static String[] words(Pattern regex) {
 		return lexicon().words(regex);
 	}
+	
+	public static RiScript scripting() {
+		if (_interpreter == null) {
+			_interpreter = new RiScript();
+		}
+		return _interpreter;
+	}
 
 	// /////////////////////////// niapi /////////////////////////////////
 	
@@ -442,6 +449,7 @@ public class RiTa {
 	}
 
 	private static Lexicon _lexicon;
+	private static RiScript _interpreter;
 
 	// /////////////////////////// static /////////////////////////////////
 

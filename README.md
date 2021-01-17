@@ -23,10 +23,9 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
 <dependency>
   <groupId>org.rednoise</groupId>
   <artifactId>rita</artifactId>
-  <version>2.0.20</version>
+  <version>2.1</version>
 </dependency>
 ```
-
 
 ## API
 
@@ -59,9 +58,9 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/isVerb/index.html">RiTa.isVerb()</a><br/>
       <a href="./RiTa/kwic/index.html">RiTa.kwic()</a><br/>
       <a href="./RiTa/markov/index.html">RiTa.markov()</a><br/>
-    </td>
-    <td style="vertical-align: top; padding-top: 15px"><br/>
       <a href="./RiTa/pastPart/index.html">RiTa.pastPart()</a><br/>
+    </td>
+    <td style="vertical-align: top; padding-top: 15px">
       <a href="./RiTa/phones/index.html">RiTa.phones()</a><br/>
       <a href="./RiTa/pos/index.html">RiTa.pos()</a><br/>
       <a href="./RiTa/posInline/index.html">RiTa.posInline()</a><br/>
@@ -71,6 +70,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/randomSeed/index.html">RiTa.randomSeed()</a><br/>
       <a href="./RiTa/randomWord/index.html">RiTa.randomWord()</a><br/>
       <a href="./RiTa/rhymes/index.html">RiTa.rhymes()</a><br/>
+      <a href="./RiTa/scripting/index.html">RiTa.scripting()</a><br/>
       <a href="./RiTa/search/index.html">RiTa.search()</a><br/>
       <a href="./RiTa/sentences/index.html">RiTa.sentences()</a><br/>
       <a href="./RiTa/singularize/index.html">RiTa.singularize()</a><br/>
@@ -80,8 +80,8 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/stresses/index.html">RiTa.stresses()</a><br/>
       <a href="./RiTa/syllables/index.html">RiTa.syllables()</a><br/>
       <a href="./RiTa/tokenize/index.html">RiTa.tokenize()</a><br/>
-      <a href="./RiTa/untokenize/index.html">RiTa.untokenize()</a><br/><br/>
-      <!--a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/-->
+      <a href="./RiTa/untokenize/index.html">RiTa.untokenize()</a><br/>
+      <a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/>
     </td>
     <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
       <a href="https://rednoise.org/rita/reference/Markov/addText/index.html">addText()</a><br/>

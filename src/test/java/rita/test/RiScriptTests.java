@@ -668,6 +668,32 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void resolveChoicesViaScripting_CHOICE() {
+		RiScript interp = RiTa.scripting();
+		Map<String, Object> ctx = opts();
+		String[] expected;
+		assertEq(interp.evaluate("(|)"), "");
+		assertEq(interp.evaluate("(a)"), "a");
+		assertEq(interp.evaluate("(a | a)", ctx), "a");
+
+		expected = new String[] { "a", "" };
+		String rs = interp.evaluate("(a | )");
+		assertTrue(Arrays.asList(expected).contains(rs));
+
+		expected = new String[] { "a", "b" };
+		rs = interp.evaluate("(a | b)");
+		assertTrue(Arrays.asList(expected).contains(rs));
+
+		expected = new String[] { "a", "b", "c" };
+		rs = interp.evaluate("(a | b | c)");
+		assertTrue(Arrays.asList(expected).contains(rs));
+
+		expected = new String[] { "a", "b", "c", "d" };
+		rs = interp.evaluate("(a | (b | c) | d)");
+		assertTrue(Arrays.asList(expected).contains(rs));
+	}
+	
+	@Test
 	public void resolveChoices_CHOICE() {
 		Map<String, Object> ctx = opts();
 		String[] expected;
