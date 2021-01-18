@@ -28,7 +28,6 @@ public class RiScript {
 
 	public RiScript() {
 		this.visitor = new Visitor(this);
-		this.appliedTransforms = new ArrayList<String>();
 	}
 
 	public static String eval(String input) {
@@ -85,6 +84,9 @@ public class RiScript {
 	}
 
 	private RiScript pushTransforms(Map<String, Object> ctx) {
+		if (this.appliedTransforms == null) {
+			this.appliedTransforms = new ArrayList<String>();
+		}
 		for (String tx : RiScript.transforms.keySet()) {
 			if (!ctx.containsKey(tx)) {
 				ctx.put(tx, RiScript.transforms.get(tx));
@@ -98,6 +100,7 @@ public class RiScript {
 		for (String tx : appliedTransforms) {
 			ctx.remove(tx);
 		}
+		this.appliedTransforms.clear();
 		return this;
 	}
 
@@ -262,7 +265,7 @@ public class RiScript {
 	private static final Function<String, String> capitalize = s -> {
 		return RiTa.capitalize(s);
 	};
-	
+
 	private static final Function<String, String> quotify = s -> {
 		return "&#8220;" + (s != null ? s : "") + "&#8221;";
 	};
