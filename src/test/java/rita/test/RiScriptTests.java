@@ -913,7 +913,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveNorepTransforms_TRANSFORM() {
-		String rule = "(a | b | c | d).norep()";
+		String rule = "(a | b | c | d).nore()";
 		RiScript rs = new RiScript();
 		String last = null;
 		for (int i = 0; i < 10; i++) {

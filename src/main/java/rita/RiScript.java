@@ -279,7 +279,8 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("art", articlize),
 			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
-			new AbstractMap.SimpleEntry<String, Object>("norep", identity),
+			new AbstractMap.SimpleEntry<String, Object>("norep", identity), // TODO: remove
+			new AbstractMap.SimpleEntry<String, Object>("nore", identity),
 			new AbstractMap.SimpleEntry<String, Object>("s", pluralize),
 			new AbstractMap.SimpleEntry<String, Object>("uppercase", uc),
 			new AbstractMap.SimpleEntry<String, Object>("uc", uc)

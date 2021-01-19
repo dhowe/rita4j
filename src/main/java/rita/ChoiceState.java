@@ -11,7 +11,8 @@ import rita.antlr.RiScriptParser.*;
 
 public class ChoiceState {
 
-	static final String SIMPLE = "", RSEQUENCE = "rseq", SEQUENCE = "seq", NOREPEAT = "norep";
+	static final String SIMPLE = "", RSEQUENCE = "rseq";
+	static final String SEQUENCE = "seq", NOREPEAT = "nore";
 	static final String[] TYPES = { RSEQUENCE, SEQUENCE, NOREPEAT };
 
 	int id;
@@ -38,8 +39,9 @@ public class ChoiceState {
 			WeightContext wctx = w.weight(); // handle weight
 			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
 			if (expr == null) expr = ParserRuleContext.EMPTY;
-			for (int j = 0; j < weight; j++)
+			for (int j = 0; j < weight; j++) {
 				options.add(expr);
+			}
 		}
 
 		this.handleSequence(ctx);
@@ -99,8 +101,8 @@ public class ChoiceState {
 	}
 
 	protected ParserRuleContext selectSequence() {
-		this.last = options.get(cursor++ % options.size());
-		return this.last;
+		
+		return (this.last = options.get(cursor++ % options.size()));
 	}
 
 	protected ParserRuleContext selectRandSequence() {
