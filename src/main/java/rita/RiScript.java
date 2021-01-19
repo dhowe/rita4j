@@ -60,7 +60,7 @@ public class RiScript {
 
 		if (ctx == null) ctx = new HashMap<String, Object>();
 
-		pushTransforms(ctx);
+		//pushTransforms(ctx);
 
 		String last = null, expr = input;
 		for (int i = 0; /*isParseable(expr)&& */!expr.equals(last) && i < MAX_TRIES; i++) {
@@ -78,31 +78,31 @@ public class RiScript {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
 
-		popTransforms(ctx);
+		//popTransforms(ctx);
 
 		return resolveEntities(expr);
 	}
-
-	private RiScript pushTransforms(Map<String, Object> ctx) {
-		if (this.appliedTransforms == null) {
-			this.appliedTransforms = new ArrayList<String>();
-		}
-		for (String tx : RiScript.transforms.keySet()) {
-			if (!ctx.containsKey(tx)) {
-				ctx.put(tx, RiScript.transforms.get(tx));
-				this.appliedTransforms.add(tx);
-			}
-		}
-		return this;
-	}
-
-	private RiScript popTransforms(Map<String, Object> ctx) {
-		for (String tx : appliedTransforms) {
-			ctx.remove(tx);
-		}
-		this.appliedTransforms.clear();
-		return this;
-	}
+//
+//	private RiScript pushTransforms(Map<String, Object> ctx) {
+//		if (this.appliedTransforms == null) {
+//			this.appliedTransforms = new ArrayList<String>();
+//		}
+//		for (String tx : RiScript.transforms.keySet()) {
+//			if (!ctx.containsKey(tx)) {
+//				ctx.put(tx, RiScript.transforms.get(tx));
+//				this.appliedTransforms.add(tx);
+//			}
+//		}
+//		return this;
+//	}
+//
+//	private RiScript popTransforms(Map<String, Object> ctx) {
+//		for (String tx : appliedTransforms) {
+//			ctx.remove(tx);
+//		}
+//		this.appliedTransforms.clear();
+//		return this;
+//	}
 
 	private String resolveEntities(String s) {
 		String k = HtmlEscape.unescapeHtml(s);

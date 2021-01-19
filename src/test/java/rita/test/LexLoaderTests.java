@@ -1,6 +1,6 @@
 package rita.test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -8,7 +8,6 @@ import java.time.Instant;
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
-import rita.console;
 
 public class LexLoaderTests {
 

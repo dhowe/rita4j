@@ -260,7 +260,7 @@ public class Util {
 		return null; // fail
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" }) // unused
+	@SuppressWarnings({ "unchecked" }) // unused
 	private static final <T> T getProperty(Object o, String prop, T defaultVal) {
 
 		Field[] fields = o.getClass().getDeclaredFields();

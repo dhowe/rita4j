@@ -5,8 +5,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import javax.management.RuntimeErrorException;
-
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.*;
@@ -355,6 +353,17 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					result = ((Supplier<String>) func).get();
 				}
 			}
+			
+			// 2. Function in context
+			else if (RiScript.transforms.containsKey(tx)) {
+				Object func = RiScript.transforms.get(tx);
+				if (func instanceof Function) {
+					result = ((Function<String, String>) func).apply((String) target);
+				}
+				if (func instanceof Supplier) {
+					result = ((Supplier<String>) func).get();
+				}
+			}
 
 			// 3. Function in Map
 			else if (target instanceof Map) {
@@ -394,11 +403,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static final ExprContext EMPTY = new ExprContext(null, -1);
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	private static final Set<Class> PRIMITIVES = new HashSet<Class>(
 			Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 					Integer.class, Long.class, Float.class, Double.class));
 
+	@SuppressWarnings("unused")
 	private static boolean isPrimitive(Object o) {
 		return PRIMITIVES.contains(o.getClass());
 	}

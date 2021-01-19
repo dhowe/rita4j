@@ -3,9 +3,8 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.jupiter.api.Test;
-
-import rita.*;
+import rita.RiGrammar;
+import rita.RiTa;
 
 // Failing tests go here until debugged
 public class KnownIssues {

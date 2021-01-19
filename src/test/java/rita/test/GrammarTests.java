@@ -1,14 +1,11 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static rita.RiTa.opts;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 

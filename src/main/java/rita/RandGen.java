@@ -53,7 +53,6 @@ public abstract class RandGen {
 
 	/////////////////////////////////////////////////////////////
 
-	@SuppressWarnings("unchecked")
 	public static final <T> List<T> randomOrdering(List<T> list) {
 		Collections.shuffle(list);
 		return list;

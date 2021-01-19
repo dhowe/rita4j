@@ -3,12 +3,8 @@ package rita;
 import static rita.RiTa.opts;
 
 import java.text.DecimalFormat;
-
 import java.util.*;
 import java.util.function.Function;
-
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class RiMarkov {
 

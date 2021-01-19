@@ -1,23 +1,16 @@
 package rita.test;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static rita.RiTa.opts;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
 import rita.*;
-import rita.RiMarkov.Node;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import java.util.function.Function;
 
 public class MarkovTests {
 	String sample = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself.";
@@ -47,7 +40,7 @@ public class MarkovTests {
 		// TODO: compare these tests to JS version and add comments below.
 		//       why are the expected values not being used?
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
-		double[] expected = { 2, 2, 1.75, 1.55 };
+		double[] expected = { 2, 2, 1.75, 1.55 }; // JC ??
 		double[] temps = { .5, 1, 2, 10 };
 		for (int x = 0; x < 10; x++) { // repeat 100 times
 			List<double[]> distrs = new ArrayList<double[]>();

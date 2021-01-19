@@ -4,7 +4,6 @@ import java.util.*;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 
-import rita.antlr.RiScriptBaseVisitor;
 import rita.antlr.RiScriptParser.*;
 
 // JS: this is an inner class in Visitor
