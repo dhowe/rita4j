@@ -383,10 +383,7 @@ public class RiTa {
 	}
 	
 	public static RiScript scripting() {
-		if (_interpreter == null) {
-			_interpreter = new RiScript();
-		}
-		return _interpreter;
+		return new RiScript();
 	}
 
 	// /////////////////////////// niapi /////////////////////////////////
@@ -449,7 +446,6 @@ public class RiTa {
 	}
 
 	private static Lexicon _lexicon;
-	private static RiScript _interpreter;
 
 	// /////////////////////////// static /////////////////////////////////
 
