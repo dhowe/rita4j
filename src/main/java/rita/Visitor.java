@@ -19,9 +19,9 @@ import rita.antlr.RiScriptParser.*;
  */
 public class Visitor extends RiScriptBaseVisitor<String> {
 
-	private static final String EOF = "<EOF>";
-	static final String FUNCTION = "()", DOT = ".";
-	private static final String LP = "(", RP = ")";
+	static final String FUNCTION = "()";
+	private static final String LP = "(", RP = ")",  
+			DOT = ".", DOL = "$", EQ = "=", EOF = "<EOF>", BN = "\n";
 
 	protected int indexer;
 	protected RiScript parent;
@@ -77,46 +77,6 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	//////////////////////////// Transforms //////////////////////////////////
 
-	public String visitInline(InlineContext ctx) {
-
-		ExprContext token = ctx.expr();
-		List<TransformContext> txs = ctx.transform();
-		String id = ctx.symbol().getText().replaceAll("^\\$", "");
-
-		if (this.trace) System.out.println("visitInline: $"
-				+ id + "=" + this.flatten(token) + " tfs=" + flatten(txs));
-
-		String visited = null;
-
-		// if we've already resolved (likely as an inline) then reuse it
-		Object lookup = this.context.get(id);
-		if (lookup instanceof String && !this.parent.isParseable((String) lookup)) {
-			if (trace) console.log("symbolDefined[0]: $" + id + " -> '" + lookup + "' (already defined)");
-			visited = (String) lookup;
-		}
-		else {
-			// otherwise, visit token and add result to context
-			visited = this.visit(token);
-			this.context.put(id, visited);
-		}
-
-		// apply transforms if we have them
-		if (txs.size() < 1) {
-			if (this.trace) System.out.println("resolveInline[1]: $"
-					+ id + " -> '" + visited + "'");
-			return visited;
-		}
-		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied
-				: Visitor.LP + visited + Visitor.RP + flatten(txs);
-
-		if (this.trace) System.out.println("resolveInline[2]: $"
-				+ id + " -> '" + result + "'");
-
-		// return result or defer for later
-		return result != null ? result : ctx.getText();
-	}
-
 	public String visitChoice(ChoiceContext ctx) {
 
 		List<TransformContext> txs = ctx.transform();
@@ -144,7 +104,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (txs.size() < 1) return visited;
 
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : '(' + visited + ')' + flatten(txs);
+		String result = applied != null ? applied : LP + visited + RP + flatten(txs);
 
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
@@ -187,7 +147,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// if the symbol is not fully resolved, save it for next time (as an inline*)
 		if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
 			this.pendingSymbols.add(ident);
-			String tmp = "[$" + ident + "=" + resolved + "]" + flatten(txs);
+			String tmp = LP + DOL + ident + EQ + resolved + RP + flatten(txs);
 			if (trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
 			return tmp;
 		}
@@ -219,7 +179,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (this.trace) System.out.println("resolveAssign: $"
 				+ id + " -> '" + result + "' " + parent.ctxStr(context));
 		this.context.put(id, result);
-		return ""; // no output on vanilla assign
+		// no output if first on line
+		return ctx.start.getCharPositionInLine() == 0 ? "" : result;
 	}
 
 	public String visitExpr(ExprContext ctx) { // trace only
@@ -244,8 +205,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			CondContext cond = conds.get(i);
 			String id = cond.SYM().getText().replaceAll("^\\$", "");
 			Operator op = Operator.fromString(cond.op().getText());
-			String val = cond.chars().getText();
-			val = val.replaceAll(",$", "");
+			String val = cond.chars().getText().replaceAll(',' + DOL, "");
 			Object sym = this.context.get(id);
 			// TODO: not sure about toString below
 			boolean accept = sym != null ? op.invoke(sym.toString(), val) : false;
@@ -276,8 +236,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitTerminal(TerminalNode tn) {
 		String text = tn.getText();
-		if (text.equals("\n")) return " "; // why do we need this?
-		if (!text.equals(Visitor.EOF)) {
+		if (text.equals(BN)) return " "; // why do we need this?
+		if (!text.equals(EOF)) {
 			if (trace) System.out.println("visitTerminal: '" + text + "'");
 		}
 		return null;
@@ -353,7 +313,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 					result = ((Supplier<String>) func).get();
 				}
 			}
-			
+
 			// 2. Function in context
 			else if (RiScript.transforms.containsKey(tx)) {
 				Object func = RiScript.transforms.get(tx);

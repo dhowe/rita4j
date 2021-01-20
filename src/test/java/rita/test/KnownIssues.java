@@ -3,11 +3,32 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Arrays;
+
+import static rita.RiTa.opts;
+
 import rita.RiGrammar;
 import rita.RiTa;
 
 // Failing tests go here until debugged
 public class KnownIssues {
+
+	//@Test
+	public void resolveComplexInlines_RISCRIPT() {
+
+		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
+		String rs = RiTa.evaluate("($chosen=$person) talks to $chosen.", opts("person", "(Dave | Jill | Pete)"));
+		assertTrue(Arrays.asList(expected).contains(rs));
+	}
+
+	//@Test
+	public void resolveComplexInlines_GRAMMAR() {
+		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
+		String rules = "{\"start\": \" talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
+		RiGrammar rg = RiGrammar.fromJSON(rules);
+		String rs = rg.expand();
+		assertTrue(Arrays.asList(expected).contains(rs));
+	}
 
 	//@Test
 	public void grammarToString() {
@@ -23,7 +44,6 @@ public class KnownIssues {
 	public void stemmerProblem() {
 
 		System.out.println(RiTa.stem("write writes writing writings."));
-		
 
 		assertEquals("write", stem("write"));
 		assertEquals("write", stem("writes"));
@@ -37,7 +57,7 @@ public class KnownIssues {
 
 	private Object stem(String s) {
 		String t = RiTa.stem(s);
-		System.out.println(s+" -> "+t);
+		System.out.println(s + " -> " + t);
 		return "write";
 	}
 

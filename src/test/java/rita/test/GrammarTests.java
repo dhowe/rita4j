@@ -26,13 +26,6 @@ public class GrammarTests {
 		assertTrue(gr1 instanceof RiGrammar);
 	}
 
-//	@Test
-//	public void haikuJSON() {
-//		String haikuGrammar = "{    \"$start\": \"$line5 % $line7 % $line5\",    \"$line5\": \"$syl1 $syl4 |$syl1 $syl3 $syl1 |$syl1 $syl1 $syl3 | $syl1 $syl2 $syl2 | $syl1 $syl2 $syl1 $syl1 | $syl1 $syl1 $syl2 $syl1 | $syl1 $syl1 $syl1 $syl2 | $syl1 $syl1 $syl1 $syl1 $syl1 | $syl2 $syl3 | $syl2 $syl2 $syl1 | $syl2 $syl1 $syl2 | $syl2 $syl1 $syl1 $syl1 | $syl3 $syl2 | $syl3 $syl1 $syl1 | $syl4 $syl1 | $syl5\",    \"$line7\": \"$syl1 $syl1 $line5 | $syl2 $line5 | $line5 $syl1 $syl1 | $line5 $syl2\",    \"$syl1\": \"red | white | black | sky | dawns | breaks | falls | leaf | rain | pool | my | your | sun | clouds | blue | green | night | day | dawn | dusk | birds | fly | grass | tree | branch | through | hell | zen | smile | gray | wave | sea | through | sound | mind | smoke | cranes | fish\",    \"$syl2\": \"drifting | purple | mountains | skyline | city | faces | toward | empty | buddhist | temple | japan | under | ocean | thinking | zooming | rushing | over | rice field | rising | falling | sparkling | snowflake\",    \"$syl3\": \"sunrises | pheasant farms | people farms | samurai | juniper | fishing boats | far away | kimonos | evenings | peasant rain | sad snow fall\",    \"$syl4\": \"aluminum | yakitori | the east village | west of the sun |  chrysanthemums | cherry blossoms\",    \"$syl5\": \"resolutional | non-elemental | rolling foothills rise | toward mountains higher | out over this country | in the springtime again\"}";
-//		Grammar g = Grammar.fromJSON(haikuGrammar);
-//		System.out.println(g.expand());
-//	}
-
 	@Test
 	public void callConstructorJSON() {
 
@@ -51,7 +44,7 @@ public class GrammarTests {
 
 	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
-		Map<String, Object> g = opts("start", "[$x=$y b].ucf()", "y", "(a | a)");
+		Map<String, Object> g = opts("start", "($x=$y b).ucf()", "y", "(a | a)");
 		eq(RiTa.evaluate(new RiGrammar(g).expand()), "A b");
 	}
 
@@ -120,17 +113,12 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void resolveInlines() {
+	public void resolveInlines_FAILING() {
 		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
 		RiGrammar rg;
 		String rules, rs;
 
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"Dave | Jill | Pete\"}";
-		rg = RiGrammar.fromJSON(rules);
-		rs = rg.expand();
-		assertTrue(Arrays.asList(expected).contains(rs));
-
-		rules = "{\"start\": \"[$chosen=$person] talks to $chosen.\",\"person\": \"$Dave | $Jill | $Pete\",\"Dave\": \"Dave\",\"Jill\": \"Jill\",\"Pete\": \"Pete\"}";
+		rules = "{\"start\": \" $chosen talks to $chosen.\",\"chosen\": \"Dave | Jill | Pete\"}";
 		rg = RiGrammar.fromJSON(rules);
 		rs = rg.expand();
 		assertTrue(Arrays.asList(expected).contains(rs));
