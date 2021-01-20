@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -46,12 +46,6 @@ public interface RiScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitChoice(RiScriptParser.ChoiceContext ctx);
-	/**
-	 * Visit a parse tree produced by {@link RiScriptParser#inline}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitInline(RiScriptParser.InlineContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#assign}.
 	 * @param ctx the parse tree

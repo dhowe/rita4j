@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -83,18 +83,6 @@ public class RiScriptBaseListener implements RiScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitChoice(RiScriptParser.ChoiceContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterInline(RiScriptParser.InlineContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitInline(RiScriptParser.InlineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

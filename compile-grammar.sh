@@ -1,6 +1,6 @@
 
-WORK_DIR=./.antlr
-GRAMMAR_DIR=../rita2js/grammar
+WORK_DIR=/tmp/.antlr
+GRAMMAR_DIR=../ritajs/grammar
 DEPENDS_DIR=./target/dependency
 OUTPUT_DIR=./src/main/java/rita/antlr
 

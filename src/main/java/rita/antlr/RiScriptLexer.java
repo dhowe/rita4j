@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;

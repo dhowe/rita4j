@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -67,16 +67,6 @@ public interface RiScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitChoice(RiScriptParser.ChoiceContext ctx);
-	/**
-	 * Enter a parse tree produced by {@link RiScriptParser#inline}.
-	 * @param ctx the parse tree
-	 */
-	void enterInline(RiScriptParser.InlineContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link RiScriptParser#inline}.
-	 * @param ctx the parse tree
-	 */
-	void exitInline(RiScriptParser.InlineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RiScriptParser#assign}.
 	 * @param ctx the parse tree

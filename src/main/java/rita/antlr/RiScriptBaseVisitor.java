@@ -1,4 +1,4 @@
-// Generated from ../rita2js/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
@@ -53,13 +53,6 @@ public class RiScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitChoice(RiScriptParser.ChoiceContext ctx) { return visitChildren(ctx); }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation returns the result of calling
-	 * {@link #visitChildren} on {@code ctx}.</p>
-	 */
-	@Override public T visitInline(RiScriptParser.InlineContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
