@@ -21,7 +21,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	static final String FUNCTION = "()";
 	private static final String LP = "(", RP = ")",  
-			DOT = ".", DOL = "$", EQ = "=", EOF = "<EOF>", BN = "\n";
+			DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>", BN = "\n";
 
 	protected int indexer;
 	protected RiScript parent;
@@ -147,7 +147,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// if the symbol is not fully resolved, save it for next time (as an inline*)
 		if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
 			this.pendingSymbols.add(ident);
-			String tmp = LP + DOL + ident + EQ + resolved + RP + flatten(txs);
+			String tmp = LP + SYM + ident + EQ + resolved + RP + flatten(txs);
 			if (trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
 			return tmp;
 		}
@@ -205,7 +205,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			CondContext cond = conds.get(i);
 			String id = cond.SYM().getText().replaceAll("^\\$", "");
 			Operator op = Operator.fromString(cond.op().getText());
-			String val = cond.chars().getText().replaceAll(',' + DOL, "");
+			String val = cond.chars().getText().replaceAll(',' + SYM, "");
 			Object sym = this.context.get(id);
 			// TODO: not sure about toString below
 			boolean accept = sym != null ? op.invoke(sym.toString(), val) : false;
