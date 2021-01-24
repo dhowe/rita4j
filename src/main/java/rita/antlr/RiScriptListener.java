@@ -88,6 +88,16 @@ public interface RiScriptListener extends ParseTreeListener {
 	 */
 	void exitChars(RiScriptParser.CharsContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link RiScriptParser#dynamic}.
+	 * @param ctx the parse tree
+	 */
+	void enterDynamic(RiScriptParser.DynamicContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RiScriptParser#dynamic}.
+	 * @param ctx the parse tree
+	 */
+	void exitDynamic(RiScriptParser.DynamicContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link RiScriptParser#symbol}.
 	 * @param ctx the parse tree
 	 */

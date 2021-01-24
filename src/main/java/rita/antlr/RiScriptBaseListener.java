@@ -112,6 +112,18 @@ public class RiScriptBaseListener implements RiScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterDynamic(RiScriptParser.DynamicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitDynamic(RiScriptParser.DynamicContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterSymbol(RiScriptParser.SymbolContext ctx) { }
 	/**
 	 * {@inheritDoc}

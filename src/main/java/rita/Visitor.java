@@ -20,7 +20,7 @@ import rita.antlr.RiScriptParser.*;
 public class Visitor extends RiScriptBaseVisitor<String> {
 
 	static final String FUNCTION = "()";
-	private static final String LP = "(", RP = ")",  
+	private static final String LP = "(", RP = ")", DYN = "&",
 			DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>", BN = "\n";
 
 	protected int indexer;
@@ -75,9 +75,45 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return visitChildren(ctx);
 	}
 
-	//////////////////////////// Transforms //////////////////////////////////
-
 	public String visitChoice(ChoiceContext ctx) {
+
+		List<TransformContext> txs = ctx.transform();
+		List<ParserRuleContext> options = new ArrayList<ParserRuleContext>();
+
+		List<WexprContext> wexprs = ctx.wexpr();
+		for (int i = 0; i < wexprs.size(); i++) {
+			WexprContext w = wexprs.get(i);
+			ParserRuleContext expr = w.expr();
+			WeightContext wctx = w.weight(); // handle weight
+			int weight = wctx != null ? Integer.parseInt(wctx.INT().toString()) : 1;
+			if (expr == null) expr = ParserRuleContext.EMPTY;
+			for (int j = 0; j < weight; j++) {
+				options.add(expr);
+			}
+		}
+
+		if (trace) System.out.println("visitChoice: '" + ctx.getText()
+				+ "' options=['" + flatten(options).replaceAll("\\|", "','")
+				+ "'] tfs=" + flatten(txs));
+
+		ParserRuleContext tok = RandGen.randomItem(options);
+
+		// visit the token 
+		String visited = this.visit(tok);
+
+		// check for transforms
+		if (txs.size() < 1) return visited;
+
+		// apply the transforms
+		String applied = applyTransforms(visited, txs);
+		String result = applied != null ? applied : LP + visited + RP + flatten(txs);
+
+		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
+
+		return result;
+	}
+
+	public String visitChoiceWithChoiceState(ChoiceContext ctx) {
 
 		List<TransformContext> txs = ctx.transform();
 		ChoiceState choice = sequences.get(++this.indexer);
@@ -111,6 +147,16 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result;
 	}
 
+	private String resolveDynamic(String ident, String resolved, List<TransformContext> txs) {
+		if (!resolved.matches("^\\([^()]*\\)$")) {
+			//if (!/^\([^()]*\)$/.test(resolved)) {  // add parens if needed
+			resolved = Visitor.LP + resolved + Visitor.RP;
+		}
+		String result = resolved + flatten(txs);
+		if (trace) console.log("resolveDynamic: &" + ident + " -> '" + result + "'");
+		return result;
+	}
+
 	public String visitSymbol(SymbolContext ctx) {
 
 		List<TransformContext> txs = ctx.transform();
@@ -125,8 +171,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// get the symbol identifier
 		String ident = tn.getText().replaceAll("^\\$", "");
 
-		if (trace) System.out.println("visitSymbol: $"
-				+ ident + " tfs=" + flatten(txs));// + " -> " + result);
+		if (trace) System.out.println("visitSymbol: $" + ident +
+				(context.get(Visitor.DYN + ident) != null ? " [dynamic]" : "")
+				+ " tfs=" + flatten(txs));
 
 		// if the symbol is pending just return it
 		if (this.pendingSymbols.contains(ident)) {
@@ -134,11 +181,17 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			return result;
 		}
 
-		// now try to resolve from context
 		Object resolved = context.get(ident);
+		if (resolved == null) {  // try the context
 
-		// if it fails, give up / wait for next pass
-		if (resolved == null) {
+			// try for a dynamic in context
+			resolved = context.get(Visitor.DYN + ident);
+			if (resolved != null) { //tmp
+				if (!(resolved instanceof String)) throw new RuntimeException("Not a string: " + resolved);
+				return this.resolveDynamic(ident, (String) resolved, txs);
+			}
+
+			// otherwise give up, wait for next pass
 			if (trace) System.out.println("resolveSymbol[1]: '"
 					+ ident + "' -> '" + result + "'");
 			return result;
@@ -168,17 +221,29 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result;
 	}
 
-	////////////////////////////////////////////////////////////////////////
-
 	public String visitAssign(AssignContext ctx) {
+		String result;
 		ExprContext token = ctx.expr();
-		String id = ctx.symbol().getText().replaceAll("^\\$", "");
-		if (this.trace) System.out.println("visitAssign: $"
-				+ id + "=" + this.flatten(token));
-		String result = this.visit(token);
-		if (this.trace) System.out.println("resolveAssign: $"
-				+ id + " -> '" + result + "' " + parent.ctxStr(context));
+		ParserRuleContext symbol = ctx.symbol();
+		if (symbol == null) symbol = ctx.dynamic();
+		String id = symbol.getText();
+
+		if (id.startsWith(Visitor.DYN)) {
+			if (this.trace) System.out.println("visitAssign: $"
+					+ id + "=" + this.flatten(token) + " [*DYN*]");
+			result = token.getText();
+		}
+		else {
+			id = symbolName(id);
+			if (this.trace) System.out.println("visitAssign: $"
+					+ id + "=" + this.flatten(token));
+			result = this.visit(token);
+		}
+
 		this.context.put(id, result);
+		if (this.trace) System.out.println("resolveAssign: context["
+				+ id + "] -> '" + result + "' ");
+
 		// no output if first on line
 		return ctx.start.getCharPositionInLine() == 0 ? "" : result;
 	}
@@ -203,7 +268,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		//"cond={" + conds.map(c => c.getText().replace(',', '')) + '}');
 		for (int i = 0; i < conds.size(); i++) {
 			CondContext cond = conds.get(i);
-			String id = cond.SYM().getText().replaceAll("^\\$", "");
+			String id = cond.symbol().getText().replaceAll("^\\$", "");
 			Operator op = Operator.fromString(cond.op().getText());
 			String val = cond.chars().getText().replaceAll(',' + SYM, "");
 			Object sym = this.context.get(id);
@@ -371,6 +436,13 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	@SuppressWarnings("unused")
 	private static boolean isPrimitive(Object o) {
 		return PRIMITIVES.contains(o.getClass());
+	}
+
+	private static String symbolName(String text) {
+		return (text != null && text.length() > 0
+				&& text.startsWith(Visitor.SYM))
+						? text.substring(1)
+						: text;
 	}
 
 	// simplify 
