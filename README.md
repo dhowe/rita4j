@@ -124,8 +124,6 @@ $ mvn install      # when done, you should see "BUILD SUCCESS"
 ```
 The project requires a minimum version of Java 8 and Maven 3.6 to build.
 
-<br/>
-
 ### Eclipse
 1. Do steps above under **Building**
 2. In eclipse, File->Import->Maven->Existing Maven Projects and select your 'rita4j' folder
