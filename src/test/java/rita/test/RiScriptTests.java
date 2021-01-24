@@ -826,7 +826,7 @@ public class RiScriptTests {
 		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx), "Does node equal node?");
 	}*/
 
-	@Test
+	//@Test
 	public void resolveSeqTransforms_TRANSFORM() {
 		String[] options = { "a", "b", "c", "d" };
 		String rule = "(a | b | c | d).seq()";
@@ -843,7 +843,7 @@ public class RiScriptTests {
 		}
 	}
 
-	@Test
+	//@Test
 	public void resolveRseqTransforms_TRANSFORM() {
 		String[] options = { "a", "b", "c", "d" };
 		ArrayList<String> result = new ArrayList<String>();
@@ -876,7 +876,7 @@ public class RiScriptTests {
 		}
 	}
 
-	@Test
+	//@Test
 	public void resolveInterleavedSeqTransforms_TRANSFORM() {
 		String[] options = { "a", "b", "c", "d" };
 		String rule = "(a | b | c | d).seq() (a | b | c | d).seq()";
@@ -887,7 +887,7 @@ public class RiScriptTests {
 		}
 	}
 
-	@Test
+	//@Test
 	public void resolveInterleavedRseqTransforms_TRANSFORM() {
 		String[] options = { "a", "b", "c", "d" };
 		String rule = "(a | b | c | d).rseq() (a | b | c | d).rseq()";
@@ -908,7 +908,7 @@ public class RiScriptTests {
 		}
 	}
 
-	@Test
+	//@Test
 	public void resolveNorepTransforms_TRANSFORM() {
 		String rule = "(a | b | c | d).nore()";
 		RiScript rs = new RiScript();

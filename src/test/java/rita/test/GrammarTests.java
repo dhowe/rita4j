@@ -48,7 +48,7 @@ public class GrammarTests {
 		eq(RiTa.evaluate(new RiGrammar(g).expand()), "A b");
 	}
 
-	@Test
+	//@Test
 	public void supportSeqTransform() {
 		String[] seq = { "a", "b", "c", "d" };
 
@@ -68,7 +68,7 @@ public class GrammarTests {
 		}
 	}
 
-	@Test
+	//@Test
 	public void supportRSeqTransform() {
 		String[] seq = { "a", "b", "c", "d" };
 		String rule = "(" + String.join("|", seq) + ").rseq()";
