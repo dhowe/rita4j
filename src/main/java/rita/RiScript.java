@@ -230,7 +230,8 @@ public class RiScript {
 	}
 
 	public boolean isParseable(String s) { // public for testing
-		return PRS_RE.matcher(s).find();
+//		return PRS_RE.matcher(s).find();
+		return RE.test(PRS_RE, s);
 	}
 
 	public static String articlize(String s) {
@@ -241,11 +242,16 @@ public class RiScript {
 				phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
-	private static final Pattern PP59_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "]");
-	private static final Pattern PPA_RE = Pattern.compile("^[" + RiTa.SYM + RiTa.DYN + "{]");
-	private static final Pattern PPB_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "(){}|]");
-	private static final Pattern PRS_RE = Pattern.compile("([()]|" + RiTa.VSYM + ")");
+//	private static final Pattern PP59_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "]");
+//	private static final Pattern PPA_RE = Pattern.compile("^[" + RiTa.SYM + RiTa.DYN + "{]");
+//	private static final Pattern PPB_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "(){}|]");
+//	private static final Pattern PRS_RE = Pattern.compile("[()$]");//|(" + RiTa.VSYM + "))");
+
+	private static final Pattern PP59_RE = Pattern.compile("\\$");
+	private static final Pattern PPA_RE = Pattern.compile("^[${]");
+	private static final Pattern PPB_RE = Pattern.compile("[$(){}|]");
 	private static final Pattern SYM_RE = Pattern.compile(RiTa.VSYM);
+	private static final Pattern PRS_RE = Pattern.compile("[(){}|]|"+RiTa.VSYM);
 
 	private static final Function<String, String> identity = s -> s;
 

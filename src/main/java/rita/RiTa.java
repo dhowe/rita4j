@@ -478,17 +478,16 @@ public class RiTa {
 	public static final String VERSION = "2";
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^\\w\\s]*$");
-	static final String LP = "(", RP = ")";
-	public /*tmp,for testing*/ static final String DYN = "&";
-	static final String BN = "\n";
+	public /*tmp,for testing*/ static final String DYN = "$$";
+	static final String LP = "(", RP = ")", BN = "\n";
 	static final String DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>";
-	static final String VSYM = "[" + SYM + DYN + "]\\w+", FUNC = LP + RP;
+	//static final String VSYM = "[" + SYM + DYN + "]\\w+", FUNC = LP + RP;
+	static final String VSYM = "\\${1,2}\\w+", FUNC = LP + RP;
 
 	public static String[] ABRV = {
 			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
 			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.",
-			"Mar.",
-			"Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."
+			"Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."
 	};
 	public static String[] QUESTIONS = {
 			"was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have"

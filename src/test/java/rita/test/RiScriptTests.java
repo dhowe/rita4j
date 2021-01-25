@@ -223,11 +223,19 @@ public class RiScriptTests {
 	@Test
 	public void callIsParseable() {
 		RiScript rs = new RiScript();
-		assertTrue(!rs.isParseable("Hello"));
 		assertTrue(rs.isParseable("("));
 		assertTrue(rs.isParseable("(A | B)"));
 		assertTrue(rs.isParseable("$hello"));
 		assertTrue(rs.isParseable("$b"));
+		assertTrue(rs.isParseable("$$b"));
+		assertTrue(rs.isParseable("($b)"));
+		assertTrue(rs.isParseable("(&nbsp;)"));
+
+		assertTrue(!rs.isParseable("Hello"));
+		assertTrue(!rs.isParseable("&181;"));
+		assertTrue(!rs.isParseable("&b"));
+		assertTrue(!rs.isParseable("&&b"));
+		assertTrue(!rs.isParseable("&nbsp;"));
 	}
 
 	@Test
@@ -495,19 +503,19 @@ public class RiScriptTests {
 		Map<String, Object> ctx; // see issue:rita#59
 
 		assertEq(RiTa.evaluate("The " + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+		assertEq(ctx.get(RiTa.DYN + "foo"), "blue (dog | dog)");
 
 		assertEq(RiTa.evaluate("The (" + RiTa.DYN + "foo=blue) (dog | dog)", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue");
+		assertEq(ctx.get(RiTa.DYN + "foo"), "blue");
 
 		assertEq(RiTa.evaluate("The (" + RiTa.DYN + "foo=blue (dog | dog))", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+		assertEq(ctx.get(RiTa.DYN + "foo"), "blue (dog | dog)");
 
 		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "");
-		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+		assertEq(ctx.get(RiTa.DYN + "foo"), "blue (dog | dog)");
 
 		assertEq(RiTa.evaluate("The\n" + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "The");
-		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+		assertEq(ctx.get(RiTa.DYN + "foo"), "blue (dog | dog)");
 	}
 
 	@Test

@@ -84,7 +84,8 @@ public class RiGrammar {
 	}
 
 	public RiGrammar addRule(String name, String rule) {
-		if (name.startsWith("$")) name = name.substring(1);
+		if (name.startsWith(RiTa.SYM)) name = name.substring(1);
+		// TODO: compile (pattern: if matches ( ... | ... )
 		if (RE.test("\\|", rule) && !RE.test("^\\([^\\(\\)]*\\)$", rule)) {
 			rule = '(' + rule + ')';
 		}
