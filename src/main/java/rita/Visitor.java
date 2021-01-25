@@ -19,10 +19,6 @@ import rita.antlr.RiScriptParser.*;
  */
 public class Visitor extends RiScriptBaseVisitor<String> {
 
-	static final String FUNCTION = "()";
-	private static final String LP = "(", RP = ")", DYN = "&",
-			DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>", BN = "\n";
-
 	protected int indexer;
 	protected RiScript parent;
 	protected boolean trace, silent;
@@ -108,7 +104,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 		// apply the transforms
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : LP + visited + RP + flatten(txs);
+		String result = applied != null ? applied : RiTa.LP + visited + RiTa.RP + flatten(txs);
 
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
@@ -142,7 +138,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (txs.size() < 1) return visited;
 
 		String applied = applyTransforms(visited, txs);
-		String result = applied != null ? applied : LP + visited + RP + flatten(txs);
+		String result = applied != null ? applied : RiTa.LP + visited + RiTa.RP + flatten(txs);
 
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
@@ -150,12 +146,12 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	}
 
 	private String resolveDynamic(String ident, String resolved, List<TransformContext> txs) {
-		if (!resolved.matches("^\\([^()]*\\)$")) {
+		if (!resolved.matches("^\\([^()]*\\)$")) { // TODO: compile
 			//if (!/^\([^()]*\)$/.test(resolved)) {  // add parens if needed
-			resolved = Visitor.LP + resolved + Visitor.RP;
+			resolved = RiTa.LP + resolved + RiTa.RP;
 		}
 		String result = resolved + flatten(txs);
-		if (trace) console.log("resolveDynamic: &" + ident + " -> '" + result + "'");
+		if (trace) console.log("resolveDynamic: " + RiTa.DYN+ ident + " -> '" + result + "'");
 		return result;
 	}
 
@@ -174,7 +170,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		String ident = tn.getText().replaceAll("^\\$", "");
 
 		if (trace) System.out.println("visitSymbol: $" + ident +
-				(context.get(Visitor.DYN + ident) != null ? " [dynamic]" : "")
+				(context.get(RiTa.DYN + ident) != null ? " [dynamic]" : "")
 				+ " tfs=" + flatten(txs));
 
 		// if the symbol is pending just return it
@@ -187,7 +183,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (resolved == null) {  // try the context
 
 			// try for a dynamic in context
-			resolved = context.get(Visitor.DYN + ident);
+			resolved = context.get(RiTa.DYN + ident);
 			if (resolved != null) { //tmp
 				if (!(resolved instanceof String)) throw new RuntimeException("Not a string: " + resolved);
 				return this.resolveDynamic(ident, (String) resolved, txs);
@@ -202,7 +198,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		// if the symbol is not fully resolved, save it for next time (as an inline*)
 		if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
 			this.pendingSymbols.add(ident);
-			String tmp = LP + SYM + ident + EQ + resolved + RP + flatten(txs);
+			String tmp = RiTa.LP + RiTa.SYM + ident + RiTa.EQ + resolved +RiTa.RP + flatten(txs);
 			if (trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
 			return tmp;
 		}
@@ -230,7 +226,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (symbol == null) symbol = ctx.dynamic();
 		String id = symbol.getText();
 
-		if (id.startsWith(Visitor.DYN)) {
+		if (id.startsWith(RiTa.DYN)) {
 			if (this.trace) System.out.println("visitAssign: $"
 					+ id + "=" + this.flatten(token) + " [*DYN*]");
 			result = token.getText();
@@ -272,7 +268,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 			CondContext cond = conds.get(i);
 			String id = cond.symbol().getText().replaceAll("^\\$", "");
 			Operator op = Operator.fromString(cond.op().getText());
-			String val = cond.chars().getText().replaceAll(',' + SYM, "");
+			String val = cond.chars().getText().replaceAll(',' + RiTa.SYM, "");
 			Object sym = this.context.get(id);
 			// TODO: not sure about toString below
 			boolean accept = sym != null ? op.invoke(sym.toString(), val) : false;
@@ -303,8 +299,8 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	public String visitTerminal(TerminalNode tn) {
 		String text = tn.getText();
-		if (text.equals(BN)) return " "; // why do we need this?
-		if (!text.equals(EOF)) {
+		if (text.equals(RiTa.BN)) return " "; // why do we need this?
+		if (!text.equals(RiTa.EOF)) {
 			if (trace) System.out.println("visitTerminal: '" + text + "'");
 		}
 		return null;
@@ -347,14 +343,14 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 	private Object applyTransform(Object target, String tx) {
 
 		Object result = null;
-		String raw = target + Visitor.DOT + tx;
+		String raw = target + RiTa.DOT + tx;
 
 		if (trace) System.out.println("applyTransform: '" +
 				(target instanceof String ? target : target.getClass().getSimpleName())
 				+ "' tf=" + tx);
 
 		// check for function
-		if (tx.endsWith(Visitor.FUNCTION)) {
+		if (tx.endsWith(RiTa.FUNC)) {
 			tx = tx.substring(0, tx.length() - 2);
 
 			// 0. Static function (only join/format on String, maybe RiTa?)
@@ -442,7 +438,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 
 	private static String symbolName(String text) {
 		return (text != null && text.length() > 0
-				&& text.startsWith(Visitor.SYM))
+				&& text.startsWith(RiTa.SYM))
 						? text.substring(1)
 						: text;
 	}
@@ -517,6 +513,4 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		return result;
 	}
 
-	public static void main(String[] args) {
-	}
 }

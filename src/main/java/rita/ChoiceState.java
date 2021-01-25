@@ -57,7 +57,7 @@ public class ChoiceState {
 			//console.log(tfs);
 			for (String tf : tfs) {
 				for (String t : TYPES) {
-					if (tf.equals(t + Visitor.FUNCTION)) {
+					if (tf.equals(t + RiTa.FUNC)) {
 						this.type = t;
 						return;
 					}

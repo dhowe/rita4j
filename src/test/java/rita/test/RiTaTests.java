@@ -244,7 +244,7 @@ public class RiTaTests {
 
 		assertTrue(!RiTa.isPunct("What the"));
 		assertTrue(!RiTa.isPunct("What ! the"));
-		assertTrue(!RiTa.isPunct(".#\"\\!@i$%&}<>"));
+		assertTrue(!RiTa.isPunct(".#\"\\!@i$%&}<>_+="));
 
 		assertTrue(RiTa.isPunct("!"));
 		assertTrue(RiTa.isPunct("?"));
@@ -275,23 +275,23 @@ public class RiTaTests {
 			assertTrue(RiTa.isPunct(punctArr[i]));
 		}
 
-		punct = ",;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
+		punct = ",;:!?)([].#\"\\!@$%&}|-\\/\\\\*{^";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunct(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]), "FAIL: "+punctArr[i]);
 		}
 
 		// TODO: also test multiple characters strings here ****
 		punct = "\"��������`'";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunct(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]),"FAIL: "+punctArr[i]);
 		}
 
-		punct = "\"��������`',;:!?)([].#\"\\!@$%&}<>|+=-_\\/*{^";
+		punct = "\"��������`',;:!?)([].#\"\\!@$%&}<>|-\\/\\\\*{^";
 		punctArr = punct.split("");
 		for (int i = 0; i < punctArr.length; i++) {
-			assertTrue(RiTa.isPunct(punctArr[i]));
+			assertTrue(RiTa.isPunct(punctArr[i]),"FAIL: "+punctArr[i]);
 		}
 
 		// TODO: and here...

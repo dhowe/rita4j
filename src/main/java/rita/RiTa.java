@@ -213,7 +213,7 @@ public class RiTa {
 	public static String presentPart(String verb) {
 		return Conjugator.presentPart(verb);
 	}
- 
+
 	public static int[] randomOrdering(int num) {
 		return RandGen.randomOrdering(num);
 	}
@@ -309,7 +309,7 @@ public class RiTa {
 	public static String[] search() {
 		return lexicon().search(null);
 	}
-	
+
 	public static String[] search(String word) {
 		return lexicon().search(word);
 	}
@@ -381,13 +381,13 @@ public class RiTa {
 	public static String[] words(Pattern regex) {
 		return lexicon().words(regex);
 	}
-	
+
 	public static RiScript scripting() {
 		return new RiScript();
 	}
 
 	// /////////////////////////// niapi /////////////////////////////////
-	
+
 	public static String env() {
 		return "Java";
 	}
@@ -477,7 +477,12 @@ public class RiTa {
 	public static final String VOWELS = "aeiou";
 	public static final String VERSION = "2";
 
-	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^0-9A-Za-z\\s]*$");
+	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^\\w\\s]*$");
+	static final String LP = "(", RP = ")";
+	public /*tmp,for testing*/ static final String DYN = "&";
+	static final String BN = "\n";
+	static final String DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>";
+	static final String VSYM = "[" + SYM + DYN + "]\\w+", FUNC = LP + RP;
 
 	public static String[] ABRV = {
 			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",

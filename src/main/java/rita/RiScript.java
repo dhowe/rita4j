@@ -72,33 +72,33 @@ public class RiScript {
 		}
 
 		//System.out.println("expr: " + expr + " parseable?" + isParseable(expr));
-		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
+		if (!silent && RiTa.SILENT && RE.test(SYM_RE, expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
 
 		return resolveEntities(expr);
 	}
-//
-//	private RiScript pushTransforms(Map<String, Object> ctx) {
-//		if (this.appliedTransforms == null) {
-//			this.appliedTransforms = new ArrayList<String>();
-//		}
-//		for (String tx : RiScript.transforms.keySet()) {
-//			if (!ctx.containsKey(tx)) {
-//				ctx.put(tx, RiScript.transforms.get(tx));
-//				this.appliedTransforms.add(tx);
-//			}
-//		}
-//		return this;
-//	}
-//
-//	private RiScript popTransforms(Map<String, Object> ctx) {
-//		for (String tx : appliedTransforms) {
-//			ctx.remove(tx);
-//		}
-//		this.appliedTransforms.clear();
-//		return this;
-//	}
+	//
+	//	private RiScript pushTransforms(Map<String, Object> ctx) {
+	//		if (this.appliedTransforms == null) {
+	//			this.appliedTransforms = new ArrayList<String>();
+	//		}
+	//		for (String tx : RiScript.transforms.keySet()) {
+	//			if (!ctx.containsKey(tx)) {
+	//				ctx.put(tx, RiScript.transforms.get(tx));
+	//				this.appliedTransforms.add(tx);
+	//			}
+	//		}
+	//		return this;
+	//	}
+	//
+	//	private RiScript popTransforms(Map<String, Object> ctx) {
+	//		for (String tx : appliedTransforms) {
+	//			ctx.remove(tx);
+	//		}
+	//		this.appliedTransforms.clear();
+	//		return this;
+	//	}
 
 	private String resolveEntities(String s) {
 		String k = HtmlEscape.unescapeHtml(s);
@@ -117,17 +117,17 @@ public class RiScript {
 
 	private String[] preParse(String input, Map<String, Object> opts) {
 		String parse = input != null ? input : "", pre = "", post = "";
-    boolean skipPre = RE.test("[$&]", parse); // see issue:rita#59
-		if (!Util.boolOpt("skipPreParse", opts) && !RE.test("^[$&{]", parse)) {//!RE.test(PREPARSE_A_RE, parse)) {
+		boolean skipPre = RE.test(PP59_RE, parse); // see issue:rita#59
+		if (!Util.boolOpt("skipPreParse", opts) && !RE.test(PPA_RE, parse)) {
 			String[] words = input.split(" +");
 			int preIdx = 0, postIdx = words.length - 1;
 			while (!skipPre && preIdx < words.length) {
-				if (RE.test(PREPARSE_B_RE, words[preIdx])) break;
+				if (RE.test(PPB_RE, words[preIdx])) break;
 				preIdx++;
 			}
 			if (preIdx < words.length) {
 				while (postIdx >= 0) {
-					if (RE.test(PREPARSE_B_RE, words[postIdx])) break;
+					if (RE.test(PPB_RE, words[postIdx])) break;
 					postIdx--;
 				}
 			}
@@ -229,8 +229,8 @@ public class RiScript {
 				.replaceAll("\\n", " ") : "";
 	}
 
-	public boolean isParseable(String s) { // public for testing (TODO: more needed!!!)
-		return PARSEABLE_RE.matcher(s).find();
+	public boolean isParseable(String s) { // public for testing
+		return PRS_RE.matcher(s).find();
 	}
 
 	public static String articlize(String s) {
@@ -241,9 +241,11 @@ public class RiScript {
 				phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
-	//private static final Pattern PREPARSE_A_RE = Pattern.compile("[^$&{]"); // inline 
-	private static final Pattern PREPARSE_B_RE = Pattern.compile("[()$&|{}]");
-	private static final Pattern PARSEABLE_RE = Pattern.compile("([()]|[$&][A-Za-z_][A-Za-z_0-9-]*)");
+	private static final Pattern PP59_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "]");
+	private static final Pattern PPA_RE = Pattern.compile("^[" + RiTa.SYM + RiTa.DYN + "{]");
+	private static final Pattern PPB_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "(){}|]");
+	private static final Pattern PRS_RE = Pattern.compile("([()]|" + RiTa.VSYM + ")");
+	private static final Pattern SYM_RE = Pattern.compile(RiTa.VSYM);
 
 	private static final Function<String, String> identity = s -> s;
 

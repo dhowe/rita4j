@@ -18,7 +18,7 @@ public class RiScriptTests {
 	static final Map<String, Object> SP = opts("singlePass", true);
 	static final Map<String, Object> SPTT = opts("singlePass", true, "trace", true);
 	static final Map<String, Object> TLP = opts("trace", true, "traceLex", true);
-	 
+
 	@Test
 	public void handleEmptyBuiltins_TRANSFORM() { // TODO: add to JS
 
@@ -473,7 +473,7 @@ public class RiScriptTests {
 	@Test
 	public void resolveAcrossAssignmentTypes_ASSIGN() {
 		Map<String, Object> ctx; // see issue:rita#59
-		
+
 		assertEq(RiTa.evaluate("The $foo=blue (dog | dog)", ctx = opts()), "The blue dog");
 		assertEq(ctx.get("foo"), "blue dog");
 
@@ -482,32 +482,32 @@ public class RiScriptTests {
 
 		assertEq(RiTa.evaluate("The ($foo=blue (dog | dog))", ctx = opts()), "The blue dog");
 		assertEq(ctx.get("foo"), "blue dog");
-		
+
 		assertEq(RiTa.evaluate("$foo=blue (dog | dog)", ctx = opts()), "");
 		assertEq(ctx.get("foo"), "blue dog");
-		
+
 		assertEq(RiTa.evaluate("The\n$foo=blue (dog | dog)", ctx = opts()), "The");
 		assertEq(ctx.get("foo"), "blue dog");
 	}
-	
+
 	@Test
 	public void resolveDynamicsAcrossAssignmentTypes_ASSIGN() {
 		Map<String, Object> ctx; // see issue:rita#59
-		
-		assertEq(RiTa.evaluate("The &foo=blue (dog | dog)", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("&foo"), "blue (dog | dog)");
 
-		assertEq(RiTa.evaluate("The (&foo=blue) (dog | dog)", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("&foo"), "blue");
+		assertEq(RiTa.evaluate("The " + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
 
-		assertEq(RiTa.evaluate("The (&foo=blue (dog | dog))", ctx = opts()), "The blue dog");
-		assertEq(ctx.get("&foo"), "blue (dog | dog)");
-		
-		assertEq(RiTa.evaluate("&foo=blue (dog | dog)", ctx = opts()), "");
-		assertEq(ctx.get("&foo"), "blue (dog | dog)");
-		
-		assertEq(RiTa.evaluate("The\n&foo=blue (dog | dog)", ctx = opts()), "The");
-		assertEq(ctx.get("&foo"), "blue (dog | dog)");
+		assertEq(RiTa.evaluate("The (" + RiTa.DYN + "foo=blue) (dog | dog)", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue");
+
+		assertEq(RiTa.evaluate("The (" + RiTa.DYN + "foo=blue (dog | dog))", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "");
+		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
+
+		assertEq(RiTa.evaluate("The\n" + RiTa.DYN + "foo=blue (dog | dog)", ctx = opts()), "The");
+		assertEq(ctx.get("" + RiTa.DYN + "foo"), "blue (dog | dog)");
 	}
 
 	@Test
@@ -839,20 +839,20 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate(".capA()", opts()), "A");
 		RiTa.addTransform("capA", null);
 	}
-	
+
 	@Test
 	public void resolveSimpleDynamics_EVALUATION() {
 
-		assertEq(RiTa.evaluate("&foo=bar\nbaz"), "baz");
-		assertEq(RiTa.evaluate("(&foo=bar)\nbaz"), "bar baz");
-		assertEq(RiTa.evaluate("&foo=bar\nbaz$foo"), "bazbar");
-		assertEq(RiTa.evaluate("&foo=bar\n($foo)baz"), "barbaz");
-		assertEq(RiTa.evaluate("&foo=bar\n$foo baz $foo"), "bar baz bar");
-		assertEq(RiTa.evaluate("&foo=bar\nbaz\n$foo $foo"), "baz bar bar");
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=bar\nbaz"), "baz");
+		assertEq(RiTa.evaluate("(" + RiTa.DYN + "foo=bar)\nbaz"), "bar baz");
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=bar\nbaz$foo"), "bazbar");
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=bar\n($foo)baz"), "barbaz");
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=bar\n$foo baz $foo"), "bar baz bar");
+		assertEq(RiTa.evaluate("" + RiTa.DYN + "foo=bar\nbaz\n$foo $foo"), "baz bar bar");
 
 		boolean passed = false;
-		for (int i = 0; i < 10; i++) { // &: must not always match
-			String res = RiTa.evaluate("&foo=(a|b|c|d)\n$foo $foo $foo");
+		for (int i = 0; i < 10; i++) { // "+RiTa.DYN+": must not always match
+			String res = RiTa.evaluate("" + RiTa.DYN + "foo=(a|b|c|d)\n$foo $foo $foo");
 			//console.log(i+") "+res);
 			String[] pts = res.split(" ");
 			assertEq(pts.length, 3);
