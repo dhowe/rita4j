@@ -17,10 +17,11 @@ public class RiScriptTests {
 	static final Map<String, Object> ST = opts("silent", true);
 	static final Map<String, Object> SP = opts("singlePass", true);
 	static final Map<String, Object> SPTT = opts("singlePass", true, "trace", true);
-
+	static final Map<String, Object> TLP = opts("trace", true, "traceLex", true);
+	 
 	@Test
 	public void handleEmptyBuiltins_TRANSFORM() { // TODO: add to JS
-		
+
 		assertEq(RiTa.evaluate("().uc()"), "");
 		assertEq(RiTa.evaluate("().ucf()"), "");
 		assertEq(RiTa.evaluate("().articlize()"), "");
@@ -28,16 +29,16 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("().pluralize()"), "");
 		assertEq(RiTa.evaluate("().quotify()"), "“”");
 		assertEq(RiTa.evaluate("().art()"), "");
-		
+
 		assertEq(RiTa.evaluate("().toLowerCase()", null, ST), ""); // ?
 		assertEq(RiTa.evaluate("().toUpperCase()", null, ST), ""); // ?
 	}
-	
+
 	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
-    String g = "$y=(a | a)\n($x=$y b).ucf()";
-    assertEq(RiTa.evaluate(g),"A b");
-  }
+		String g = "$y=(a | a)\n($x=$y b).ucf()";
+		assertEq(RiTa.evaluate(g), "A b");
+	}
 
 	@Test
 	public void handleVariousTransforms_TRANSFORM() { // TODO: add to JS
@@ -254,8 +255,8 @@ public class RiScriptTests {
 		rs = RiTa.evaluate("($chosen=(Dave | Jill | Pete)) talks to $chosen.");
 		assertTrue(Arrays.asList(expected).contains(rs));
 
-//		rs = RiTa.evaluate("($chosen=$person) talks to $chosen.", opts("person", "(Dave | Jill | Pete)"));
-//		assertTrue(Arrays.asList(expected).contains(rs));
+		//		rs = RiTa.evaluate("($chosen=$person) talks to $chosen.", opts("person", "(Dave | Jill | Pete)"));
+		//		assertTrue(Arrays.asList(expected).contains(rs));
 	}
 
 	// Evaluation
@@ -281,7 +282,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveRecursiveExpressions_EVALUATION() {
-		
+
 		Map<String, Object> ctx = opts("a", "a", "b", "b");
 		assertEq(RiTa.evaluate("(a|a)", ctx), "a");
 
@@ -689,7 +690,7 @@ public class RiScriptTests {
 		rs = interp.evaluate("(a | (b | c) | d)");
 		assertTrue(Arrays.asList(expected).contains(rs));
 	}
-	
+
 	@Test
 	public void resolveChoices_CHOICE() {
 		Map<String, Object> ctx = opts();
@@ -818,13 +819,30 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate(".capA()", opts()), "A");
 		RiTa.addTransform("capA", null);
 	}
+	
+	@Test
+	public void resolveSimpleDynamics_EVALUATION() {
 
-	/*@Test // TODO: add only if we have use cases (tokenize, untokenize?)
-	public void testRiTaFunctionTransforms() { // TODO: Handle called RiTa functions?
-		RiScript rs = new RiScript();
-		Map<String, Object> ctx = opts();
-		assertEq(rs.evaluate("Does $RiTa.env() equal node?", ctx), "Does node equal node?");
-	}*/
+		assertEq(RiTa.evaluate("&foo=bar\nbaz"), "baz");
+		assertEq(RiTa.evaluate("(&foo=bar)\nbaz"), "bar baz");
+		assertEq(RiTa.evaluate("&foo=bar\nbaz$foo"), "bazbar");
+		assertEq(RiTa.evaluate("&foo=bar\n($foo)baz"), "barbaz");
+		assertEq(RiTa.evaluate("&foo=bar\n$foo baz $foo"), "bar baz bar");
+		assertEq(RiTa.evaluate("&foo=bar\nbaz\n$foo $foo"), "baz bar bar");
+
+		boolean passed = false;
+		for (int i = 0; i < 10; i++) { // &: must not always match
+			String res = RiTa.evaluate("&foo=(a|b|c|d)\n$foo $foo $foo");
+			//console.log(i+") "+res);
+			String[] pts = res.split(" ");
+			assertEq(pts.length, 3);
+			if (pts[0] != pts[1] || pts[1] != pts[2] || pts[2] != pts[0]) {
+				passed = true;
+				break;
+			}
+		}
+		assertTrue(passed);
+	}
 
 	//@Test
 	public void resolveSeqTransforms_TRANSFORM() {
@@ -1055,7 +1073,7 @@ public class RiScriptTests {
 		RiTa.addTransform("blah3", (s) -> "Blah3");
 		assertEq(RiTa.evaluate("That is (ant).blah3().", opts()), "That is Blah3.");
 		RiTa.addTransform("blah3", null);
-		
+
 		Supplier<String> randPos = () -> {
 			return "jobArea jobType";
 		};
@@ -1154,7 +1172,7 @@ public class RiScriptTests {
 		for (String e : arr2) {
 			assertEq(RiTa.evaluate("The " + e + " symbol"), "The ] symbol", e);
 		}
-		
+
 		assertEq("This is $100", RiTa.evaluate("This is &#36;100"));
 		assertEq("This is $100", RiTa.evaluate("This is &#x00024;100"));
 	}

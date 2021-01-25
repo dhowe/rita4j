@@ -123,7 +123,7 @@ public class RiScript {
 		String parse = input, pre = "", post = "";
 		boolean skipPreParse = Util.boolOpt("skipPreParse", opts);
 		if (!skipPreParse && !RE.test("^[${]", parse)) {
-			Pattern re = Pattern.compile("[()$|{}]");
+			Pattern re = Pattern.compile("[()$&|{}]");
 			String[] words = input.split(" +");
 			int preIdx = 0, postIdx = words.length - 1;
 			while (preIdx < words.length) {
@@ -140,7 +140,7 @@ public class RiScript {
 			parse = String.join(" ", Arrays.copyOfRange(words, preIdx, postIdx + 1));
 			post = String.join(" ", Arrays.copyOfRange(words, postIdx + 1, words.length));
 		}
-		if (false && Util.boolOpt("trace", opts) && parse.length() == 0) {
+		if (Util.boolOpt("trace", opts) && parse.length() == 0) {
 			System.out.println("NO PARSE: preParse('"
 					+ (pre.length() > 0 ? pre : "") + "', '"
 					+ (post.length() > 0 ? post : "") + "'):");
@@ -158,7 +158,7 @@ public class RiScript {
 		// this.lexer.removeErrorListeners();
 		// this.lexer.addErrorListener(ParseErrorListener.INSTANCE);
 		CommonTokenStream tokenStream = new CommonTokenStream(this.lexer);
-		if (Util.boolOpt("trace", opts)) {
+		if (Util.boolOpt("traceLex", opts)) {
 			tokenStream.fill();
 			int i = 0;
 			for (Token tok : tokenStream.getTokens()) {

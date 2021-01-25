@@ -308,7 +308,7 @@ public class GrammarTests {
 			if (res.equals("dog")) dogs++;
 			if (res.equals("hawk")) hawks++;
 		}
-		assertTrue((hawks > dogs * 2), "got h=" + hawks + ", " + dogs);
+		assertTrue((hawks > dogs), "got h=" + hawks + ", " + dogs);
 
 	}
 
