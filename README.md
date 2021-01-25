@@ -26,7 +26,6 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
   <version>2.1</version>
 </dependency>
 ```
-
 ## API
 
   <table cellspacing="0" cellpadding="0" style="vertical-align: top;">
@@ -58,9 +57,9 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/isVerb/index.html">RiTa.isVerb()</a><br/>
       <a href="./RiTa/kwic/index.html">RiTa.kwic()</a><br/>
       <a href="./RiTa/markov/index.html">RiTa.markov()</a><br/>
-      <a href="./RiTa/pastPart/index.html">RiTa.pastPart()</a><br/>
     </td>
     <td style="vertical-align: top; padding-top: 15px">
+      <a href="./RiTa/pastPart/index.html">RiTa.pastPart()</a><br/>
       <a href="./RiTa/phones/index.html">RiTa.phones()</a><br/>
       <a href="./RiTa/pos/index.html">RiTa.pos()</a><br/>
       <a href="./RiTa/posInline/index.html">RiTa.posInline()</a><br/>
@@ -70,7 +69,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/randomSeed/index.html">RiTa.randomSeed()</a><br/>
       <a href="./RiTa/randomWord/index.html">RiTa.randomWord()</a><br/>
       <a href="./RiTa/rhymes/index.html">RiTa.rhymes()</a><br/>
-      <a href="./RiTa/scripting/index.html">RiTa.scripting()</a><br/>
+      <!--a href="./RiTa/scripting/index.html">RiTa.scripting()</a><br/-->
       <a href="./RiTa/search/index.html">RiTa.search()</a><br/>
       <a href="./RiTa/sentences/index.html">RiTa.sentences()</a><br/>
       <a href="./RiTa/singularize/index.html">RiTa.singularize()</a><br/>
@@ -81,7 +80,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="./RiTa/syllables/index.html">RiTa.syllables()</a><br/>
       <a href="./RiTa/tokenize/index.html">RiTa.tokenize()</a><br/>
       <a href="./RiTa/untokenize/index.html">RiTa.untokenize()</a><br/>
-      <a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/>
+      <!--a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/-->
     </td>
     <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
       <a href="https://rednoise.org/rita/reference/Markov/addText/index.html">addText()</a><br/>
@@ -108,7 +107,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
 
 ## RiScript
 
-RiScript is a writer-focused scripting language integrated with RiTa. It enables simple generative primitives within plain text for dynamic expansion at runtime. RiScript primitives can be used as part of any [RiTa grammar](https://rednoise.org/rita/reference/RiTa/grammar/) or executed directly using [RiTa.evaluate()](https://rednoise.org/rita/reference/RiTa/evaluate/). For full documentation, see [this page](https://rednoise.org/rita/reference/riscript.html).
+RiScript is a simple, writer-focused scripting language included in RiTa. It enables several generative primitives within plain text for expansion at runtime. RiScript primitives can be used as part of any [RiTa grammar](https://rednoise.org/rita/reference/RiTa/grammar/) or executed directly using [RiTa.evaluate()](https://rednoise.org/rita/reference/RiTa/evaluate/). For full documentation, see [this page](https://rednoise.org/rita/reference/riscript.html).
 
 <br>
 
