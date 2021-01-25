@@ -97,7 +97,9 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 				+ "'] tfs=" + flatten(txs));
 
 		ParserRuleContext tok = RandGen.randomItem(options);
-
+		if (trace) System.out.println("  select: '"
+				+ tok.getText() + "' [" + getRuleName(tok) + "]");
+		
 		// visit the token 
 		String visited = this.visit(tok);
 
@@ -243,7 +245,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		this.context.put(id, result);
 		if (this.trace) System.out.println("resolveAssign: context["
 				+ id + "] -> '" + result + "' ");
-
+		
 		// no output if first on line
 		return ctx.start.getCharPositionInLine() == 0 ? "" : result;
 	}
@@ -252,7 +254,7 @@ public class Visitor extends RiScriptBaseVisitor<String> {
 		if (trace) {
 			//List<TransformContext> txs = childTransforms(ctx);
 			System.out.println("visitExpr: '" + ctx.getText() + "'");// + "' tfs=" + flatten(txs));
-			printChildren(ctx);
+			//printChildren(ctx);
 		}
 		return visitChildren(ctx);
 	}

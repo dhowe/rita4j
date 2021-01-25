@@ -45,7 +45,7 @@ public class GrammarTests {
 	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
 		Map<String, Object> g = opts("start", "($x=$y b).ucf()", "y", "(a | a)");
-		eq(RiTa.evaluate(new RiGrammar(g).expand()), "A b");
+		eq(RiTa.grammar(g).expand(), "A b");
 	}
 
 	//@Test
@@ -309,7 +309,6 @@ public class GrammarTests {
 			if (res.equals("hawk")) hawks++;
 		}
 		assertTrue((hawks > dogs), "got h=" + hawks + ", " + dogs);
-
 	}
 
 	@Test

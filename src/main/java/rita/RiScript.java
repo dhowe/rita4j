@@ -60,10 +60,8 @@ public class RiScript {
 
 		if (ctx == null) ctx = new HashMap<String, Object>();
 
-		//pushTransforms(ctx);
-
 		String last = null, expr = input;
-		for (int i = 0; /*isParseable(expr)&& */!expr.equals(last) && i < MAX_TRIES; i++) {
+		for (int i = 0; !expr.equals(last) && i < MAX_TRIES; i++) {
 			last = expr;
 			if (trace) System.out.println("\n--------------------- Pass#" + i + " ----------------------");
 			expr = lexParseVisit(expr, ctx, opts);
@@ -73,12 +71,10 @@ public class RiScript {
 			if (onepass || !this.isParseable(expr)) break;
 		}
 
-		//System.out.println("expr: " + expr + " parsable?" + isParseable(expr));
+		//System.out.println("expr: " + expr + " parseable?" + isParseable(expr));
 		if (!silent && RiTa.SILENT && RE.test("\\$[A-Za-z_]", expr)) {
 			System.out.println("[WARN] Unresolved symbol(s) in \"" + expr + "\"");
 		}
-
-		//popTransforms(ctx);
 
 		return resolveEntities(expr);
 	}
@@ -120,19 +116,18 @@ public class RiScript {
 	}
 
 	private String[] preParse(String input, Map<String, Object> opts) {
-		String parse = input, pre = "", post = "";
-		boolean skipPreParse = Util.boolOpt("skipPreParse", opts);
-		if (!skipPreParse && !RE.test("^[${]", parse)) {
-			Pattern re = Pattern.compile("[()$&|{}]");
+		String parse = input != null ? input : "", pre = "", post = "";
+    boolean skipPre = RE.test("[$&]", parse); // see issue:rita#59
+		if (!Util.boolOpt("skipPreParse", opts) && !RE.test("^[$&{]", parse)) {//!RE.test(PREPARSE_A_RE, parse)) {
 			String[] words = input.split(" +");
 			int preIdx = 0, postIdx = words.length - 1;
-			while (preIdx < words.length) {
-				if (RE.test(re, words[preIdx])) break;
+			while (!skipPre && preIdx < words.length) {
+				if (RE.test(PREPARSE_B_RE, words[preIdx])) break;
 				preIdx++;
 			}
 			if (preIdx < words.length) {
 				while (postIdx >= 0) {
-					if (RE.test(re, words[postIdx])) break;
+					if (RE.test(PREPARSE_B_RE, words[postIdx])) break;
 					postIdx--;
 				}
 			}
@@ -246,7 +241,9 @@ public class RiScript {
 				phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
-	private static final Pattern PARSEABLE_RE = Pattern.compile("([\\(\\)]|\\$[A-Za-z_][A-Za-z_0-9-]*)");
+	//private static final Pattern PREPARSE_A_RE = Pattern.compile("[^$&{]"); // inline 
+	private static final Pattern PREPARSE_B_RE = Pattern.compile("[()$&|{}]");
+	private static final Pattern PARSEABLE_RE = Pattern.compile("([()]|[$&][A-Za-z_][A-Za-z_0-9-]*)");
 
 	private static final Function<String, String> identity = s -> s;
 
@@ -293,15 +290,6 @@ public class RiScript {
 		for (Map.Entry<String, Object> kv : transformMap) {
 			transforms.put(kv.getKey(), (Function<String, String>) kv.getValue());
 		}
-	}
-
-	public static void main(String[] args) {
-		//		RiScript rs = new RiScript();
-		//		Map<String, Object> opts = RiTa.opts();
-		//		String s = rs.lexParseVisit("[$a=(A | B)]", opts, RiTa.opts("trace", true));
-		//		System.out.println("\nResult: '" + s + "', opts: " + opts + " " + transforms);
-		//System.out.println(HtmlEscape.unescapeHtml("Eve&nbsp;near Vancouver"));
-		//new RiScript().lex("$1foo", RiTa.opts("trace", true));
 	}
 }
 

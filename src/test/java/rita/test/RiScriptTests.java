@@ -472,24 +472,44 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveAcrossAssignmentTypes_ASSIGN() {
-		Map<String, Object> ctx = opts();
-		assertEq(RiTa.evaluate("The $foo=blue (dog | dog)", ctx), "The");
+		Map<String, Object> ctx; // see issue:rita#59
+		
+		assertEq(RiTa.evaluate("The $foo=blue (dog | dog)", ctx = opts()), "The blue dog");
 		assertEq(ctx.get("foo"), "blue dog");
 
-		ctx = opts();
-		assertEq(RiTa.evaluate("The ($foo=blue) (dog | dog)", ctx), "The blue dog");
+		assertEq(RiTa.evaluate("The ($foo=blue) (dog | dog)", ctx = opts()), "The blue dog");
 		assertEq(ctx.get("foo"), "blue");
 
-		ctx = opts();
-		assertEq(RiTa.evaluate("The ($foo=blue (dog | dog))", ctx), "The blue dog");
+		assertEq(RiTa.evaluate("The ($foo=blue (dog | dog))", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("foo"), "blue dog");
+		
+		assertEq(RiTa.evaluate("$foo=blue (dog | dog)", ctx = opts()), "");
+		assertEq(ctx.get("foo"), "blue dog");
+		
+		assertEq(RiTa.evaluate("The\n$foo=blue (dog | dog)", ctx = opts()), "The");
 		assertEq(ctx.get("foo"), "blue dog");
 	}
+	
+	@Test
+	public void resolveDynamicsAcrossAssignmentTypes_ASSIGN() {
+		Map<String, Object> ctx; // see issue:rita#59
+		
+		assertEq(RiTa.evaluate("The &foo=blue (dog | dog)", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("&foo"), "blue (dog | dog)");
 
-	// it.only("Should handle silents", () => {
-	// assertEq(RiTa.evaluate("The $hero=blue (dog | dog)", ctx, tf),"The blue
-	// dog"); assertEq(ctx.foo,"blue"); });
+		assertEq(RiTa.evaluate("The (&foo=blue) (dog | dog)", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("&foo"), "blue");
 
-	// Inline
+		assertEq(RiTa.evaluate("The (&foo=blue (dog | dog))", ctx = opts()), "The blue dog");
+		assertEq(ctx.get("&foo"), "blue (dog | dog)");
+		
+		assertEq(RiTa.evaluate("&foo=blue (dog | dog)", ctx = opts()), "");
+		assertEq(ctx.get("&foo"), "blue (dog | dog)");
+		
+		assertEq(RiTa.evaluate("The\n&foo=blue (dog | dog)", ctx = opts()), "The");
+		assertEq(ctx.get("&foo"), "blue (dog | dog)");
+	}
+
 	@Test
 	public void resolveInlineVars_INLINE() {
 		Map<String, Object> ctx = opts();
