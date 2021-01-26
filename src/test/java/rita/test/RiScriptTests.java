@@ -666,8 +666,8 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$foo", ctx, ST), "$foo");
 		assertEq(RiTa.evaluate("a $foo dog", ctx, ST), "a $foo dog");
 
-		ctx = opts("$dog", "terrier");
-		assertEq(RiTa.evaluate("$100 is a lot of $dog.", ctx, ST), "$100 is a lot of terrier");
+		ctx = opts("dog", "terrier");
+		assertEq(RiTa.evaluate("$100 is a lot of $dog.", ctx, ST), "$100 is a lot of terrier.");
 		assertEq(RiTa.evaluate("the $dog cost $100", ctx, ST), "the terrier cost $100");
 		assertEq(RiTa.evaluate("the $dog cost $100!", ctx, ST), "the terrier cost $100!");
 		assertEq(RiTa.evaluate("the $dog cost ***lots***", ctx, ST), "the terrier cost ***lots***");
