@@ -307,11 +307,23 @@ public class RiTa {
 	}
 
 	public static String[] search() {
-		return lexicon().search(null);
+		return search((String)null, null);
 	}
 
-	public static String[] search(String word) {
-		return lexicon().search(word);
+	public static String[] search(String regex) {
+		return search(regex, null);
+	}
+	
+	public static String[] search(String regex, Map<String, Object> opts) {
+		return lexicon().search(regex, opts);
+	}
+	
+	public static String[] search(Pattern p) {
+		return search(p, null);
+	}
+	
+	public static String[] search(Pattern p, Map<String, Object> opts) {
+		return lexicon().search(p, opts);
 	}
 
 	public static String[] soundsLike(String word, Map<String, Object> opts) {
@@ -320,10 +332,6 @@ public class RiTa {
 
 	public static String[] spellsLike(String word, Map<String, Object> opts) {
 		return lexicon().spellsLike(word, opts);
-	}
-
-	public static String[] search(String word, Map<String, Object> opts) {
-		return lexicon().search(word, opts);
 	}
 
 	public static String singularize(String word) {

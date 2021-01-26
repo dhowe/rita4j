@@ -265,10 +265,10 @@ public class AnalyzerTests {
 		hm.put("stresses", "");
 		hm.put("syllables", "");
 
-		// System.out.println(RiTa.analyze(""));
 		assertEquals(RiTa.analyze(""), hm);
 
 		feats = RiTa.analyze("clothes");
+		System.out.println(feats);
 
 		eq(feats.get("pos"), "nns");
 		eq(feats.get("tokens"), "clothes");
@@ -283,8 +283,30 @@ public class AnalyzerTests {
 		feats = RiTa.analyze("chevrolet");
 		eq(feats.get("tokens"), "chevrolet");
 		eq(feats.get("syllables"), "sh-eh-v/r-ow/l-ey");
+		
+		
+		feats = RiTa.analyze("abandon");
+//		System.out.println(feats);
+		eq(feats.get("pos"), "vb");
+		eq(feats.get("phones"), "ah-b-ae-n-d-ah-n");
+		eq(feats.get("tokens"), "abandon");
+		eq(feats.get("stresses"), "0/1/0");
+		eq(feats.get("syllables"), "ah/b-ae-n/d-ah-n");
 	}
 
+	@Test
+	public void callAnalyzeWord() {
+
+		String[] data;
+		data = RiTa.analyzer.analyzeWord("abandon");
+		String phones = data[0];
+		String stresses = data[1];
+		String syllables = data[2];
+		eq(phones, "ah-b-ae-n-d-ah-n");
+		eq(stresses,"0/1/0");
+		eq(syllables, "ah/b-ae-n/d-ah-n");
+	}
+		
 	@Test
 	public void callStresses() {
 

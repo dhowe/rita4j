@@ -228,35 +228,75 @@ public class Lexicon {
 		return true;
 	}
 
-	private Map<String, Object> parseArgs(Map<String, Object> opts) {
-		String tpos = Util.strOpt("pos", opts, "");
-		boolean pluralize = false;
-		boolean conjugate = false;
-		if (tpos.length() > 0) {
-			pluralize = (tpos.equals("nns"));
-			conjugate = (tpos.charAt(0) == 'v' && tpos.length() > 2);
-			if (tpos.charAt(0) == 'n') tpos = "nn";
-			else if (tpos.charAt(0) == 'v') tpos = "vb";
-			else if (tpos.equals("r")) tpos = "rb";
-			else if (tpos.equals("a")) tpos = "jj";
-		}
-		if (opts == null) opts = new HashMap<>();
-		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
-		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
-		opts.put("minLength", Util.intOpt("minLength", opts, 3));
-		opts.put("maxLength", Util.intOpt("maxLength", opts));
-		opts.put("limit", Util.intOpt("limit", opts, 10));
-		opts.put("pluralize", pluralize);
-		opts.put("conjugate", conjugate);
-		opts.put("targetPos", tpos);
-		return opts;
-	}
-
-	public String[] search(String regex) {
-		return this.search(regex, null);
-	}
-
 	public String[] search(String regex, Map<String, Object> opts) {
+		Pattern re = null;
+		if (Util.strOpt("type", opts, "").equals("stresses")) {
+			if (RE.test("^[01]+$", regex)) {
+				regex = regex.replaceAll("(?<=[01])([01])", "/$1");
+				console.log(regex);
+			}
+			re = Pattern.compile(regex);
+		}
+		return search(re, opts);
+	}
+
+	public String[] search(Pattern re, Map<String, Object> opts) {
+
+		String[] words = words();
+		String type = Util.strOpt("type", opts, "");
+		int limit = Util.intOpt("limit", opts);
+		List<String> result = new ArrayList<String>();
+
+		boolean tmp = RiTa.SILENCE_LTS;
+		RiTa.SILENCE_LTS = true;
+
+		opts = this.parseArgs(opts);
+		//console.log(opts);
+
+		for (int i = 0; i < words.length; i++) {
+
+			String word = words[i], data[] = dict.get(word);
+
+			if (!this.checkCriteria(word, data, opts)) continue;
+
+			if (((String) opts.get("targetPos")).length() > 0) {
+				word = matchPos(word, data, opts, false);
+				if (word == null) continue;
+				// Note: we may have changed the word here (e.g. via conjugation)
+				// and it is also may no longer be in the dictionary
+				if (!word.equals(words[i])) data = dict.get(word);
+			}
+
+			if (re != null) {
+				if (type.equals("stresses")) {
+					//String stresses = RiTa.analyzer.analyzeWord(word)[1];
+					String phones = data != null ? data[0] : this.rawPhones(word);
+					String stresses = RiTa.analyzer.phonesToStress(phones);
+					if (RE.test(re, stresses)) result.add(word);
+				}
+				else if (type.equals("phones")) {
+					String phones = data != null ? data[0] : this.rawPhones(word);
+					phones = phones.replaceAll("[1]", "").replaceAll(" ", Analyzer.DELIM);
+					//String phones = RiTa.analyzer.analyzeWord(word)[0];
+					if (RE.test(re, phones)) result.add(word);
+				}
+				else {
+					if (RE.test(re, word)) result.add(word);
+				}
+			}
+			else {
+				result.add(word); // no regex
+			}
+
+			if (result.size() >= limit) break;
+		}
+
+		RiTa.SILENCE_LTS = tmp;
+
+		return result.toArray(new String[result.size()]);
+	}
+
+	public String[] searchOld(String regex, Map<String, Object> opts) {
 
 		String[] words = words();
 		if (regex == null) return words;
@@ -713,7 +753,30 @@ public class Lexicon {
 		// Step 6 ----------------------------------------------
 		return matrix[source.length][target.length];
 	}
-
+	
+	private Map<String, Object> parseArgs(Map<String, Object> opts) {
+		String tpos = Util.strOpt("pos", opts, "");
+		boolean pluralize = false;
+		boolean conjugate = false;
+		if (tpos.length() > 0) {
+			pluralize = (tpos.equals("nns"));
+			conjugate = (tpos.charAt(0) == 'v' && tpos.length() > 2);
+			if (tpos.charAt(0) == 'n') tpos = "nn";
+			else if (tpos.charAt(0) == 'v') tpos = "vb";
+			else if (tpos.equals("r")) tpos = "rb";
+			else if (tpos.equals("a")) tpos = "jj";
+		}
+		if (opts == null) opts = new HashMap<>();
+		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
+		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
+		opts.put("minLength", Util.intOpt("minLength", opts, 3));
+		opts.put("maxLength", Util.intOpt("maxLength", opts));
+		opts.put("limit", Util.intOpt("limit", opts, 10));
+		opts.put("pluralize", pluralize);
+		opts.put("conjugate", conjugate);
+		opts.put("targetPos", tpos);
+		return opts;
+	}
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
 		console.log(RiTa.lexicon().randomWord(null));

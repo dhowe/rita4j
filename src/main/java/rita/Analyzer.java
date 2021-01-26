@@ -76,26 +76,27 @@ public class Analyzer {
 			}
 		}
 
-		String stresses = "";
-		String sp = rawPhones.replaceAll("[0-2]", "").replaceAll(" ", DELIM) + " ";
+
+		String sp = rawPhones.replaceAll("[01]", "").replaceAll(" ", DELIM) + " ";
 		String phones = sp.equals("dh ") ? "dh-ah " : sp; // special case
 		String ss = rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
 		String syllables = ss.equals("dh ") ? "dh-ah " : ss;
 
 		// compute the stresses
-		if (!useRaw) {
-			String[] stressyls = rawPhones.split(" ");
-			for (int j = 0; j < stressyls.length; j++) {
-				if (stressyls[j].length() == 0) continue;
-				stresses += (stressyls[j].indexOf(RiTa.STRESS) > -1)
-						? RiTa.STRESS
-						: RiTa.NOSTRESS;
-				if (j < stressyls.length - 1) stresses += SLASH;
-			}
-		}
-		else {
-			stresses += word;
-		}
+		String stresses = useRaw ? word : phonesToStress(phones);
+//		if (!useRaw) {
+//			String[] stressyls = rawPhones.split(" ");
+//			for (int j = 0; j < stressyls.length; j++) {
+//				if (stressyls[j].length() == 0) continue;
+//				stresses += (stressyls[j].indexOf(RiTa.STRESS) > -1)
+//						? RiTa.STRESS
+//						: RiTa.NOSTRESS;
+//				if (j < stressyls.length - 1) stresses += SLASH;
+//			}
+//		}
+//		else {
+//			stresses += word;
+//		}
 
 		if (!stresses.endsWith(" ")) stresses += " "; // why?
 
@@ -105,6 +106,18 @@ public class Analyzer {
 	public String[] computePhones(String word) {
 		if (lts == null) lts = new LetterToSound();
 		return lts.buildPhones(word);
+	}
+
+	public String phonesToStress(String phones) {
+		String stresses = "", syls[] = phones.split(" ");
+		for (int j = 0; j < syls.length; j++) {
+			if (syls[j].length() == 0) continue;
+			stresses += (syls[j].indexOf(RiTa.STRESS) > -1)
+					? RiTa.STRESS
+					: RiTa.NOSTRESS;
+			if (j < syls.length - 1) stresses += SLASH;
+		}
+		return stresses;
 	}
 	
 }
