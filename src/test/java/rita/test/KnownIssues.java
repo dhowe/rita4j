@@ -55,6 +55,30 @@ public class KnownIssues {
 		assertEquals("write", stem("written"));
 	}
 
+	//@Test
+	public void ignoreLineComments_COMMENTS() {
+		assertEq(RiTa.evaluate("// $foo=a"), "");
+		assertEq(RiTa.evaluate("// hello"), "");
+		assertEq(RiTa.evaluate("//hello"), "");
+		assertEq(RiTa.evaluate("//()"), "");
+		assertEq(RiTa.evaluate("//{}"), "");
+		assertEq(RiTa.evaluate("//$"), "");
+		assertEq(RiTa.evaluate("hello\n//hello"), "hello");
+	}
+
+	// @Test
+	public void ignoreBlockComments_COMMENTS() {
+		assertEq(RiTa.evaluate("/* hello */"), "");
+		assertEq(RiTa.evaluate("/* $foo=a */"), "");
+		assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
+		assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
+		assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
+	}
+
+	private static void assertEq(Object a, Object b) { // swap order of args
+		assertEquals(b, a);
+	}
+
 	private Object stem(String s) {
 		String t = RiTa.stem(s);
 		System.out.println(s + " -> " + t);

@@ -77,6 +77,9 @@ public class RiScriptTests {
 	public void resolveSymbolsInContext_SYMBOL() {
 
 		Map<String, Object> ctx;
+		ctx = opts("a", 1);
+		assertEq(RiTa.evaluate("$a", ctx), "1");
+
 		ctx = opts("a", "(terrier | terrier)");
 		assertEq(RiTa.evaluate("$a.capitalize()", ctx), "Terrier");
 		//?
@@ -128,6 +131,12 @@ public class RiScriptTests {
 		ctx.clear();
 		ctx.put("dog", opts("breed", "Corgie"));
 		assertEq(RiTa.evaluate("Was the $dog.breed (ok | ok) today?", ctx), "Was the Corgie ok today?");
+
+		ctx.clear();
+		ctx.put("person", "(Dave | Jill | Pete)");
+		String result = RiTa.evaluate("$person talks to $person.", ctx);
+		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
+		assertTrue(Arrays.asList(expected).contains(result));
 	}
 
 	@Test
@@ -1429,6 +1438,27 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$a=helloell\n{$a$=ell} foo", ctx), "foo");
 		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell} foo", ctx), "");
 	}
+
+	// //comments -> fail, move to knownIssue
+	// @Test
+	// public void ignoreLineComments_COMMENTS() {
+	// 	assertEq(RiTa.evaluate("// $foo=a"), "");
+	// 	assertEq(RiTa.evaluate("// hello"), "");
+	// 	assertEq(RiTa.evaluate("//hello"), "");
+	// 	assertEq(RiTa.evaluate("//()"), "");
+	// 	assertEq(RiTa.evaluate("//{}"), "");
+	// 	assertEq(RiTa.evaluate("//$"), "");
+	// 	assertEq(RiTa.evaluate("hello\n//hello"), "hello");
+	// }
+
+	// @Test
+	// public void ignoreBlockComments_COMMENTS() {
+	// 	assertEq(RiTa.evaluate("/* hello */"), "");
+	// 	assertEq(RiTa.evaluate("/* $foo=a */"), "");
+	// 	assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
+	// 	assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
+	// 	assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
+	// }
 
 	private static void assertEq(Object a, Object b) { // swap order of args
 		assertEquals(b, a);
