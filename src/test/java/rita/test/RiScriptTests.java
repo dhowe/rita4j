@@ -677,7 +677,7 @@ public class RiScriptTests {
 
 	@Test
 	public void repeatChoiceWithRandomSeed_SYMBOL() {
-		int seed = (int) (Math.random() * 9007199254740991);
+		int seed = (int) (Math.random() * 2147483647);
 		String script = "$a=(1|2|3|4|5|6)\n$a";
 		RiTa.randomSeed(seed);
 		String a = RiTa.evaluate(script);
