@@ -82,6 +82,9 @@ public class Analyzer {
 		String ss = rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
 		String syllables = ss.equals("dh ") ? "dh-ah " : ss;
 
+		// WORKINE HERE
+		
+		
 		// compute the stresses
 		String stresses = useRaw ? word : phonesToStress(phones);
 //		if (!useRaw) {
