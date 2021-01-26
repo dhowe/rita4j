@@ -227,18 +227,20 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void callSearchWithPos() {
+	public void callSearchWithPos() { // TODO: use opts()
+		
 		String[] res;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("type", "stresses");
 		hm.put("limit", 5);
 		hm.put("pos", "n");
+
 		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abalone", "abandonment", "abatement", "abbreviation", "abdomen" });
+				new String[] { "abalone", "abandonment", "abbreviation", "abdomen", "abduction" });
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abatement", "abdomen", "abduction", "abeyance", "abortion" });
+				new String[] { "abdomen", "abduction", "abortion", "abruptness", "absorber"});
 
 		hm.clear();
 		hm.put("type", "phones");
@@ -260,12 +262,13 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		hm.put("pos", "nns");
 		res = RiTa.search("010", hm);
+
 		assertArrayEquals(res,
-				new String[] { "abalone", "abandonments", "abatements", "abbreviations", "abdomens" });
+				new String[] { "abalone", "abandonments", "abbreviations", "abdomens", "abductions" });
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abatements", "abdomens", "abductions", "abeyances", "abortions" });
+				new String[] { "abdomens", "abductions", "abortions", "absorbers", "absorptions" });
 
 		hm.clear();
 		hm.put("type", "phones");

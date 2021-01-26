@@ -320,9 +320,7 @@ public class AnalyzerTests {
 
 		eq(RiTa.stresses("chevrolet"), "0/0/1");
 		eq(RiTa.stresses("women"), "1/0");
-		eq(RiTa.stresses("abatements"), "0/1/0", "abatements");
 		eq(RiTa.stresses("genuine"), "1/0/0");
-
 	}
 
 	@Test
