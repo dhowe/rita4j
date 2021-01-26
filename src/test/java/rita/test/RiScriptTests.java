@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.Test;
 
+import jdk.jfr.Timestamp;
 import rita.*;
 
 public class RiScriptTests {
@@ -88,8 +89,6 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("the $dog $verb", ctx), "the terrier ate");
 
 		ctx = opts();
-		assertEq(RiTa.evaluate("$foo", ctx), "$foo");
-		assertEq(RiTa.evaluate("a $foo dog", ctx, ST), "a $foo dog");
 
 		ctx = opts("foo", "bar");
 		assertEq(RiTa.evaluate("$foo", ctx), "bar");
@@ -105,8 +104,6 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("I ate the $dog.", ctx), "I ate the lab.");
 
 		ctx = opts();
-		assertEq(RiTa.evaluate("$foo\n", ctx), "$foo");
-		assertEq(RiTa.evaluate("a $foo\ndog", ctx), "a $foo dog");
 		ctx.put("foo", "bar");
 		assertEq(RiTa.evaluate("$foo\n", ctx), "bar");
 
@@ -116,14 +113,7 @@ public class RiScriptTests {
 		ctx = opts("dog", "lab");
 		assertEq(RiTa.evaluate("The $dog\ntoday.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the\n$dog.", ctx), "I ate the lab.");
-
-		ctx = opts("dog", "terrier");
-		assertEq(RiTa.evaluate("$100 is a lot of $dog.", ctx), "$100 is a lot of terrier.");
-		assertEq(RiTa.evaluate("the $dog cost $100", ctx), "the terrier cost $100");
-		assertEq(RiTa.evaluate("the $dog cost $100!", ctx), "the terrier cost $100!");
-		assertEq(RiTa.evaluate("the $dog costot", ctx), "the terrier costot");
-		assertEq(RiTa.evaluate("the $dog^1 was a footnote.", ctx), "the terrier^1 was a footnote.");
-
+		
 		ctx = opts();
 		ctx.put("user", opts("name", "jen"));
 		assertEq(RiTa.evaluate("$user.name", ctx), "jen");
@@ -668,6 +658,36 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("($foo)bc", ctx), "hbc");
 		assertEq(ctx.get("foo"), "h");
 
+	}
+
+	@Test
+	public void ignoreNoOpSymbolsInContext_SYMBOL() {
+		Map<String, Object> ctx = opts();
+		assertEq(RiTa.evaluate("$foo", ctx, ST), "$foo");
+		assertEq(RiTa.evaluate("a $foo dog", ctx, ST), "a $foo dog");
+
+		ctx = opts("$dog", "terrier");
+		assertEq(RiTa.evaluate("$100 is a lot of $dog.", ctx, ST), "$100 is a lot of terrier");
+		assertEq(RiTa.evaluate("the $dog cost $100", ctx, ST), "the terrier cost $100");
+		assertEq(RiTa.evaluate("the $dog cost $100!", ctx, ST), "the terrier cost $100!");
+		assertEq(RiTa.evaluate("the $dog cost ***lots***", ctx, ST), "the terrier cost ***lots***");
+		assertEq(RiTa.evaluate("the $dog^1 was a footnote", ctx, ST), "the terrier^1 was a footnote");
+
+	}
+
+	@Test
+	public void repeatChoiceWithRandomSeed_SYMBOL() {
+		int seed = (int) (Math.random() * 9007199254740991);
+		String script = "$a=(1|2|3|4|5|6)\n$a";
+		RiTa.randomSeed(seed);
+		String a = RiTa.evaluate(script);
+		for (int i = 0; i < 10; i++) {
+			RiTa.randomSeed(seed);
+			String b = RiTa.evaluate("$a=(1|2|3|4|5|6)\n$a");
+			System.out.println(i + ")" + a + "," + b);
+			assertEq(a, b);
+			a = b;
+		}
 	}
 
 	// Choice
