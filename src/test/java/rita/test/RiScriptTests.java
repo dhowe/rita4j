@@ -7,6 +7,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import rita.*;
@@ -219,7 +222,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void callIsParseable() {
+	public void callIsParseable_EVALUATION() {
 		RiScript rs = new RiScript();
 		assertTrue(rs.isParseable("("));
 		assertTrue(rs.isParseable("(A | B)"));
@@ -268,10 +271,12 @@ public class RiScriptTests {
 	// Evaluation
 
 	@Test
-	public void evalSimpleExpressions_EVALUATION() {
+	public void resolveSimpleExpressions_EVALUATION() {
 		Map<String, Object> ctx = opts();
 
 		assertEq(RiTa.evaluate("foo", ctx), "foo");
+		assertEq(RiTa.evaluate("foo!", ctx), "foo!");
+		assertEq(RiTa.evaluate("!foo", ctx), "!foo");
 		assertEq(RiTa.evaluate("foo.", ctx), "foo.");
 		assertEq(RiTa.evaluate("\"foo\"", ctx), "\"foo\"");
 		assertEq(RiTa.evaluate("'foo'", ctx), "'foo'");
@@ -279,11 +284,13 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("foo&#10;bar", ctx), "foo\nbar");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz", ctx), "baz");
 		assertEq(RiTa.evaluate("$foo=bar\nbaz\n$foo", ctx), "baz bar");
-
+		assertEq(RiTa.evaluate("<em>foo</em>", ctx), "<em>foo</em>");
+		String[] expect = { "a is a", "b is b", "c is c" };
+		assertTrue(Arrays.asList(expect).contains(RiTa.evaluate("$foo=(a|b|c)\n$foo is $foo")));
 		ctx.put("a", "a");
 		ctx.put("b", "b");
 		assertEq(RiTa.evaluate("(a|a)", ctx), "a");
-		assertEq(RiTa.evaluate("foo.bar", ctx), "foo.bar");
+		//assertEq(RiTa.evaluate("foo.bar", ctx), "foo.bar");
 	}
 
 	@Test
@@ -517,6 +524,119 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void parseDynamicAssignments_ASSIGN() {
+		Map<String, Object> ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=a", ctx), "");
+		assertEq(ctx.get("$$foo"), "a");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(a) b", ctx), "");
+		assertEq(ctx.get("$$foo"), "(a) b");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=a\nb", ctx), "b");
+		assertEq(ctx.get("$$foo"), "a");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(a | a)", ctx), "");
+		assertEq(ctx.get("$$foo"), "(a | a)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=ab", ctx), "");
+		assertEq(ctx.get("$$foo"), "ab");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=ab bc", ctx), "");
+		assertEq(ctx.get("$$foo"), "ab bc");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(ab) (bc)", ctx), "");
+		assertEq(ctx.get("$$foo"), "(ab) (bc)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(ab bc)", ctx), "");
+		assertEq(ctx.get("$$foo"), "(ab bc)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(a | a) (b | b)", ctx), "");
+		assertEq(ctx.get("$$foo"), "(a | a) (b | b)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(a | a) (a | a)", ctx), "");
+		assertEq(ctx.get("$$foo"), "(a | a) (a | a)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=()", ctx), ""); // empty string
+		assertEq(ctx.get("$$foo"), "()");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=a\n$$bar=$foo", ctx), "");
+		assertEq(ctx.get("$$foo"), "a");
+		assertEq(ctx.get("$$bar"), "$foo");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=a\n$$bar=$foo.", ctx, opts("trace", false)), "");
+		assertEq(ctx.get("$$foo"), "a");
+		assertEq(ctx.get("$$bar"), "$foo.");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(a | a)\n$foo", ctx), "a");
+		assertEq(ctx.get("$$foo"), "(a | a)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=(hi | hi)\n$foo there", ctx), "hi there");
+		assertEq(ctx.get("$$foo"), "(hi | hi)");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=The boy walked his dog", ctx), "");
+		assertEq(ctx.get("$$foo"), "The boy walked his dog");
+	}
+
+	@Test 
+	public void resolveDynamicSentences_ASSIGN() {
+		Map<String, Object> ctx = opts();
+		String res = "";
+
+		assertEq(RiTa.evaluate(".", null), ".");
+
+		assertEq(RiTa.evaluate("$$foo=a", ctx), "");
+		assertEq(ctx.get("$$foo"), "a");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=.", ctx), "");
+		assertEq(ctx.get("$$foo"), ".");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=r.", ctx), "");
+		assertEq(ctx.get("$$foo"), "r.");
+
+		ctx = opts();
+		assertEq(RiTa.evaluate("$$foo=ran.", ctx), "");
+		assertEq(ctx.get("$$foo"), "ran.");
+
+		ctx = opts();
+		res = RiTa.evaluate("$$start=dog\n$start", ctx);
+		assertEq(ctx.get("$$start"), "dog");
+		assertEq(res, "dog");
+
+		ctx = opts();
+		res = RiTa.evaluate("$$start=.\n$start", ctx);
+		assertEq(ctx.get("$$start"), ".");
+		assertEq(res, ".");
+
+		ctx = opts();
+		res = RiTa.evaluate("$$noun=I\n$$start=$noun ran.\n$start", ctx);
+		assertEq(ctx.get("$$noun"), "I");
+		assertEq(res, "I ran.");
+
+		ctx = opts();
+		res = RiTa.evaluate("$$noun=I\n$$verb=sat\n$$start=$noun $verb.\n$start", ctx);
+		assertEq(ctx.get("$$noun"), "I");
+		assertEq(ctx.get("$$verb"), "sat");
+		assertEq(res, "I sat.");
+	}
+
+	@Test
 	public void resolveInlineVars_INLINE() {
 		Map<String, Object> ctx = opts();
 		String rs = RiTa.evaluate("$person=(a | b | c)\n($a=$person) is $a", ctx);
@@ -611,6 +731,158 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void handleInlineDynamics_INLINE() {
+		int count = 5;
+		int matches = 0;
+		Map<String, Object> ctx = opts();
+		String rs = "";
+		final String[] matching = { "Dave is called Dave.", "Jack is called Jack.", "Mary is called Mary." };
+
+		// $$: at least one to not match
+		Pattern regex1 = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.$");
+		for (int i = 0; i < count; i++) {
+			rs = RiTa.evaluate("($$name=(Dave | Jack | Mary)) is called $name.", ctx);
+			assertEq(ctx.get("$$name"), "(Dave | Jack | Mary)");
+			assertTrue(regex1.matcher(rs).find());
+			if (!Arrays.asList(matching).contains(rs)) {
+				break;
+			}
+			matches++;
+		}
+		assertTrue(matches < count);
+		
+		// $$: at least one to not match
+		matches = 0;
+		Pattern regex2 = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.$");
+		for (int i = 0; i < count; i++) {
+			rs = RiTa.evaluate("($$name=(dave | jack | mary).ucf()) is called $name.", ctx);
+			assertEq(ctx.get("$$name"), "(dave | jack | mary).ucf()");
+			assertTrue(regex2.matcher(rs).find());
+			if (!Arrays.asList(matching).contains(rs)) {
+				break;
+			}
+			matches ++;
+		}
+		assertTrue(matches < count);
+
+		// $$: at least one to not match
+		matches = 0;
+		Pattern regex3 = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.");
+		for (int i = 0; i < count; i++) {
+			rs = RiTa.evaluate("($$name=(dave | jack | mary).ucf()) is called $name.", ctx);
+			assertEq(ctx.get("$$name"), "(dave | jack | mary).ucf()");
+			assertTrue(regex3.matcher(rs).find());
+			if (!Arrays.asList(matching).contains(rs)) {
+				break;
+			}
+			matches ++;
+		}
+		assertTrue(matches < count);
+
+
+	}
+
+	@Test
+	public void handleInlineNondynamics_INLINE() {
+		final String[] matching = { "Dave is called Dave.", "Jack is called Jack.", "Mary is called Mary." };
+		final String[] matching2 = { "Dave is called dave.", "Jack is called jack.", "Mary is called mary." };
+		final String[] names = { "Dave", "Jack", "Mary" };
+		final String[] namesInLowerCase = { "dave", "jack", "mary" };
+		Map<String, Object> ctx = opts();
+		String rs = "";
+
+		//$ must match
+		rs = RiTa.evaluate("($name=(Dave | Jack | Mary)) is called $name.", ctx);
+		assertTrue(Arrays.asList(names).contains(ctx.get("name")));
+		assertTrue(Arrays.asList(matching).contains(rs));
+
+		ctx = opts();
+		//$ must match
+		rs = RiTa.evaluate("($name=(dave | jack | mary).ucf()) is called $name.", ctx);
+		assertTrue(Arrays.asList(names).contains(ctx.get("name")));
+		assertTrue(Arrays.asList(matching).contains(rs));
+
+		ctx = opts();
+		//$ must match
+		rs = RiTa.evaluate("($name=(dave | jack | mary)).ucf() is called $name.", ctx);
+		assertTrue(Arrays.asList(namesInLowerCase).contains(ctx.get("name")));
+		assertTrue(Arrays.asList(matching2).contains(rs));
+	}
+
+	@Test
+	public void handleDynamicsInContext_INLINE() {
+		final String[] matching = { "Dave is called Dave.", "Jack is called Jack.", "Mary is called Mary." };
+		Map<String, Object> ctx = opts();
+
+		// $: need all to match
+		ctx = opts("animal", "dog");
+		assertEq(RiTa.evaluate("A ($stored=($animal | $animal)) is a mammal", ctx), "A dog is a mammal");
+
+		// $$: need at least one to not match
+		int matches = 0;
+		int count = 5;
+		Pattern regex = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.");
+		ctx = opts();
+		ctx.put("$$name", "(Dave | Jack | Mary)");
+		for (int i = 0; i < count; i++) {
+			String rs = RiTa.evaluate("$name is called $name.", ctx);
+			assertEq(ctx.get("$$name"), "(Dave | Jack | Mary)");
+			assertTrue(regex.matcher(rs).find());
+			if (!Arrays.asList(matching).contains(rs)) {
+				break;
+			}
+			matches ++;
+		}
+		assertTrue(matches < count);
+	}
+
+	@Test
+	public void distinguishInlineWithParens_INLINE() {
+		Map<String, Object> ctx = opts();
+
+		assertEq(RiTa.evaluate("$a=a", ctx), "");
+		assertEq(ctx.get("a"), "a");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("($a=a)", ctx), "a");
+		assertEq(ctx.get("a"), "a");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("hello($a=a)", ctx), "helloa");
+		assertEq(ctx.get("a"), "a");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("hello\n$a=a", ctx), "hello");
+		assertEq(ctx.get("a"), "a");
+		ctx = opts();
+
+		// assertEq(RiTa.evaluate("hello \n($a=A)", ctx), "hello A");
+		// assertEq(ctx.get("a"), "A");
+		// ctx = opts();
+		//fail, move to knownissue
+
+		assertEq(RiTa.evaluate("x($a=a)", ctx), "xa");
+		assertEq(ctx.get("a"), "a");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("($foo=hi)", ctx), "hi");
+		assertEq(ctx.get("foo"), "hi");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("($foo=(hi | hi)) there", ctx), "hi there");
+		assertEq(ctx.get("foo"), "hi");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("($foo=(hi | hi).ucf()) there", ctx), "Hi there");
+		assertEq(ctx.get("foo"), "Hi");
+		ctx = opts();
+
+		assertEq(RiTa.evaluate("($foo=(hi | hi)).ucf() there", ctx), "Hi there");
+		assertEq(ctx.get("foo"), "hi");
+		ctx = opts();
+	}
+
+	@Test
 	public void resolveLineBreakDefinedVariables_SYMBOL() {
 		String in = "a.\n$b.";
 		String out = RiTa.evaluate(in, opts("b", "c"));
@@ -641,7 +913,7 @@ public class RiScriptTests {
 	// Symbol
 
 	@Test
-	public void returnInputForUndefinedSymbol_SYMBOL() {
+	public void outputTheInputForUndefinedSymbol_SYMBOL() {
 		assertEq(RiTa.evaluate("$a", opts(), ST), "$a");
 		assertEq(RiTa.evaluate("$a.capitalize()", opts(), ST), "$a.capitalize()");
 		assertEq(RiTa.evaluate("The $a.capitalize() dog.", opts(), ST), "The $a.capitalize() dog.");
@@ -685,7 +957,7 @@ public class RiScriptTests {
 
 	@Test
 	public void repeatChoiceWithRandomSeed_SYMBOL() {
-		int seed = (int) (Math.random() * 2147483647);
+		int seed = (int) (Math.random() * Integer.MAX_VALUE);
 		String script = "$a=(1|2|3|4|5|6)\n$a";
 		RiTa.randomSeed(seed);
 		String a = RiTa.evaluate(script);
@@ -898,6 +1170,17 @@ public class RiScriptTests {
 			}
 		}
 		assertTrue(passed);
+	}
+
+	@Test
+	public void resolveRecursiveDynamics() {
+		Map<String, Object> ctx = opts("a", "$b", "b", "(c | c)");
+		String expr = "$$k=$a\n$k";
+
+		assertEq(RiTa.evaluate(expr, ctx), "c");
+
+		expr = "$$s = $a\n$$a = $b\n$$c = $d\n$$d = c\n$s";
+		assertEq(RiTa.evaluate(expr, ctx), "c");
 	}
 
 	//@Test

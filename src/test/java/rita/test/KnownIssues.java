@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 
 import static rita.RiTa.opts;
 
@@ -73,6 +74,13 @@ public class KnownIssues {
 		assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
 		assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
 		assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
+	}
+
+	//@Test
+	public void distinguishInlineWithParens_INLINE() {
+		HashMap<String, Object> ctx = new HashMap<String, Object>();
+		assertEq(RiTa.evaluate("hello \n($a=A)", ctx), "hello A");
+		assertEq(ctx.get("a"), "A");
 	}
 
 	private static void assertEq(Object a, Object b) { // swap order of args
