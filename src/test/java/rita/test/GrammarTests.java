@@ -7,6 +7,9 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.junit.jupiter.api.Test;
 
 import rita.*;
@@ -43,9 +46,46 @@ public class GrammarTests {
 	}
 
 	@Test
+	public void callStaticExpand() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "pet");
+		assertEquals("pet", rg.expand());
+
+		rg = new RiGrammar();
+		rg.addRule("start", "$pet");
+		rg.addRule("pet", "dog");
+		assertEquals("dog", rg.expand());
+	}
+
+	@Test
+	public void callStaticExpandFrom() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "$pet");
+        rg.addRule("pet", "($bird | $mammal)");
+        rg.addRule("bird", "(hawk | crow)");
+		rg.addRule("mammal", "dog");
+		assertEquals("dog", rg.expand("mammal"));
+		for (int i = 0; i < 30; i++) {
+			String res = rg.expand("bird");
+			assertTrue(res.equals("hawk") || res.equals("crow"));
+		}
+	}
+
+	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
 		Map<String, Object> g = opts("start", "($x=$y b).ucf()", "y", "(a | a)");
 		eq(RiTa.grammar(g).expand(), "A b");
+
+		Map<String, Object> h = opts("start", "($x=$y c).uc()", "y", "(a | b)");
+		Map<String, Integer> results = new HashMap<String, Integer>();
+		RiGrammar rg = new RiGrammar(h);
+		Pattern regex = Pattern.compile("[AB] C");
+		for (int i = 0; i < 10; i++) {
+			String res = rg.expand();
+			assertTrue(regex.matcher(res).find());
+			results.put(res, results.containsKey(res) ? results.get(res) + 1 : 1);
+		}
+		assertEquals(2, results.keySet().size());
 	}
 
 	//@Test
