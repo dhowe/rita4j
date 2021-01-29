@@ -63,7 +63,7 @@ public class RiScriptTests {
 	}
 
 	@Test
-	public void testCustomRegexes() {  // NO_JS
+	public void testCustomRegexes() { // NO_JS
 		String expr = "The $foo\ndog.";
 		assertTrue(RE.test("\\$[A-Za-z_]", expr));
 		//System.out.println(expr);
@@ -118,7 +118,7 @@ public class RiScriptTests {
 		ctx = opts("dog", "lab");
 		assertEq(RiTa.evaluate("The $dog\ntoday.", ctx), "The lab today.");
 		assertEq(RiTa.evaluate("I ate the\n$dog.", ctx), "I ate the lab.");
-		
+
 		ctx = opts();
 		ctx.put("user", opts("name", "jen"));
 		assertEq(RiTa.evaluate("$user.name", ctx), "jen");
@@ -250,7 +250,8 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveComplexInlines_INLINE_FAILING() {
-		assertEq(RiTa.evaluate("A ($stored=($animal | $animal)) is a mammal", opts("animal", "dog")), "A dog is a mammal");
+		assertEq(RiTa.evaluate("A ($stored=($animal | $animal)) is a mammal", opts("animal", "dog")),
+				"A dog is a mammal");
 		assertEq(RiTa.evaluate("($b=(a | a).toUpperCase()) dog is a $b.", opts()), "A dog is a A.");
 		assertEq(RiTa.evaluate("($b=(a | a)).toUpperCase() dog is a $b.toLowerCase().", opts()), "A dog is a a.");
 		assertEq(RiTa.evaluate("($b=(a | a)).toUpperCase() dog is a ($b).toLowerCase().", opts()), "A dog is a a.");
@@ -592,7 +593,7 @@ public class RiScriptTests {
 		assertEq(ctx.get("$$foo"), "The boy walked his dog");
 	}
 
-	@Test 
+	@Test
 	public void resolveDynamicSentences_ASSIGN() {
 		Map<String, Object> ctx = opts();
 		String res = "";
@@ -667,8 +668,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("($foo=(hi | hi)) there", opts()), "hi there");
 		assertEq(RiTa.evaluate("($foo=(hi | hi).ucf()) there", opts()), "Hi there");
 
-		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", opts()),
-				RiTa.evaluate("($foo=(hi | hi)) there", opts()));
+		assertEq(RiTa.evaluate("$foo=(hi | hi)\n$foo there", opts()), RiTa.evaluate("($foo=(hi | hi)) there", opts()));
 
 		String exp = "A dog is a mammal";
 		assertEq(RiTa.evaluate("$a=b\n($a).toUpperCase()", opts()), "B");
@@ -750,7 +750,7 @@ public class RiScriptTests {
 			matches++;
 		}
 		assertTrue(matches < count);
-		
+
 		// $$: at least one to not match
 		matches = 0;
 		Pattern regex2 = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.$");
@@ -761,7 +761,7 @@ public class RiScriptTests {
 			if (!Arrays.asList(matching).contains(rs)) {
 				break;
 			}
-			matches ++;
+			matches++;
 		}
 		assertTrue(matches < count);
 
@@ -775,10 +775,9 @@ public class RiScriptTests {
 			if (!Arrays.asList(matching).contains(rs)) {
 				break;
 			}
-			matches ++;
+			matches++;
 		}
 		assertTrue(matches < count);
-
 
 	}
 
@@ -831,7 +830,7 @@ public class RiScriptTests {
 			if (!Arrays.asList(matching).contains(rs)) {
 				break;
 			}
-			matches ++;
+			matches++;
 		}
 		assertTrue(matches < count);
 	}
@@ -1118,8 +1117,7 @@ public class RiScriptTests {
 
 	@Test
 	public void resolveTransformsInContext_TRANSFORM() {
-		Function<String, String> func = (s) -> s != null
-				&& s.length() > 0 ? s : "B";
+		Function<String, String> func = (s) -> s != null && s.length() > 0 ? s : "B";
 		Map<String, Object> ctx = opts("capB", func);
 		assertEq(RiTa.evaluate(".capB()", ctx), "B");
 		assertEq(RiTa.evaluate("(c).capB()", ctx), "c");
@@ -1339,15 +1337,10 @@ public class RiScriptTests {
 			@SuppressWarnings("unused")
 			Hair hair = new Hair();
 		}
-		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.",
-				opts("dog", new Dog())),
-				"It was a white dog.");
-		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.",
-				opts("dog", new Dog())),
+		assertEq(RiTa.evaluate("It was a $dog.hair.color dog.", opts("dog", new Dog())), "It was a white dog.");
+		assertEq(RiTa.evaluate("It was a $dog.color.toUpperCase() dog.", opts("dog", new Dog())),
 				"It was a WHITE dog.");
-		assertEq(RiTa.evaluate("$a.b",
-				opts("a", opts("b", 1)), SP),
-				"1");
+		assertEq(RiTa.evaluate("$a.b", opts("a", opts("b", 1)), SP), "1");
 	}
 
 	@Test
@@ -1464,13 +1457,8 @@ public class RiScriptTests {
 	@Test
 	public void resolveConvertedGrammars_GRAMMAR() {
 		Map<String, Object> ctx = opts();
-		String script = String.join("\n",
-				"$start = $nounp $verbp.",
-				"$nounp = $determiner $noun",
-				"$determiner = (the | the)",
-				"$verbp = $verb $nounp",
-				"$noun = (woman | woman)",
-				"$verb = shoots",
+		String script = String.join("\n", "$start = $nounp $verbp.", "$nounp = $determiner $noun",
+				"$determiner = (the | the)", "$verbp = $verb $nounp", "$noun = (woman | woman)", "$verb = shoots",
 				"$start") + "\n";
 		String rs = RiTa.evaluate(script, ctx);
 		assertEq(rs, "the woman shoots the woman.");
@@ -1741,6 +1729,13 @@ public class RiScriptTests {
 	// 	assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
 	// 	assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
 	// 	assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
+	// }
+
+	//Links 
+	// @Test
+	// public void parseMdStyleLink() {
+	// 	String res = RiTa.evaluate("(some text)[https://somelink]", null, opts("trace", true));
+	// 	assertEq(res, "balk");
 	// }
 
 	private static void assertEq(Object a, Object b) { // swap order of args
