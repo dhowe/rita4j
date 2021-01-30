@@ -2,6 +2,7 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import static rita.RiTa.opts;
 
 import rita.RiGrammar;
 import rita.RiTa;
+import rita.*;
 
 // Failing tests go here until debugged
 public class KnownIssues {
@@ -81,6 +83,61 @@ public class KnownIssues {
 		HashMap<String, Object> ctx = new HashMap<String, Object>();
 		assertEq(RiTa.evaluate("hello \n($a=A)", ctx), "hello A");
 		assertEq(ctx.get("a"), "A");
+	}
+
+	//@Test
+	public void throwOnBadGrammars_GRAMMAR() {
+		assertThrows(RiTaException.class, () -> RiTa.grammar(opts("", "pet")));
+		assertThrows(RiTaException.class, () -> RiTa.grammar(opts("$$start", "pet")));
+		assertThrows(RiTaException.class, () -> RiTa.grammar().addRule("$$rule", "pet"));
+		assertThrows(RiTaException.class, () -> RiTa.grammar().removeRule("$$rule"));
+	}
+
+	//@Test
+	public void callToStringAndToStringWithArg_GRAMMAR() {
+		String str = "";
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("$start", "$pet.articlize()");
+		rg.addRule("$pet", "dog | cat");
+		str = rg.toString();
+		assertEq(str, "{\n  \"$$start\": \"$pet.articlize()\",\n  \"$$pet\": \"(dog | cat)\"\n}");
+		rg = new RiGrammar();
+		rg.addRule("$start", "$pet.articlize()");
+		rg.addRule("$pet", "dog");
+		str = rg.toString();
+		assertEq(str, "{\n  \"$$start\": \"$pet.articlize()\",\n  \"$$pet\": \"(dog | cat)\"\n}");
+		String lb = "<br>";
+		rg = new RiGrammar();
+		rg.addRule("$start", "$pet.articlize()");
+		rg.addRule("$pet", "dog | cat");
+		str = rg.toString(lb);
+		assertEq(str, "{<br>  \"$$start\": \"$pet.articlize()\",<br>  \"$$pet\": \"(dog | cat)\"<br>}");
+		rg = new RiGrammar();
+		rg.addRule("$start", "$pet.articlize()");
+		rg.addRule("$pet", "dog");
+		str = rg.toString(lb);
+		assertEq(str, "{<br>  \"$$start\": \"$pet.articlize()\",<br>  \"$$pet\": \"(dog | cat)\"<br>}");
+	}
+
+	//@Test
+	public void overrideDynamicDefault_GRAMMAR() {
+		int count = 4;
+
+		//normal dynamic behavior
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "$rule $rule");
+        rg.addRule("rule", "(a|b|c|d|e)");
+		boolean ok = false;
+		for (int i = 0; i < count; i++) {
+			String[] parts = rg.expand().split(" ");
+			assertEquals(2, parts.length);
+			System.out.println(parts[0]+" "+parts[1]);
+			if (!parts[0].equals(parts[1])) {
+				ok = true;
+				break;
+			}
+		}
+		assertEquals(true, ok);
 	}
 
 	private static void assertEq(Object a, Object b) { // swap order of args
