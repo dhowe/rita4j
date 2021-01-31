@@ -84,6 +84,12 @@ public class Analyzer {
 
 		// WORKINE HERE
 		
+//		other TODO
+//		------------
+//		do validateRuleName in grammar
+//		test expand() with '$start'
+//		search function, stresses x2 (lookahead)
+
 		
 		// compute the stresses
 		String stresses = useRaw ? word : phonesToStress(phones);
