@@ -23,7 +23,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
 <dependency>
   <groupId>org.rednoise</groupId>
   <artifactId>rita</artifactId>
-  <version>2.1</version>
+  <version>2.2</version>
 </dependency>
 ```
 ## API
