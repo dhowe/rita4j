@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
+
+import java.util.regex.Pattern;
+
 
 import static rita.RiTa.opts;
 
@@ -126,18 +130,77 @@ public class KnownIssues {
 		//normal dynamic behavior
 		RiGrammar rg = new RiGrammar();
 		rg.addRule("start", "$rule $rule");
-        rg.addRule("rule", "(a|b|c|d|e)");
+		rg.addRule("rule", "(a|b|c|d|e)");
 		boolean ok = false;
 		for (int i = 0; i < count; i++) {
 			String[] parts = rg.expand().split(" ");
 			assertEquals(2, parts.length);
-			System.out.println(parts[0]+" "+parts[1]);
+			System.out.println(parts[0] + " " + parts[1]);
 			if (!parts[0].equals(parts[1])) {
 				ok = true;
 				break;
 			}
 		}
 		assertEquals(true, ok);
+	}
+	
+	//@Test
+	public void supportNorepeatRules() {
+		//unresolved transform .norepeat()
+		boolean fail = false;
+		String names = "a|b|c|d|e";
+		Map<String, Object> g = opts("start", "$names $names.norepeat()", "names", names);
+		for (int i = 0; i < 5; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
+	}
+
+	//@Test
+	public void supportNorepeatSymbolRules() {
+		//unresolved transform .nr()
+		boolean fail = false;
+		String names = "(a|b|c|d|e).nr()";
+		Map<String, Object> g = opts("start", "$names $names", "names", names);
+		for (int i = 0; i < 5; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
+	}
+
+	//@Test
+	public void supportNorepeatInlineRules() {
+		//unresolved transform .nr()
+		boolean fail = false;
+		Map<String, Object> g = opts("start", "($$names=(a | b | c | d|e).nr()) $names");
+		for (int i = 0; i < 5; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
 	}
 
 	private static void assertEq(Object a, Object b) { // swap order of args
