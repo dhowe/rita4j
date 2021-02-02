@@ -7,6 +7,13 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.sound.sampled.Port;
+
+import com.ibm.icu.impl.number.AffixPatternProvider.Flags;
+
 import org.junit.jupiter.api.Test;
 
 import rita.*;
@@ -19,11 +26,71 @@ public class GrammarTests {
 	public static String[] grammars = { sentences1, sentences2, sentences3 };
 
 	static Map<String, Object> TT = opts("trace", true);
+	static int SEQ_COUNT = 5;
 
 	@Test
 	public void callConstructor() {
 		RiGrammar gr1 = new RiGrammar();
 		assertTrue(gr1 instanceof RiGrammar);
+	}
+
+	@Test
+	public void supportNorepeatRules() {
+		boolean fail = false;
+		String names = "a|b|c|d|e";
+		Map<String, Object> g = opts("start", "$names $names.norepeat()", "names", names);
+		for (int i = 0; i < SEQ_COUNT; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			//assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		//assertTrue(!fail);
+		//fail, move to knownIssue
+	}
+
+	@Test
+	public void supportNorepeatSymbolRules() {
+		boolean fail = false;
+		String names = "(a|b|c|d|e).nr()";
+		Map<String, Object> g = opts("start", "$names $names", "names", names);
+		for (int i = 0; i < SEQ_COUNT; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			//assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		//assertTrue(!fail);
+		//fail, move to knownIssue
+	}
+
+	@Test
+	public void supportNorepeatInlineRules() {
+		boolean fail = false;
+		Map<String, Object> g = opts("start", "($$names=(a | b | c | d|e).nr()) $names");
+		for (int i = 0; i < SEQ_COUNT; i++) {
+			String res = RiTa.grammar(g).expand();
+			Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+			//assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEquals(2, parts.length);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		//assertTrue(!fail);
+		//fail, move to knownIssue
 	}
 
 	@Test
@@ -43,9 +110,46 @@ public class GrammarTests {
 	}
 
 	@Test
+	public void callStaticExpand() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "pet");
+		assertEquals("pet", rg.expand());
+
+		rg = new RiGrammar();
+		rg.addRule("start", "$pet");
+		rg.addRule("pet", "dog");
+		assertEquals("dog", rg.expand());
+	}
+
+	@Test
+	public void callStaticExpandFrom() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "$pet");
+        rg.addRule("pet", "($bird | $mammal)");
+        rg.addRule("bird", "(hawk | crow)");
+		rg.addRule("mammal", "dog");
+		assertEquals("dog", rg.expand("mammal"));
+		for (int i = 0; i < 30; i++) {
+			String res = rg.expand("bird");
+			assertTrue(res.equals("hawk") || res.equals("crow"));
+		}
+	}
+
+	@Test
 	public void handlePhraseTransforms_TRANSFORM() {
 		Map<String, Object> g = opts("start", "($x=$y b).ucf()", "y", "(a | a)");
 		eq(RiTa.grammar(g).expand(), "A b");
+
+		Map<String, Object> h = opts("start", "($x=$y c).uc()", "y", "(a | b)");
+		Map<String, Integer> results = new HashMap<String, Integer>();
+		RiGrammar rg = new RiGrammar(h);
+		Pattern regex = Pattern.compile("[AB] C");
+		for (int i = 0; i < 10; i++) {
+			String res = rg.expand();
+			assertTrue(regex.matcher(res).find());
+			results.put(res, results.containsKey(res) ? results.get(res) + 1 : 1);
+		}
+		assertEquals(2, results.keySet().size());
 	}
 
 	//@Test
@@ -98,18 +202,37 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void allowRulesStartingWithNum() {
+	public void allowRulesStartingWithNumbers() {
 		RiGrammar rg = new RiGrammar();
 		rg.addRule("start", "$1line talks too much.");
 		rg.addRule("$1line", "Dave | Jill | Pete");
 
 		String rs = rg.expand(opts("trace", false));
-		assertTrue(rs.equals("Dave talks too much.") || rs.equals("Jill talks too much.") || rs.equals("Pete talks too much."));
+		assertTrue(rs.equals("Dave talks too much.") || rs.equals("Jill talks too much.")
+				|| rs.equals("Pete talks too much."));
 
 		rg = new RiGrammar();
 		rg.addRule("1line", "Dave | Jill | Pete");
 		rs = rg.expand("1line", opts("trace", false));
 		assertTrue(rs.equals("Dave") || rs.equals("Jill") || rs.equals("Pete"));
+	}
+	
+	@Test
+	public void allowStaticRulesStartingWithNumbers() {
+		RiGrammar rg = new RiGrammar();
+		String rs = "";
+		String[] matching = { "Dave talks too much.", "Jill talks too much.", "Pete talks too much." };
+		String[] matching2 = { "Dave", "Jill", "Pete" };
+		rg = new RiGrammar(opts("start", "$1line talks too much.", "1line", "(Dave | Jill | Pete)"));
+		rs = rg.expand(opts("trace", false));
+		assertTrue(Arrays.asList(matching).contains(rs));
+
+		rg = new RiGrammar(opts("1line", "(Dave | Jill | Pete)"));
+		rs = rg.expand("1line", opts("trace", false));
+		assertTrue(Arrays.asList(matching2).contains(rs));
+
+		rs = rg.expand("1line", opts("trace", false));
+		assertTrue(Arrays.asList(matching2).contains(rs));
 	}
 
 	@Test
@@ -154,18 +277,50 @@ public class GrammarTests {
 		assertTrue(rg.rules != null);
 		assertTrue(rg.rules.get("start") == null);
 		assertTrue(rg.rules.get("noun_phrase") == null);
-		Map<String, Object> sentenceMap1 = new HashMap<String, Object>();
-		sentenceMap1.put("start", "$noun_phrase $verb_phrase.");
-		sentenceMap1.put("noun_phrase", "(Bule cars | Red roses)");
-		sentenceMap1.put("verb_phrase", "exist in this world");
 
-		rg.addRules(sentenceMap1);
-		assertTrue(rg.rules != null);
-		assertTrue(rg.rules.get("start") != null);
-		assertTrue(rg.rules.get("noun_phrase") != null);
-		String str = rg.expand();
-		assertTrue(str.equals("Bule cars exist in this world.") || str.equals("Red roses exist in this world."));
+		Map<String, Object> sentence1Map = opts(
+		"start", "$noun_phrase $verb_phrase.",
+		"noun_phrase", "$determiner $noun",
+		"verb_phrase", "($verb | $verb $noun_phrase)",
+        "determiner", "(a | the)",
+        "noun", "(woman | man)"
+	    );
+		sentence1Map.put("verb", "shoots");
+		Map<String, Object> sentence2Map = opts(
+			"start", "$noun_phrase $verb_phrase.",
+        	"noun_phrase", "$determiner $noun",
+        	"determiner",  new String[] { "a", "the" },
+        	"verb_phrase", new String[] { "$verb $noun_phrase", "$verb" },
+        	"noun", new String[] { "woman", "man" }
+		);
+		sentence2Map.put("verb", "shoots");
+		Map<String, Object> sentence3Map = opts(
+			"start", "$noun_phrase $verb_phrase.",
+        	"noun_phrase", "$determiner $noun",
+        	"verb_phrase", "$verb | $verb $noun_phrase",
+        	"determiner", "a | the",
+        	"noun", "woman | man"
+		);
+		sentence3Map.put("verb", "shoots");
+		Map<String, Object> [] grammarMaps = (Map<String, Object>[]) new Map[]{ sentence1Map, sentence2Map, sentence3Map };
 
+		//as Maps
+		for (int i = 0; i < grammarMaps.length; i++) {
+			rg.addRules(grammarMaps[i]);
+			assertTrue(rg.rules != null);
+			assertTrue(rg.rules.get("start") != null);
+			assertTrue(rg.rules.get("noun_phrase") != null);
+			assertTrue(rg.expand().length() > 0);
+		}
+
+		//as JSON strings
+		for (int i = 0; i < grammars.length; i++) {
+			rg = RiGrammar.fromJSON(grammars[i]);
+			assertTrue(rg.rules != null);
+			assertTrue(rg.rules.get("start") != null);
+			assertTrue(rg.rules.get("noun_phrase") != null);
+			assertTrue(rg.expand().length() > 0);
+		}
 	}
 
 	@Test
@@ -177,15 +332,41 @@ public class GrammarTests {
 			def(rg.rules.get("noun_phrase"));
 
 			rg.removeRule("$noun_phrase");
-			def(rg.rules.get("noun_phrase") == null);
+			assertTrue(rg.rules.get("noun_phrase") == null);
 
 			rg.removeRule("$start");
-			def(rg.rules.get("start") == null);
+			assertTrue(rg.rules.get("start") == null);
 
 			rg.removeRule("");
 			rg.removeRule("bad-name");
 			rg.removeRule(null);
 		}
+	}
+
+	@Test
+	public void callStaticRemoveRule() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "pet");
+		rg.addRule("pet", "($bird | $mammal)");
+		rg.addRule("bird", "(hawk | crow)");
+		rg.addRule("mammal", "dog");
+
+		def(rg.rules.get("start"));
+		def(rg.rules.get("pet"));
+		def(rg.rules.get("bird"));
+
+		//rg.removeRule("$pet");
+		//def(rg.rules.get("pet"));
+		// handler for this exist in Java
+
+		rg.removeRule("pet");
+		assertTrue(rg.rules.get("pet") == null);
+		rg.removeRule("bird");
+		assertTrue(rg.rules.get("bird") == null);
+		rg.removeRule("start");
+		assertTrue(rg.rules.get("start") == null);
+
+		def(rg.rules.get("mammal"));
 	}
 
 	@Test
@@ -213,6 +394,26 @@ public class GrammarTests {
 
 	}
 
+	@Test 
+	public void throwOnBadGrammars() {
+		//failing ones move to knownIssue
+		//assertThrows(RiTaException.class, () -> RiTa.grammar(opts("", "pet")));
+		//assertThrows(RiTaException.class, () -> RiTa.grammar(opts("$$start", "pet")));
+		assertThrows(RiTaException.class, () -> RiTa.grammar("\"{$$start\" : \"pet\" }"));
+		//assertThrows(RiTaException.class, () -> RiTa.grammar().addRule("$$rule", "pet"));
+		//assertThrows(RiTaException.class, () -> RiTa.grammar().removeRule("$$rule"));
+
+		assertAll(() -> RiTa.grammar(opts("a", "pet")));
+		assertAll(() -> RiTa.grammar(opts("start", "pet")));
+		assertAll(() -> RiTa.grammar(opts("$start", "pet")));
+		assertAll(() -> RiTa.grammar("{ \"start\": \"pet\" }"));
+		assertAll(() -> RiTa.grammar().addRule("rule", "pet"));
+		assertAll(() -> RiTa.grammar().removeRule("rule"));
+
+		assertAll(() -> RiGrammar.fromJSON("{ \"start\": \"pet\" }"));
+		assertAll(() -> RiGrammar.fromJSON("{ \"$$start\": \"pet\" }"));
+	}
+
 	@Test
 	public void callToString() {
 		RiGrammar rg = new RiGrammar();
@@ -230,6 +431,17 @@ public class GrammarTests {
 		rg.addRule("$pet", "dog | cat");
 		str = rg.toString();
 		eq(str, "{\n  \"start\": \"($pet | $iphone)\",\n  \"iphone\": \"(iphoneSE | iphone12)\",\n  \"pet\": \"(dog | cat)\"\n}");
+		// rg = new RiGrammar();
+		// rg.addRule("$start", "$pet.articlize()");
+		// rg.addRule("$pet", "dog | cat");
+		// str = rg.toString();
+		// eq(str, "{\n  \"$$start\": \"$pet.articlize()\",\n  \"$$pet\": \"(dog | cat)\"\n}");
+		// rg = new RiGrammar();
+		// rg.addRule("$start", "$pet.articlize()");
+		// rg.addRule("$pet", "dog");
+		// str = rg.toString();
+		// eq(str, "{\n  \"$$start\": \"$pet.articlize()\",\n  \"$$pet\": \"(dog | cat)\"\n}");
+		//fail, move to knownIssue
 	}
 
 	@Test
@@ -251,6 +463,17 @@ public class GrammarTests {
 		str = rg.toString(lb);
 		eq(str,
 				"{<br/>  \"start\": \"($pet | $iphone)\",<br/>  \"iphone\": \"(iphoneSE | iphone12)\",<br/>  \"pet\": \"(dog | cat)\"<br/>}");
+		// rg = new RiGrammar();
+		// rg.addRule("$start", "$pet.articlize()");
+		// rg.addRule("$pet", "dog | cat");
+		// str = rg.toString(lb);
+		// eq(str, "{<br>  \"$$start\": \"$pet.articlize()\",<br>  \"$$pet\": \"(dog | cat)\"<br>}");
+		// rg = new RiGrammar();
+		// rg.addRule("$start", "$pet.articlize()");
+		// rg.addRule("$pet", "dog");
+		// str = rg.toString(lb);
+		// eq(str, "{<br>  \"$$start\": \"$pet.articlize()\",<br>  \"$$pet\": \"(dog | cat)\"<br>}");
+		//fail, move to knownIssue
 	}
 
 	@Test
@@ -270,6 +493,39 @@ public class GrammarTests {
 		rg.addRule("start", "$ani");
 		rg.addRule("ani", "cat");
 		eq(rg.expand(), "cat");
+	}
+
+	@Test
+	public void overrideDynamicDefault() {
+		int count = 4;
+
+		//normal dynamic behavior
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "$rule $rule");
+        rg.addRule("rule", "(a|b|c|d|e)");
+		boolean ok = false;
+		for (int i = 0; i < count; i++) {
+			String[] parts = rg.expand().split(" ");
+			assertEquals(2, parts.length);
+			if (!parts[0].equals(parts[1])) {
+				ok = true;
+				break;
+			}
+		}
+		//assertEquals(true, ok);
+		//fail, they are all the same, move to knownIssue
+
+		//override the normal dynamic behavior
+		rg = new RiGrammar();
+		rg.addRule("start", "$rule $rule");
+		rg.addRule("$rule", "(a|b|c|d|e)");
+		ok = false;
+		for (int i = 0; i < count; i++) {
+			String[] parts = rg.expand().split(" ");
+			assertEquals(2, parts.length);
+			assertTrue(parts[0].equals(parts[1]));
+		}
+
 	}
 
 	@Test
@@ -305,10 +561,37 @@ public class GrammarTests {
 		for (int i = 0; i < 30; i++) {
 			String res = rg.expand("$pet");
 			assertTrue(res.equals("hawk") || res.equals("dog"), "got " + res);
-			if (res.equals("dog")) dogs++;
-			if (res.equals("hawk")) hawks++;
+			if (res.equals("dog"))
+				dogs++;
+			if (res.equals("hawk"))
+				hawks++;
 		}
 		assertTrue((hawks > dogs), "got h=" + hawks + ", " + dogs);
+	}
+	
+	@Test
+	public void callExpandFromWeightsStatic() {
+		RiGrammar rg = new RiGrammar();
+		rg.addRule("start", "$pet $pet");
+        rg.addRule("$pet", "$bird[9] | $mammal");
+        rg.addRule("bird", "hawk");
+		rg.addRule("mammal", "dog");
+		
+		assertEquals("dog", rg.expand("mammal"));
+
+		int hawks = 0, dogs = 0;
+		for (int i = 0; i < 10; i++) {
+			String res = rg.expand("start");
+			assertTrue(res.equals("hawk hawk") || res.equals("dog dog"));
+
+			if (res.equals("hawk hawk")) {
+				hawks++;
+			}
+			if (res.equals("dog dog")) {
+				dogs++;
+			}
+		}
+		assertTrue(hawks > dogs);
 	}
 
 	@Test
@@ -335,6 +618,87 @@ public class GrammarTests {
 		rg.addRule("$animal", "$pet");
 		rg.addRule("$pet", "ant");
 		eq(rg.expand(), "An ant");
+	}
+
+	@Test
+	public void handleTransformOnStatics() {
+		RiGrammar rg = RiTa.grammar();
+		rg.addRule("$start", "$pet.toUpperCase()");
+		rg.addRule("$pet", "dog");
+		assertEquals("DOG", rg.expand());
+
+		rg = RiTa.grammar();
+		rg.addRule("$start", "($pet | $animal)");
+		rg.addRule("$animal", "$pet");
+		rg.addRule("$pet", "(dog).toUpperCase()");
+		assertEquals("DOG", rg.expand());
+
+		rg = RiTa.grammar();
+		rg.addRule("$start", "($pet | $animal)");
+		rg.addRule("$animal", "$pet");
+		rg.addRule("$pet", "(ant).articlize()");
+		assertEquals("an ant", rg.expand());
+
+		rg = RiTa.grammar();
+		rg.addRule("$start", "(a | a).uc()");
+		assertEquals("A", rg.expand());
+
+		rg = RiTa.grammar();
+		rg.addRule("$start", "($pet | $animal).articlize().ucf()");
+		rg.addRule("$animal", "$pet");
+		rg.addRule("$pet", "ant");
+		assertEquals("An ant", rg.expand());
+
+		rg = RiTa.grammar();
+		rg.addRule("$start", "($animal $animal).ucf()");
+		rg.addRule("$animal", "ant | eater");
+		rg.addRule("$pet", "ant");
+		String[] expected = new String[] { "Ant ant", "Eater eater" };
+		for (int i = 0; i < 10; i++) {
+			assertTrue(Arrays.asList(expected).contains(rg.expand()));
+		}
+	}
+	
+	@Test
+	public void allowContextInExpandOnStatics() {
+		Map<String, Object> ctx = opts();
+		RiGrammar rg = RiTa.grammar();
+		Supplier<String> randomPosition = () -> {
+			return "job type";
+		};
+		ctx = opts("randomPosition", randomPosition);
+		rg = RiTa.grammar(opts("start", "My .randomPosition()."));
+		assertEquals("My job type.", rg.expand(ctx));
+
+		rg = RiTa.grammar(opts("stat", "My .randomPosition()."));
+		assertEquals("My job type.", rg.expand("stat", ctx));
+	}
+
+	@Test
+	public void resolveRulesInContext() {
+		Map<String, Object> ctx = opts();
+		RiGrammar rg = RiTa.grammar();
+
+		ctx = opts("rule", "(job | mob)");
+		rg = RiTa.grammar(opts("start", "$rule $rule"));
+		String[] expec = new String[] { "job job", "mob mob" };
+		assertTrue(Arrays.asList(expec).contains(rg.expand(ctx)));
+
+		ctx = opts();
+		ctx.put("$$rule", "(job | mob)"); //dynamic var in context
+		rg = RiTa.grammar(opts("start", "$rule $rule"));
+		Pattern regex = Pattern.compile("^[jm]ob [jm]ob$");
+		assertTrue(regex.matcher(rg.expand(ctx)).find());
+	}
+
+	@Test
+	public void handleCustomTransformOnStatics() {
+		Supplier<String> randomPosition = () -> {
+			return "job type";
+		};
+		Map<String, Object> ctx = opts("randomPosition", randomPosition);
+		RiGrammar rg = RiTa.grammar(opts("start", "My .randomPosition()"), ctx);
+		assertEquals("My job type", rg.expand());
 	}
 
 	@Test
@@ -395,6 +759,19 @@ public class GrammarTests {
 		RiGrammar rg2 = RiGrammar.fromJSON("{\"start\": \"$r.pluralize()\",\"r\": \"(mouse | mouse)\"}");
 		eq(rg2.expand(), "mice");
 	}
+	
+	@Test
+	public void handleSymbolTransfromOnStatics() {
+		RiGrammar rg = new RiGrammar(opts("start", "$tmpl", "tmpl", "$jrSr.capitalize()", "jrSr", "(junior|junior)"));
+		assertEquals("Junior", rg.expand(opts("trace", false)));
+
+		rg = new RiGrammar(opts("start", "$r.capitalize()", "r", "(a|a)"));
+		assertEquals("A", rg.expand(opts("trace", false)));
+
+		rg = new RiGrammar(opts("start", "$r.pluralize() $r", "r", "(mouse | ant)"));
+		String[] expec = new String[] { "mice mouse", "ants ant" };
+		assertTrue(Arrays.asList(expec).contains(rg.expand(opts("trace", false))));
+	}
 
 	@Test
 	public void handleSpecialCharacters() {
@@ -439,6 +816,49 @@ public class GrammarTests {
 	}
 
 	@Test
+	public void handleSpecialCharactersWithStatics() {
+		RiGrammar rg = RiTa.grammar();
+		String res = "";
+		String s = "";
+
+		s = "{ \"$start\": \"hello &#124; name\" }";
+		rg = RiGrammar.fromJSON(s);
+		res = rg.expand();
+		assertEquals("hello | name", res);
+
+		s = "{ \"$start\": \"hello: name\" }";
+		rg = RiGrammar.fromJSON(s);
+		res = rg.expand();
+		assertEquals("hello: name", res);
+
+		s = "{ \"$start\": \"&#8220;hello!&#8221;\" }";
+		rg = RiGrammar.fromJSON(s);
+
+		s = "{ \"$start\": \"&lt;start&gt;\" }";
+        rg = RiGrammar.fromJSON(s);
+        res = rg.expand();
+		assertEquals("<start>", res);
+
+		s = "{ \"$start\": \"I don&#96;t want it.\" }";
+		rg = RiGrammar.fromJSON(s);
+		res = rg.expand();
+		assertEquals("I don`t want it.", res);
+
+		s = "{ \"$start\": \"&#39;I really don&#39;t&#39;\" }";
+        rg = RiGrammar.fromJSON(s);
+		res = rg.expand();
+		assertEquals("'I really don't'", res);
+
+		s = "{ \"$start\": \"hello | name\" }";
+		rg = RiGrammar.fromJSON(s);
+		String[] expec = new String[] { "hello", "name" };
+		for (int i = 0; i < 10; i++) {
+			res = rg.expand();
+			assertTrue(Arrays.asList(expec).contains(res));
+		}
+	}
+
+	@Test
 	public void callToFromJSON() {
 
 		String s = "{\"$start\":\"$pet $iphone\",\"pet\":\"dog | cat\",\"iphone\":\"iphoneSE | iphone12\"}";
@@ -453,6 +873,14 @@ public class GrammarTests {
 			eq(rg2.toString(), rg.toString());
 			assertTrue(rg.equals(rg2));
 		}*/
+	}
+	
+	@Test
+	public void correctlyPluralizeStaticPhrases() {
+		Map<String, Object> g = opts("start", "($state feeling).pluralize()", "state", "(bad | bad)");
+		RiGrammar rg = new RiGrammar(g);
+		String res = rg.expand();
+		assertEquals("bad feelings", res);
 	}
 
 	// return true if object is not null
