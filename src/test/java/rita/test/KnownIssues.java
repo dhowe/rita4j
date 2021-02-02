@@ -203,6 +203,77 @@ public class KnownIssues {
 		assertTrue(!fail);
 	}
 
+	//@Test
+	public void supportNorepeatChoiceTransforms_SEQUENCES() {
+		//unresolve transform .norepeat()
+		int count = 5;
+		boolean fail = false;
+		Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+		for (int i = 0; i < count; i++) {
+			String res = RiTa.evaluate("$$names=(a|b|c|d|e)\n$names $names.norepeat()", null);
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEq(parts.length, 2);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
+	}
+
+	//@Test
+	public void supportNorepeatSymbolTransforms_SEQUENCES() {
+		//unresolve transform .norepeat()
+		int count = 5;
+		boolean fail = false;
+		Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+		for (int i = 0; i < count; i++) {
+			String res = RiTa.evaluate("$$rule=(a|b|c|d|e).norepeat()\n$rule $rule");
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEq(parts.length, 2);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
+	}
+
+	//@Test
+	public void supportNorepeatInlineTransforms_SEQUENCES() {
+		//unresolved transform .norepeat()
+		int count = 5;
+		boolean fail = false;
+		Pattern regex = Pattern.compile("^[a-e] [a-e]$");
+		for (int i = 0; i < count; i++) {
+			String res = RiTa.evaluate("($$rule=(a|b|c|d|e).norepeat()) $rule");
+			assertTrue(regex.matcher(res).find());
+			String[] parts = res.split(" ");
+			assertEq(parts.length, 2);
+			if (parts[0].equals(parts[1])) {
+				fail = true;
+				break;
+			}
+		}
+		assertTrue(!fail);
+	}
+
+	//@Test
+	public void resolveSimpleExpressions_EVALUATION() {
+		Map<String, Object> ctx = opts();
+		assertEq(RiTa.evaluate("foo\nbar", ctx), "foo\nbar");
+		assertEq(RiTa.evaluate("$foo=bar\nbaz\n$foo", ctx), "baz\nbar");
+		String str = "Now in one year\n     A book published\n          And plumbing —";
+		assertEq(RiTa.evaluate(str), str);
+	}
+
+	//@Test
+	public void resolveTransformsOnLiterals_ASSIGN() {
+		assertEq(RiTa.evaluate("(deeply-nested $art).art()", opts("art", "emotion")), "a deeply-nested emotion");
+	}
+
 	private static void assertEq(Object a, Object b) { // swap order of args
 		assertEquals(b, a);
 	}
