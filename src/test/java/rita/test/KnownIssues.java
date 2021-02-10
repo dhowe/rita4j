@@ -1,6 +1,7 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -287,6 +288,54 @@ public class KnownIssues {
 		ctx = opts("mammal", "(ox | ox)");
 		res = RiTa.evaluate("The big $mammal ate the smaller $mammal.s.", ctx);
 		assertEq(res, "The big ox ate the smaller oxen.");
+	}
+
+	//@Test
+	public void callSearchWithoutRegex() {
+		assertEquals(10, RiTa.search().length);
+		assertEquals(11, RiTa.search(opts("limit", 11)).length);
+		//assertEquals(11, RiTa.search("", opts("limit", 11)).length);
+		String[] expected = new String[] { "abalone", "abandonment", "abbey", "abbot", "abbreviation", "abdomen",
+				"abduction", "aberration", "ability", "abnormality" };
+		assertArrayEquals(expected, RiTa.search(opts("pos", "n")));
+		//assertArrayEquals(expected, RiTa.search("", opts("pos", "n", "limit", 10)));
+
+		expected = new String[] { "abashed", "abate", "abbey", "abbot", "abet", "abhor", "abide", "abject", "ablaze",
+				"able" };
+
+		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2)));
+		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "limit", 10)));
+
+		expected = new String[] { "abbey", "abbot", "abode", "abscess", "absence", "abstract", "abuse", "abyss",
+				"accent", "access" };
+		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2, "pos", "n")));
+		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "pos", "n", "limit", 10)));
+
+		expected = new String[] { "ace", "ache", "act", "age", "aid", "aide", "aim", "air", "aisle", "ale" };
+		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 1, "pos", "n")));
+		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 1, "pos", "n", "limit", 10)));
+	}
+	
+	//@Test
+	public void callSearchWithPosFeatureLimit() {
+		String[] expected;
+		expected = new String[] { "abalone", "abandonments", "abbreviations", "abductions", "abilities" };
+		assertArrayEquals(expected, RiTa.search("010", opts("type", "stresses", "limit", 5, "pos", "nns")));
+		assertArrayEquals(expected, RiTa.search("/0\\/1\\/0/", opts("type", "stresses", "limit", 5, "pos", "nns")));
+
+		expected = new String[] { "abductions", "abortions", "absorbers", "abstentions", "abstractions" };
+		assertArrayEquals(expected,
+				RiTa.search("010", opts("type", "stresses", "limit", 5, "pos", "nns", "numSyllables", 3)));
+	}
+	
+	//@Test
+	public void callSpellsLikeOptions() {
+		String[] expected = new String[] { "axes", "beef", "deer", "dibs", "fish" };
+		String[] result = RiTa.spellsLike("ice", opts("minLength", 4, "maxLength", 4, "pos", "nns", "minDistance", 3, "limit", 5));
+		for (int i = 0; i < result.length; i++) {
+			assertTrue(result[i].length() == 4);
+		}
+		assertArrayEquals(expected, result); 
 	}
 
 	private static void assertEq(Object a, Object b) { // swap order of args
