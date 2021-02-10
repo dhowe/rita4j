@@ -293,27 +293,23 @@ public class KnownIssues {
 	//@Test
 	public void callSearchWithoutRegex() {
 		assertEquals(10, RiTa.search().length);
-		assertEquals(11, RiTa.search(opts("limit", 11)).length);
+		//assertEquals(11, RiTa.search(opts("limit", 11)).length);
 		//assertEquals(11, RiTa.search("", opts("limit", 11)).length);
 		String[] expected = new String[] { "abalone", "abandonment", "abbey", "abbot", "abbreviation", "abdomen",
 				"abduction", "aberration", "ability", "abnormality" };
-		assertArrayEquals(expected, RiTa.search(opts("pos", "n")));
-		//assertArrayEquals(expected, RiTa.search("", opts("pos", "n", "limit", 10)));
+		//assertArrayEquals(expected, RiTa.search(opts("pos", "n")));
 
 		expected = new String[] { "abashed", "abate", "abbey", "abbot", "abet", "abhor", "abide", "abject", "ablaze",
 				"able" };
 
-		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2)));
-		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "limit", 10)));
+		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2)));
 
 		expected = new String[] { "abbey", "abbot", "abode", "abscess", "absence", "abstract", "abuse", "abyss",
 				"accent", "access" };
-		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2, "pos", "n")));
-		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "pos", "n", "limit", 10)));
+		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2, "pos", "n")));
 
 		expected = new String[] { "ace", "ache", "act", "age", "aid", "aide", "aim", "air", "aisle", "ale" };
-		assertArrayEquals(expected, RiTa.search(opts("numSyllables", 1, "pos", "n")));
-		//assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 1, "pos", "n", "limit", 10)));
+		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 1, "pos", "n")));
 	}
 	
 	//@Test
