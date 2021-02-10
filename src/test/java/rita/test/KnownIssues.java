@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
 import java.util.regex.Pattern;
 
@@ -272,6 +273,20 @@ public class KnownIssues {
 	//@Test
 	public void resolveTransformsOnLiterals_ASSIGN() {
 		assertEq(RiTa.evaluate("(deeply-nested $art).art()", opts("art", "emotion")), "a deeply-nested emotion");
+	}
+
+	//@Test
+	public void resolveSymbolsWithTransforms_GRAMMAR() {
+		//unresolved transform
+		assertEq(RiTa.evaluate("$foo=(bar).ucf\n$foo"), "Bar");
+		Supplier<String> bar = () -> "result";
+		Map<String, Object> ctx = opts("bar", bar);// func transform
+		String res = RiTa.evaluate("().bar", ctx);
+		assertEq(res, "result");
+
+		ctx = opts("mammal", "(ox | ox)");
+		res = RiTa.evaluate("The big $mammal ate the smaller $mammal.s.", ctx);
+		assertEq(res, "The big ox ate the smaller oxen.");
 	}
 
 	private static void assertEq(Object a, Object b) { // swap order of args
