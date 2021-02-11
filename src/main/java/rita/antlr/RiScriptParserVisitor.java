@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -9,13 +9,19 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public interface RiScriptVisitor<T> extends ParseTreeVisitor<T> {
+public interface RiScriptParserVisitor<T> extends ParseTreeVisitor<T> {
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#script}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitScript(RiScriptParser.ScriptContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RiScriptParser#line}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLine(RiScriptParser.LineContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#expr}.
 	 * @param ctx the parse tree
@@ -76,6 +82,18 @@ public interface RiScriptVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitWexpr(RiScriptParser.WexprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RiScriptParser#link}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLink(RiScriptParser.LinkContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RiScriptParser#url}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUrl(RiScriptParser.UrlContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#transform}.
 	 * @param ctx the parse tree

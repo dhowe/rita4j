@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -6,11 +6,11 @@ import org.antlr.v4.runtime.tree.ErrorNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
- * This class provides an empty implementation of {@link RiScriptListener},
+ * This class provides an empty implementation of {@link RiScriptParserListener},
  * which can be extended to create a listener which only needs to handle a subset
  * of the available methods.
  */
-public class RiScriptBaseListener implements RiScriptListener {
+public class RiScriptParserBaseListener implements RiScriptParserListener {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -23,6 +23,18 @@ public class RiScriptBaseListener implements RiScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitScript(RiScriptParser.ScriptContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLine(RiScriptParser.LineContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLine(RiScriptParser.LineContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -143,6 +155,30 @@ public class RiScriptBaseListener implements RiScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitWexpr(RiScriptParser.WexprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterLink(RiScriptParser.LinkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitLink(RiScriptParser.LinkContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterUrl(RiScriptParser.UrlContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitUrl(RiScriptParser.UrlContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -1,16 +1,16 @@
-// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
- * This class provides an empty implementation of {@link RiScriptVisitor},
+ * This class provides an empty implementation of {@link RiScriptParserVisitor},
  * which can be extended to create a visitor which only needs to handle a subset
  * of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for
  * operations with no return type.
  */
-public class RiScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements RiScriptVisitor<T> {
+public class RiScriptParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements RiScriptParserVisitor<T> {
 	/**
 	 * {@inheritDoc}
 	 *
@@ -18,6 +18,13 @@ public class RiScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitScript(RiScriptParser.ScriptContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitLine(RiScriptParser.LineContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -88,6 +95,20 @@ public class RiScriptBaseVisitor<T> extends AbstractParseTreeVisitor<T> implemen
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitWexpr(RiScriptParser.WexprContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitLink(RiScriptParser.LinkContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitUrl(RiScriptParser.UrlContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
 	 *

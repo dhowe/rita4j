@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScript.g4 by ANTLR 4.8
+// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.tree.ParseTreeListener;
  * This interface defines a complete listener for a parse tree produced by
  * {@link RiScriptParser}.
  */
-public interface RiScriptListener extends ParseTreeListener {
+public interface RiScriptParserListener extends ParseTreeListener {
 	/**
 	 * Enter a parse tree produced by {@link RiScriptParser#script}.
 	 * @param ctx the parse tree
@@ -17,6 +17,16 @@ public interface RiScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitScript(RiScriptParser.ScriptContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RiScriptParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void enterLine(RiScriptParser.LineContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RiScriptParser#line}.
+	 * @param ctx the parse tree
+	 */
+	void exitLine(RiScriptParser.LineContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RiScriptParser#expr}.
 	 * @param ctx the parse tree
@@ -117,6 +127,26 @@ public interface RiScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitWexpr(RiScriptParser.WexprContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RiScriptParser#link}.
+	 * @param ctx the parse tree
+	 */
+	void enterLink(RiScriptParser.LinkContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RiScriptParser#link}.
+	 * @param ctx the parse tree
+	 */
+	void exitLink(RiScriptParser.LinkContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link RiScriptParser#url}.
+	 * @param ctx the parse tree
+	 */
+	void enterUrl(RiScriptParser.UrlContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link RiScriptParser#url}.
+	 * @param ctx the parse tree
+	 */
+	void exitUrl(RiScriptParser.UrlContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link RiScriptParser#transform}.
 	 * @param ctx the parse tree

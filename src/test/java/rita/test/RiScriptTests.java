@@ -7,7 +7,6 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -1637,7 +1636,7 @@ public class RiScriptTests {
 
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
-		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<} foo", ctx, ST));
+		assertThrows(RiTaException.class, () -> RiTa.evaluate("{$a<}? foo", ctx, ST));
 	}
 
 	@Test
@@ -1645,13 +1644,13 @@ public class RiScriptTests {
 
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
-		assertEq(RiTa.evaluate("{$a<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1}? foo", ctx), "foo");
 		ctx.clear();
 
 		ctx.put("a", "hello");
-		assertEq(RiTa.evaluate("{$a=hello} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a=goodbye} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a=hello}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a=goodbye}? foo", ctx), "");
 	}
 
 	@Test
@@ -1660,30 +1659,30 @@ public class RiScriptTests {
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
 
-		assertEq(RiTa.evaluate("{$a<1.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1.1} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a<.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>.1} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>0.1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<1.1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1.1}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<.1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>.1}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<0.1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>0.1}? foo", ctx), "foo");
 
 		ctx.clear();
 		ctx.put("a", .1);
-		assertEq(RiTa.evaluate("{$a<0.1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>=0.1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a<0.1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>=0.1}? foo", ctx), "foo");
 	}
 
 	@Test
 	public void resolveMultivalConditionals_CONDITIONALS() {
 		Map<String, Object> ctx = opts();
 		ctx.put("a", 2);
-		assertEq(RiTa.evaluate("{$a<1,$b<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a<1,$b<1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1,$b<1}? foo", ctx), "");
 
 		ctx.put("b", 2);
-		assertEq(RiTa.evaluate("{$a>1,$b<1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a=ok,$b>=1} foo", ctx), "");
-		assertEq(RiTa.evaluate("{$a>1,$b>=1} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a>1,$b<1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a=ok,$b>=1}? foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a>1,$b>=1}? foo", ctx), "foo");
 	}
 
 	@Test
@@ -1692,18 +1691,18 @@ public class RiScriptTests {
 		Map<String, Object> ctx = opts();
 		ctx.put("a", "hello");
 
-		assertEq(RiTa.evaluate("{$a!=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("{$a*=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a!=ell}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a*=ell}? foo", ctx), "foo");
 
 		ctx.clear();
 		ctx.put("a", "ello");
-		assertEq(RiTa.evaluate("{$a^=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a^=ell}? foo", ctx), "foo");
 		ctx.clear();
 		ctx.put("a", "helloell");
-		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "foo");
+		assertEq(RiTa.evaluate("{$a$=ell}? foo", ctx), "foo");
 		ctx.clear();
 		ctx.put("a", "helloellx");
-		assertEq(RiTa.evaluate("{$a$=ell} foo", ctx), "");
+		assertEq(RiTa.evaluate("{$a$=ell}? foo", ctx), "");
 
 	}
 
@@ -1712,11 +1711,11 @@ public class RiScriptTests {
 
 		Map<String, Object> ctx = opts();
 
-		assertEq(RiTa.evaluate("$a=hello\n{$a!=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=hello\n{$a*=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=ello\n{$a^=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=helloell\n{$a$=ell} foo", ctx), "foo");
-		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell} foo", ctx), "");
+		assertEq(RiTa.evaluate("$a=hello\n{$a!=ell}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=hello\n{$a*=ell}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=ello\n{$a^=ell}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=helloell\n{$a$=ell}? foo", ctx), "foo");
+		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell}? foo", ctx), "");
 	}
 
 	// //comments -> fail, move to knownIssue

@@ -3,19 +3,23 @@ package rita;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 import com.google.gson.*;
 
 public class RiGrammar {
 
 	public static String DEFAULT_RULE_NAME = "start";
+	private static Pattern SYM_RE = Pattern.compile("^\\$[^$]");
 
-	public static RiGrammar fromJSON(String rules) {
-		return fromJSON(rules, null);
+	public static RiGrammar fromJSON(String json) {
+		return fromJSON(json, null);
 	}
 
-	public static RiGrammar fromJSON(String rules, Map<String, Object> context) {
-		return new RiGrammar(rules, context);
+	public static RiGrammar fromJSON(String json, Map<String, Object> context) {
+		RiGrammar rg = new RiGrammar((Map<String, Object>) null, context);
+		rg.parseJSON(json);
+		return rg;
 	}
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -55,21 +59,47 @@ public class RiGrammar {
 		return expand(rule, null);
 	}
 
-	public String expand(Map<String, Object> opts) {
+	public String expand(Map<String, Object> opts) { // no context allowed here
 		return expand(DEFAULT_RULE_NAME, opts);
 	}
 
-	public String expand(String rule, Map<String, Object> opts) {
+	public String expand(String rule, Map<String, Object> opts) { // no context allowed here
 
-		Map<String, Object> ctx = Util.deepMerge(this.context, this.rules);
-		if (opts != null) ctx = Util.deepMerge(ctx, opts);
-		if (rule.startsWith("$")) rule = rule.substring(1);
+		Map<String, Object> ctx = Util.deepMerge(this.getContext(), this.rules);
+		//if (opts != null) ctx = Util.deepMerge(ctx, opts);
+		//if (rule.startsWith("$")) rule = rule.substring(1);
+		rule = validateRuleName(rule);
 
-		Object o = ctx.get(rule);
-		if (o == null) throw new RiTaException("Rule " + rule + " not found");
+		if (!ctx.containsKey(rule)) {
+			if (!rule.startsWith(RiTa.DYN)) throw new RiTaException(
+					"Bad rule (post-validation): " + rule);
+			rule = rule.substring(2); // check for non-dynamic version
+			if (!ctx.containsKey(rule)) throw new RiTaException(
+					"Rule " + rule + " not found");
+		}
 
 		// a bit strange here as opts entries are included in ctx
-		return this.compiler.evaluate((String) o, ctx, opts);
+		return this.compiler.evaluate((String) ctx.get(rule), ctx, opts);
+	}
+
+	private String validateRuleName(String name) {
+		if (name == null || name.length() < 1) {
+			throw new RiTaException("expected [string] name");
+		}
+		if (name.startsWith(RiTa.DYN)) {
+			name = name.substring(2);
+			throw new RiTaException("Grammar rules are dynamic by default;"
+					+ " if you need a non-dynamic rule, use \'$"
+					+ name + "', otherwise just use '" + name + "'.");
+		}
+		if (RE.test(SYM_RE, name)) {
+			// override dynamic default, context -> 'barevar'
+			name = name.substring(1);
+		}
+		else { // dynamic default, context -> '$$dynvar'
+			if (!name.startsWith(RiTa.DYN)) name = RiTa.DYN + name;
+		}
+		return name;
 	}
 
 	public RiGrammar addRules(Map<String, Object> rules) {
@@ -84,12 +114,15 @@ public class RiGrammar {
 	}
 
 	public RiGrammar addRule(String name, String rule) {
+		String rname = validateRuleName(name);
+		if (rule == null) throw new RiTaException("<undefined> rule");
+
 		if (name.startsWith(RiTa.SYM)) name = name.substring(1);
 		// TODO: compile (pattern: if matches ( ... | ... )
-		if (RE.test("\\|", rule) && !RE.test("^\\([^\\(\\)]*\\)$", rule)) {
+		if (RE.test("\\|", rule) && !RE.test("^\\([^()]*\\)$", rule)) {
 			rule = '(' + rule + ')';
 		}
-		this.rules.put(name, rule);
+		this.rules.put(rname, rule);
 		return this;
 	}
 
@@ -98,9 +131,16 @@ public class RiGrammar {
 	}
 
 	public String toJSON(boolean pretty) {
+		Map<String, Object> nrules = new HashMap<String, Object>();
+		for (Object o : this.rules.keySet()) {
+			String name = (String) o;
+			Object rule = this.rules.get(name);
+			if (!name.startsWith(RiTa.DYN)) name = RiTa.SYM + name;
+			nrules.put(name, rule);
+		}
 		return pretty ? new GsonBuilder().setPrettyPrinting()
-				.create().toJson(this.rules, Map.class)
-				: new Gson().toJson(this.rules, Map.class);
+				.create().toJson(nrules, Map.class)
+				: new Gson().toJson(nrules, Map.class);
 	}
 
 	@Override
@@ -125,8 +165,8 @@ public class RiGrammar {
 	}
 
 	public RiGrammar removeRule(String name) {
-		if (name != null) {
-			if (name.startsWith("$")) name = name.substring(1);
+		if (name != null && name.length() > 0) {
+			name = validateRuleName(name);
 			this.rules.remove(name);
 		}
 		return this;
@@ -180,7 +220,8 @@ public class RiGrammar {
 				@SuppressWarnings("rawtypes")
 				Map map = new Gson().fromJson(json, Map.class);
 				for (Object o : map.keySet()) {
-					this.addRule((String) o, map.get(o));
+					String r = (String) o;
+					this.addRule(r.startsWith(RiTa.DYN) ? r.substring(2) : r, map.get(o));
 				}
 			} catch (JsonSyntaxException e) {
 				throw new RiTaException("Grammar appears to be invalid JSON"
@@ -212,6 +253,10 @@ public class RiGrammar {
 	public static void main(String[] args) {
 		System.out.println(new RiGrammar(RiTa.opts("start", "(a | b | c)")));
 		System.out.println(RiGrammar.fromJSON("{\"start\": \"(a | b | c)\"}"));
+	}
+
+	public Map<String, Object> getContext() {
+		return context;
 	}
 
 }

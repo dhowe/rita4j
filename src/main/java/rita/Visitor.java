@@ -9,15 +9,14 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RuleContext;
 import org.antlr.v4.runtime.tree.*;
 
-import rita.antlr.RiScriptBaseVisitor;
-import rita.antlr.RiScriptParser;
+import rita.antlr.*;
 import rita.antlr.RiScriptParser.*;
 
 /*
  * Note: Transforms are always resolved AFTER the content
  *       in the visitX method where they first appeared
  */
-public class Visitor extends RiScriptBaseVisitor<String> {
+public class Visitor extends RiScriptParserBaseVisitor<String> {
 
 	protected int indexer;
 	protected RiScript parent;

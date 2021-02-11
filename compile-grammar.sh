@@ -9,8 +9,13 @@ if [[ ! -d $GRAMMAR_DIR ]] ; then
   exit
 fi
 
-if [[ ! -f $GRAMMAR_DIR/RiScript.g4 ]] ; then
-  echo GRAMMAR_FILE: \'$GRAMMAR_DIR/RiScript.g4\' not found in \'$GRAMMAR_DIR\', aborting
+if [[ ! -f $GRAMMAR_DIR/RiScriptParser.g4 ]] ; then
+  echo GRAMMAR_FILE: \'$GRAMMAR_DIR/RiScriptParser.g4\' not found in \'$GRAMMAR_DIR\', aborting
+  exit
+fi
+
+if [[ ! -f $GRAMMAR_DIR/RiScriptLexer.g4 ]] ; then
+  echo GRAMMAR_FILE: \'$GRAMMAR_DIR/RiScriptLexer.g4\' not found in \'$GRAMMAR_DIR\', aborting
   exit
 fi
 
@@ -30,12 +35,12 @@ if [[ ! -d $DEPENDS_DIR ]] ; then
   fi
 fi
 
-CP="$DEPENDS_DIR/*:$CLASSPATH"
+CLASSPATH="$DEPENDS_DIR/*:$CLASSPATH"
 #echo "$CP"
 
 rm -rf $OUTPUT_DIR/*
 
-java -Xmx500M -cp "$CP" org.antlr.v4.Tool -Dlanguage=Java -lib $GRAMMAR_DIR -o $WORK_DIR -visitor -Xexact-output-dir -package rita.antlr $GRAMMAR_DIR/RiScript.g4
+java -Xmx500M -cp "$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Java -lib $GRAMMAR_DIR -o $WORK_DIR -visitor -Xexact-output-dir -package rita.antlr $GRAMMAR_DIR/RiScript*.g4
 
 cp $WORK_DIR/*.java $OUTPUT_DIR
 rm -rf $WORK_DIR
