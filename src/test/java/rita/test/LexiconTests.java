@@ -464,7 +464,7 @@ public class LexiconTests {
       		"colonialism"
 		};
 		assertArrayEquals(expected, RiTa.search("0/1/0/0/0/0", opts("type", "stresses", "limit", 5)));
-		assertArrayEquals(expected, RiTa.search("/0\\/1\\/0\\/0\\/0\\/0/", opts("type", "stresses", "limit", 5)));
+		assertArrayEquals(expected, RiTa.search("0\\/1\\/0\\/0\\/0\\/0", opts("type", "stresses", "limit", 5)));
 	}
 
 	@Test
@@ -484,8 +484,12 @@ public class LexiconTests {
 				RiTa.search("f-ah-n-t", opts("type", "phones", "limit", 3, "pos", "n", "numSyllables", 2)));
 		
 		expected = new String[] { "fantasize" };
-		assertArrayEquals(expected, RiTa.search("/f-a[eh]-n-t/", opts("type", "phones", "pos", "v", "limit", 5)));
+		assertArrayEquals(expected, RiTa.search("f-a[eh]-n-t", opts("type", "phones", "pos", "v", "limit", 5)));
 
+
+		expected = new String[] { "fantasize" };
+		assertArrayEquals(expected, RiTa.search("f-a[eh]-n-t", opts("type", "phones", "pos", "vb", "limit", 5)));
+		
 		expected = new String[] { 
 			"abalone",
         	"abandonments",
@@ -508,9 +512,6 @@ public class LexiconTests {
 		
 		expected = new String[] { "elephants", "infants", "infantries" };
 		assertArrayEquals(expected, RiTa.search("f-ah-n-t", opts("type", "phones", "pos", "nns", "limit", 3)));
-
-		expected = new String[] { "fantasize" };
-		assertArrayEquals(expected, RiTa.search("/f-a[eh]-n-t/", opts("type", "phones", "pos", "vb", "limit", 5)));
 	}
 
 	@Test
