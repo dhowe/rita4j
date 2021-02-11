@@ -293,6 +293,26 @@ public class AnalyzerTests {
 		eq(feats.get("syllables"), "ah/b-ae-n/d-ah-n");
 	}
 
+	//@Test
+	//sync from js analyzer-tests.js line 57
+	public void todo() {
+		Map<String, String> feats = RiTa.analyze("off-site");
+		System.out.println(feats);
+		assertEquals("jj", feats.get("pos"));
+		assertEquals("ah-b-ae-n-d-ah-n", feats.get("phones"));
+		assertEquals("abandon", feats.get("tokens"));
+		assertEquals("0/1/0", "stresses");
+		assertEquals("ah/b-ae-n/d-ah-n", feats.get("syllables"));
+
+		feats = RiTa.analyze("oft-cited");
+		System.out.println(feats);
+		assertEquals("jj", feats.get("pos"));
+		assertEquals("ah-b-ae-n-d-ah-n", feats.get("phones"));
+		assertEquals("abandon", feats.get("tokens"));
+		assertEquals("0/1/0", "stresses");
+		assertEquals("ah/b-ae-n/d-ah-n", feats.get("syllables"));
+	}
+
 	@Test
 	public void callAnalyzeWord() {
 
@@ -444,6 +464,24 @@ public class AnalyzerTests {
 		//System.out.println(RiTa.syllables("The Laggin Dragon"));
 		eq(RiTa.syllables("The Laggin Dragon"), "dh-ah l-ae/g-ih-n d-r-ae/g-ah-n");
 		RiTa.SILENCE_LTS = false;
+	}
+
+	@Test
+	public void pluralizePhrases() {
+		String input;
+		String expected;
+
+		input = "set of choice";
+		expected = "set of choices";
+		assertEquals(expected, RiTa.pluralize(input));
+
+		input = "bag of chocolate";
+		expected = "bag of chocolates";
+		assertEquals(expected, RiTa.pluralize(input));
+
+		input = "gaggle of goose";
+		expected = "gaggle of geese";
+		assertEquals(expected, RiTa.pluralize(input));
 	}
 
 	static void eq(String a, String b) {

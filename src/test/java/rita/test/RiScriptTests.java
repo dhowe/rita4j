@@ -1460,6 +1460,25 @@ public class RiScriptTests {
 
 		assertEq(RiTa.evaluate("$foo.capitalize()\n$foo=(a|a)", null), "A");
 		assertEq(RiTa.evaluate("$start=$r.capitalize()\n$r=(a|a)\n$start", ctx), "A");
+
+		//assertEq(RiTa.evaluate("$foo=(bar).ucf\n$foo"), "Bar"); -> fail, move to knownIssue
+		assertEq(RiTa.evaluate("$foo=(bar).ucf()\n$foo"), "Bar");
+
+		Supplier<String> bar = () -> "result";
+		ctx = opts("bar", bar);// func transform
+		//String res = RiTa.evaluate("().bar", ctx); -> fail, move to knownIssue
+		String res = RiTa.evaluate("().bar()", ctx);
+		assertEq(res, "result");
+
+		ctx = opts("bar", opts("result", "result")); // property transform
+		res = RiTa.evaluate("$foo=$bar.result\n$foo", ctx);
+		assertEq(res, "result");
+
+		ctx = opts("mammal", "(ox | ox)");
+		res = RiTa.evaluate("The big $mammal ate the smaller $mammal.s().", ctx);
+		//res = RiTa.evaluate("The big $mammal ate the smaller $mammal.s.", ctx); -> fail, move to knownIssue
+		// no parens, alias, resolved from pending symbols
+		assertEq(res, "The big ox ate the smaller oxen.");
 	}
 
 	@Test
