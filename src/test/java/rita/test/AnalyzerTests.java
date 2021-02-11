@@ -267,14 +267,11 @@ public class AnalyzerTests {
 		assertEquals(RiTa.analyze(""), hm);
 
 		feats = RiTa.analyze("clothes");
-		System.out.println(feats);
-
 		eq(feats.get("pos"), "nns");
 		eq(feats.get("tokens"), "clothes");
 		eq(feats.get("syllables"), "k-l-ow-dh-z");
 
 		feats = RiTa.analyze("the clothes");
-
 		eq(feats.get("pos"), "dt nns");
 		eq(feats.get("tokens"), "the clothes");
 		eq(feats.get("syllables"), "dh-ah k-l-ow-dh-z");
@@ -295,9 +292,9 @@ public class AnalyzerTests {
 
 	//@Test
 	//sync from js analyzer-tests.js line 57
+	// TODO: (then SYNC:) See https://github.com/dhowe/rita/issues/65
 	public void todo() {
 		Map<String, String> feats = RiTa.analyze("off-site");
-		System.out.println(feats);
 		assertEquals("jj", feats.get("pos"));
 		assertEquals("ah-b-ae-n-d-ah-n", feats.get("phones"));
 		assertEquals("abandon", feats.get("tokens"));
@@ -305,7 +302,6 @@ public class AnalyzerTests {
 		assertEquals("ah/b-ae-n/d-ah-n", feats.get("syllables"));
 
 		feats = RiTa.analyze("oft-cited");
-		System.out.println(feats);
 		assertEquals("jj", feats.get("pos"));
 		assertEquals("ah-b-ae-n-d-ah-n", feats.get("phones"));
 		assertEquals("abandon", feats.get("tokens"));
@@ -318,7 +314,7 @@ public class AnalyzerTests {
 
 		String[] data;
 		data = RiTa.analyzer.analyzeWord("abandon");
-		System.out.println(Arrays.asList(data));
+		//System.out.println(Arrays.asList(data));
 		String phones = data[0];
 		String stresses = data[1];
 		String syllables = data[2];

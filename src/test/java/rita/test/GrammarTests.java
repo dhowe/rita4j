@@ -444,7 +444,7 @@ public class GrammarTests {
 		rg.addRule("start", "$pet.articlize()");
 		rg.addRule("$pet", "dog | cat");
 		str = rg.toString();
-		System.out.println(str.replaceAll("\\n","\\\\n"));
+		//System.out.println(str.replaceAll("\\n","\\\\n"));
 
 		eq(str, "{\n  \"$pet\": \"(dog | cat)\",\n  \"$$start\": \"$pet.articlize()\"\n}");
 	}

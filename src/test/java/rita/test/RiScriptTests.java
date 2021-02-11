@@ -463,11 +463,12 @@ public class RiScriptTests {
 
 		assertEq(RiTa.evaluate("$foo=.toUpperCase()", ctx, ST), "");// empty string
 		assertEq(ctx.get("foo"), "");
-
 	}
 
 	@Test
 	public void resolveTransformsOnLiterals_ASSIGN() {
+		boolean SILENCE_LTS = RiTa.SILENCE_LTS;
+		RiTa.SILENCE_LTS = true;
 		assertEq(RiTa.evaluate("How many (teeth).quotify() do you have?"), "How many “teeth” do you have?");
 		// NEXT: CONSIDER adding context to RiTa.Grammar/grammar.expand
 		Map<String, Object> ctx = opts();
@@ -476,9 +477,10 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("That is an (ant).capitalize()."), "That is an Ant.");
 		assertEq(RiTa.evaluate("(ant).articlize().capitalize()", null), "An ant");
 		assertEq(RiTa.evaluate("(ant).capitalize().articlize()", null), "an Ant");
-		assertEq(RiTa.evaluate("(deeply-nested expression).art()"), "a deeply-nested expression");
+		assertEq(RiTa.evaluate("(deeply-nested expression).art()",null,ST), "a deeply-nested expression");
 		//assertEq(RiTa.evaluate("(deeply-nested $art).art()", opts("art", "emotion")), "a deeply-nested emotion");
 		//fail, move to knownIssues
+		RiTa.SILENCE_LTS = SILENCE_LTS;
 	}
 
 	@Test
@@ -967,7 +969,7 @@ public class RiScriptTests {
 		for (int i = 0; i < 10; i++) {
 			RiTa.randomSeed(seed);
 			String b = RiTa.evaluate("$a=(1|2|3|4|5|6)\n$a");
-			System.out.println(i + ")" + a + "," + b);
+			//System.out.println(i + ")" + a + "," + b);
 			assertEq(a, b);
 			a = b;
 		}

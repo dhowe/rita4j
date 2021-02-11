@@ -110,7 +110,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		return result;
 	}
 
-	public String visitChoiceWithChoiceState(ChoiceContext ctx) {
+	/*public String visitChoiceWithChoiceState(ChoiceContext ctx) {
 
 		List<TransformContext> txs = ctx.transform();
 		ChoiceState choice = sequences.get(++this.indexer);
@@ -142,7 +142,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		if (this.trace) System.out.println("resolveChoice: '" + result + "'");
 
 		return result;
-	}
+	}*/
 
 	private String resolveDynamic(String ident, String resolved, List<TransformContext> txs) {
 		if (!resolved.matches("^\\([^()]*\\)$")) { // TODO: compile

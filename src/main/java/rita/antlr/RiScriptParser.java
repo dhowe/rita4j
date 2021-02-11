@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
+// Generated from ./src/main/java/rita/antlr/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -17,7 +17,7 @@ public class RiScriptParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		LCOMM=1, BCOMM=2, Q=3, GT=4, LT=5, MDS=6, LP=7, RP=8, LB=9, RB=10, LCB=11, 
+		LCOMM=1, BCOMM=2, Q=3, MDS=4, GT=5, LT=6, LP=7, RP=8, LB=9, RB=10, LCB=11, 
 		RCB=12, DOT=13, WS=14, FS=15, EXC=16, AST=17, HAT=18, DOL=19, COM=20, 
 		CONT=21, BS=22, NL=23, DYN=24, SYM=25, OR=26, EQ=27, TF=28, ENT=29, INT=30, 
 		OP=31, CHR=32, MDT=33, MDE=34;
@@ -36,7 +36,7 @@ public class RiScriptParser extends Parser {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, "'>'", "'<'", null, "'('", null, "'['", "']'", 
+			null, null, null, null, null, "'>'", "'<'", "'('", null, "'['", "']'", 
 			"'{'", "'}'", "'.'", null, "'/'", "'!'", "'*'", "'^'", "'$'", "','", 
 			null, "'\\'"
 		};
@@ -44,7 +44,7 @@ public class RiScriptParser extends Parser {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "LCOMM", "BCOMM", "Q", "GT", "LT", "MDS", "LP", "RP", "LB", "RB", 
+			null, "LCOMM", "BCOMM", "Q", "MDS", "GT", "LT", "LP", "RP", "LB", "RB", 
 			"LCB", "RCB", "DOT", "WS", "FS", "EXC", "AST", "HAT", "DOL", "COM", "CONT", 
 			"BS", "NL", "DYN", "SYM", "OR", "EQ", "TF", "ENT", "INT", "OP", "CHR", 
 			"MDT", "MDE"
@@ -1500,7 +1500,7 @@ public class RiScriptParser extends Parser {
 		"\f\3\r\5\r\u00b1\n\r\3\r\5\r\u00b4\n\r\3\16\3\16\3\16\3\16\3\16\3\16\3"+
 		"\16\7\16\u00bd\n\16\f\16\16\16\u00c0\13\16\3\17\6\17\u00c3\n\17\r\17\16"+
 		"\17\u00c4\3\20\3\20\3\21\3\21\5\21\u00cb\n\21\3\21\2\2\22\2\4\6\b\n\f"+
-		"\16\20\22\24\26\30\32\34\36 \2\4\4\2\6\7\17\26\4\2\6\7\35\35\2\u00dd\2"+
+		"\16\20\22\24\26\30\32\34\36 \2\4\4\2\7\b\17\26\4\2\7\b\35\35\2\u00dd\2"+
 		"\"\3\2\2\2\4\61\3\2\2\2\68\3\2\2\2\b?\3\2\2\2\nR\3\2\2\2\fm\3\2\2\2\16"+
 		"y\3\2\2\2\20\u008d\3\2\2\2\22\u0096\3\2\2\2\24\u009a\3\2\2\2\26\u00ad"+
 		"\3\2\2\2\30\u00b0\3\2\2\2\32\u00b5\3\2\2\2\34\u00c2\3\2\2\2\36\u00c6\3"+
@@ -1541,7 +1541,7 @@ public class RiScriptParser extends Parser {
 		"\5\6\4\2\u00b0\u00af\3\2\2\2\u00b0\u00b1\3\2\2\2\u00b1\u00b3\3\2\2\2\u00b2"+
 		"\u00b4\5\f\7\2\u00b3\u00b2\3\2\2\2\u00b3\u00b4\3\2\2\2\u00b4\31\3\2\2"+
 		"\2\u00b5\u00b6\7\13\2\2\u00b6\u00b7\5\6\4\2\u00b7\u00b8\7\f\2\2\u00b8"+
-		"\u00b9\7\b\2\2\u00b9\u00ba\5\34\17\2\u00ba\u00be\7$\2\2\u00bb\u00bd\7"+
+		"\u00b9\7\6\2\2\u00b9\u00ba\5\34\17\2\u00ba\u00be\7$\2\2\u00bb\u00bd\7"+
 		"\20\2\2\u00bc\u00bb\3\2\2\2\u00bd\u00c0\3\2\2\2\u00be\u00bc\3\2\2\2\u00be"+
 		"\u00bf\3\2\2\2\u00bf\33\3\2\2\2\u00c0\u00be\3\2\2\2\u00c1\u00c3\7#\2\2"+
 		"\u00c2\u00c1\3\2\2\2\u00c3\u00c4\3\2\2\2\u00c4\u00c2\3\2\2\2\u00c4\u00c5"+

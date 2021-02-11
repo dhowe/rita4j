@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScriptParser.g4 by ANTLR 4.8
+// Generated from ./src/main/java/rita/antlr/RiScriptParser.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 

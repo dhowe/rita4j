@@ -1,4 +1,4 @@
-// Generated from ../ritajs/grammar/RiScriptLexer.g4 by ANTLR 4.8
+// Generated from ./src/main/java/rita/antlr/RiScriptLexer.g4 by ANTLR 4.8
 package rita.antlr;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
@@ -17,7 +17,7 @@ public class RiScriptLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		LCOMM=1, BCOMM=2, Q=3, GT=4, LT=5, MDS=6, LP=7, RP=8, LB=9, RB=10, LCB=11, 
+		LCOMM=1, BCOMM=2, Q=3, MDS=4, GT=5, LT=6, LP=7, RP=8, LB=9, RB=10, LCB=11, 
 		RCB=12, DOT=13, WS=14, FS=15, EXC=16, AST=17, HAT=18, DOL=19, COM=20, 
 		CONT=21, BS=22, NL=23, DYN=24, SYM=25, OR=26, EQ=27, TF=28, ENT=29, INT=30, 
 		OP=31, CHR=32, MDT=33, MDE=34;
@@ -33,7 +33,7 @@ public class RiScriptLexer extends Lexer {
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"LCOMM", "BCOMM", "Q", "GT", "LT", "MDS", "LP", "RP", "LB", "RB", "LCB", 
+			"LCOMM", "BCOMM", "Q", "MDS", "GT", "LT", "LP", "RP", "LB", "RB", "LCB", 
 			"RCB", "DOT", "WS", "FS", "EXC", "AST", "HAT", "DOL", "COM", "CONT", 
 			"BS", "NL", "DYN", "SYM", "OR", "EQ", "TF", "ENT", "INT", "OP", "CHR", 
 			"IDENT", "NIDENT", "MDT", "MDE"
@@ -43,7 +43,7 @@ public class RiScriptLexer extends Lexer {
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, null, null, null, "'>'", "'<'", null, "'('", null, "'['", "']'", 
+			null, null, null, null, null, "'>'", "'<'", "'('", null, "'['", "']'", 
 			"'{'", "'}'", "'.'", null, "'/'", "'!'", "'*'", "'^'", "'$'", "','", 
 			null, "'\\'"
 		};
@@ -51,7 +51,7 @@ public class RiScriptLexer extends Lexer {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "LCOMM", "BCOMM", "Q", "GT", "LT", "MDS", "LP", "RP", "LB", "RB", 
+			null, "LCOMM", "BCOMM", "Q", "MDS", "GT", "LT", "LP", "RP", "LB", "RB", 
 			"LCB", "RCB", "DOT", "WS", "FS", "EXC", "AST", "HAT", "DOL", "COM", "CONT", 
 			"BS", "NL", "DYN", "SYM", "OR", "EQ", "TF", "ENT", "INT", "OP", "CHR", 
 			"MDT", "MDE"
@@ -120,7 +120,7 @@ public class RiScriptLexer extends Lexer {
 		switch (ruleIndex) {
 		case 2:
 			return Q_sempred((RuleContext)_localctx, predIndex);
-		case 5:
+		case 3:
 			return MDS_sempred((RuleContext)_localctx, predIndex);
 		}
 		return true;
@@ -148,7 +148,7 @@ public class RiScriptLexer extends Lexer {
 		"\t\31\4\32\t\32\4\33\t\33\4\34\t\34\4\35\t\35\4\36\t\36\4\37\t\37\4 \t"+
 		" \4!\t!\4\"\t\"\4#\t#\4$\t$\4%\t%\3\2\3\2\3\2\3\2\7\2Q\n\2\f\2\16\2T\13"+
 		"\2\3\2\3\2\3\2\3\2\3\2\3\3\3\3\3\3\3\3\7\3_\n\3\f\3\16\3b\13\3\3\3\3\3"+
-		"\3\4\3\4\3\4\3\5\3\5\3\6\3\6\3\7\3\7\3\7\3\7\3\7\3\b\3\b\3\t\3\t\3\n\3"+
+		"\3\4\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\6\3\6\3\7\3\7\3\b\3\b\3\t\3\t\3\n\3"+
 		"\n\3\13\3\13\3\f\3\f\3\r\3\r\3\16\3\16\3\17\3\17\3\20\3\20\3\21\3\21\3"+
 		"\22\3\22\3\23\3\23\3\24\3\24\3\25\3\25\3\26\3\26\3\26\3\26\3\26\3\27\3"+
 		"\27\3\30\5\30\u0096\n\30\3\30\3\30\3\31\3\31\3\31\3\31\3\31\3\32\3\32"+
@@ -171,7 +171,7 @@ public class RiScriptLexer extends Lexer {
 		"\"\3\2\2\2\2$\3\2\2\2\2&\3\2\2\2\2(\3\2\2\2\2*\3\2\2\2\2,\3\2\2\2\2.\3"+
 		"\2\2\2\2\60\3\2\2\2\2\62\3\2\2\2\2\64\3\2\2\2\2\66\3\2\2\2\28\3\2\2\2"+
 		"\2:\3\2\2\2\2<\3\2\2\2\2>\3\2\2\2\2@\3\2\2\2\2B\3\2\2\2\3H\3\2\2\2\3J"+
-		"\3\2\2\2\4L\3\2\2\2\6Z\3\2\2\2\be\3\2\2\2\nh\3\2\2\2\fj\3\2\2\2\16l\3"+
+		"\3\2\2\2\4L\3\2\2\2\6Z\3\2\2\2\be\3\2\2\2\nh\3\2\2\2\fm\3\2\2\2\16o\3"+
 		"\2\2\2\20q\3\2\2\2\22s\3\2\2\2\24u\3\2\2\2\26w\3\2\2\2\30y\3\2\2\2\32"+
 		"{\3\2\2\2\34}\3\2\2\2\36\177\3\2\2\2 \u0081\3\2\2\2\"\u0083\3\2\2\2$\u0085"+
 		"\3\2\2\2&\u0087\3\2\2\2(\u0089\3\2\2\2*\u008b\3\2\2\2,\u008d\3\2\2\2."+
@@ -182,8 +182,8 @@ public class RiScriptLexer extends Lexer {
 		"QT\3\2\2\2RS\3\2\2\2RP\3\2\2\2SU\3\2\2\2TR\3\2\2\2UV\7,\2\2VW\7\61\2\2"+
 		"WX\3\2\2\2XY\b\2\2\2Y\5\3\2\2\2Z[\7\61\2\2[\\\7\61\2\2\\`\3\2\2\2]_\n"+
 		"\2\2\2^]\3\2\2\2_b\3\2\2\2`^\3\2\2\2`a\3\2\2\2ac\3\2\2\2b`\3\2\2\2cd\b"+
-		"\3\2\2d\7\3\2\2\2ef\6\4\2\2fg\7A\2\2g\t\3\2\2\2hi\7@\2\2i\13\3\2\2\2j"+
-		"k\7>\2\2k\r\3\2\2\2lm\6\7\3\2mn\7*\2\2no\3\2\2\2op\b\7\3\2p\17\3\2\2\2"+
+		"\3\2\2d\7\3\2\2\2ef\6\4\2\2fg\7A\2\2g\t\3\2\2\2hi\6\5\3\2ij\7*\2\2jk\3"+
+		"\2\2\2kl\b\5\3\2l\13\3\2\2\2mn\7@\2\2n\r\3\2\2\2op\7>\2\2p\17\3\2\2\2"+
 		"qr\7*\2\2r\21\3\2\2\2st\7+\2\2t\23\3\2\2\2uv\7]\2\2v\25\3\2\2\2wx\7_\2"+
 		"\2x\27\3\2\2\2yz\7}\2\2z\31\3\2\2\2{|\7\177\2\2|\33\3\2\2\2}~\7\60\2\2"+
 		"~\35\3\2\2\2\177\u0080\t\3\2\2\u0080\37\3\2\2\2\u0081\u0082\7\61\2\2\u0082"+
