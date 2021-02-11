@@ -230,13 +230,12 @@ public class Lexicon {
 
 	public String[] search(String regex, Map<String, Object> opts) {
 		Pattern re = null;
-		if (Util.strOpt("type", opts, "").equals("stresses")) {
-			if (RE.test("^[01]+$", regex)) {
-				regex = regex.replaceAll("(?<=[01])([01])", "/$1");
-				console.log(regex);
-			}
-			re = Pattern.compile(regex);
+		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^[01]+$", regex)) {
+			//regex = regex.replaceAll("(?<=[01])([01])", "/$1"); //lookbehind
+			regex = regex.replaceAll("([01])(?=([01]))", "$1/");
+			//console.log(regex);
 		}
+		if (regex != null) re = Pattern.compile(regex);
 		return search(re, opts);
 	}
 
@@ -246,12 +245,13 @@ public class Lexicon {
 		String type = Util.strOpt("type", opts, "");
 		int limit = Util.intOpt("limit", opts);
 		List<String> result = new ArrayList<String>();
-
+		final String TargetPos = "targetPos", Stresses = "stresses";
+		final String Phones = "phones", Stress = "1", Spc = " ";
+		
 		boolean tmp = RiTa.SILENCE_LTS;
 		RiTa.SILENCE_LTS = true;
 
 		opts = this.parseArgs(opts);
-		//console.log(opts);
 
 		for (int i = 0; i < words.length; i++) {
 
@@ -259,7 +259,7 @@ public class Lexicon {
 
 			if (!this.checkCriteria(word, data, opts)) continue;
 
-			if (((String) opts.get("targetPos")).length() > 0) {
+			if (((String) opts.get(TargetPos)).length() > 0) {
 				word = matchPos(word, data, opts, false);
 				if (word == null) continue;
 				// Note: we may have changed the word here (e.g. via conjugation)
@@ -268,16 +268,15 @@ public class Lexicon {
 			}
 
 			if (re != null) {
-				if (type.equals("stresses")) {
+				if (type.equals(Stresses)) {
 					//String stresses = RiTa.analyzer.analyzeWord(word)[1];
 					String phones = data != null ? data[0] : this.rawPhones(word);
 					String stresses = RiTa.analyzer.phonesToStress(phones);
 					if (RE.test(re, stresses)) result.add(word);
 				}
-				else if (type.equals("phones")) {
+				else if (type.equals(Phones)) {
 					String phones = data != null ? data[0] : this.rawPhones(word);
-					phones = phones.replaceAll("[1]", "").replaceAll(" ", Analyzer.DELIM);
-					//String phones = RiTa.analyzer.analyzeWord(word)[0];
+					phones = phones.replaceAll(Stress, "").replaceAll(Spc, Analyzer.DELIM);
 					if (RE.test(re, phones)) result.add(word);
 				}
 				else {
@@ -753,7 +752,7 @@ public class Lexicon {
 		// Step 6 ----------------------------------------------
 		return matrix[source.length][target.length];
 	}
-	
+
 	private Map<String, Object> parseArgs(Map<String, Object> opts) {
 		String tpos = Util.strOpt("pos", opts, "");
 		boolean pluralize = false;
@@ -777,6 +776,7 @@ public class Lexicon {
 		opts.put("targetPos", tpos);
 		return opts;
 	}
+
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
 		console.log(RiTa.lexicon().randomWord(null));

@@ -48,9 +48,9 @@ public class Analyzer {
 
 		// TODO: add cache
 
-		// if its a plural, check the singular
+		// if its a simple plural ending in 's',
+		// and the singular is in the lexicon, add '-z' to end
 		if (rawPhones == null && word.endsWith("s")) {
-
 			String sing = RiTa.singularize(word);
 			rawPhones = RiTa.lexicon().rawPhones(sing, true);
 			if (rawPhones != null) rawPhones += "-z"; // add 's' phone
@@ -58,13 +58,16 @@ public class Analyzer {
 
 		// TODO: what about verb forms here??
 
+		boolean silent = RiTa.SILENT || RiTa.SILENCE_LTS
+				|| Util.boolOpt("silent", opts);
+
 		// now use the lts engine if needed
 		if (rawPhones == null) {
 
 			String[] ltsPhones = computePhones(word);
 			if (ltsPhones != null && ltsPhones.length > 0) {
 
-				if (!RiTa.SILENT && !RiTa.SILENCE_LTS && word.matches("[a-zA-Z]+")) {
+				if (!silent && word.matches("[a-zA-Z]+")) {
 					System.out.println("[RiTa] Used LTS-rules for '" + word + "'");
 				}
 				rawPhones = Util.syllabifyPhones(ltsPhones);
@@ -76,38 +79,21 @@ public class Analyzer {
 			}
 		}
 
-
 		String sp = rawPhones.replaceAll("[01]", "").replaceAll(" ", DELIM) + " ";
 		String phones = sp.equals("dh ") ? "dh-ah " : sp; // special case
 		String ss = rawPhones.replaceAll(" +", SLASH).replaceAll("1", "") + " ";
 		String syllables = ss.equals("dh ") ? "dh-ah " : ss;
 
 		// WORKINE HERE
-		
-//		other TODO
-//		------------
-//		do validateRuleName in grammar
-//		test expand() with '$start'
-//		search function, stresses x2 (lookahead)
 
-		
+		//		other TODO
+		//		------------
+		//		do validateRuleName in grammar
+		//		test expand() with '$start'
+
 		// compute the stresses
-		String stresses = useRaw ? word : phonesToStress(phones);
-//		if (!useRaw) {
-//			String[] stressyls = rawPhones.split(" ");
-//			for (int j = 0; j < stressyls.length; j++) {
-//				if (stressyls[j].length() == 0) continue;
-//				stresses += (stressyls[j].indexOf(RiTa.STRESS) > -1)
-//						? RiTa.STRESS
-//						: RiTa.NOSTRESS;
-//				if (j < stressyls.length - 1) stresses += SLASH;
-//			}
-//		}
-//		else {
-//			stresses += word;
-//		}
-
-		if (!stresses.endsWith(" ")) stresses += " "; // why?
+		String stresses = useRaw ? word : phonesToStress(rawPhones);
+		if (!stresses.endsWith(" ")) stresses += " ";
 
 		return new String[] { phones, stresses, syllables };
 	}
@@ -128,5 +114,5 @@ public class Analyzer {
 		}
 		return stresses;
 	}
-	
+
 }

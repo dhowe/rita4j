@@ -2,10 +2,9 @@ package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import rita.*;
+import java.util.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import rita.*;
 
 import org.junit.jupiter.api.Test;
 
@@ -299,12 +298,13 @@ public class AnalyzerTests {
 
 		String[] data;
 		data = RiTa.analyzer.analyzeWord("abandon");
+		System.out.println(Arrays.asList(data));
 		String phones = data[0];
 		String stresses = data[1];
 		String syllables = data[2];
-		eq(phones, "ah-b-ae-n-d-ah-n");
-		eq(stresses,"0/1/0");
-		eq(syllables, "ah/b-ae-n/d-ah-n");
+		eq(phones, "ah-b-ae-n-d-ah-n ");
+		eq(stresses,"0/1/0 ");
+		eq(syllables, "ah/b-ae-n/d-ah-n ");
 	}
 		
 	@Test

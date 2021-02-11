@@ -3,6 +3,7 @@ package rita.test;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
 
@@ -194,7 +195,7 @@ public class LexiconTests {
 				"triumphantly"
 		};
 		assertArrayEquals(results, RiTa.search("phant"));
-		assertArrayEquals(results, RiTa.search("/phant/"));
+		assertArrayEquals(results, RiTa.search("phant"));
 	}
 
 	@Test
@@ -210,7 +211,7 @@ public class LexiconTests {
 				"oftentimes"
 		});
 
-		String[] res2 = RiTa.search("/f-a[eh]-n-t/", opts("type", "phones", "limit", 10));
+		String[] res2 = RiTa.search("f-a[eh]-n-t", opts("type", "phones", "limit", 10));
 		//System.out.println(Arrays.asList(res2));
 		assertArrayEquals(res2, new String[] {
 				"elephant",
@@ -234,13 +235,10 @@ public class LexiconTests {
 		hm.put("type", "stresses");
 		hm.put("limit", 5);
 		hm.put("pos", "n");
-
-		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abalone", "abandonment", "abbreviation", "abdomen", "abduction" });
+		assertArrayEquals(RiTa.search("010", hm), new String[] { "abalone", "abandonment", "abbreviation", "abdomen", "abduction" });
 
 		hm.put("numSyllables", 3);
-		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abdomen", "abduction", "abortion", "abruptness", "absorber"});
+		assertArrayEquals(RiTa.search("010", hm), new String[] { "abdomen", "abduction", "abortion", "abruptness", "absorber"});
 
 		hm.clear();
 		hm.put("type", "phones");
@@ -255,32 +253,32 @@ public class LexiconTests {
 		hm.put("type", "phones");
 		hm.put("limit", 5);
 		hm.put("pos", "v");
-		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
-
+		assertArrayEquals(RiTa.search("f-a[eh]-n-t", hm), new String[] { "fantasize" });
+		
+		hm.clear();
+		hm.put("type", "phones");
+		hm.put("limit", 5);
+		hm.put("pos", "vb");
+		assertArrayEquals(RiTa.search("f-a[eh]-n-t", hm), new String[] { "fantasize" });
+		
 		hm.clear();
 		hm.put("type", "stresses");
 		hm.put("limit", 5);
 		hm.put("pos", "nns");
 		res = RiTa.search("010", hm);
-
+		//System.out.println(Arrays.asList(res));
 		assertArrayEquals(res,
-				new String[] { "abalone", "abandonments", "abbreviations", "abdomens", "abductions" });
+				new String[] { "abalone", "abandonments", "abbreviations", "abductions", "abilities" });
 
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
-				new String[] { "abdomens", "abductions", "abortions", "absorbers", "absorptions" });
-
+				new String[] { "abductions", "abortions", "absorbers", "abstentions", "abstractions" });
+    
 		hm.clear();
 		hm.put("type", "phones");
 		hm.put("limit", 3);
 		hm.put("pos", "nns");
 		assertArrayEquals(RiTa.search("f-ah-n-t", hm), new String[] { "elephants", "infants", "infantries" });
-
-		hm.clear();
-		hm.put("type", "phones");
-		hm.put("limit", 5);
-		hm.put("pos", "vb");
-		assertArrayEquals(RiTa.search("/f-a[eh]-n-t/", hm), new String[] { "fantasize" });
 	}
 
 	@Test
