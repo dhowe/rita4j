@@ -104,7 +104,8 @@ public class RiGrammar {
 
 	public RiGrammar addRules(Map<String, Object> rules) {
 		for (Entry<String, Object> entry : rules.entrySet()) {
-			this.rules.put(entry.getKey(), entry.getValue());
+			this.addRule(entry.getKey(), entry.getValue());
+			//this.rules.put(entry.getKey(), entry.getValue());
 		}
 		return this;
 	}

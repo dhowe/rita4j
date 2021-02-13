@@ -240,13 +240,14 @@ public class GrammarTests {
 
 	@Test
 	public void resolveInlines() {
-		String[] expected = { "Dave talks to Dave.", "Jill talks to Jill.", "Pete talks to Pete." };
+		String[] expected = { " Dave talks to Dave.", " Jill talks to Jill.", " Pete talks to Pete." };
 		RiGrammar rg;
 		String rules, rs;
 
 		rules = "{\"start\": \" $chosen talks to $chosen.\",\"$chosen\": \"Dave | Jill | Pete\"}";
 		rg = RiGrammar.fromJSON(rules);
 		rs = rg.expand();
+		//System.err.println("'"+rs+"'");
 		assertTrue(Arrays.asList(expected).contains(rs));
 	}
 
@@ -302,14 +303,17 @@ public class GrammarTests {
 				"determiner", "a | the",
 				"noun", "woman | man");
 		sentence3Map.put("verb", "shoots");
-		Map<String, Object>[] grammarMaps = (Map<String, Object>[]) new Map[] { sentence1Map, sentence2Map, sentence3Map };
+		Map<String, Object>[] grammarMaps = (Map<String, Object>[]) new Map[] 
+				{ sentence1Map, sentence2Map, sentence3Map };
 
 		//as Maps
 		for (int i = 0; i < grammarMaps.length; i++) {
+			
 			rg.addRules(grammarMaps[i]);
+			//System.out.println(i+") "+ rg.rules);
 			assertTrue(rg.rules != null);
-			assertTrue(rg.rules.get("start") != null);
-			assertTrue(rg.rules.get("noun_phrase") != null);
+			assertTrue(rg.rules.get("$$start") != null);
+			assertTrue(rg.rules.get("$$noun_phrase") != null);
 			assertTrue(rg.expand().length() > 0);
 		}
 

@@ -102,45 +102,90 @@ public class RiScript {
 
 	private String resolveEntities(String s) {
 		String k = HtmlEscape.unescapeHtml(s);
-		// replace non-breaking-space char with plain space
+		// replace non-breaking-space char with plain space ??
 		return k.replaceAll(" ", " ");
 	}
 
 	String ctxStr(Map<String, Object> ctx) {
-		return (ctx != null ? ctx.toString().replaceAll("rita.RiScript\\$\\$Lambda[^,]+,", "[F],") : "{}");
+		return (ctx != null ? ctx.toString().replaceAll(
+				"rita.RiScript\\$\\$Lambda[^,]+,", "[F],") : "{}");
 	}
 
-	private void passInfo(Map<String, Object> ctx, String input, String output, int pass) {
-		System.out.println("\nPass#" + pass + ":  " + input.replaceAll("\\r?\\n", "\\\\n")
-				+ "\nResult:  " + output + "\nContext: " + ctxStr(ctx));
+	private void passInfo(Map<String, Object> ctx,
+			String input, String output, int pass) {
+		System.out.println("\nPass#" + pass + ":  "
+				+ input.replaceAll("\\r?\\n", "\\\\n")
+				+ "\nResult:  '" + output + "'\nContext: " + ctxStr(ctx));
 	}
 
-	private String[] preParse(String input, Map<String, Object> opts) {
-		String parse = input != null ? input : "", pre = "", post = "";
-		boolean skipPre = RE.test(PP59_RE, parse); // see issue:rita#59
-		if (!Util.boolOpt("skipPreParse", opts) && !RE.test(PPA_RE, parse)) {
-			String[] words = input.split(" +");
-			int preIdx = 0, postIdx = words.length - 1;
-			while (!skipPre && preIdx < words.length) {
-				if (RE.test(PPB_RE, words[preIdx])) break;
-				preIdx++;
-			}
-			if (preIdx < words.length) {
-				while (postIdx >= 0) {
-					if (RE.test(PPB_RE, words[postIdx])) break;
-					postIdx--;
+	private boolean dynamic(String l) {
+		return l.startsWith("{") || RE.test("([\\/()\\$|\\[\\]])|\\.\\S", l);
+	}
+
+	private String[] preparse(String input, Map<String, Object> opts) {
+
+		String rpre = "", rparse = input, rpost = "";
+
+		if (input == null || input.length() == 0) {
+			return new String[] { rpre, rparse, rpost };
+		}
+
+		// WORKING HERE
+
+		if (!Util.boolOpt("nopre", opts)) { // DOC:
+
+			int mode = 0;
+			input = input.replaceAll("\\\\n", "");
+			String[] lines = input.split("\\r?\\n");
+
+			List<String> pre = new ArrayList<>(),
+					parse = new ArrayList<>(),
+					post = new ArrayList<>();
+
+			for (int i = 0; i < lines.length; i++) {
+				String line = lines[i];
+
+				if (mode == 0) {      // pre
+					if (dynamic(line)) {
+						parse.add(line);
+						mode = 1;
+					}
+					else {
+						pre.add(line);
+					}
+				}
+				else if (mode == 1) { // parse
+					if (dynamic(line)) {
+						parse.add(line);
+					}
+					else {
+						post.add(line);
+						mode = 2;
+					}
+				}
+				else if (mode == 2) { // post
+					if (dynamic(line)) {
+						parse.addAll(post);
+						parse.add(line);
+						post.clear();
+						mode = 1;
+					}
+					else {
+						post.add(line);
+					}
 				}
 			}
-			pre = String.join(" ", Arrays.copyOfRange(words, 0, preIdx));
-			parse = String.join(" ", Arrays.copyOfRange(words, preIdx, postIdx + 1));
-			post = String.join(" ", Arrays.copyOfRange(words, postIdx + 1, words.length));
+
+			rpre = joinList(pre);
+			rparse = joinList(parse);
+			rpost = joinList(post);
 		}
-		if (Util.boolOpt("trace", opts) && parse.length() == 0) {
-			System.out.println("NO PARSE: preParse('"
-					+ (pre.length() > 0 ? pre : "") + "', '"
-					+ (post.length() > 0 ? post : "") + "'):");
-		}
-		return new String[] { pre, parse, post };
+
+		return new String[] { rpre, rparse, rpost };
+	}
+
+	private String joinList(List<String> l) {
+		return l.size() == 0 ? "" : String.join("\n", l.toArray(new String[l.size()]));
 	}
 
 	public CommonTokenStream lex(String input) {
@@ -157,10 +202,24 @@ public class RiScript {
 			tokenStream.fill();
 			int i = 0;
 			for (Token tok : tokenStream.getTokens()) {
-				System.out.println((i++) + ")" + tok);
+				System.out.println((i++) + ")" + tokenToString(tok));
 			}
 		}
 		return tokenStream;
+	}
+
+	private String tokenToString(Token t) {
+		String txt = "<no text>";
+		String ttxt = t.getText();
+		if (ttxt != null && ttxt.length() > 0) {
+			txt = ttxt.replaceAll("\\n", "\\\\n")
+					.replace("\\r", "\\\\r").replace("\\t", "\\\\t");
+		}
+		int ttype = t.getType();
+		String type = (ttype > -1 ? this.lexer
+				.getVocabulary().getSymbolicName(ttype) : "EOF");
+		return "[ " + t.getLine() + "." + t.getCharPositionInLine()
+				+ ": '" + txt + "' -> " + type + " ]";
 	}
 
 	public ScriptContext parse(CommonTokenStream tokens, String input) {
@@ -207,30 +266,30 @@ public class RiScript {
 
 	public String lexParseVisit(String input, Map<String, Object> context, Map<String, Object> opts) {
 
-		ScriptContext tree;
-		String result = "", parts[] = this.preParse(input, opts);
+		String parts[] = this.preparse(input, opts);
 		String pre = parts[0], parse = parts[1], post = parts[2];
 
+		if (Util.boolOpt("trace", opts) && (pre.length() > 0 || post.length() > 0))
+			System.out.println("preParse('" + (pre.length() > 0 ? pre : "")
+					+ "', '" + (post.length() > 0 ? post : "") + "'):");
+
+		String visited = "";
 		if (parse.length() > 0) {
-			tree = this.lexParse(parts[1], opts);
-
-			if (Util.boolOpt("trace", opts) && (pre.length() > 0 || post.length() > 0))
-				System.out.println("preParse('" + (pre.length() > 0 ? pre : "")
-						+ "', '" + (post.length() > 0 ? post : "") + "'):");
-
-			result = this.visitor.init(context, opts).start(tree);
+			ScriptContext tree = this.lexParse(parse, opts);
+			visited = this.visitor.init(context, opts).start(tree);
 		}
-		return (this.normalize(pre) + " " + result + " " + this.normalize(post)).trim();
-	}
 
-	String normalize(String s) {
-		return (s != null && s.length() > 0) ? s.replaceAll("\\r", "")
-				.replaceAll("\\\\n", "")
-				.replaceAll("\\n", " ") : "";
+		String result = (pre.length() > 0 && visited.length() > 0)
+				? pre + "\n" + visited
+				: pre + visited;
+
+		return (result.length() > 0 && post.length() > 0)
+				? result + "\n" + post
+				: result + post;
 	}
 
 	public boolean isParseable(String s) { // public for testing
-//		return PRS_RE.matcher(s).find();
+		//		return PRS_RE.matcher(s).find();
 		return RE.test(PRS_RE, s);
 	}
 
@@ -242,16 +301,8 @@ public class RiScript {
 				phones.substring(0, 1)) ? "an " : "a ") + s;
 	}
 
-//	private static final Pattern PP59_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "]");
-//	private static final Pattern PPA_RE = Pattern.compile("^[" + RiTa.SYM + RiTa.DYN + "{]");
-//	private static final Pattern PPB_RE = Pattern.compile("[" + RiTa.SYM + RiTa.DYN + "(){}|]");
-//	private static final Pattern PRS_RE = Pattern.compile("[()$]");//|(" + RiTa.VSYM + "))");
-
-	private static final Pattern PP59_RE = Pattern.compile("\\$");
-	private static final Pattern PPA_RE = Pattern.compile("^[${]");
-	private static final Pattern PPB_RE = Pattern.compile("[$(){}|]");
 	private static final Pattern SYM_RE = Pattern.compile(RiTa.VSYM);
-	private static final Pattern PRS_RE = Pattern.compile("[(){}|]|"+RiTa.VSYM);
+	private static final Pattern PRS_RE = Pattern.compile("[(){}|]|" + RiTa.VSYM);
 
 	private static final Function<String, String> identity = s -> s;
 
@@ -282,8 +333,8 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("quotify", quotify),
 			new AbstractMap.SimpleEntry<String, Object>("ucf", capitalize),
 			new AbstractMap.SimpleEntry<String, Object>("art", articlize),
-//			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
-//			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
+			//			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
+			//			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("norepeat", identity),
 			new AbstractMap.SimpleEntry<String, Object>("uppercase", uc),
 			new AbstractMap.SimpleEntry<String, Object>("uc", uc),

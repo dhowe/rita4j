@@ -6,29 +6,24 @@ import org.antlr.v4.runtime.ParserRuleContext;
 
 import rita.antlr.RiScriptParser.*;
 
-// JS: this is an inner class in Visitor
+// JS: this is an inner class in Visitor 
 
-public class ChoiceState {
+public class ChoiceState { //SYNC:
 
-	static final String SIMPLE = "", RSEQUENCE = "rseq";
-	static final String SEQUENCE = "seq", NOREPEAT = "nore";
-	static final String[] TYPES = { RSEQUENCE, SEQUENCE, NOREPEAT };
+	//static final String SIMPLE = "", RSEQUENCE = "rseq";
+	//static final String SEQUENCE = "seq", NOREPEAT = "nore";
+	//static final String[] TYPES = { RSEQUENCE, SEQUENCE, NOREPEAT };
+	static final String[] NOREPEAT = { "norepeat", "nr" };
 
-	int id;
-	String type;
+	//private int index = 0, type = 0;
 	List<ParserRuleContext> options;
 
-	private int cursor = 0;
 	private ParserRuleContext last;
 
 	public ChoiceState(Visitor parent, ChoiceContext ctx) {
-		this(parent, ctx, SIMPLE);
-	}
 
-	public ChoiceState(Visitor parent, ChoiceContext ctx, String type) {
-
-		this.type = type;
-		this.id = parent.indexer;
+		//this.type = 0;
+		///this.index = 0;
 		this.options = new ArrayList<ParserRuleContext>();
 
 		List<WexprContext> wexprs = ctx.wexpr();
@@ -42,37 +37,23 @@ public class ChoiceState {
 				options.add(expr);
 			}
 		}
-
-		this.handleSequence(ctx);
-
-		if (type.equals(RSEQUENCE)) {
-			this.options = RandGen.randomOrdering(this.options);
-		}
 	}
 
-	private void handleSequence(ChoiceContext ctx) { // TODO: use contains instead
-		List<TransformContext> txs = ctx.transform();
-		if (txs.size() > 0) {
-			String[] tfs = txs.get(0).getText().replaceAll("^\\.", "").split("\\.");
-			//console.log(tfs);
-			for (String tf : tfs) {
-				for (String t : TYPES) {
-					if (tf.equals(t + RiTa.FUNC)) {
-						this.type = t;
-						return;
-					}
-				}
-			}
-		}
-	}
-
-	public ParserRuleContext select() {
-		if (options.size() == 0) return null;
+	public ParserRuleContext select(String txStr) {
+		if (options.size() == 0) throw new RiTaException("no options");
 		if (options.size() == 1) return options.get(0);
-		if (type.equals(ChoiceState.SEQUENCE)) return selectSequence();
-		if (type.equals(ChoiceState.NOREPEAT)) return selectNoRepeat();
-		if (type.equals(ChoiceState.RSEQUENCE)) return selectRandSequence();
-		return RandGen.randomItem(this.options);//randomElement(); // SIMPLE
+		ParserRuleContext res;
+    if (txStr.contains('.' + NOREPEAT[0]) || txStr.contains('.' + NOREPEAT[1])) {
+      res = this.selectNoRepeat();
+    }
+    else {
+      res = RiTa.random(this.options); // SIMPLE
+    }
+    return (this.last = res);
+		//		if (type.equals(ChoiceState.SEQUENCE)) return selectSequence();
+		//		if (type.equals(ChoiceState.NOREPEAT)) return selectNoRepeat();
+		//		if (type.equals(ChoiceState.RSEQUENCE)) return selectRandSequence();
+		//return RandGen.randomItem(this.options);//randomElement(); // SIMPLE
 	}
 
 	protected ParserRuleContext selectNoRepeat() {
@@ -84,23 +65,8 @@ public class ChoiceState {
 		return (this.last = cand);
 	}
 
-	protected ParserRuleContext selectNoRepeatX() {
-		ParserRuleContext cand = null;
-		if (last != null) {
-			// need to test for equality here
-			while (last.equals(cand)) {
-				cand = RandGen.randomItem(this.options);
-			}
-		}
-		else {
-			cand = RandGen.randomItem(this.options);
-		}
-		return (this.last = cand);
+	/*protected ParserRuleContext selectSequence() {
 
-	}
-
-	protected ParserRuleContext selectSequence() {
-		
 		return (this.last = options.get(cursor++ % options.size()));
 	}
 
@@ -112,6 +78,6 @@ public class ChoiceState {
 			if (first != last) cursor = 0;
 		}
 		return selectSequence();
-	}
+	}*/
 
 }
