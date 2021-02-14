@@ -1,5 +1,7 @@
 package rita;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Pattern;
@@ -23,7 +25,6 @@ public class RiScript {
 	protected RiScriptLexer lexer;
 	protected RiScriptParser parser;
 	protected List<String> appliedTransforms;
-
 	protected Visitor visitor;
 
 	public RiScript() {
@@ -31,12 +32,10 @@ public class RiScript {
 	}
 
 	public static String eval(String input) {
-
 		return RiScript.eval(input, null);
 	}
 
 	public static String eval(String input, Map<String, Object> ctx) {
-
 		return RiScript.eval(input, ctx, null);
 	}
 
@@ -78,27 +77,6 @@ public class RiScript {
 
 		return resolveEntities(expr);
 	}
-	//
-	//	private RiScript pushTransforms(Map<String, Object> ctx) {
-	//		if (this.appliedTransforms == null) {
-	//			this.appliedTransforms = new ArrayList<String>();
-	//		}
-	//		for (String tx : RiScript.transforms.keySet()) {
-	//			if (!ctx.containsKey(tx)) {
-	//				ctx.put(tx, RiScript.transforms.get(tx));
-	//				this.appliedTransforms.add(tx);
-	//			}
-	//		}
-	//		return this;
-	//	}
-	//
-	//	private RiScript popTransforms(Map<String, Object> ctx) {
-	//		for (String tx : appliedTransforms) {
-	//			ctx.remove(tx);
-	//		}
-	//		this.appliedTransforms.clear();
-	//		return this;
-	//	}
 
 	private String resolveEntities(String s) {
 		String k = HtmlEscape.unescapeHtml(s);
@@ -185,7 +163,8 @@ public class RiScript {
 	}
 
 	private String joinList(List<String> l) {
-		return l.size() == 0 ? "" : String.join("\n", l.toArray(new String[l.size()]));
+		return l.size() == 0 ? ""
+				: String.join("\n", l.toArray(new String[l.size()]));
 	}
 
 	public CommonTokenStream lex(String input) {
@@ -237,7 +216,7 @@ public class RiScript {
 		ScriptContext tree;
 		try {
 			tree = this.parser.script();
-			if (Util.boolOpt("trace", opts)) {
+			if (true || Util.boolOpt("trace", opts)) {
 				System.out.println("\n" + tree.toStringTree(
 						Arrays.asList(parser.getRuleNames())) + "\n");
 			}
@@ -256,8 +235,22 @@ public class RiScript {
 
 	public ScriptContext lexParse(String input, Map<String, Object> opts) {
 
+		long ms;
+		Instant start = null;
+		boolean perf = true;//Util.boolOpt("perf", opts);
+		if (perf) start = Instant.now();
 		CommonTokenStream tokens = this.lex(input, opts);
-		return this.parse(tokens, input, opts);
+		if (perf) {
+			ms = Duration.between(start, Instant.now()).toMillis();
+			System.out.println("[lexing] " + ms + "ms");
+			start = Instant.now();
+		}
+		ScriptContext sc = this.parse(tokens, input, opts);
+		if (perf) {
+			ms = Duration.between(start, Instant.now()).toMillis();
+			System.out.println("[parsing] " + ms + "ms");
+		}
+		return sc;
 	}
 
 	public String lexParseVisit(String input, Map<String, Object> context) {
@@ -266,6 +259,7 @@ public class RiScript {
 
 	public String lexParseVisit(String input, Map<String, Object> context, Map<String, Object> opts) {
 
+		Instant start = null;
 		String parts[] = this.preparse(input, opts);
 		String pre = parts[0], parse = parts[1], post = parts[2];
 
@@ -273,10 +267,15 @@ public class RiScript {
 			System.out.println("preParse('" + (pre.length() > 0 ? pre : "")
 					+ "', '" + (post.length() > 0 ? post : "") + "'):");
 
+		boolean perf = true;//Util.boolOpt("perf", opts);
+
 		String visited = "";
 		if (parse.length() > 0) {
 			ScriptContext tree = this.lexParse(parse, opts);
+			if (perf) start = Instant.now();
 			visited = this.visitor.init(context, opts).start(tree);
+			if (perf) System.out.println("[visiting] "
+					+ Duration.between(start, Instant.now()).toMillis() + "ms");
 		}
 
 		String result = (pre.length() > 0 && visited.length() > 0)
