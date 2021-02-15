@@ -1824,6 +1824,57 @@ public class RiScriptTests {
 		assertTrue(!fail);
 	}
 
+	//Chinese characters
+	@Test
+	public void handleEvalutionOfChineseCharacters_CHINESE() {
+		Map<String, Object> ctx = opts();
+		assertEq(RiTa.evaluate("中文", ctx), "中文");
+		assertEq(RiTa.evaluate("繁體中文", ctx), "繁體中文");
+		assertEq(RiTa.evaluate("简体中文", ctx), "简体中文");
+		assertEq(RiTa.evaluate("這是中文！", ctx), "這是中文！");
+		assertEq(RiTa.evaluate("！简体中文", ctx), "！简体中文");
+		assertEq(RiTa.evaluate("\"简体中文\"", ctx), "\"简体中文\"");
+		assertEq(RiTa.evaluate("$foo=繁體中文\n中文", ctx), "中文");
+		assertEq(RiTa.evaluate("$foo=繁體中文\n中文：\n$foo", ctx), "中文：\n繁體中文");
+		ctx = opts("a", "中文", "b", "日文");
+		assertEq(RiTa.evaluate("($a|$a)", ctx), "中文");
+		String res = RiTa.evaluate("$foo=(繁體中文|简体中文)\n$foo是$foo", opts());
+		assertTrue(Arrays.asList(new String[] { "繁體中文是繁體中文", "简体中文是简体中文" }).contains(res));
+	}
+	
+	@Test
+	public void handleDynamicWithChineseCharacters_CHINESE() {
+		assertEq(RiTa.evaluate("$$foo=中文\n繁體"), "繁體");
+		assertEq(RiTa.evaluate("$$foo=中文\n繁體$foo"), "繁體中文");
+		assertEq(RiTa.evaluate("$$foo=(繁體)\n$foo\n中文"), "繁體\n中文");
+	}
+
+	//@Test
+	//should it ?
+	public void allowChineseCharactersInSymbolName_CHINESE() {
+		assertEq(RiTa.evaluate("$變量中文", opts("變量", "繁體")), "繁體中文");
+		String res = RiTa.evaluate("$變量=(繁體|简体)\n$變量中文", opts());
+		assertTrue(Arrays.asList(new String[] { "繁體中文", "简体中文" }).contains(res));
+	}
+
+	@Test
+	public void handleContinuationWithChineseCharacters_CHINESE() {
+		assertEq(RiTa.evaluate("前半段句子\\n後半段句子"), "前半段句子後半段句子");
+		assertEq(RiTa.evaluate("$foo=(前半段句子\\n後半段句子)\n$foo"), "前半段句子後半段句子");
+		assertEq(RiTa.evaluate("$foo=前半段\n$foo句子   \\n後半段句子"), "前半段句子   後半段句子");
+		assertEq(RiTa.evaluate("$foo=前半段\n$foo句子\\n   後半段句子"), "前半段句子   後半段句子");
+	}
+
+	@Test
+	public void handleConditionalWithChineseCharacters_CHINESE() {
+		assertEq(RiTa.evaluate("$a=繁體\n{$a=繁體}? $a"), "繁體");
+		assertEq(RiTa.evaluate("$a=繁體\n{$a=中文}? $a"), "");
+		assertEq(RiTa.evaluate("$a=繁體\n{$a!=中文}? $a"), "繁體");
+		assertEq(RiTa.evaluate("$a=簡體和繁體中文\n{$a*=中文}? $a"), "簡體和繁體中文");
+		assertEq(RiTa.evaluate("$a=繁體和簡體\n{$a^=繁體}? $a"), "繁體和簡體");
+		assertEq(RiTa.evaluate("$a=簡體繁體\n{$a$=繁體}? $a"), "簡體繁體");
+	}
+
 	private static void assertEq(Object a, Object b) { // swap order of args
 		assertEquals(b, a);
 	}
