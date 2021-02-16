@@ -334,6 +334,15 @@ public class KnownIssues {
 		assertArrayEquals(expected, result); 
 	}
 
+	//@Test
+	public void callIsPunctOnChineseCharacters() {
+		String chineseCharacters = "這是一些隨機的中文字後來開始都會發揮吧首度落後兩分看來都是廢話卡卡聖誕賀卡還是阿塞德就回家啊哈薩克話說快時間啊但我阿拉斯加";
+		String[] characterArr = chineseCharacters.split("");
+		for (int i = 0; i < characterArr.length; i++) {
+			assertTrue(!RiTa.isPunct(characterArr[i]));
+		}
+	}
+
 	private static void assertEq(Object a, Object b) { // swap order of args
 		assertEquals(b, a);
 	}
