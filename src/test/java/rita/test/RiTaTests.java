@@ -304,11 +304,11 @@ public class RiTaTests {
 		assertTrue(!RiTa.isPunct(""));
 
 		//chinese characters
-		//assertTrue(!RiTa.isPunct("你")); -> knownIssues
-		String chineseCharacters = "這是一些隨機的中文字後來開始都會發揮吧首度落後兩分看來都是廢話卡卡聖誕賀卡還是阿塞德就回家啊哈薩克話說快時間啊但我阿拉斯加";
+		assertTrue(!RiTa.isPunct("你"));
+		String chineseCharacters = "這是一些隨機的中文字後來開始都會發揮吧首度落後兩分看來都是廢話卡卡聖誕賀卡還是阿塞德就回家啊哈薩克話說快時間啊但我阿拉斯加生命太短暂了不应该用来记恨人生在世谁都会有错误但我们很快会死去我们的罪过将会随我们的身体一起消失只留下精神的火花这就是我从来不想报复从来不认为生活不公平的原因我平静的生活";
 		String[] characterArr = chineseCharacters.split("");
 		for (int i = 0; i < characterArr.length; i++) {
-			//assertTrue(!RiTa.isPunct(characterArr[i]));
+			assertTrue(!RiTa.isPunct(characterArr[i]));
 		}
 		String chinesePuncts = "！。，“”：；、？⋯⋯";
 		String[] punctsArr = chinesePuncts.split("");
