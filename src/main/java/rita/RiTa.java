@@ -113,7 +113,7 @@ public class RiTa {
 	}
 
 	public static boolean isPunct(String text) {
-		return text != null && text.length() > 0 && (ONLY_PUNCT.matcher(text).matches() && !CHINESE_CHARACTER.matcher(text).matches());
+		return text != null && text.length() > 0 && ONLY_PUNCT.matcher(text).matches();
 	}
 
 	public static boolean isPunct(char c) {
@@ -485,8 +485,7 @@ public class RiTa {
 	public static final String VOWELS = "aeiou";
 	public static final String VERSION = "2";
 
-	public static final Pattern ONLY_PUNCT = Pattern.compile("^[^\\w\\s]*$");
-	public static final Pattern CHINESE_CHARACTER = Pattern.compile("^[\u4E00-\u9FA5]$");
+	public static final Pattern ONLY_PUNCT = Pattern.compile("^[\\p{Punct}|\ufffd]*$");
 	public /*tmp,for testing*/ static final String DYN = "$$";
 	static final String LP = "(", RP = ")", BN = "\n";
 	static final String DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>";

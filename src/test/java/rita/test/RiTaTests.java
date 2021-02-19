@@ -310,11 +310,6 @@ public class RiTaTests {
 		for (int i = 0; i < characterArr.length; i++) {
 			assertTrue(!RiTa.isPunct(characterArr[i]));
 		}
-		String chinesePuncts = "！。，“”：；、？⋯⋯";
-		String[] punctsArr = chinesePuncts.split("");
-		for (int i = 0; i < punctsArr.length; i++) {
-			assertTrue(RiTa.isPunct(punctsArr[i]));
-		}
 	}
 
 	@Test
