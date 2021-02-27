@@ -303,6 +303,8 @@ public class GrammarTests {
 				"determiner", "a | the",
 				"noun", "woman | man");
 		sentence3Map.put("verb", "shoots");
+		
+		@SuppressWarnings("unchecked")
 		Map<String, Object>[] grammarMaps = (Map<String, Object>[]) new Map[] 
 				{ sentence1Map, sentence2Map, sentence3Map };
 
