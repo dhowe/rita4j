@@ -47,23 +47,17 @@ public interface RiScriptParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitWeight(RiScriptParser.WeightContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link RiScriptParser#choice}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitChoice(RiScriptParser.ChoiceContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#assign}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitAssign(RiScriptParser.AssignContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link RiScriptParser#chars}.
+	 * Visit a parse tree produced by {@link RiScriptParser#transform}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
-	T visitChars(RiScriptParser.CharsContext ctx);
+	T visitTransform(RiScriptParser.TransformContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#dynamic}.
 	 * @param ctx the parse tree
@@ -76,6 +70,12 @@ public interface RiScriptParserVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitSymbol(RiScriptParser.SymbolContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RiScriptParser#choice}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitChoice(RiScriptParser.ChoiceContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#wexpr}.
 	 * @param ctx the parse tree
@@ -95,15 +95,15 @@ public interface RiScriptParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitUrl(RiScriptParser.UrlContext ctx);
 	/**
-	 * Visit a parse tree produced by {@link RiScriptParser#transform}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitTransform(RiScriptParser.TransformContext ctx);
-	/**
 	 * Visit a parse tree produced by {@link RiScriptParser#op}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
 	 */
 	T visitOp(RiScriptParser.OpContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link RiScriptParser#chars}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitChars(RiScriptParser.CharsContext ctx);
 }

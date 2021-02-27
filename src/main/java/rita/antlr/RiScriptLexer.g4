@@ -1,79 +1,51 @@
 lexer grammar RiScriptLexer;
 
-// changing file requires a re-compile: use $ yarn watch.grammar 
+/*
+ Note: changing file requires a re-compile: use $ npm run watch.grammar
+ 
+ Rule Priority --------------------------------------------------------------------------------
+ First, select the lexer rule which matches the longest input If the text matches an implicitly
+ defined token (like '{'), use the implicit rule If several lexer rules match the same input length,
+ choose the first one, based on definition order
+ */
 
 LCOMM: '/*' .*? '*/' -> channel(HIDDEN);
 BCOMM: '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
 Q: {_input.LA(-1)=='}'}? '?';
-MDS: {_input.LA(-1)==']'}? '('  -> pushMode(MD) ;
+MDS: {_input.LA(-1)==']'}? '(' -> pushMode(MD);
+// Java: Q: {_input.LA(-1)=='}'}? '?'; MDS: {_input.LA(-1)==']'}? '(' -> pushMode(MD) ;
 
-// For Java (script change)
-// Q: {_input.LA(-1)=='}'}? '?'; 
-// MDS: {_input.LA(-1)==']'}? '('  -> pushMode(MD) ;
-
-GT: '>';
-LT: '<';
-LP:'(';
+LP: '(';
 RP: ')';
 LB: '[';
 RB: ']';
 LCB: '{';
 RCB: '}';
-DOT: '.';
-WS: [ \t];
 FS: '/';
-EXC: '!';
 AST: '*';
-HAT: '^';
 DOL: '$';
 COM: ',';
-CONT: '\\' NL -> channel(HIDDEN);
-BS: '\\';
+GT: '>';
+LT: '<';
+DOT: '.';
+WS: [ \t];
+ESC: '\\' [()];
 NL: '\r'? '\n';
+DIDENT: '.' IDENT;
 DYN: '$$' NIDENT;
 SYM: '$' NIDENT;
 OR: WS* '|' WS*;
 EQ: WS* '=' WS*;
-TF: ('.' IDENT ( '(' ')')?)+;
 ENT: '&' [A-Za-z0-9#]+ ';';
-//NUM: ([0-9]+ | ( [0-9]* '.' [0-9]+));
 INT: WS* [0-9]+ WS*;
 OP: [!*$^<>] '=';
-CHR:
-	~(
-		'.'
-		| '>'
-		| '\\'
-		| '/'
-		| '<'
-		| '^'
-		| '*'
-		| '!'
-		| '['
-		| ']'
-		| '{'
-		| '}'
-		| '('
-		| ')'
-		| ' '
-		| '\t'
-		| '|'
-		| '='
-		| '$'
-		| '\n'
-	)+;
-fragment IDENT: [A-Za-z_] [A-Za-z_0-9-]*;
+CHR: ~[.>$\\/<*[\](){} \t\n|=]+;
+IDENT: [A-Za-z_] [A-Za-z_0-9-]*;
+CONT: '\\' NL -> channel(HIDDEN);
+
 fragment NIDENT: [A-Za-z_0-9] [A-Za-z_0-9-]*;
 
 mode MD;
-MDT              : ~(')')+; 
-MDE               : ')' -> popMode ;
-
-/*     
-    Rule Priority
-    ----------------------------------------------------------------------------
-    First, select the lexer rule which matches the longest input
-    If the text matches an implicitly defined token (like '{'), use the implicit rule
-    If several lexer rules match the same input length, choose the first one, based on definition order
- */
+MDT: ~(')')+;
+MDE: ')' -> popMode;

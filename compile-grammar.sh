@@ -45,9 +45,7 @@ rm -rf $OUTPUT_DIR/* #$OUTPUT_DIR/antlr/*
 cp $GRAMMAR_DIR/RiScriptParser.g4  $OUTPUT_DIR
 sed 's/this.//g; s/\.charCodeAt(0)//g' $GRAMMAR_DIR/RiScriptLexer.g4 > $OUTPUT_DIR/RiScriptLexer.g4
 
-java -Xmx500M -cp "$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Java -lib $OUTPUT_DIR -o $WORK_DIR -visitor -Xexact-output-dir -package rita.antlr $OUTPUT_DIR/RiScript*.g4
-
-#java -Xmx500M -cp "$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Java -lib $GRAMMAR_DIR -o $WORK_DIR -visitor -Xexact-output-dir -package rita.antlr $GRAMMAR_DIR/RiScript*.g4
+java -Xmx500M -cp "$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Java -lib $OUTPUT_DIR -o $WORK_DIR -visitor -no-listener -Xexact-output-dir -package rita.antlr $OUTPUT_DIR/RiScript*.g4
 
 cp $WORK_DIR/*.java $OUTPUT_DIR
 rm -rf $WORK_DIR
