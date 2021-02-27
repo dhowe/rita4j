@@ -2,8 +2,7 @@ package rita;
 
 import java.lang.reflect.Method;
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
+import java.util.function.*;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
@@ -60,7 +59,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		if (trace) System.out.println("visitLink: '"
 				+ text + "' link=" + url);
 		return '[' + this.visit(ctx.expr()) + ']'
-				+ "&lpar;" + url + "&rpar;" + flatten(ctx.WS());
+				+ "&lpar;" + url + "&rpar;" + flattenTx(ctx.WS());
 	}
 
 	public String visitLine(LineContext ctx) {
@@ -80,10 +79,10 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		}
 
 		List<TransformContext> txs = ctx.transform();
-		String tstr = flatten(txs);
+		String tstr = flattenTx(txs);
 
 		if (trace) System.out.println("visitChoice: '" + text
-				+ "' options=['" + flatten(choice.options).replaceAll("\\|", "','")
+				+ "' options=['" + flattenTx(choice.options).replaceAll("\\|", "','")
 				+ "'] tfs=" + tstr);
 
 		// make the selection
@@ -121,7 +120,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 
 		if (trace) System.out.println("visitSymbol: $" + ident +
 				(context.get(RiTa.DYN + ident) != null ? " [dynamic]" : "")
-				+ " tfs=" + flatten(txs));
+				+ " tfs=" + flattenTx(txs));
 
 		// if the symbol is pending just return it
 		if (this.pendingSymbols.contains(ident)) {
@@ -147,7 +146,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		// if the symbol is not fully resolved, save it for next time (as an inline*)
 		if (resolved instanceof String && this.parent.isParseable((String) resolved)) {
 			this.pendingSymbols.add(ident);
-			String tmp = RiTa.LP + RiTa.SYM + ident + RiTa.EQ + resolved + RiTa.RP + flatten(txs);
+			String tmp = RiTa.LP + RiTa.SYM + ident + RiTa.EQ + resolved + RiTa.RP + flattenTx(txs);
 			if (trace) console.log("resolveSymbol[P]: $" + ident + " -> " + tmp);
 			return tmp;
 		}
@@ -160,7 +159,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		}
 
 		String applied = applyTransforms(resolved, txs);
-		result = applied != null ? applied : resolved + flatten(txs);
+		result = applied != null ? applied : resolved + flattenTx(txs);
 
 		if (trace) System.out.println("resolveSymbol[3]: '"
 				+ ident + "' -> '" + result + "'");
@@ -177,13 +176,13 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 
 		if (id.startsWith(RiTa.DYN)) {
 			if (this.trace) System.out.println("visitAssign: "
-					+ id + "=" + this.flatten(token) + " [*DYN*]");
+					+ id + "=" + this.flattenTx(token) + " [*DYN*]");
 			result = token.getText();
 		}
 		else {
 			id = symbolName(id);
 			if (this.trace) System.out.println("visitAssign: $"
-					+ id + "=" + this.flatten(token));
+					+ id + "=" + this.flattenTx(token));
 			result = this.visit(token);
 		}
 
@@ -269,9 +268,6 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 			return null;
 		}
 
-		if (tfs.size() > 1) throw new RuntimeException(
-				"Invalid # Transforms: " + tfs.size());
-
 		Object result = term;
 
 		// make sure it is resolved
@@ -283,30 +279,25 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 			}
 		}
 
-		// NOTE: even multiple transforms show up as a single one here [TODO]
-		TransformContext tf = tfs.get(0);
-		if (tf == null) throw new RuntimeException("Null Transform: " + flatten(tfs));
-		String[] transforms = tf.getText().replaceAll("^\\.", "").split("\\.");
-		for (int i = 0; i < transforms.length; i++) {
-			result = applyTransform(result, transforms[i]);
+		for (int i = 0; i < tfs.size(); i++) {
+			result = this.applyTransform(result, tfs.get(i));
 		}
-
 		return result != null ? result.toString() : null;
 	}
 
 	// Attempts to apply transform, returns null on failure
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Object applyTransform(Object target, String tx) {
+	private Object applyTransform(Object target, TransformContext transform) {
 
 		Object result = null;
-		String raw = target + RiTa.DOT + tx;
+		ExprContext expr = transform.expr();
+		//console.log(expr ? "EXPR:"+expr.getText() : "NONE");
+		String tx = transform.DIDENT().getText().replaceAll("^\\.", "");
+		String raw = target + transform.getText();
 
 		if (trace) System.out.println("applyTransform: '" +
 				(target instanceof String ? target : target.getClass().getSimpleName())
-				+ "' tf=" + tx);
-
-		// check for function
-		if (tx.endsWith(RiTa.FUNC)) tx = tx.substring(0, tx.length() - 2);
+				+ "' tf=" + raw);
 
 		// 0. Static function (only join/format on String, maybe RiTa?)
 
@@ -321,40 +312,25 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 			}
 		}
 
-		// 2. Function in context
+		// 2a. Function in context
 		if (result == null && this.context != null && this.context.containsKey(tx)) {
-			Object func = this.context.get(tx);
-			if (func instanceof Function) {
-				result = ((Function<String, String>) func).apply((String) target);
-			}
-			if (func instanceof Supplier) {
-				result = ((Supplier<String>) func).get();
-			}
+			result = invokeFunction(this.context.get(tx), target, expr);
 		}
 
-		// 2. Function in context
+		// 2b. Function in transforms
 		if (result == null && RiScript.transforms.containsKey(tx)) {
-			Object func = RiScript.transforms.get(tx);
-			if (func instanceof Function) {
-				result = ((Function<String, String>) func).apply((String) target);
-			}
-			if (func instanceof Supplier) {
-				result = ((Supplier<String>) func).get();
-			}
+			result = invokeFunction( RiScript.transforms.get(tx), target, expr);
 		}
 
 		// 3. Function in Map
 		if (result == null && target instanceof Map) {
 			Map m = (Map) target;
 			if (m.containsKey(tx)) {
-				Object func = m.get(tx);
-				if (func instanceof Supplier) {
-					result = ((Supplier) func).get();
-				}
+				result = invokeFunction(m.get(tx), target, expr);
 			}
 		}
-		// check for property
-
+		
+		// 4. Property
 		if (result == null) {
 			try {
 				result = Util.getProperty(target, tx);
@@ -368,6 +344,23 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		if (trace) System.out.println("resolveTransform: '"
 				+ target + "' -> '" + result + "'");
 
+		return result;
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	private Object invokeFunction(Object func, Object target, ExprContext arg) {
+		String result = null;
+		if (func instanceof BiFunction) {
+			if (arg == null) throw new RiTaException("Transform requires 2 args");
+			result = ((BiFunction<String, String, String>) func)
+					.apply((String) target, arg.getText());
+		}
+		else if (func instanceof Function) {
+			result = ((Function<String, String>) func).apply((String) target);
+		}
+		else if (func instanceof Supplier) {
+			result = ((Supplier<String>) func).get();
+		}
 		return result;
 	}
 
@@ -404,7 +397,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		if (!resolved.matches("^\\([^()]*\\)$")) { // TODO: compile
 			resolved = RiTa.LP + resolved + RiTa.RP;
 		}
-		String result = resolved + flatten(txs);
+		String result = resolved + flattenTx(txs);
 		if (trace) console.log("resolveDynamic: "
 				+ RiTa.DYN + ident + " -> '" + result + "'");
 		return result;
@@ -426,21 +419,20 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	String flatten(List l) {
-		if (l == null) return "";
-		if (!l.stream().allMatch(RuleContext.class::isInstance)) {
-			throw new RuntimeException("Invalid state in flatten(List)");
-		}
+	String flattenTx(List l) {
+		if (l == null || l.size() < 1) return "";
 		List<RuleContext> toks = l;
-		String s = (String) toks.stream().map(t -> t.getText())
-				.reduce("", (acc, t) -> (acc + "|" + t));
-		return s.startsWith("|") ? s.substring(1) : s;
+		return (String) toks.stream().map(t -> t.getText())
+				.reduce("", (a, c) -> a += c);
+		//String s = (String) toks.stream().map(t -> t.getText())
+		//.reduce("", (a, c) -> (a + "|" + t));
+		//		return s.startsWith("|") ? s.substring(1) : s;
 	}
 
-	String flatten(RuleContext ctx) {
+	String flattenTx(RuleContext ctx) {
 		List<RuleContext> l = new ArrayList<RuleContext>();
 		l.add(ctx);
-		return flatten(l);
+		return flattenTx(l);
 	}
 
 	private String stack(RuleContext p) {

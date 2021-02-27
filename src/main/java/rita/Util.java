@@ -3,6 +3,8 @@ package rita;
 import java.lang.reflect.*;
 import java.util.*;
 
+import com.google.gson.Gson;
+
 public class Util {
 
 	public static final Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
@@ -10,6 +12,12 @@ public class Util {
 		if (m1 != null) result.putAll(m1);
 		if (m2 != null) result.putAll(m2);
 		return result;
+	}
+	
+	public static Map<String, Object> stringArgs(String opts) {
+		@SuppressWarnings("unchecked")
+		Map<String, Object> fromJson = new Gson().fromJson(opts, Map.class);
+		return fromJson;
 	}
 
 	public static final boolean boolOpt(String key, Map<String, Object> opts) {

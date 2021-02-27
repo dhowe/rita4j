@@ -52,9 +52,13 @@ public class RiTa {
 	public static String conjugate(String word, Map<String, Object> opts) {
 		return Conjugator.conjugate(word, opts);
 	}
+	
+	public static String conjugate(String word, String opts) {
+		return Conjugator.conjugate(word, opts);
+	}
 
 	public static String conjugate(String word) {
-		return conjugate(word, null);
+		return conjugate(word, (Map<String, Object>)null);
 	}
 
 	public static boolean hasWord(String word) {

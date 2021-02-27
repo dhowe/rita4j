@@ -2,6 +2,8 @@ package rita;
 
 import java.util.*;
 
+import com.google.gson.Gson;
+
 public class Conjugator {
 
 	private static final String CONS = "[bcdfghjklmnpqrstvwxyz]";
@@ -345,7 +347,22 @@ public class Conjugator {
 		PRESENT_TENSE_RULESET.put("doubling", false);
 	}
 
+	public static String conjugate(String verb, String args) {
+		
+		if (RE.test("^[123][SP](Pr|Pa|Fu)$", args)) {
+      Map<String, Object> opts = RiTa.opts();
+      opts.put("person", Integer.parseInt(args.substring(0,1)));
+      opts.put("number", args.charAt(1) == 'S' ? RiTa.SINGULAR : RiTa.PLURAL);
+      String tense = args.substring(2);
+      if (tense.equals("Pr")) opts.put("tense", RiTa.PRESENT);
+      if (tense.equals("Fu"))  opts.put("tense", RiTa.FUTURE);
+      if (tense.equals("Pa"))  opts.put("tense", RiTa.PAST);
+  		return conjugate(verb, opts);
+    }
 
+		return conjugate(verb, Util.stringArgs(args));
+	}
+	
 	public static String conjugate(String verb, Map<String, Object> opts) {
 		
 		if (verb == null) throw new RiTaException("conjugate requires a verb");
@@ -559,5 +576,6 @@ public class Conjugator {
 		}
 		return theVerb;
 	}
+
 	
 }

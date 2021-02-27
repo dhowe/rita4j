@@ -4,9 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static rita.RiTa.opts;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Supplier;
-
+import java.util.function.*;
 import java.util.regex.Pattern;
 
 import org.junit.jupiter.api.Test;
@@ -142,9 +140,9 @@ public class RiScriptTests {
 
 	@Test
 	public void respectLB() {
-		assertEq(RiTa.evaluate("(a)\n(b)",null),"a\nb");
+		assertEq(RiTa.evaluate("(a)\n(b)", null), "a\nb");
 	}
-	
+
 	@Test
 	public void resolvePriorSymbols_SYMBOL() {
 		assertEq(RiTa.evaluate("the $dog ate", opts("dog", "terrier")), "the terrier ate");
@@ -194,7 +192,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$$state=(bad | bad)\nThese ($state feeling).pluralize()."), "These bad feelings.");
 		assertEq(RiTa.evaluate("These ($state feeling).pluralize().", opts("state", "(bad | bad)")),
 				"These bad feelings.");
-		assertEq(RiTa.evaluate("These (off-site).pluralize().", opts("state", "(bad | bad)")),"These off-sites.");
+		assertEq(RiTa.evaluate("These (off-site).pluralize().", opts("state", "(bad | bad)")), "These off-sites.");
 	}
 
 	@Test
@@ -478,7 +476,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("That is an (ant).capitalize()."), "That is an Ant.");
 		assertEq(RiTa.evaluate("(ant).articlize().capitalize()", null), "An ant");
 		assertEq(RiTa.evaluate("(ant).capitalize().articlize()", null), "an Ant");
-		assertEq(RiTa.evaluate("(deeply-nested expression).art()",null,ST), "a deeply-nested expression");
+		assertEq(RiTa.evaluate("(deeply-nested expression).art()", null, ST), "a deeply-nested expression");
 		assertEq(RiTa.evaluate("(deeply-nested $art).art()", opts("art", "emotion")), "a deeply-nested emotion");
 		RiTa.SILENCE_LTS = SILENCE_LTS;
 	}
@@ -864,9 +862,9 @@ public class RiScriptTests {
 		assertEq(ctx.get("a"), "a");
 		ctx = opts();
 
-		 assertEq(RiTa.evaluate("hello \n($a=A)", ctx), "hello \nA");
-		 assertEq(ctx.get("a"), "A");
-		 ctx = opts();
+		assertEq(RiTa.evaluate("hello \n($a=A)", ctx), "hello \nA");
+		assertEq(ctx.get("a"), "A");
+		ctx = opts();
 		//fail, move to knownissue
 
 		assertEq(RiTa.evaluate("x($a=a)", ctx), "xa");
@@ -1158,7 +1156,7 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$$foo=bar\nbaz$foo"), "bazbar");
 		assertEq(RiTa.evaluate("$$foo=bar\n($foo)baz"), "barbaz");
 		assertEq(RiTa.evaluate("$$foo=bar\n$foo baz $foo"), "bar baz bar");
-		
+
 		assertEq(RiTa.evaluate("$$foo=bar\nbaz\n$foo $foo", null), "baz\nbar bar");
 
 		boolean passed = false;
@@ -1399,6 +1397,12 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void resolveParameterizedTransforms_TRANSFORM() {
+		BiFunction<String, String, String> conj = (v, o) -> RiTa.conjugate(v, o);
+		assertEq(RiTa.evaluate("(walk).conj(3PPa)", opts("conj", conj)), "walked");
+	}
+
+	@Test
 	public void resolveCustomTransforms_TRANSFORM() {
 		Function<String, String> blah = s -> "Blah";
 		Function<String, String> blah2 = s -> "Blah2";
@@ -1425,26 +1429,26 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$foo=$bar\n$bar=baz\n$foo", ctx), "baz");
 	}
 
-//	@Test
-//	public void optimiseViaPreParsing_GRAMMAR() {
-//		Map<String, Object> ctx = opts("nothing", "NOTHING", "hang", "HANG");
-//		Map<String, Object> spp = opts();//"skipPreParse", false);
-//		String input = "Eve near Vancouver, Washington is devastated that the SAT exam was postponed. Junior year means NOTHING if you can\"t HANG out. At least that\"s what she thought. Summer is going to suck.";
-//		String rs = RiTa.evaluate(input, ctx, spp);
-//		assertEq(rs, input.replace("$hang", "HANG").replace("$nothing", "NOTHING"));
-//
-//		input = "Eve near Vancouver,\nWashington is devastated that the SAT exam was postponed. Junior year means NOTHING if you can\"t HANG out. At least that\"s what she thought. Summer is going to suck.";
-//		rs = RiTa.evaluate(input, ctx, spp);
-//		assertEq(rs, input.replace("$hang", "HANG").replace("$nothing", "NOTHING").replace("\n", " "));
-//
-//		input = "Eve&nbsp;near Vancouver";
-//		rs = RiTa.evaluate(input, ctx);
-//		assertEq(rs, "Eve near Vancouver");
-//
-//		input = "This is not a &#124;.";
-//		rs = RiTa.evaluate(input, ctx, spp);
-//		assertEq(rs, "This is not a |.");
-//	}
+	//	@Test
+	//	public void optimiseViaPreParsing_GRAMMAR() {
+	//		Map<String, Object> ctx = opts("nothing", "NOTHING", "hang", "HANG");
+	//		Map<String, Object> spp = opts();//"skipPreParse", false);
+	//		String input = "Eve near Vancouver, Washington is devastated that the SAT exam was postponed. Junior year means NOTHING if you can\"t HANG out. At least that\"s what she thought. Summer is going to suck.";
+	//		String rs = RiTa.evaluate(input, ctx, spp);
+	//		assertEq(rs, input.replace("$hang", "HANG").replace("$nothing", "NOTHING"));
+	//
+	//		input = "Eve near Vancouver,\nWashington is devastated that the SAT exam was postponed. Junior year means NOTHING if you can\"t HANG out. At least that\"s what she thought. Summer is going to suck.";
+	//		rs = RiTa.evaluate(input, ctx, spp);
+	//		assertEq(rs, input.replace("$hang", "HANG").replace("$nothing", "NOTHING").replace("\n", " "));
+	//
+	//		input = "Eve&nbsp;near Vancouver";
+	//		rs = RiTa.evaluate(input, ctx);
+	//		assertEq(rs, "Eve near Vancouver");
+	//
+	//		input = "This is not a &#124;.";
+	//		rs = RiTa.evaluate(input, ctx, spp);
+	//		assertEq(rs, "This is not a |.");
+	//	}
 
 	@Test
 	public void resolveSymbolsWithTransforms_GRAMMAR() {
@@ -1734,31 +1738,31 @@ public class RiScriptTests {
 		assertEq(RiTa.evaluate("$a=helloellx\n{$a$=ell}? foo", ctx), "");
 	}
 
-	 @Test
-	 public void ignoreLineComments_COMMENTS() {
-	 	assertEq(RiTa.evaluate("// $foo=a"), "");
-	 	assertEq(RiTa.evaluate("// hello"), "");
-	 	assertEq(RiTa.evaluate("//hello"), "");
-	 	assertEq(RiTa.evaluate("//()"), "");
-	 	assertEq(RiTa.evaluate("//{}"), "");
-	 	assertEq(RiTa.evaluate("//$"), "");
-	 	assertEq(RiTa.evaluate("hello\n//hello"), "hello");
-	 }
+	@Test
+	public void ignoreLineComments_COMMENTS() {
+		assertEq(RiTa.evaluate("// $foo=a"), "");
+		assertEq(RiTa.evaluate("// hello"), "");
+		assertEq(RiTa.evaluate("//hello"), "");
+		assertEq(RiTa.evaluate("//()"), "");
+		assertEq(RiTa.evaluate("//{}"), "");
+		assertEq(RiTa.evaluate("//$"), "");
+		assertEq(RiTa.evaluate("hello\n//hello"), "hello");
+	}
 
-	 @Test
-	 public void ignoreBlockComments_COMMENTS() {
-	 	assertEq(RiTa.evaluate("/* hello */"), "");
-	 	assertEq(RiTa.evaluate("/* $foo=a */"), "");
-	 	assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
-	 	assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
-	 	assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
-	 }
+	@Test
+	public void ignoreBlockComments_COMMENTS() {
+		assertEq(RiTa.evaluate("/* hello */"), "");
+		assertEq(RiTa.evaluate("/* $foo=a */"), "");
+		assertEq(RiTa.evaluate("a /* $foo=a */b"), "a b");
+		assertEq(RiTa.evaluate("a/* $foo=a */ b"), "a b");
+		assertEq(RiTa.evaluate("a/* $foo=a */b"), "ab");
+	}
 
-	 @Test
-	 public void parseMDStyleLink() {
-	 	String res = RiTa.evaluate("[some text](https://somelink.com)", null);
-	 	assertEq(res, "[some text](https://somelink.com)");
-	 }
+	@Test
+	public void parseMDStyleLink() {
+		String res = RiTa.evaluate("[some text](https://somelink.com)", null);
+		assertEq(res, "[some text](https://somelink.com)");
+	}
 
 	//Sequences
 
@@ -1841,7 +1845,7 @@ public class RiScriptTests {
 		String res = RiTa.evaluate("$foo=(繁體中文|简体中文)\n$foo是$foo", opts());
 		assertTrue(Arrays.asList(new String[] { "繁體中文是繁體中文", "简体中文是简体中文" }).contains(res));
 	}
-	
+
 	@Test
 	public void handleDynamicWithChineseCharacters_CHINESE() {
 		assertEq(RiTa.evaluate("$$foo=中文\n繁體"), "繁體");
