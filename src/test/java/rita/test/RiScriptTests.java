@@ -243,6 +243,15 @@ public class RiScriptTests {
 		assertTrue(!rs.isParseable("&&b"));
 		assertTrue(!rs.isParseable("&nbsp;"));
 	}
+	
+	@Test
+	public void parseMDStyleLinks() {
+    String res = RiTa.evaluate("[some text](https://somelink.com)");
+    assertEq(res,"[some text](https://somelink.com)");
+    String pass = "Passage with a [link](#anchor) inside";
+    assertEq(RiTa.evaluate("$p1="+pass),"");
+    assertEq(RiTa.evaluate("$p1="+pass+"\n$p1"),pass);
+	}
 
 	@Test
 	public void handleNestedContext_ASSIGN() {

@@ -59,7 +59,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		if (trace) System.out.println("visitLink: '"
 				+ text + "' link=" + url);
 		return '[' + this.visit(ctx.expr()) + ']'
-				+ "&lpar;" + url + "&rpar;" + flattenTx(ctx.WS());
+				+ "&lpar;" + url + "&rpar;" + flattenNTL(ctx.WS());
 	}
 
 	public String visitLine(LineContext ctx) {
@@ -319,7 +319,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 
 		// 2b. Function in transforms
 		if (result == null && RiScript.transforms.containsKey(tx)) {
-			result = invokeFunction( RiScript.transforms.get(tx), target, expr);
+			result = invokeFunction(RiScript.transforms.get(tx), target, expr);
 		}
 
 		// 3. Function in Map
@@ -329,7 +329,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 				result = invokeFunction(m.get(tx), target, expr);
 			}
 		}
-		
+
 		// 4. Property
 		if (result == null) {
 			try {
@@ -346,7 +346,7 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 
 		return result;
 	}
-	
+
 	@SuppressWarnings({ "unchecked" })
 	private Object invokeFunction(Object func, Object target, ExprContext arg) {
 		String result = null;
@@ -424,9 +424,12 @@ public class Visitor extends RiScriptParserBaseVisitor<String> {
 		List<RuleContext> toks = l;
 		return (String) toks.stream().map(t -> t.getText())
 				.reduce("", (a, c) -> a += c);
-		//String s = (String) toks.stream().map(t -> t.getText())
-		//.reduce("", (a, c) -> (a + "|" + t));
-		//		return s.startsWith("|") ? s.substring(1) : s;
+	}
+
+	private String flattenNTL(List<TerminalNode> l) {
+		return (l == null || l.size() < 1) ? ""
+				: (String) l.stream().map(t -> t.getText())
+						.reduce("", (a, c) -> a += c);
 	}
 
 	String flattenTx(RuleContext ctx) {
