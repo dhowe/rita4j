@@ -80,12 +80,13 @@ public class RiScript {
 	}
 
 	private String resolveEntities(String s) {
-		// replace non-breaking-space char with plain space ??
+		s = s.replaceAll("&nbsp;", " "); // not char 160(?)
 		return unescape(HtmlEscape.unescapeHtml(s));
 	}
 	
 	private String unescape(String s) { // only parens for now
-    return s.replaceAll("\\\\\\(", "(").replaceAll("\\\\\\)", ")");
+    return s.replaceAll("\\\\\\(", "(")
+    		.replaceAll("\\\\\\)", ")");
   }
 
 	String ctxStr(Map<String, Object> ctx) {
