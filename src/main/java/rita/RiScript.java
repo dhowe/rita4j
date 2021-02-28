@@ -78,33 +78,15 @@ public class RiScript {
 
 		return resolveEntities(expr);
 	}
-	//
-	//	private RiScript pushTransforms(Map<String, Object> ctx) {
-	//		if (this.appliedTransforms == null) {
-	//			this.appliedTransforms = new ArrayList<String>();
-	//		}
-	//		for (String tx : RiScript.transforms.keySet()) {
-	//			if (!ctx.containsKey(tx)) {
-	//				ctx.put(tx, RiScript.transforms.get(tx));
-	//				this.appliedTransforms.add(tx);
-	//			}
-	//		}
-	//		return this;
-	//	}
-	//
-	//	private RiScript popTransforms(Map<String, Object> ctx) {
-	//		for (String tx : appliedTransforms) {
-	//			ctx.remove(tx);
-	//		}
-	//		this.appliedTransforms.clear();
-	//		return this;
-	//	}
 
 	private String resolveEntities(String s) {
-		String k = HtmlEscape.unescapeHtml(s);
 		// replace non-breaking-space char with plain space ??
-		return k.replaceAll(" ", " ");
+		return unescape(HtmlEscape.unescapeHtml(s));
 	}
+	
+	private String unescape(String s) { // only parens for now
+    return s.replaceAll("\\\\\\(", "(").replaceAll("\\\\\\)", ")");
+  }
 
 	String ctxStr(Map<String, Object> ctx) {
 		return (ctx != null ? ctx.toString().replaceAll(
@@ -129,8 +111,6 @@ public class RiScript {
 		if (input == null || input.length() == 0) {
 			return new String[] { rpre, rparse, rpost };
 		}
-
-		// WORKING HERE
 
 		if (!Util.boolOpt("nopre", opts)) { // DOC:
 

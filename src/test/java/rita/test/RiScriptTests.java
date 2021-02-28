@@ -1514,6 +1514,12 @@ public class RiScriptTests {
 	// Entities
 
 	@Test
+	public void decodeBackslashParens_ENTITIES() {
+		assertEq(RiTa.evaluate("The \\(word\\) has parens"), "The (word) has parens"); 
+		assertEq(RiTa.evaluate("The (\\(word\\) | \\((word)\\)) has parens"), "The (word) has parens"); 
+	}
+	
+	@Test
 	public void decodeHTMLEntities_ENTITIES() {
 		assertEq(RiTa.evaluate("The &num; symbol"), "The # symbol");
 		assertEq(RiTa.evaluate("The &#x00023; symbol"), "The # symbol");
