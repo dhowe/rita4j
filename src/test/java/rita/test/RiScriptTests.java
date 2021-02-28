@@ -1551,12 +1551,6 @@ public class RiScriptTests {
 
 	@Test
 	public void allowSpaceForFormatting_ENTITIES() {
-		String s = RiTa.evaluate("&nbsp;The dog&nbsp;");
-		String t = " The dog ";
-		for (int i = 0; i < s.length(); i++) {
-			System.out.println(i+") "+(int)s.charAt(i) + " =? "+(int)t.charAt(i));
-		}
-		System.out.println("|"+RiTa.evaluate("&nbsp;The dog&nbsp;").equals(" The dog ")+"|");
 		Map<String, Object> ctx = opts();
 		assertEq(RiTa.evaluate("&nbsp;The dog&nbsp;", ctx), " The dog ");
 		assertEq(RiTa.evaluate("&nbsp; The dog&nbsp;", ctx), "  The dog ");
