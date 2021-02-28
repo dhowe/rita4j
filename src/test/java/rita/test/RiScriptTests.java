@@ -243,14 +243,14 @@ public class RiScriptTests {
 		assertTrue(!rs.isParseable("&&b"));
 		assertTrue(!rs.isParseable("&nbsp;"));
 	}
-	
+
 	@Test
-	public void parseMDStyleLinks() {
-    String res = RiTa.evaluate("[some text](https://somelink.com)");
-    assertEq(res,"[some text](https://somelink.com)");
-    String pass = "Passage with a [link](#anchor) inside";
-    assertEq(RiTa.evaluate("$p1="+pass),"");
-    assertEq(RiTa.evaluate("$p1="+pass+"\n$p1"),pass);
+	public void parseMDStyleLinks_EVALUATION() {
+		String res = RiTa.evaluate("[some text](https://somelink.com)");
+		assertEq(res, "[some text](https://somelink.com)");
+		String pass = "Passage with a [link](#anchor) inside";
+		assertEq(RiTa.evaluate("$p1=" + pass), "");
+		assertEq(RiTa.evaluate("$p1=" + pass + "\n$p1"), pass);
 	}
 
 	@Test
@@ -1523,11 +1523,16 @@ public class RiScriptTests {
 	// Entities
 
 	@Test
-	public void decodeBackslashParens_ENTITIES() {
-		assertEq(RiTa.evaluate("The \\(word\\) has parens"), "The (word) has parens"); 
-		assertEq(RiTa.evaluate("The (\\(word\\) | \\((word)\\)) has parens"), "The (word) has parens"); 
+	public void decodeEscapedCharacters_ENTITIES() {
+		assertEq(RiTa.evaluate("The \\(word\\) has parens"), "The (word) has parens");
+		assertEq(RiTa.evaluate("The (\\(word\\) | \\((word)\\)) has parens"), "The (word) has parens");
 	}
-	
+
+	@Test
+	public void decodeEmojis_ENTITIES() {
+		assertEq(RiTa.evaluate("The 👍 is thumbs up"), "The 👍 is thumbs up");
+	}
+
 	@Test
 	public void decodeHTMLEntities_ENTITIES() {
 		assertEq(RiTa.evaluate("The &num; symbol"), "The # symbol");
