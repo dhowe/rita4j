@@ -521,7 +521,7 @@ public class RiTa {
 			"must", "few", "doesn't", "the", "every", "yes", "each", "maybe",
 			"i'll", "away", "doing", "oh", "else", "isn't", "he's", "there's", "hi",
 			"won't", "ok", "they're", "yeah", "mine", "we're", "what's", "shall",
-			"she's", "hello", "okay", "here's", "less"
+			"she's", "hello", "okay", "here's", "less", "didn't", "said",
 	};
 
 	public static String[] PHONES = { "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f", "g", "hh", "ih", "iy", "jh", "k",
