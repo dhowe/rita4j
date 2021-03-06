@@ -220,6 +220,9 @@ public class TaggerTests {
 			// console.log(checks[i] + ": " + RiTa.pos(checks[i])[0]);
 			arrayEq(RiTa.pos(checks[i]), new String[] { "nn" });
 		}
+
+		// sequential adjectives 
+		arrayEq(RiTa.pos("a light blue sky"), new String[] { "dt", "jj", "jj", "nn" });
 	}
 
 	@Test

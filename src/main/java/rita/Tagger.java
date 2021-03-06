@@ -327,6 +327,21 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				}
 			}
 
+			// webIssue#83 sequential adjectives(jc): (?:dt)? (?:jj)* (nn) (?:jj)* nn && $1 can be tagged as jj-> $1 convert to jj (e.g a light bule sky)
+			if (tag.equals("nn") && i < l - 1 && Arrays.asList(Arrays.copyOfRange(result, i + 1, result.length)).contains("nn")) {
+				int idx = Arrays.asList(Arrays.copyOfRange(result, i + 1, result.length)).indexOf("nn");
+				Boolean allJJ = true; // between nn and nn are are jj
+				for (int k = 0; k < idx; k++) {
+					if (!result[i + 1 + k].equals("jj")) {
+						allJJ = false;
+						break;
+					}
+				}
+				if (allJJ && Arrays.asList(this.allTags(word)).contains("jj")) {
+					tag = "jj";
+				}
+			}
+
 			results[i] = tag;
 		}
 
