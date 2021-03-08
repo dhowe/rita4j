@@ -1664,6 +1664,33 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void callOtherOperatorFunctions() {
+		//fromString
+		assertEq(Operator.fromString(">"), Operator.GT);
+		assertEq(Operator.fromString("<"), Operator.LT);
+		assertEq(Operator.fromString(">="), Operator.GE);
+		assertEq(Operator.fromString("<="), Operator.LE);
+		assertEq(Operator.fromString("!="), Operator.NE);
+		assertEq(Operator.fromString("^="), Operator.SW);
+		assertEq(Operator.fromString("$="), Operator.EW);
+		assertEq(Operator.fromString("*="), Operator.RE);
+		assertEq(Operator.fromString("="), Operator.EQ);
+		assertEq(Operator.fromString("=="), Operator.EQ);
+		assertThrows(RiTaException.class, () -> Operator.fromString("a"));
+
+		//fromOperator
+		assertEq(Operator.fromOperator(Operator.GT), ">");
+		assertEq(Operator.fromOperator(Operator.LT), "<");
+		assertEq(Operator.fromOperator(Operator.GE), ">=");
+		assertEq(Operator.fromOperator(Operator.LE), "<=");
+		assertEq(Operator.fromOperator(Operator.NE), "!=");
+		assertEq(Operator.fromOperator(Operator.SW), "^=");
+		assertEq(Operator.fromOperator(Operator.EW), "$=");
+		assertEq(Operator.fromOperator(Operator.RE), "*=");
+		assertEq(Operator.fromOperator(Operator.EQ), "=");
+	}
+
+	@Test
 	public void resolveTransformedSymbolsInContext_SYMBOL() {
 
 		Map<String, Object> ctx = opts("a", "(terrier | terrier)");
