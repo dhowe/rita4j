@@ -1,7 +1,9 @@
 package rita.test;
 
 import rita.RiTa;
+import rita.Stemmer;
 
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
@@ -6381,6 +6383,14 @@ public class StemmerTests {
 		test("cutter", "cutter");
 		test("cutters", "cutter");
 		test("cutthroat", "cutthroat");
+	}
+
+	@Test
+	public void callStemAll() {
+		String[] input = new String[] { "cured", "cats", "cut", "plays" };
+		String[] expected = new String[] { "cure", "cat", "cut", "play" };
+		String[] output = Stemmer.stemAll(input);
+		assertArrayEquals(expected, output);
 	}
 
 	private void test(String test, String expected) {
