@@ -313,6 +313,8 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("capitalize", capitalize),
 			new AbstractMap.SimpleEntry<String, Object>("quotify", quotify),
 			new AbstractMap.SimpleEntry<String, Object>("ucf", capitalize),
+			new AbstractMap.SimpleEntry<String, Object>("cap", capitalize), // according to documentation
+			new AbstractMap.SimpleEntry<String, Object>("qq", quotify), // according to documentation
 			new AbstractMap.SimpleEntry<String, Object>("art", articlize),
 			//			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
 			//			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),

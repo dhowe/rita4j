@@ -906,6 +906,22 @@ public class GrammarTests {
 		assertEquals("bad feelings", res);
 	}
 
+	@Test
+	public void callAddGetTransform() {
+		RiGrammar rg = new RiGrammar();
+		rg.addTransform("capA", (s) -> s + "A");
+		rg.addRule("start", "a.capA()");
+		assertEquals("aA", rg.expand());
+
+		Map<String, Function<String, String>> res = rg.getTransforms();
+		String[] expected = new String[] { "capA", "articlize", "capitalize", "uppercase", "quotify", "norepeat",
+				"pluralize", "art", "cap", "uc", "qq", "nr", "s" };
+		for (int i = 0; i < expected.length; i++) {
+			assertTrue(res.containsKey(expected[i]));
+		}
+		rg.addTransform("capA", null);
+	}
+
 	// return true if object is not null
 	private void def(Object o) {
 		assertTrue(o != null);
