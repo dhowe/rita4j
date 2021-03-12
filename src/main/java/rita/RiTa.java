@@ -100,8 +100,8 @@ public class RiTa {
 	}
 
 	public static boolean isConsonant(String c) {
-		return RiTa.VOWELS.indexOf(c) < 0 && // TODO: precompile
-				"^[a-z\u00C0-\u00ff]+$".matches(c);
+		return RiTa.VOWELS.indexOf(c) < 0 && c.length() == 1 &&// from js
+				IS_LETTER.matcher(c).matches();
 	}
 
 	public static boolean isAlliteration(String word1, String word2) {
@@ -490,6 +490,7 @@ public class RiTa {
 	public static final String VERSION = "2";
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[\\p{Punct}|\ufffd]*$");
+	public static final Pattern IS_LETTER = Pattern.compile("^[a-z\u00C0-\u00ff]+$");
 	public /*tmp,for testing*/ static final String DYN = "$$";
 	static final String LP = "(", RP = ")", BN = "\n";
 	static final String DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>";
