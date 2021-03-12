@@ -679,6 +679,26 @@ public class RiTaTests {
 		}
 	}
 
+	@Test
+	public void callIsConsonant() {
+		String[] vowels = new String[] { "a", "e", "i", "o", "u" };
+		for (int i = 0; i < vowels.length; i++) {
+			assertTrue(!RiTa.isConsonant(vowels[i]), vowels[i] + " should not be consonant");
+		}
+
+		String[] samples = new String[] { "b", "c", "d", "h", "s" };
+		for (int i = 0; i < samples.length; i++) {
+			assertTrue(RiTa.isConsonant(samples[i]), samples[i] + " should be consonant");
+		}
+
+		char[] csamples = new char[] { 'b', 'c', 'd', 'h', 's' };
+		for (int i = 0; i < csamples.length; i++) {
+			assertTrue(RiTa.isConsonant(csamples[i]), csamples[i] + " should be consonant");
+		}
+
+		assertTrue(!RiTa.isConsonant(""), "empty string should return false");
+		assertTrue(!RiTa.isConsonant("word"), "for words return false");
+	}
 	//--------------------------------helper----------------------
 	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {
 		if (a == null || b == null) {
