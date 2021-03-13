@@ -229,6 +229,31 @@ public class TokenizerTests {
 		arrayEq(RiTa.tokenize(txt4), new String[] { "It's", "not", "that", "I", "can't", "." });
 		arrayEq(RiTa.tokenize(txt5), new String[] { "We've", "found", "the", "cat", "." });
 		arrayEq(RiTa.tokenize(txt6), new String[] { "We", "didn't", "find", "the", "cat", "." });
+
+		//html tags
+		inputs = new String[] {
+      		"<!DOCTYPE html>",
+      		"<a>link</a>",
+      		"<span>inline</span>",
+      		"<h1>header</h1>",
+      		"<!-- this is a comment -->", //? should this be divided? 
+      		"<a href=\"www.google.com\">a link to google</a>",
+      		"<p>this<br>is</br>a<br>paragraph<br/></p>"
+		};
+
+    	outputs = new String[][] {
+      		new String[] { "<!DOCTYPE html>" },
+      		new String[] { "<a>", "link", "</a>" },
+      		new String[] { "<span>", "inline", "</span>" },
+      		new String[] { "<h1>", "header", "</h1>" },
+      		new String[] { "<!-- this is a comment -->" },
+      		new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
+      		new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" }
+		};
+		assertEquals(inputs.length, outputs.length);
+		for (int i = 0; i < inputs.length; i++) {
+			arrayEq(RiTa.tokenize(inputs[i]), outputs[i]);
+		}
 	}
 
 	@Test

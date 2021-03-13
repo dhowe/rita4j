@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -149,6 +150,18 @@ public class Tokenizer {
 
 		words = words.trim();
 
+		//handle html tags ---- save tags
+		ArrayList<String> htmlTags = new ArrayList<String>();
+		int indexOfTags = 0;
+		for (int i = 0; i < HTML_TAGS_RE.length; i++) {
+			Matcher currentMatcher = HTML_TAGS_RE[i].matcher(words);
+		  while (currentMatcher.find()) {
+			htmlTags.add(currentMatcher.group());
+			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
+			indexOfTags++;
+		  }
+		}	
+
 		for (int i = 0; i < TOKPAT1.length; i++) {
 			words = TOKPAT1[i].matcher(words)
 					.replaceAll(TOKREP1[i]);
@@ -168,13 +181,23 @@ public class Tokenizer {
 
 		words = words.trim();
 		String[] result = words.split("\\s+");
+		ArrayList<String> toReturn = new ArrayList<String>(); //strings are immutable
 		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
-			if (token.contains("_")) {
-				result[i] = UNDERSCORE.matcher(token).replaceAll("$1 $2");
+			//pop html tags
+			if (token.contains("_HTMLTAG")) {
+				toReturn.add(htmlTags.get(0));
+				htmlTags.remove(0);
+				continue;
 			}
+
+			if (token.contains("_")) {
+				toReturn.add(UNDERSCORE.matcher(token).replaceAll("$1 $2"));
+				continue;
+			}
+			toReturn.add(token);
 		}
-		return result;
+		return toReturn.toArray(new String[] {});
 	}
 
 	private static String[] unescapeAbbrevs(String[] arr) {
@@ -387,6 +410,11 @@ public class Tokenizer {
 	};
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
+
+	private static final Pattern[] HTML_TAGS_RE = new Pattern[] {
+			Pattern.compile("(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>)", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("(<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE)
+	};
 
 	static {
 		if (TOKPAT1.length != TOKREP1.length
