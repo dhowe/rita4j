@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.impl.PatternProps;
+
 /**
  * NOTE: Based on the Penn Treebank tokenization standard, with the following
  * difference: In Penn, double quotes (") are changed to doubled forward and backward single
@@ -137,6 +139,10 @@ public class Tokenizer {
 			}
 		}
 
+		for (int i = 0; i < UNTOKENIZE_HTMLTAG_RE.length; i++) {
+			result = handleHTMLTags(result, i);
+		}
+
 		return result.trim();
 	}
 
@@ -219,6 +225,51 @@ public class Tokenizer {
 			}
 		}
 		return text;
+	}
+
+	private static String handleHTMLTags(String input, int i) {
+		Matcher currentMatcher = UNTOKENIZE_HTMLTAG_RE[i].matcher(input);
+		switch (i) {
+		default:
+			break;
+		case 0:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + trimedP1 + "/>");
+			}
+			break;
+		case 1:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + trimedP1 + ">");
+			}
+			break;
+		case 2:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "</" + trimedP1 + ">");
+			}
+			break;
+		case 3:
+			while (currentMatcher.find()) {
+				String p1 = currentMatcher.group(1).replaceAll(" ", "");
+				String trimedP2 = currentMatcher.group(2).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + p1 + " " + trimedP2 + ">");
+			}
+			break;
+		case 4:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<!--" + trimedP1 + "-->");
+			}
+			break;
+		}
+		return input;
 	}
 
 	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
@@ -414,6 +465,14 @@ public class Tokenizer {
 	private static final Pattern[] HTML_TAGS_RE = new Pattern[] {
 			Pattern.compile("(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>)", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("(<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE)
+	};
+
+	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
+			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)> ", Pattern.CASE_INSENSITIVE),
+			Pattern.compile(" <\\/([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("< *(! *DOCTYPE)([^>]*)>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<! *--([^->]*)-->", Pattern.CASE_INSENSITIVE),
 	};
 
 	static {

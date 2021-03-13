@@ -54,6 +54,32 @@ public class TokenizerTests {
 			//System.out.println(untokenized);
 			eq(untokenized, tests[i]);
 		}
+		
+		//html tags
+		String[][] inputs = new String[][] {
+      		new String[] { "1", "<", "2" },
+      		new String[] { "<", "a", ">", "link", "<", "/", "a", ">" },
+      		new String[] { "<", "span", ">", "some", "text", "here", "<", "/", "span", ">" },
+      		new String[] { "<", "p", ">", "some", "text", "<", "br", "/", ">", "new", "line", "<", "/", "p", ">" },
+			new String[] {"something", "<", "a", "href", "=", "\"", "www", ".", "google", ".", "com", "\"", ">", "link", "to", "google", "<", "/", "a", ">" },
+			new String[] { "<", "!", "DOCTYPE", "html", ">" },
+			new String[] {"<", "p", ">", "1", "<", "2", "is", "truth", "<", "/", "p", ">" },
+			new String[] { "a","<","!","-","-","code","comment","-","-",">","b" }
+		};
+		String[] outputs = new String[] {
+			"1 < 2",
+      		"<a>link</a>",
+      		"<span>some text here</span>",
+      		"<p>some text<br/>new line</p>",
+      		"something <a href = \"www.google.com\">link to google</a>",
+      		"<!DOCTYPE html>",
+      		"<p>1 < 2 is truth</p>",
+      		"a <!--code comment--> b"
+		};
+		assertEquals(inputs.length, outputs.length);
+		for (int i = 0; i < inputs.length; i++) {
+			eq(RiTa.untokenize(inputs[i]), outputs[i]);
+		}
 	}
 
 	@Test
