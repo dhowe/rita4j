@@ -232,23 +232,25 @@ public class TokenizerTests {
 
 		//html tags
 		inputs = new String[] {
-      		"<!DOCTYPE html>",
-      		"<a>link</a>",
-      		"<span>inline</span>",
-      		"<h1>header</h1>",
-      		"<!-- this is a comment -->", //? should this be divided? 
-      		"<a href=\"www.google.com\">a link to google</a>",
-      		"<p>this<br>is</br>a<br>paragraph<br/></p>"
+      			"<!DOCTYPE html>",
+      			"<a>link</a>",
+      			"<span>inline</span>",
+      			"<h1>header</h1>",
+      			"<!-- this is a comment -->", //? should this be divided? 
+      			"<a href=\"www.google.com\">a link to google</a>",
+				"<p>this<br>is</br>a<br>paragraph<br/></p>",
+				"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />"
 		};
 
     	outputs = new String[][] {
-      		new String[] { "<!DOCTYPE html>" },
-      		new String[] { "<a>", "link", "</a>" },
-      		new String[] { "<span>", "inline", "</span>" },
-      		new String[] { "<h1>", "header", "</h1>" },
-      		new String[] { "<!-- this is a comment -->" },
-      		new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
-      		new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" }
+      			new String[] { "<!DOCTYPE html>" },
+      			new String[] { "<a>", "link", "</a>" },
+      			new String[] { "<span>", "inline", "</span>" },
+      			new String[] { "<h1>", "header", "</h1>" },
+      			new String[] { "<!-- this is a comment -->" },
+      			new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
+				new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" },
+				new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here", "</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>", "<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" }
 		};
 		assertEquals(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
