@@ -152,6 +152,10 @@ public class Tokenizer {
 			}
 		}
 
+		for (int i = 0; i < UNTOKENIZE_HTMLTAG_RE.length; i++) {
+			result = handleHTMLTags(result, i);
+		}
+
 		return result.trim();
 	}
 
@@ -164,6 +168,18 @@ public class Tokenizer {
 		if (regex != null) return words.split(regex);
 
 		words = words.trim();
+
+		//handle html tags ---- save tags
+		ArrayList<String> htmlTags = new ArrayList<String>();
+		int indexOfTags = 0;
+		for (int i = 0; i < HTML_TAGS_RE.length; i++) {
+			Matcher currentMatcher = HTML_TAGS_RE[i].matcher(words);
+		  while (currentMatcher.find()) {
+			htmlTags.add(currentMatcher.group());
+			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
+			indexOfTags++;
+		  }
+		}	
 
 		for (int i = 0; i < TOKPAT1.length; i++) {
 			words = TOKPAT1[i].matcher(words)
@@ -184,13 +200,23 @@ public class Tokenizer {
 
 		words = words.trim();
 		String[] result = words.split("\\s+");
+		ArrayList<String> toReturn = new ArrayList<String>(); //strings are immutable
 		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
-			if (token.contains("_")) {
-				result[i] = UNDERSCORE.matcher(token).replaceAll("$1 $2");
+			//pop html tags
+			if (token.contains("_HTMLTAG")) {
+				toReturn.add(htmlTags.get(0));
+				htmlTags.remove(0);
+				continue;
 			}
+
+			if (token.contains("_")) {
+				toReturn.add(UNDERSCORE.matcher(token).replaceAll("$1 $2"));
+				continue;
+			}
+			toReturn.add(token);
 		}
-		return result;
+		return toReturn.toArray(new String[] {});
 	}
 
 	private static String[] unescapeAbbrevs(String[] arr) {
@@ -212,6 +238,51 @@ public class Tokenizer {
 			}
 		}
 		return text;
+	}
+
+	private static String handleHTMLTags(String input, int i) {
+		Matcher currentMatcher = UNTOKENIZE_HTMLTAG_RE[i].matcher(input);
+		switch (i) {
+		default:
+			break;
+		case 0:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + trimedP1 + "/>");
+			}
+			break;
+		case 1:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + trimedP1 + ">");
+			}
+			break;
+		case 2:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "</" + trimedP1 + ">");
+			}
+			break;
+		case 3:
+			while (currentMatcher.find()) {
+				String p1 = currentMatcher.group(1).replaceAll(" ", "");
+				String trimedP2 = currentMatcher.group(2).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<" + p1 + " " + trimedP2 + ">");
+			}
+			break;
+		case 4:
+			while (currentMatcher.find()) {
+				String trimedP1 = currentMatcher.group(1).trim();
+				String toReplace = currentMatcher.group();
+				input = input.replace(toReplace, "<!--" + trimedP1 + "-->");
+			}
+			break;
+		}
+		return input;
 	}
 
 	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
@@ -404,6 +475,19 @@ public class Tokenizer {
 	};
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
+
+	private static final Pattern[] HTML_TAGS_RE = new Pattern[] {
+			Pattern.compile("(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>)", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("(<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE)
+	};
+
+	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
+			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)> ", Pattern.CASE_INSENSITIVE),
+			Pattern.compile(" <\\/([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("< *(! *DOCTYPE)([^>]*)>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<! *--([^->]*)-->", Pattern.CASE_INSENSITIVE),
+	};
 
 	static {
 		if (TOKPAT1.length != TOKREP1.length
