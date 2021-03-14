@@ -55,6 +55,20 @@ public class TokenizerTests {
 			eq(untokenized, tests[i]);
 		}
 	}
+	
+
+	@Test
+	public void callTokens() {
+    String input = "She wrote: \"I don't paint anymore. For a while I thought it was just a phase that I'd get over.\"";
+    arrayEq(RiTa.tokens(input), new String[] {
+      "a", "anymore", "for",
+      "get", "i", "it",
+      "just", "over", "paint",
+      "phase", "she", "that",
+      "thought", "was", "while",
+      "wrote"
+    });
+  }
 
 	@Test
 	public void callTokenize() {

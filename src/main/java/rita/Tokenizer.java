@@ -1,7 +1,6 @@
 package rita;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,6 +19,23 @@ public class Tokenizer {
 		return untokenize(arr, " ");
 	}
 
+	public static String[] tokens(String text) {
+		return tokens(text, null);
+	}
+	
+	public static String[] tokens(String text, String regex) {
+    String[] words = tokenize(text, regex);
+    Set<String> tokens = new HashSet<String>();
+    for (int i = 0; i < words.length; i++) {
+			if (RE.test(ALPHA_RE, words[i])) {
+				tokens.add(words[i].toLowerCase());
+			}
+		}
+    List<String> toSort = new ArrayList<String>(tokens);
+    Collections.sort(toSort);
+    return (String[]) toSort.toArray(new String[toSort.size()]);
+  }
+  
 	public static String[] sentences(String text, Pattern pattern) {
 
 		if (text == null || text.length() == 0) {
@@ -213,6 +229,7 @@ public class Tokenizer {
 	private static final Pattern APOS = Pattern.compile("^[\u2019'’]+$");
 	private static final Pattern WWW = Pattern.compile("^(www[0-9]?|WWW[0-9]?)$");
 	private static final Pattern DOMIN = Pattern.compile("^(com|org|edu|net|xyz|gov|int|eu|hk|tw|cn|de|ch|fr)$");
+	private static final Pattern ALPHA_RE = Pattern.compile("^[A-Za-z]+$");
 
 	private static final Pattern[] TOKPAT1 = new Pattern[] {
 			//save abbreviation ------------------------------------

@@ -361,6 +361,14 @@ public class RiTa {
 	public static String stem(String word) {
 		return Stemmer.stem(word);
 	}
+	
+	public static String[] tokens(String text) {
+		return Tokenizer.tokens(text);
+	}
+
+	public static String[] tokens(String text, String regex) {
+		return Tokenizer.tokens(text, regex);
+	}
 
 	public static String[] tokenize(String text) {
 		return Tokenizer.tokenize(text);
