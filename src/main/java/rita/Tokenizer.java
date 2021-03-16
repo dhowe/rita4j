@@ -153,7 +153,7 @@ public class Tokenizer {
 		}
 
 		for (int i = 0; i < UNTOKENIZE_HTMLTAG_RE.length; i++) {
-			result = handleHTMLTags(result, i);
+			result = untokenizeTags(result, i);
 		}
 
 		return result.trim();
@@ -249,7 +249,7 @@ public class Tokenizer {
 		return text;
 	}
 
-	private static String handleHTMLTags(String input, int i) {
+	private static String untokenizeTags(String input, int i) {
 		Matcher currentMatcher = UNTOKENIZE_HTMLTAG_RE[i].matcher(input);
 		switch (i) {
 		default:
