@@ -486,7 +486,7 @@ public class Tokenizer {
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
 
 	private static final Pattern HTML_TAGS_RE = Pattern.compile(
-			"(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
+			"(<\\/?[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
 			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
