@@ -77,7 +77,7 @@ public class Tokenizer {
 			if (arr[i] == null) continue;
 
 			thisComma = arr[i].equals(",");
-			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches();
+			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches() || UNTOKENIZE_HTMLTAG_RE[2].matcher(arr[i]).matches();
 			//thisNAPunct = NA_PUNCT.matcher(arr[i]).matches();
 			thisQuote = QUOTES.matcher(arr[i]).matches();
 			thisLBracket = LBRACKS.matcher(arr[i]).matches();
@@ -85,7 +85,7 @@ public class Tokenizer {
 			thisDomin = DOMIN.matcher(arr[i]).matches();
 			lastComma = arr[i - 1].equals(",");
 			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches();
-			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches();
+			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches() || UNTOKENIZE_HTMLTAG_RE[1].matcher(arr[i - 1]).matches();
 			lastQuote = QUOTES.matcher(arr[i - 1]).matches();
 			lastLBracket = LBRACKS.matcher(arr[i - 1]).matches();
 			lastRBracket = RBRACKS.matcher(arr[i - 1]).matches();
@@ -150,10 +150,6 @@ public class Tokenizer {
 					&& SQUOTES.matcher(arr[i]).matches() && lastEndWithS) {
 				result += delim; // fix to #477
 			}
-		}
-
-		for (int i = 0; i < UNTOKENIZE_HTMLTAG_RE.length; i++) {
-			result = untokenizeTags(result, i);
 		}
 
 		return result.trim();
@@ -247,51 +243,6 @@ public class Tokenizer {
 			}
 		}
 		return text;
-	}
-
-	private static String untokenizeTags(String input, int i) {
-		Matcher currentMatcher = UNTOKENIZE_HTMLTAG_RE[i].matcher(input);
-		switch (i) {
-		default:
-			break;
-		case 0:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + trimedP1 + "/>");
-			}
-			break;
-		case 1:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + trimedP1 + ">");
-			}
-			break;
-		case 2:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "</" + trimedP1 + ">");
-			}
-			break;
-		case 3:
-			while (currentMatcher.find()) {
-				String p1 = currentMatcher.group(1).replaceAll(" ", "");
-				String trimedP2 = currentMatcher.group(2).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + p1 + " " + trimedP2 + ">");
-			}
-			break;
-		case 4:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<!--" + trimedP1 + "-->");
-			}
-			break;
-		}
-		return input;
 	}
 
 	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
@@ -489,11 +440,11 @@ public class Tokenizer {
 			"(<\\/?[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
-			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)> ", Pattern.CASE_INSENSITIVE),
-			Pattern.compile(" <\\/([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("< *(! *DOCTYPE)([^>]*)>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<! *--([^->]*)-->", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<\\/[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<!DOCTYPE[^>]*>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("<!--[^->]*-->", Pattern.CASE_INSENSITIVE),
 	};
 
 	static {

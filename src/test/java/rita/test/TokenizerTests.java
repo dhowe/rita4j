@@ -63,8 +63,8 @@ public class TokenizerTests {
       		"<span class=\"test\">in line</span>",
       		"<!DOCTYPE html> <head><title>Test Page</title></head>",
       		"<!--comment lines-->",
-      		"<p>this<br>is</br>a<br>paragraph<br/></p>",
-      		"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />",
+      		"<p>this <br>is</br> a <br>paragraph <br/></p>",
+      		"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p> <img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />",
       		"<p>a paragraph with an <span class=\"test\">in line element</span> and a <a href=\"https://www.google.com\">link to google</a>.</p>"
 		};
 		String[][] tokens = new String[][] { new String[] { "<a>", "link", "</a>" },
@@ -286,7 +286,8 @@ public class TokenizerTests {
 			"<!-- this is a comment -->", //? should this be divided? 
 			"<a href=\"www.google.com\">a link to google</a>",
 		  	"<p>this<br>is</br>a<br>paragraph<br/></p>",
-		  	"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />"
+			"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />",
+			"1 < 2 and 3 > 2."
   		};
 
   		String[][] outputs = new String[][] {
@@ -297,7 +298,10 @@ public class TokenizerTests {
 			new String[] { "<!-- this is a comment -->" },
 			new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
 		  	new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" },
-		  	new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here", "</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>", "<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" }
+			new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here",
+					"</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>",
+					"<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" },
+			new String[] {"1", "<", "2", "and", "3", ">", "2", "."}
   		};
   		assertEquals(inputs.length, outputs.length);
   		for (int i = 0; i < inputs.length; i++) {
