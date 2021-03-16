@@ -54,34 +54,38 @@ public class TokenizerTests {
 			//System.out.println(untokenized);
 			eq(untokenized, tests[i]);
 		}
-		
-		//html tags
-		String[][] inputs = new String[][] {
-      		new String[] { "1", "<", "2" },
-      		new String[] { "<", "a", ">", "link", "<", "/", "a", ">" },
-      		new String[] { "<", "span", ">", "some", "text", "here", "<", "/", "span", ">" },
-      		new String[] { "<", "p", ">", "some", "text", "<", "br", "/", ">", "new", "line", "<", "/", "p", ">" },
-			new String[] {"something", "<", "a", "href", "=", "\"", "www", ".", "google", ".", "com", "\"", ">", "link", "to", "google", "<", "/", "a", ">" },
-			new String[] { "<", "!", "DOCTYPE", "html", ">" },
-			new String[] {"<", "p", ">", "1", "<", "2", "is", "truth", "<", "/", "p", ">" },
-			new String[] { "a","<","!","-","-","code","comment","-","-",">","b" }
-		};
-		String[] outputs = new String[] {
-			"1 < 2",
-      		"<a>link</a>",
-      		"<span>some text here</span>",
-      		"<p>some text<br/>new line</p>",
-      		"something <a href = \"www.google.com\">link to google</a>",
-      		"<!DOCTYPE html>",
-      		"<p>1 < 2 is truth</p>",
-      		"a <!--code comment--> b"
-		};
-		assertEquals(inputs.length, outputs.length);
-		for (int i = 0; i < inputs.length; i++) {
-			eq(RiTa.untokenize(inputs[i]), outputs[i]);
-		}
 	}
 	
+	@Test
+	public void tokenizeThenUntokenizeTags() {
+		String[] strings = new String[] {
+      		"<a>link</a>",
+      		"<span class=\"test\">in line</span>",
+      		"<!DOCTYPE html><head><title>Test Page</title></head>",
+      		"<!--comment lines-->",
+      		"<p>this<br>is</br>a<br>paragraph<br/></p>",
+      		"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />",
+      		"<p>a paragraph with an <span class=\"test\">in line element</span> and a <a href=\"https://www.google.com\">link to google</a>.</p>"
+		};
+		String[][] tokens = new String[][] { new String[] { "<a>", "link", "</a>" },
+				new String[] { "<span class=\"test\">", "in", "line", "</span>" },
+				new String[] { "<!DOCTYPE html>", "<head>", "<title>", "Test", "Page", "</title>", "</head>" },
+				new String[] { "<!--comment lines-->" },
+				new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" },
+				new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here",
+						"</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>",
+						"<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" },
+				new String[] { "<p>", "a", "paragraph", "with", "an", "<span class=\"test\">", "in", "line", "element",
+						"</span>", "and", "a", "<a href=\"https://www.google.com\">", "link", "to", "google", "</a>",
+						".", "</p>" } };
+		assertTrue(strings.length == tokens.length);
+		for (int i = 0; i < strings.length; i++) {
+			String[] afterTokenized = RiTa.tokenize(strings[i]);
+			assertArrayEquals(tokens[i], afterTokenized);
+			String afterUntokenize = RiTa.untokenize(afterTokenized);
+			assertEquals(strings[i], afterUntokenize);
+		}
+	}
 
 	@Test
 	public void callTokens() {
@@ -269,33 +273,36 @@ public class TokenizerTests {
 		arrayEq(RiTa.tokenize(txt4), new String[] { "It's", "not", "that", "I", "can't", "." });
 		arrayEq(RiTa.tokenize(txt5), new String[] { "We've", "found", "the", "cat", "." });
 		arrayEq(RiTa.tokenize(txt6), new String[] { "We", "didn't", "find", "the", "cat", "." });
+	}
 
+	@Test
+	public void tokenizeTags() {
 		//html tags
-		inputs = new String[] {
-      			"<!DOCTYPE html>",
-      			"<a>link</a>",
-      			"<span>inline</span>",
-      			"<h1>header</h1>",
-      			"<!-- this is a comment -->", //? should this be divided? 
-      			"<a href=\"www.google.com\">a link to google</a>",
-				"<p>this<br>is</br>a<br>paragraph<br/></p>",
-				"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />"
-		};
+		String[] inputs = new String[] {
+			"<!DOCTYPE html>",
+			"<a>link</a>",
+			"<span>inline</span>",
+			"<h1>header</h1>",
+			"<!-- this is a comment -->", //? should this be divided? 
+			"<a href=\"www.google.com\">a link to google</a>",
+		  	"<p>this<br>is</br>a<br>paragraph<br/></p>",
+		  	"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p><img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />"
+  		};
 
-    	outputs = new String[][] {
-      			new String[] { "<!DOCTYPE html>" },
-      			new String[] { "<a>", "link", "</a>" },
-      			new String[] { "<span>", "inline", "</span>" },
-      			new String[] { "<h1>", "header", "</h1>" },
-      			new String[] { "<!-- this is a comment -->" },
-      			new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
-				new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" },
-				new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here", "</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>", "<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" }
-		};
-		assertEquals(inputs.length, outputs.length);
-		for (int i = 0; i < inputs.length; i++) {
-			arrayEq(RiTa.tokenize(inputs[i]), outputs[i]);
-		}
+  		String[][] outputs = new String[][] {
+			new String[] { "<!DOCTYPE html>" },
+			new String[] { "<a>", "link", "</a>" },
+			new String[] { "<span>", "inline", "</span>" },
+			new String[] { "<h1>", "header", "</h1>" },
+			new String[] { "<!-- this is a comment -->" },
+			new String[] { "<a href=\"www.google.com\">", "a", "link", "to", "google", "</a>" },
+		  	new String[] { "<p>", "this", "<br>", "is", "</br>", "a", "<br>", "paragraph", "<br/>", "</p>" },
+		  	new String[] { "<p>", "Link", "<a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">", "here", "</a>", "is", "about", "<span class=\"cat\">", "cute", "cat", "</span>", "</p>", "<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" }
+  		};
+  		assertEquals(inputs.length, outputs.length);
+  		for (int i = 0; i < inputs.length; i++) {
+	  		arrayEq(RiTa.tokenize(inputs[i]), outputs[i]);
+  		}
 	}
 
 	@Test
@@ -364,7 +371,8 @@ public class TokenizerTests {
 		output = RiTa.untokenize(input);
 		eq(output, expected);
 
-		input = new String[] { "\"", "Oh", ",", "God", "\"", ",", "he", "thought", ",", "\"", "not", "rain", "!", "\"" };
+		input = new String[] { "\"", "Oh", ",", "God", "\"", ",", "he", "thought", ",", "\"", "not", "rain", "!",
+				"\"" };
 		expected = "\"Oh, God\", he thought, \"not rain!\"";
 		output = RiTa.untokenize(input);
 		eq(output, expected);
@@ -397,29 +405,16 @@ public class TokenizerTests {
 
 		// more tests
 
-		String[] outputs = new String[] { "A simple sentence.",
-				"that's why this is our place).",
-				"this is for semicolon; that is for else",
-				"this is for 2^3 2*3",
-				"this is for $30 and #30",
-				"this is for 30°C or 30\u2103",
-				"this is for a/b a⁄b",
-				"this is for «guillemets»",
-				"this... is… for ellipsis",
-				"this line is 'for' single ‘quotation’ mark",
-				"Katherine’s cat and John's cat",
-				"this line is for (all) [kind] {of} ⟨brackets⟩ done",
-				"this line is for the-dash",
-				"30% of the student love day-dreaming.",
-				"\"that test line\"",
-				"my email address is name@domin.com",
-				"it is www.google.com",
-				"that is www6.cityu.edu.hk",
-				"30% of the students will pay $30 to decrease the temperature by 2°C"
-		};
+		String[] outputs = new String[] { "A simple sentence.", "that's why this is our place).",
+				"this is for semicolon; that is for else", "this is for 2^3 2*3", "this is for $30 and #30",
+				"this is for 30°C or 30\u2103", "this is for a/b a⁄b", "this is for «guillemets»",
+				"this... is… for ellipsis", "this line is 'for' single ‘quotation’ mark",
+				"Katherine’s cat and John's cat", "this line is for (all) [kind] {of} ⟨brackets⟩ done",
+				"this line is for the-dash", "30% of the student love day-dreaming.", "\"that test line\"",
+				"my email address is name@domin.com", "it is www.google.com", "that is www6.cityu.edu.hk",
+				"30% of the students will pay $30 to decrease the temperature by 2°C" };
 
-		String[][] inputs = new String[][] {
-				new String[] { "A", "simple", "sentence", "." },
+		String[][] inputs = new String[][] { new String[] { "A", "simple", "sentence", "." },
 				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
 				new String[] { "this", "is", "for", "semicolon", ";", "that", "is", "for", "else" },
 				new String[] { "this", "is", "for", "2", "^", "3", "2", "*", "3" },
@@ -430,30 +425,58 @@ public class TokenizerTests {
 				new String[] { "this", "...", "is", "…", "for", "ellipsis" },
 				new String[] { "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" },
 				new String[] { "Katherine", "’", "s", "cat", "and", "John", "'", "s", "cat" },
-				new String[] { "this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨", "brackets", "⟩", "done" },
+				new String[] { "this", "line", "is", "for", "(", "all", ")", "[", "kind", "]", "{", "of", "}", "⟨",
+						"brackets", "⟩", "done" },
 				new String[] { "this", "line", "is", "for", "the", "-", "dash" },
 				new String[] { "30", "%", "of", "the", "student", "love", "day", "-", "dreaming", "." },
 				new String[] { "\"", "that", "test", "line", "\"" },
 				new String[] { "my", "email", "address", "is", "name", "@", "domin", ".", "com" },
 				new String[] { "it", "is", "www", ".", "google", ".", "com" },
 				new String[] { "that", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" },
-				new String[] { "30", "%", "of", "the", "students", "will", "pay", "$", "30", "to", "decrease", "the", "temperature", "by", "2", "°",
-						"C" }
-		};
+				new String[] { "30", "%", "of", "the", "students", "will", "pay", "$", "30", "to", "decrease", "the",
+						"temperature", "by", "2", "°", "C" } };
 
 		eq(inputs.length, outputs.length);
 		for (int i = 0; i < inputs.length; i++) {
 			for (int j = 0; j < inputs[i].length; j++) {
 				if (j != inputs[i].length - 1) {
 					//System.out.print(inputs[i][j] + "\\\\");
-				}
-				else {
+				} else {
 					//System.out.println(inputs[i][j]);
 				}
 			}
 			//System.out.println(RiTa.untokenize(inputs[i]));
 			eq(RiTa.untokenize(inputs[i]), outputs[i]);
 		}
+	}
+
+	@Test
+	public void untokenizeTags() {
+		//html tags
+		String[][] inputs = new String[][] {
+			new String[] { "1", "<", "2" },
+			new String[] { "<", "a", ">", "link", "<", "/", "a", ">" },
+			new String[] { "<", "span", ">", "some", "text", "here", "<", "/", "span", ">" },
+			new String[] { "<", "p", ">", "some", "text", "<", "br", "/", ">", "new", "line", "<", "/", "p", ">" },
+		  	new String[] {"something", "<", "a", "href", "=", "\"", "www", ".", "google", ".", "com", "\"", ">", "link", "to", "google", "<", "/", "a", ">" },
+		  	new String[] { "<", "!", "DOCTYPE", "html", ">" },
+		  	new String[] {"<", "p", ">", "1", "<", "2", "is", "truth", "<", "/", "p", ">" },
+		  	new String[] { "a","<","!","-","-","code","comment","-","-",">","b" }
+	  	};
+	  	String[] outputs = new String[] {
+		  	"1 < 2",
+			"<a>link</a>",
+			"<span>some text here</span>",
+			"<p>some text<br/>new line</p>",
+			"something <a href = \"www.google.com\">link to google</a>",
+			"<!DOCTYPE html>",
+			"<p>1 < 2 is truth</p>",
+			"a <!--code comment--> b"
+	  	};
+	  	assertEquals(inputs.length, outputs.length);
+	  	for (int i = 0; i < inputs.length; i++) {
+		  	eq(RiTa.untokenize(inputs[i]), outputs[i]);
+	  	}
 	}
 
 	@Test

@@ -170,17 +170,8 @@ public class Tokenizer {
 		words = words.trim();
 
 		//handle html tags ---- save tags
-		ArrayList<String> htmlTags = new ArrayList<String>();
-		int indexOfTags = 0;
-		for (int i = 0; i < HTML_TAGS_RE.length; i++) {
-			Matcher currentMatcher = HTML_TAGS_RE[i].matcher(words);
-		  while (currentMatcher.find()) {
-			htmlTags.add(currentMatcher.group());
-			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
-			indexOfTags++;
-		  }
-		}	
-
+		ArrayList<String> htmlTags = (ArrayList<String>) pushTags(words).get(0);
+		words = (String) pushTags(words).get(1);
 		for (int i = 0; i < TOKPAT1.length; i++) {
 			words = TOKPAT1[i].matcher(words)
 					.replaceAll(TOKREP1[i]);
@@ -200,6 +191,24 @@ public class Tokenizer {
 
 		words = words.trim();
 		String[] result = words.split("\\s+");
+		ArrayList<String> toReturn = popTags(result, htmlTags);
+		return toReturn.toArray(new String[] {});
+	}
+	
+	private static List<Object> pushTags(String words) {
+		ArrayList<String> htmlTags = new ArrayList<String>();
+		int indexOfTags = 0;
+		Matcher currentMatcher = HTML_TAGS_RE.matcher(words);
+		while (currentMatcher.find()) {
+			htmlTags.add(currentMatcher.group());
+			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
+			indexOfTags++;
+		}
+		List<Object> toReturn = Arrays.asList(htmlTags, words);
+		return toReturn;
+	}
+
+	private static ArrayList<String> popTags(String[] result, ArrayList<String> htmlTags) {
 		ArrayList<String> toReturn = new ArrayList<String>(); //strings are immutable
 		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
@@ -216,7 +225,7 @@ public class Tokenizer {
 			}
 			toReturn.add(token);
 		}
-		return toReturn.toArray(new String[] {});
+		return toReturn;
 	}
 
 	private static String[] unescapeAbbrevs(String[] arr) {
@@ -476,10 +485,8 @@ public class Tokenizer {
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
 
-	private static final Pattern[] HTML_TAGS_RE = new Pattern[] {
-			Pattern.compile("(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>)", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("(<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE)
-	};
+	private static final Pattern HTML_TAGS_RE = Pattern.compile(
+			"(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
 			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
