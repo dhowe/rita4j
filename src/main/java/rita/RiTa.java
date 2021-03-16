@@ -70,12 +70,12 @@ public class RiTa {
 	}
 
 	public static boolean isAbbrev(String input, Map<String, Object> opts) {
-		return isAbbrev(input, Util.boolOpt("ignoreCase", opts));
+		return isAbbrev(input, !Util.boolOpt("caseSensitive", opts));
 	}
 
 	public static boolean isAbbrev(String input, boolean ignoreCase) {
-		if (input == null) return false;
-		if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1);
+		if (input == null || input.length() == 0) return false;
+		if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
 		return Arrays.stream(ABRV).anyMatch(input::equals);
 	}
 

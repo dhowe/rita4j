@@ -11,6 +11,7 @@ import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
 import rita.*;
+import static rita.RiTa.opts;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -237,6 +238,14 @@ public class RiTaTests {
 
 		assertTrue(!RiTa.isAbbrev(""));
 		assertTrue(!RiTa.isAbbrev(null));
+
+		//test with option 
+		assertTrue(RiTa.isAbbrev("prof.", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("prof.", opts("caseSensitive", true)));
+		assertTrue(RiTa.isAbbrev("dr.", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("word", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev(null, opts("caseSensitive", false)));
 	}
 
 	@Test
