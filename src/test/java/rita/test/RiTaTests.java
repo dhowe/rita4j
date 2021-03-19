@@ -319,6 +319,10 @@ public class RiTaTests {
 		for (int i = 0; i < characterArr.length; i++) {
 			assertTrue(!RiTa.isPunct(characterArr[i]));
 		}
+
+		//char
+		assertTrue(RiTa.isPunct(','));
+		assertTrue(!RiTa.isPunct('t'));
 	}
 
 	@Test
@@ -707,6 +711,26 @@ public class RiTaTests {
 
 		assertTrue(!RiTa.isConsonant(""), "empty string should return false");
 		assertTrue(!RiTa.isConsonant("word"), "for words return false");
+	}
+
+	@Test
+	public void callIsVowel() {
+		//char
+		assertTrue(RiTa.isVowel('a'));
+		assertTrue(RiTa.isVowel('e'));
+		assertTrue(RiTa.isVowel('i'));
+		assertTrue(RiTa.isVowel('o'));
+		assertTrue(RiTa.isVowel('u'));
+		assertTrue(!RiTa.isVowel('b'));
+		assertTrue(!RiTa.isVowel('p'));
+		//String
+		assertTrue(RiTa.isVowel("a"));
+		assertTrue(RiTa.isVowel("e"));
+		assertTrue(RiTa.isVowel("i"));
+		assertTrue(RiTa.isVowel("o"));
+		assertTrue(RiTa.isVowel("u"));
+		assertTrue(!RiTa.isVowel('k'));
+		assertTrue(!RiTa.isVowel('z'));
 	}
 	//--------------------------------helper----------------------
 	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {

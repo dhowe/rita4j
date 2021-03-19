@@ -1073,6 +1073,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isAlliteration("consult", "sultan"));
 		assertTrue(RiTa.isAlliteration("monsoon", "super"));
 
+		//no lts
+		assertTrue(!RiTa.isAlliteration("omen", "apple", true));
+		assertTrue(!RiTa.isAlliteration("omen", "adobe", true));
 	}
 
 	static void eq(String a, String b) {
