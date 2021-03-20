@@ -28,13 +28,12 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
 </dependency>
 ```
 ## API
-
   <table cellspacing="0" cellpadding="0" style="vertical-align: top;">
    <tr>
-    <th colspan=2 style="text-align: left; padding-left: 12px">RiTa
+    <th colspan=2 style="vertical-align: top;text-align: left; padding-left: 12px">RiTa
     </th>
-    <th colspan=1 style="text-align: left;">RiMarkov</th>
-    <th colspan=1 style="text-align: left;">RiGrammar</th>
+    <th colspan=1 style="vertical-align: top;text-align: left;">RiMarkov</th>
+    <th colspan=1 style="vertical-align: top;text-align: left;">RiGrammar</th>
    </tr>
    <tr>
     <td style="vertical-align: top; padding-top: 15px">
@@ -83,7 +82,7 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="https://rednoise.org/rita/reference/RiTa/untokenize/index.html">RiTa.untokenize()</a><br/>
       <!--a href="./RiTa/VERSION/index.html">RiTa.VERSION</a><br/-->
     </td>
-    <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
+    <td style="vertical-align: top !important; padding-top: 15px; min-width: 125px">
       <a href="https://rednoise.org/rita/reference/RiMarkov/addText/index.html">addText()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiMarkov/completions/index.html">completions()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiMarkov/generate/index.html">generate()</a><br/>
@@ -92,16 +91,16 @@ RiTa is a toolkit for generative writing and natural language. It is implemented
       <a href="https://rednoise.org/rita/reference/RiMarkov/size/index.html">size()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiMarkov/toString/index.html">toString()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiMarkov/toJSON/index.html">toJSON()</a><br/>
-      <a href="https://rednoise.org/rita/reference/RiMarkov/fromJSON/index.html">fromJSON()</a><br/>
+      <a href="https://rednoise.org/rita/reference/RiMarkov/fromJSON/index.html">fromJSON()</a><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     </td>
-    <td style="vertical-align: top; padding-top: 15px; min-width: 125px">
+    <td style="vertical-align: top !important; padding-top: 15px; min-width: 125px">
       <a href="https://rednoise.org/rita/reference/RiGrammar/addRule/index.html">addRule()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiGrammar/addRules/index.html">addRules()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiGrammar/expand/index.html">expand()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiGrammar/removeRule/index.html">removeRule()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiGrammar/toJSON/index.html">toJSON()</a><br/>
       <a href="https://rednoise.org/rita/reference/RiGrammar/toString/index.html">toString()</a><br/>
-      <a href="https://rednoise.org/rita/reference/RiGrammar/fromJSON/index.html">fromJSON()</a><br/>
+      <a href="https://rednoise.org/rita/reference/RiGrammar/fromJSON/index.html">fromJSON()</a><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
     </td>
  </tr>
 </table>
