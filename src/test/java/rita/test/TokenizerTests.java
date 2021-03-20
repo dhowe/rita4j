@@ -65,7 +65,8 @@ public class TokenizerTests {
       		"<!--comment lines-->",
       		"<p>this <br>is</br> a <br>paragraph <br/></p>",
       		"<p>Link <a herf=\"https://hk.search.yahoo.com/search?p=cute+cat\">here</a> is about <span class=\"cat\">cute cat</span></p> <img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />",
-      		"<p>a paragraph with an <span class=\"test\">in line element</span> and a <a href=\"https://www.google.com\">link to google</a>.</p>"
+			"<p>a paragraph with an <span class=\"test\">in line element</span> and a <a href=\"https://www.google.com\">link to google</a>.</p>",
+			"a <br/> b"
 		};
 		String[][] tokens = new String[][] { new String[] { "<a>", "link", "</a>" },
 				new String[] { "<span class=\"test\">", "in", "line", "</span>" },
@@ -77,7 +78,9 @@ public class TokenizerTests {
 						"<img src=\"cutecat.com/catpic001.jpg\" width=\"600\" />" },
 				new String[] { "<p>", "a", "paragraph", "with", "an", "<span class=\"test\">", "in", "line", "element",
 						"</span>", "and", "a", "<a href=\"https://www.google.com\">", "link", "to", "google", "</a>",
-						".", "</p>" } };
+						".", "</p>" },
+				new String[] { "a", "<br/>", "b" }
+		};
 		assertTrue(strings.length == tokens.length);
 		for (int i = 0; i < strings.length; i++) {
 			String[] afterTokenized = RiTa.tokenize(strings[i]);
@@ -471,7 +474,7 @@ public class TokenizerTests {
 		  	"1 < 2",
 			"<a>link</a>",
 			"<span>some text here</span>",
-			"<p>some text<br/>new line</p>",
+			"<p>some text <br/> new line</p>",
 			"something <a href = \"www.google.com\">link to google</a>",
 			"<!DOCTYPE html>",
 			"<p>1 < 2 is truth</p>",

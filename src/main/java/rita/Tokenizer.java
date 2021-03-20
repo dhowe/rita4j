@@ -59,6 +59,7 @@ public class Tokenizer {
 	}
 
 	public static String untokenize(String[] arr, String delim) {
+		arr = preProcessTags(arr);
 
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
 		boolean lastQuote, thisComma, isLast, lastComma, lastEndWithS;
@@ -165,9 +166,9 @@ public class Tokenizer {
 
 		words = words.trim();
 
-		//handle html tags ---- save tags
 		ArrayList<String> htmlTags = (ArrayList<String>) pushTags(words).get(0);
 		words = (String) pushTags(words).get(1);
+
 		for (int i = 0; i < TOKPAT1.length; i++) {
 			words = TOKPAT1[i].matcher(words)
 					.replaceAll(TOKREP1[i]);
@@ -222,6 +223,71 @@ public class Tokenizer {
 			toReturn.add(token);
 		}
 		return toReturn;
+	}
+
+	private static String[] preProcessTags(String[] array) {
+		ArrayList<String> result = new ArrayList<String>();
+		int currentIdx = 0;
+		while (currentIdx < array.length) {
+			String currentToken = array[currentIdx];
+			if (!LT_RE.matcher(currentToken).matches()) {
+				result.add(currentToken);
+				currentIdx++;
+				continue;
+			}
+			ArrayList<String> subArray = new ArrayList<String>();
+			subArray.add(array[currentIdx]);
+			int inspectIdx = currentIdx + 1;
+			while (inspectIdx < array.length) {
+				subArray.add(array[inspectIdx]);
+				if (LT_RE.matcher(array[inspectIdx]).matches())
+					break;
+				if (GT_RE.matcher(array[inspectIdx]).matches())
+					break;
+				inspectIdx++;
+			}
+			if (LT_RE.matcher(subArray.get(subArray.size() - 1)).matches()) {
+				subArray.remove(subArray.size() - 1);
+				result.addAll(subArray);
+				currentIdx = inspectIdx;
+				continue;
+			}
+			if (!GT_RE.matcher(subArray.get(subArray.size() - 1)).matches()) {
+				result.addAll(subArray);
+				currentIdx = inspectIdx + 1;
+				continue;
+			}
+			if (!HTML_TAGS_RE.matcher(String.join("", subArray)).matches()) {
+				result.addAll(subArray);
+				currentIdx = inspectIdx + 1;
+				continue;
+			}
+			String tag = tagSubarrayToString(subArray.toArray(new String[] {}));
+			result.add(tag);
+			currentIdx = inspectIdx + 1;
+		}
+		return result.toArray(new String[] {});
+	}
+
+	private static String tagSubarrayToString(String[] array) {
+		String start = "";
+		String end = "";
+		start += array[0].trim();
+		end = array[array.length - 1].trim() + end;
+		int inspectIdx = 1;
+		while (inspectIdx < array.length - 1 && TAGSTART_RE.matcher(array[inspectIdx]).matches()) {
+			start += array[inspectIdx].trim();
+			inspectIdx++;
+		}
+		int contentStartIdx = inspectIdx;
+		inspectIdx = array.length - 2;
+		while (inspectIdx > contentStartIdx && TAGEND_RE.matcher(array[inspectIdx]).matches()) {
+			end = array[inspectIdx].trim() + end;
+			inspectIdx--;
+		}
+		int contentEndIdx = inspectIdx;
+		String[] contentArray = Arrays.copyOfRange(array, contentStartIdx, contentEndIdx + 1);
+		return start + untokenize(contentArray) + end;
 	}
 
 	private static String[] unescapeAbbrevs(String[] arr) {
@@ -440,12 +506,17 @@ public class Tokenizer {
 			"(<\\/?[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
-			Pattern.compile("<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<\\/[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<!DOCTYPE[^>]*>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<!--[^->]*-->", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/> *$>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<([a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*[a-z0-9='\"#;:&\\s\\-\\+\\.\\?]|[a-z])> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<\\/[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<!DOCTYPE[^>]*> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<!--[^->]*--> *$", Pattern.CASE_INSENSITIVE),
 	};
+
+	private static final Pattern LT_RE = Pattern.compile("^ *< *$");
+	private static final Pattern GT_RE = Pattern.compile("^ *> *$");
+	private static final Pattern TAGSTART_RE = Pattern.compile("^ *[!\\-\\/] *$");
+	private static final Pattern TAGEND_RE = Pattern.compile("^ *[\\-\\/] *$");
 
 	static {
 		if (TOKPAT1.length != TOKREP1.length
