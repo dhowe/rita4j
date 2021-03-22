@@ -61,6 +61,10 @@ public class LexiconTests {
 		result = RiTa.randomWord(hm);
 		assertTrue(result.length() > 0);
 
+		//no opts
+		result = RiTa.randomWord();
+		assertTrue(result != null);
+		assertTrue(result.length() >= 4);
 	}
 
 	@Test
