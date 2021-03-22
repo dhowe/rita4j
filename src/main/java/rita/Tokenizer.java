@@ -59,6 +59,7 @@ public class Tokenizer {
 	}
 
 	public static String untokenize(String[] arr, String delim) {
+		arr = preProcessTags(arr);
 
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
 		boolean lastQuote, thisComma, isLast, lastComma, lastEndWithS;
@@ -77,7 +78,7 @@ public class Tokenizer {
 			if (arr[i] == null) continue;
 
 			thisComma = arr[i].equals(",");
-			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches();
+			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches() || UNTOKENIZE_HTMLTAG_RE[2].matcher(arr[i]).matches();
 			//thisNAPunct = NA_PUNCT.matcher(arr[i]).matches();
 			thisQuote = QUOTES.matcher(arr[i]).matches();
 			thisLBracket = LBRACKS.matcher(arr[i]).matches();
@@ -85,7 +86,7 @@ public class Tokenizer {
 			thisDomin = DOMIN.matcher(arr[i]).matches();
 			lastComma = arr[i - 1].equals(",");
 			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches();
-			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches();
+			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches() || UNTOKENIZE_HTMLTAG_RE[1].matcher(arr[i - 1]).matches();
 			lastQuote = QUOTES.matcher(arr[i - 1]).matches();
 			lastLBracket = LBRACKS.matcher(arr[i - 1]).matches();
 			lastRBracket = RBRACKS.matcher(arr[i - 1]).matches();
@@ -152,10 +153,6 @@ public class Tokenizer {
 			}
 		}
 
-		for (int i = 0; i < UNTOKENIZE_HTMLTAG_RE.length; i++) {
-			result = handleHTMLTags(result, i);
-		}
-
 		return result.trim();
 	}
 
@@ -169,17 +166,8 @@ public class Tokenizer {
 
 		words = words.trim();
 
-		//handle html tags ---- save tags
-		ArrayList<String> htmlTags = new ArrayList<String>();
-		int indexOfTags = 0;
-		for (int i = 0; i < HTML_TAGS_RE.length; i++) {
-			Matcher currentMatcher = HTML_TAGS_RE[i].matcher(words);
-		  while (currentMatcher.find()) {
-			htmlTags.add(currentMatcher.group());
-			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
-			indexOfTags++;
-		  }
-		}	
+		ArrayList<String> htmlTags = (ArrayList<String>) pushTags(words).get(0);
+		words = (String) pushTags(words).get(1);
 
 		for (int i = 0; i < TOKPAT1.length; i++) {
 			words = TOKPAT1[i].matcher(words)
@@ -200,6 +188,24 @@ public class Tokenizer {
 
 		words = words.trim();
 		String[] result = words.split("\\s+");
+		ArrayList<String> toReturn = popTags(result, htmlTags);
+		return toReturn.toArray(new String[] {});
+	}
+	
+	private static List<Object> pushTags(String words) {
+		ArrayList<String> htmlTags = new ArrayList<String>();
+		int indexOfTags = 0;
+		Matcher currentMatcher = HTML_TAGS_RE.matcher(words);
+		while (currentMatcher.find()) {
+			htmlTags.add(currentMatcher.group());
+			words = words.replace(htmlTags.get(indexOfTags), " _HTMLTAG" + indexOfTags + "_ ");
+			indexOfTags++;
+		}
+		List<Object> toReturn = Arrays.asList(htmlTags, words);
+		return toReturn;
+	}
+
+	private static ArrayList<String> popTags(String[] result, ArrayList<String> htmlTags) {
 		ArrayList<String> toReturn = new ArrayList<String>(); //strings are immutable
 		for (int i = 0; i < result.length; i++) {
 			String token = result[i];
@@ -216,7 +222,72 @@ public class Tokenizer {
 			}
 			toReturn.add(token);
 		}
-		return toReturn.toArray(new String[] {});
+		return toReturn;
+	}
+
+	private static String[] preProcessTags(String[] array) {
+		ArrayList<String> result = new ArrayList<String>();
+		int currentIdx = 0;
+		while (currentIdx < array.length) {
+			String currentToken = array[currentIdx];
+			if (!LT_RE.matcher(currentToken).matches()) {
+				result.add(currentToken);
+				currentIdx++;
+				continue;
+			}
+			ArrayList<String> subArray = new ArrayList<String>();
+			subArray.add(array[currentIdx]);
+			int inspectIdx = currentIdx + 1;
+			while (inspectIdx < array.length) {
+				subArray.add(array[inspectIdx]);
+				if (LT_RE.matcher(array[inspectIdx]).matches())
+					break;
+				if (GT_RE.matcher(array[inspectIdx]).matches())
+					break;
+				inspectIdx++;
+			}
+			if (LT_RE.matcher(subArray.get(subArray.size() - 1)).matches()) {
+				subArray.remove(subArray.size() - 1);
+				result.addAll(subArray);
+				currentIdx = inspectIdx;
+				continue;
+			}
+			if (!GT_RE.matcher(subArray.get(subArray.size() - 1)).matches()) {
+				result.addAll(subArray);
+				currentIdx = inspectIdx + 1;
+				continue;
+			}
+			if (!HTML_TAGS_RE.matcher(String.join("", subArray)).matches()) {
+				result.addAll(subArray);
+				currentIdx = inspectIdx + 1;
+				continue;
+			}
+			String tag = tagSubarrayToString(subArray.toArray(new String[] {}));
+			result.add(tag);
+			currentIdx = inspectIdx + 1;
+		}
+		return result.toArray(new String[] {});
+	}
+
+	private static String tagSubarrayToString(String[] array) {
+		String start = "";
+		String end = "";
+		start += array[0].trim();
+		end = array[array.length - 1].trim() + end;
+		int inspectIdx = 1;
+		while (inspectIdx < array.length - 1 && TAGSTART_RE.matcher(array[inspectIdx]).matches()) {
+			start += array[inspectIdx].trim();
+			inspectIdx++;
+		}
+		int contentStartIdx = inspectIdx;
+		inspectIdx = array.length - 2;
+		while (inspectIdx > contentStartIdx && TAGEND_RE.matcher(array[inspectIdx]).matches()) {
+			end = array[inspectIdx].trim() + end;
+			inspectIdx--;
+		}
+		int contentEndIdx = inspectIdx;
+		String[] contentArray = Arrays.copyOfRange(array, contentStartIdx, contentEndIdx + 1);
+		return start + untokenize(contentArray) + end;
 	}
 
 	private static String[] unescapeAbbrevs(String[] arr) {
@@ -238,51 +309,6 @@ public class Tokenizer {
 			}
 		}
 		return text;
-	}
-
-	private static String handleHTMLTags(String input, int i) {
-		Matcher currentMatcher = UNTOKENIZE_HTMLTAG_RE[i].matcher(input);
-		switch (i) {
-		default:
-			break;
-		case 0:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + trimedP1 + "/>");
-			}
-			break;
-		case 1:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + trimedP1 + ">");
-			}
-			break;
-		case 2:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "</" + trimedP1 + ">");
-			}
-			break;
-		case 3:
-			while (currentMatcher.find()) {
-				String p1 = currentMatcher.group(1).replaceAll(" ", "");
-				String trimedP2 = currentMatcher.group(2).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<" + p1 + " " + trimedP2 + ">");
-			}
-			break;
-		case 4:
-			while (currentMatcher.find()) {
-				String trimedP1 = currentMatcher.group(1).trim();
-				String toReplace = currentMatcher.group();
-				input = input.replace(toReplace, "<!--" + trimedP1 + "-->");
-			}
-			break;
-		}
-		return input;
 	}
 
 	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
@@ -476,18 +502,21 @@ public class Tokenizer {
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
 
-	private static final Pattern[] HTML_TAGS_RE = new Pattern[] {
-			Pattern.compile("(<\\/?[a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+\\/?>)", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("(<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE)
-	};
+	private static final Pattern HTML_TAGS_RE = Pattern.compile(
+			"(<\\/?[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/?>|<!DOCTYPE[^>]*>|<!--[^>-]*-->)", Pattern.CASE_INSENSITIVE);
 
 	private static final Pattern[] UNTOKENIZE_HTMLTAG_RE = new Pattern[] {
-			Pattern.compile(" <([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)\\/> ", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)> ", Pattern.CASE_INSENSITIVE),
-			Pattern.compile(" <\\/([a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]+)>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("< *(! *DOCTYPE)([^>]*)>", Pattern.CASE_INSENSITIVE),
-			Pattern.compile("<! *--([^->]*)-->", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*\\/> *$>", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<([a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*[a-z0-9='\"#;:&\\s\\-\\+\\.\\?]|[a-z])> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<\\/[a-z][a-z0-9='\"#;:&\\s\\-\\+\\/\\.\\?]*> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<!DOCTYPE[^>]*> *$", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("^ *<!--[^->]*--> *$", Pattern.CASE_INSENSITIVE),
 	};
+
+	private static final Pattern LT_RE = Pattern.compile("^ *< *$");
+	private static final Pattern GT_RE = Pattern.compile("^ *> *$");
+	private static final Pattern TAGSTART_RE = Pattern.compile("^ *[!\\-\\/] *$");
+	private static final Pattern TAGEND_RE = Pattern.compile("^ *[\\-\\/] *$");
 
 	static {
 		if (TOKPAT1.length != TOKREP1.length
