@@ -576,6 +576,12 @@ public class TokenizerTests {
 		arrayEq(output, expected);
 
 		arrayEq(RiTa.sentences(""), new String[] { "" });
+
+		//customize splitter
+		input = "I have a pen. I have an apple.";
+		output = RiTa.sentences(input, "[A-Z0-9][\\w\\s]*[\\.]");
+		expected = new String[] { "I have a pen.", "I have an apple." };
+		arrayEq(output, expected);
 	}
 
 	static void eq(String a, String b) {
