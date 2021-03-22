@@ -100,8 +100,13 @@ public class TokenizerTests {
       "phase", "she", "that",
       "thought", "was", "while",
       "wrote"
-    });
-  }
+	});
+	//with regex
+	input = "I am a sentence.";
+	arrayEq(RiTa.tokens(input, " "), new String[] { "a", "am", "i" });
+	input = "I am a sentence";
+	arrayEq(RiTa.tokens(input, " "), new String[] { "a", "am", "i", "sentence" });
+  	}
 
 	@Test
 	public void callTokenize() {
@@ -276,6 +281,9 @@ public class TokenizerTests {
 		arrayEq(RiTa.tokenize(txt4), new String[] { "It's", "not", "that", "I", "can't", "." });
 		arrayEq(RiTa.tokenize(txt5), new String[] { "We've", "found", "the", "cat", "." });
 		arrayEq(RiTa.tokenize(txt6), new String[] { "We", "didn't", "find", "the", "cat", "." });
+		//with regex
+		arrayEq(RiTa.tokenize("This is tokenized by space", " "), new String[] { "This", "is", "tokenized", "by", "space" });
+		arrayEq(RiTa.tokenize("This is tokenized by space.", " "), new String[] { "This", "is", "tokenized", "by", "space." });
 	}
 
 	@Test
