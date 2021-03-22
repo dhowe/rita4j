@@ -14,14 +14,14 @@ public class LexLoaderTests {
 	@Test
 	public void testLoading() {
 		Instant now = Instant.now();
-		int numWords = RiTa.words().length;
+		int numWords = RiTa.search().length;
 		long timeMs = Duration.between(now, Instant.now()).toMillis();
 		//console.log("1) "+numWords + " words in " + timeMs + "ms");
 		assertTrue(numWords > 22000);
 		assertTrue(timeMs < 400);
 
 		now = Instant.now();
-		numWords = RiTa.words().length;
+		numWords = RiTa.search().length;
 		timeMs = Duration.between(now, Instant.now()).toMillis();
 		//console.log("2) "+numWords + " words in " + timeMs + "ms");
 		assertTrue(numWords > 22000);
