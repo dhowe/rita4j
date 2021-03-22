@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
+import java.lang.RuntimeException;
 
 import org.junit.jupiter.api.Test;
 
@@ -758,6 +759,16 @@ public class RiTaTests {
 		assertTrue(!RiTa.isVowel('k'));
 		assertTrue(!RiTa.isVowel('z'));
 	}
+
+	@Test
+	public void throwOnBadOpts() {
+		String[] keys = new String[] { "a", "b" };
+		String[] values = new String[] { "c", "d", "e" };
+		assertThrows(RuntimeException.class, () -> {
+			Map<String, Object> opts = RiTa.opts(keys, values);
+		});
+	}
+
 	//--------------------------------helper----------------------
 	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {
 		if (a == null || b == null) {
