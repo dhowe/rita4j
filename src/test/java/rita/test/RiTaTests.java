@@ -21,6 +21,11 @@ import java.util.Set;
 public class RiTaTests {
 
 	@Test
+	public void callEnv() {
+		assertEquals("Java", RiTa.env());
+	}
+
+	@Test
 	public void accessStaticConstantAndFunction() {
 		assertEquals("2", RiTa.VERSION);
 		assertTrue(RiTa.hasWord("dog"));
@@ -161,6 +166,27 @@ public class RiTaTests {
 		outputO = RandGen.randomOrdering(resO);
 		Arrays.sort(outputO);
 		assertArrayEquals(resO, outputO);
+	}
+
+	@Test
+	public void callRandom() {
+		float res = RiTa.random();
+		assertTrue(res < 1 && res > 0);
+		res = RiTa.random(10);
+		assertTrue(res < 10 && res > 0);
+		res = RiTa.random(1, 10);
+		assertTrue(res < 10 && res > 1);
+		//random from array
+		int resInt = RiTa.random(new int[] { 1, 0 });
+		assertTrue(resInt == 1 || resInt == 0);
+		res = RiTa.random(new float[] { 1, 2 });
+		assertTrue(res == 1 || res == 2);
+		boolean resBool = RiTa.random(new boolean[] { true, false });
+		assertTrue(resBool || !resBool);
+		double resDoub = RiTa.random(new double[] { 1.1, 2.2 });
+		assertTrue(resDoub == 1.1 || resDoub == 2.2);
+		String resStr = RiTa.random(new String[] { "a", "b" });
+		assertTrue(resStr.equals("a") || resStr.equals("b"));
 	}
 
 	@Test
