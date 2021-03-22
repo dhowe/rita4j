@@ -90,7 +90,9 @@ public class ConjugatorTests {
 
 	@Test
 	public void callConjugate() {
-
+		//no opts should return the verb
+		eq("swim", RiTa.conjugate("swim"));
+		eq("play", RiTa.conjugate("play"));
 
 		String[] s, a;
 

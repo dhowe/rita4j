@@ -7,10 +7,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Collections;
+import java.lang.RuntimeException;
 
 import org.junit.jupiter.api.Test;
 
 import rita.*;
+import static rita.RiTa.opts;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,6 +20,11 @@ import java.util.Set;
 
 
 public class RiTaTests {
+
+	@Test
+	public void callEnv() {
+		assertEquals("Java", RiTa.env());
+	}
 
 	@Test
 	public void accessStaticConstantAndFunction() {
@@ -163,6 +170,27 @@ public class RiTaTests {
 	}
 
 	@Test
+	public void callRandom() {
+		float res = RiTa.random();
+		assertTrue(res < 1 && res > 0);
+		res = RiTa.random(10);
+		assertTrue(res < 10 && res > 0);
+		res = RiTa.random(1, 10);
+		assertTrue(res < 10 && res > 1);
+		//random from array
+		int resInt = RiTa.random(new int[] { 1, 0 });
+		assertTrue(resInt == 1 || resInt == 0);
+		res = RiTa.random(new float[] { 1, 2 });
+		assertTrue(res == 1 || res == 2);
+		boolean resBool = RiTa.random(new boolean[] { true, false });
+		assertTrue(resBool || !resBool);
+		double resDoub = RiTa.random(new double[] { 1.1, 2.2 });
+		assertTrue(resDoub == 1.1 || resDoub == 2.2);
+		String resStr = RiTa.random(new String[] { "a", "b" });
+		assertTrue(resStr.equals("a") || resStr.equals("b"));
+	}
+
+	@Test
 	public void callIsQuestion() {
 		assertTrue(RiTa.isQuestion("What"));
 		assertTrue(RiTa.isQuestion("what"));
@@ -237,6 +265,14 @@ public class RiTaTests {
 
 		assertTrue(!RiTa.isAbbrev(""));
 		assertTrue(!RiTa.isAbbrev(null));
+
+		//test with option 
+		assertTrue(RiTa.isAbbrev("prof.", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("prof.", opts("caseSensitive", true)));
+		assertTrue(RiTa.isAbbrev("dr.", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("word", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev("", opts("caseSensitive", false)));
+		assertTrue(!RiTa.isAbbrev(null, opts("caseSensitive", false)));
 	}
 
 	@Test
@@ -310,6 +346,10 @@ public class RiTaTests {
 		for (int i = 0; i < characterArr.length; i++) {
 			assertTrue(!RiTa.isPunct(characterArr[i]));
 		}
+
+		//char
+		assertTrue(RiTa.isPunct(','));
+		assertTrue(!RiTa.isPunct('t'));
 	}
 
 	@Test
@@ -699,6 +739,36 @@ public class RiTaTests {
 		assertTrue(!RiTa.isConsonant(""), "empty string should return false");
 		assertTrue(!RiTa.isConsonant("word"), "for words return false");
 	}
+
+	@Test
+	public void callIsVowel() {
+		//char
+		assertTrue(RiTa.isVowel('a'));
+		assertTrue(RiTa.isVowel('e'));
+		assertTrue(RiTa.isVowel('i'));
+		assertTrue(RiTa.isVowel('o'));
+		assertTrue(RiTa.isVowel('u'));
+		assertTrue(!RiTa.isVowel('b'));
+		assertTrue(!RiTa.isVowel('p'));
+		//String
+		assertTrue(RiTa.isVowel("a"));
+		assertTrue(RiTa.isVowel("e"));
+		assertTrue(RiTa.isVowel("i"));
+		assertTrue(RiTa.isVowel("o"));
+		assertTrue(RiTa.isVowel("u"));
+		assertTrue(!RiTa.isVowel('k'));
+		assertTrue(!RiTa.isVowel('z'));
+	}
+
+	@Test
+	public void throwOnBadOpts() {
+		String[] keys = new String[] { "a", "b" };
+		String[] values = new String[] { "c", "d", "e" };
+		assertThrows(RuntimeException.class, () -> {
+			Map<String, Object> opts = RiTa.opts(keys, values);
+		});
+	}
+
 	//--------------------------------helper----------------------
 	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {
 		if (a == null || b == null) {

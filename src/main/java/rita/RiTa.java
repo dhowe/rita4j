@@ -10,12 +10,10 @@ public class RiTa {
 	public static Analyzer analyzer = new Analyzer();
 	public static Concorder concorder = new Concorder();
 
-	public static Map<String, Function<String, String>> addTransform(
-			String name, Function<String, String> func) {
+	public static Map<String, Function<String, String>> addTransform(String name, Function<String, String> func) {
 		if (func != null) {
 			RiScript.transforms.put(name, func);
-		}
-		else {
+		} else {
 			RiScript.transforms.remove(name);
 		}
 		return RiScript.transforms;
@@ -52,13 +50,13 @@ public class RiTa {
 	public static String conjugate(String word, Map<String, Object> opts) {
 		return Conjugator.conjugate(word, opts);
 	}
-	
+
 	public static String conjugate(String word, String opts) {
 		return Conjugator.conjugate(word, opts);
 	}
 
 	public static String conjugate(String word) {
-		return conjugate(word, (Map<String, Object>)null);
+		return conjugate(word, (Map<String, Object>) null);
 	}
 
 	public static boolean hasWord(String word) {
@@ -70,12 +68,14 @@ public class RiTa {
 	}
 
 	public static boolean isAbbrev(String input, Map<String, Object> opts) {
-		return isAbbrev(input, Util.boolOpt("ignoreCase", opts));
+		return isAbbrev(input, !Util.boolOpt("caseSensitive", opts));
 	}
 
 	public static boolean isAbbrev(String input, boolean ignoreCase) {
-		if (input == null) return false;
-		if (ignoreCase) input = input.substring(0, 1).toUpperCase() + input.substring(1);
+		if (input == null || input.length() == 0)
+			return false;
+		if (ignoreCase)
+			input = input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
 		return Arrays.stream(ABRV).anyMatch(input::equals);
 	}
 
@@ -100,7 +100,7 @@ public class RiTa {
 	}
 
 	public static boolean isConsonant(String c) {
-		return RiTa.VOWELS.indexOf(c) < 0 && c.length() == 1 &&// from js
+		return RiTa.VOWELS.indexOf(c) < 0 && c.length() == 1 && // from js
 				IS_LETTER.matcher(c).matches();
 	}
 
@@ -149,12 +149,14 @@ public class RiTa {
 	}
 
 	public static String[] kwic(String word, int numWords) {
-		if (concorder == null) concorder = new Concorder();
+		if (concorder == null)
+			concorder = new Concorder();
 		return concorder.kwic(word, numWords);
 	}
 
 	public static String[] kwic(String word, Map<String, Object> opts) {
-		if (concorder == null) concorder = new Concorder();
+		if (concorder == null)
+			concorder = new Concorder();
 		return concorder.kwic(word, opts);
 	}
 
@@ -311,21 +313,21 @@ public class RiTa {
 	}
 
 	public static String[] search() {
-		return search((String)null, null);
+		return search((String) null, null);
 	}
 
 	public static String[] search(String regex) {
 		return search(regex, null);
 	}
-	
+
 	public static String[] search(String regex, Map<String, Object> opts) {
 		return lexicon().search(regex, opts);
 	}
-	
+
 	public static String[] search(Pattern p) {
 		return search(p, null);
 	}
-	
+
 	public static String[] search(Pattern p, Map<String, Object> opts) {
 		return lexicon().search(p, opts);
 	}
@@ -361,7 +363,7 @@ public class RiTa {
 	public static String stem(String word) {
 		return Stemmer.stem(word);
 	}
-	
+
 	public static String[] tokens(String text) {
 		return Tokenizer.tokens(text);
 	}
@@ -386,22 +388,22 @@ public class RiTa {
 		return Tokenizer.untokenize(words, delim);
 	}
 
-	public static String[] words() {
-		return words((Pattern) null);
-	}
+	// public static String[] words() {
+	// 	return words((Pattern) null);
+	// }
 
-	public static String[] words(Map<String, Object> opts) {
-		return words(Util.strOpt("pattern", opts));
-	}
+	// public static String[] words(Map<String, Object> opts) {
+	// 	return words(Util.strOpt("pattern", opts));
+	// }
 
-	public static String[] words(String regex) {
-		return words(Pattern.compile(regex));
-	}
+	// public static String[] words(String regex) {
+	// 	return words(Pattern.compile(regex));
+	// }
 
-	public static String[] words(Pattern regex) {
-		return lexicon().words(regex);
-	}
-
+	// public static String[] words(Pattern regex) {
+	// 	return lexicon().words(regex);
+	// }
+	// deprecated
 	public static RiScript scripting() {
 		return new RiScript();
 	}
@@ -449,8 +451,7 @@ public class RiTa {
 	}
 
 	public static String capitalize(String s) {
-		return s == null || s.length() == 0 ? ""
-				: String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
+		return s == null || s.length() == 0 ? "" : String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
 	}
 
 	public static Lexicon lexicon() { // singleton
@@ -458,8 +459,8 @@ public class RiTa {
 			try {
 				_lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
-				throw new RiTaException("Cannot load dictionary at "
-						+ DICT_PATH + " " + System.getProperty("user.dir"), e);
+				throw new RiTaException("Cannot load dictionary at " + DICT_PATH + " " + System.getProperty("user.dir"),
+						e);
 			}
 		}
 		return _lexicon;
@@ -505,36 +506,27 @@ public class RiTa {
 	//static final String VSYM = "[" + SYM + DYN + "]\\w+", FUNC = LP + RP;
 	static final String VSYM = "\\${1,2}\\w+", FUNC = LP + RP;
 
-	public static String[] ABRV = {
-			"Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.", "Mr.", "Mrs.", "Ms.",
-			"Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.", "C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.",
-			"Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.", "Sept.", "Oct.", "Nov.", "Dec."
-	};
-	public static String[] QUESTIONS = {
-			"was", "what", "when", "where", "which", "why", "who", "will", "would", "who", "how", "if", "is", "could", "might", "does", "are", "have"
-	};
-	public static String[] STOP_WORDS = {
-			"and", "a", "of", "in", "i", "you", "is", "to",
-			"that", "it", "for", "on", "have", "with",
-			"this", "be", "not", "are", "as", "was", "but", "or", "from",
-			"my", "at", "if", "they", "your", "all", "he", "by", "one",
-			"me", "what", "so", "can", "will", "do", "an", "about", "we", "just",
-			"would", "there", "no", "like", "out", "his", "has", "up", "more", "who",
-			"when", "don't", "some", "had", "them", "any", "their", "it's", "only",
-			"which", "i'm", "been", "other", "were", "how", "then", "now",
-			"her", "than", "she", "well", "also", "us", "very", "because",
-			"am", "here", "could", "even", "him", "into", "our", "much",
-			"too", "did", "should", "over", "want", "these", "may", "where", "most",
-			"many", "those", "does", "why", "please", "off", "going", "its", "i've",
-			"down", "that's", "can't", "you're", "didn't", "another", "around",
-			"must", "few", "doesn't", "the", "every", "yes", "each", "maybe",
-			"i'll", "away", "doing", "oh", "else", "isn't", "he's", "there's", "hi",
-			"won't", "ok", "they're", "yeah", "mine", "we're", "what's", "shall",
-			"she's", "hello", "okay", "here's", "less", "didn't", "said",
-	};
+	public static String[] ABRV = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.",
+			"Mr.", "Mrs.", "Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.",
+			"C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.",
+			"Sept.", "Oct.", "Nov.", "Dec." };
+	public static String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who",
+			"how", "if", "is", "could", "might", "does", "are", "have" };
+	public static String[] STOP_WORDS = { "and", "a", "of", "in", "i", "you", "is", "to", "that", "it", "for", "on",
+			"have", "with", "this", "be", "not", "are", "as", "was", "but", "or", "from", "my", "at", "if", "they",
+			"your", "all", "he", "by", "one", "me", "what", "so", "can", "will", "do", "an", "about", "we", "just",
+			"would", "there", "no", "like", "out", "his", "has", "up", "more", "who", "when", "don't", "some", "had",
+			"them", "any", "their", "it's", "only", "which", "i'm", "been", "other", "were", "how", "then", "now",
+			"her", "than", "she", "well", "also", "us", "very", "because", "am", "here", "could", "even", "him", "into",
+			"our", "much", "too", "did", "should", "over", "want", "these", "may", "where", "most", "many", "those",
+			"does", "why", "please", "off", "going", "its", "i've", "down", "that's", "can't", "you're", "didn't",
+			"another", "around", "must", "few", "doesn't", "the", "every", "yes", "each", "maybe", "i'll", "away",
+			"doing", "oh", "else", "isn't", "he's", "there's", "hi", "won't", "ok", "they're", "yeah", "mine", "we're",
+			"what's", "shall", "she's", "hello", "okay", "here's", "less", "didn't", "said", };
 
-	public static String[] PHONES = { "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f", "g", "hh", "ih", "iy", "jh", "k",
-			"l", "m", "n", "ng", "ow", "oy", "p", "r", "s", "sh", "t", "th", "uh", "uw", "v", "w", "y", "z", "zh" };
+	public static String[] PHONES = { "aa", "ae", "ah", "ao", "aw", "ay", "b", "ch", "d", "dh", "eh", "er", "ey", "f",
+			"g", "hh", "ih", "iy", "jh", "k", "l", "m", "n", "ng", "ow", "oy", "p", "r", "s", "sh", "t", "th", "uh",
+			"uw", "v", "w", "y", "z", "zh" };
 
 	public static final Map<String, Object> opts() {
 		return new HashMap<String, Object>();
@@ -548,25 +540,24 @@ public class RiTa {
 		return opts(new String[] { key1, key2 }, new Object[] { val1, val2 });
 	}
 
-	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3, Object val3) {
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3,
+			Object val3) {
 		return opts(new String[] { key1, key2, key3 }, new Object[] { val1, val2, val3 });
 	}
 
-	public static final Map<String, Object> opts(String key1, Object val1,
-			String key2, Object val2, String key3, Object val3, String key4, Object val4) {
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3,
+			Object val3, String key4, Object val4) {
 		return opts(new String[] { key1, key2, key3, key4 }, new Object[] { val1, val2, val3, val4 });
 	}
 
-	public static final Map<String, Object> opts(String key1, Object val1,
-			String key2, Object val2, String key3, Object val3, String key4,
-			Object val4, String key5, Object val5) {
-		return opts(
-				new String[] { key1, key2, key3, key4, key5 },
-				new Object[] { val1, val2, val3, val4, val5 });
+	public static final Map<String, Object> opts(String key1, Object val1, String key2, Object val2, String key3,
+			Object val3, String key4, Object val4, String key5, Object val5) {
+		return opts(new String[] { key1, key2, key3, key4, key5 }, new Object[] { val1, val2, val3, val4, val5 });
 	}
 
 	public static final Map<String, Object> opts(String[] keys, Object[] vals) {
-		if (keys.length != vals.length) throw new RuntimeException("Bad Args");
+		if (keys.length != vals.length)
+			throw new RuntimeException("Bad Args");
 		Map<String, Object> data = new HashMap<String, Object>();
 		for (int i = 0; i < keys.length; i++) {
 			data.put(keys[i], vals[i]);

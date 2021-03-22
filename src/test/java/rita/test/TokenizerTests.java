@@ -100,8 +100,13 @@ public class TokenizerTests {
       "phase", "she", "that",
       "thought", "was", "while",
       "wrote"
-    });
-  }
+	});
+	//with regex
+	input = "I am a sentence.";
+	arrayEq(RiTa.tokens(input, " "), new String[] { "a", "am", "i" });
+	input = "I am a sentence";
+	arrayEq(RiTa.tokens(input, " "), new String[] { "a", "am", "i", "sentence" });
+  	}
 
 	@Test
 	public void callTokenize() {
@@ -276,6 +281,9 @@ public class TokenizerTests {
 		arrayEq(RiTa.tokenize(txt4), new String[] { "It's", "not", "that", "I", "can't", "." });
 		arrayEq(RiTa.tokenize(txt5), new String[] { "We've", "found", "the", "cat", "." });
 		arrayEq(RiTa.tokenize(txt6), new String[] { "We", "didn't", "find", "the", "cat", "." });
+		//with regex
+		arrayEq(RiTa.tokenize("This is tokenized by space", " "), new String[] { "This", "is", "tokenized", "by", "space" });
+		arrayEq(RiTa.tokenize("This is tokenized by space.", " "), new String[] { "This", "is", "tokenized", "by", "space." });
 	}
 
 	@Test
@@ -455,6 +463,19 @@ public class TokenizerTests {
 			//System.out.println(RiTa.untokenize(inputs[i]));
 			eq(RiTa.untokenize(inputs[i]), outputs[i]);
 		}
+
+		//with customized delimiter
+		inputs = new String[][] {
+				new String[] { "I", "am", "Groot", "." },
+				new String[] { "He", "said", ",", "\"", "I", "am", "tired", ".", "\"" },
+		};
+		outputs = new String[] {
+				"I-am-Groot.",
+				"He-said,-\"I-am-tired.\""
+		};
+		for (int i = 0; i < outputs.length; i++) {
+			eq(RiTa.untokenize(inputs[i], "-"), outputs[i]);
+		}
 	}
 
 	@Test
@@ -576,6 +597,12 @@ public class TokenizerTests {
 		arrayEq(output, expected);
 
 		arrayEq(RiTa.sentences(""), new String[] { "" });
+
+		//customize splitter
+		input = "I have a pen. I have an apple.";
+		output = RiTa.sentences(input, "[A-Z0-9][\\w\\s]*[\\.]");
+		expected = new String[] { "I have a pen.", "I have an apple." };
+		arrayEq(output, expected);
 	}
 
 	static void eq(String a, String b) {

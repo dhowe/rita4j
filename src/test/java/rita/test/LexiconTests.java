@@ -61,6 +61,22 @@ public class LexiconTests {
 		result = RiTa.randomWord(hm);
 		assertTrue(result.length() > 0);
 
+		//no opts
+		result = RiTa.randomWord();
+		assertTrue(result != null);
+		assertTrue(result.length() >= 4);
+
+		//string opts
+		result = RiTa.randomWord("v");
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
+
+		result = RiTa.randomWord(5);
+		assertTrue(result.length() > 0);
+
+		result = RiTa.randomWord("v", 1);
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
 	}
 
 	@Test
@@ -182,6 +198,15 @@ public class LexiconTests {
 	@Test
 	public void callSearchWithoutOpts() {
 		assertTrue(RiTa.search().length > 20000);
+	}
+
+	@Test
+	public void callSearchWithPrecompliedRegex() {
+		Pattern regex = Pattern.compile("^a");
+		String[] result = RiTa.search(regex);
+		for (int i = 0; i < Math.min(100, result.length); i++) {
+			assertTrue(result[i].charAt(0) == 'a', " " +  result[i]);
+		}
 	}
 
 	@Test
@@ -1026,6 +1051,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isRhyme("solo", "yoyo"));
 		assertTrue(RiTa.isRhyme("yoyo", "jojo"));
 
+		//noLTS
+		assertTrue(!RiTa.isRhyme("solo", "jojo", true));
+		assertTrue(!RiTa.isRhyme("jojo", "yoyo", true));
 	}
 
 	@Test
@@ -1073,6 +1101,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isAlliteration("consult", "sultan"));
 		assertTrue(RiTa.isAlliteration("monsoon", "super"));
 
+		//no lts
+		assertTrue(!RiTa.isAlliteration("omen", "apple", true));
+		assertTrue(!RiTa.isAlliteration("omen", "adobe", true));
 	}
 
 	static void eq(String a, String b) {
