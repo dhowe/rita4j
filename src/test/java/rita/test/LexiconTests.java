@@ -65,6 +65,18 @@ public class LexiconTests {
 		result = RiTa.randomWord();
 		assertTrue(result != null);
 		assertTrue(result.length() >= 4);
+
+		//string opts
+		result = RiTa.randomWord("v");
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
+
+		result = RiTa.randomWord(5);
+		assertTrue(result.length() > 0);
+
+		result = RiTa.randomWord("v", 1);
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
 	}
 
 	@Test
