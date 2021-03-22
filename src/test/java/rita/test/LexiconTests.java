@@ -201,6 +201,15 @@ public class LexiconTests {
 	}
 
 	@Test
+	public void callSearchWithPrecompliedRegex() {
+		Pattern regex = Pattern.compile("^a");
+		String[] result = RiTa.search(regex);
+		for (int i = 0; i < Math.min(100, result.length); i++) {
+			assertTrue(result[i].charAt(0) == 'a', " " +  result[i]);
+		}
+	}
+
+	@Test
 	public void callSearchWithoutRegex() {
 		//assertEquals(10, RiTa.search().length); -> fail, move to knownIssue
 		//assertEquals(11, RiTa.search(opts("limit", 11)).length); -> to knownIssue
