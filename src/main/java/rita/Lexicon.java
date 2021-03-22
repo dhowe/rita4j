@@ -124,6 +124,7 @@ public class Lexicon {
 
 		String phones1 = rawPhones(word1, noLts);
 		String phones2 = rawPhones(word2, noLts);
+		if (phones1 == null || phones2 == null) return false;
 		if (phones2.equals(phones1)) return false;
 
 		String p1 = lastStressedVowelPhonemeToEnd(word1, noLts);

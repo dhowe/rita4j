@@ -1026,6 +1026,9 @@ public class LexiconTests {
 		assertTrue(RiTa.isRhyme("solo", "yoyo"));
 		assertTrue(RiTa.isRhyme("yoyo", "jojo"));
 
+		//noLTS
+		assertTrue(!RiTa.isRhyme("solo", "jojo", true));
+		assertTrue(!RiTa.isRhyme("jojo", "yoyo", true));
 	}
 
 	@Test
