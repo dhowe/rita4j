@@ -463,6 +463,19 @@ public class TokenizerTests {
 			//System.out.println(RiTa.untokenize(inputs[i]));
 			eq(RiTa.untokenize(inputs[i]), outputs[i]);
 		}
+
+		//with customized delimiter
+		inputs = new String[][] {
+				new String[] { "I", "am", "Groot", "." },
+				new String[] { "He", "said", ",", "\"", "I", "am", "tired", ".", "\"" },
+		};
+		outputs = new String[] {
+				"I-am-Groot.",
+				"He-said,-\"I-am-tired.\""
+		};
+		for (int i = 0; i < outputs.length; i++) {
+			eq(RiTa.untokenize(inputs[i], "-"), outputs[i]);
+		}
 	}
 
 	@Test
