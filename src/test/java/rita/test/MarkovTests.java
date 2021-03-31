@@ -175,7 +175,7 @@ public class MarkovTests {
 		RiMarkov rm = new RiMarkov(4);
 		rm.addText(sentArray);
 		Map<String, Object> hm = opts();
-		hm.put("startTokens", "家");
+		hm.put("seed", "家");
 		String[] result = rm.generate(5, hm);
 		eq(result.length, 5);
 		for (String r : result) {
@@ -201,7 +201,7 @@ public class MarkovTests {
 		rm.addText(sentArray);
 
 		hm.clear();
-		hm.put("startTokens", "家");
+		hm.put("seed", "家");
 		String[] result = rm.generate(5, hm);//-> did not tokenize to "家","安".....
 		eq(result.length, 5);
 
@@ -275,20 +275,20 @@ public class MarkovTests {
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
-			String s = rm.generate(opts("startTokens", start))[0];
+			String s = rm.generate(opts("seed", start))[0];
 			assertTrue(s.startsWith(start));
 		}
 
 		start = "Achieving";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", start))[0];
+			String res = rm.generate(opts("seed", start))[0];
 			//			assertTrue(res instanceof String);
 			assertTrue(res.startsWith(start));
 		}
 
 		start = "I";
 		for (int i = 0; i < 5; i++) {
-			String[] arr = rm.generate(2, opts("startTokens", start));
+			String[] arr = rm.generate(2, opts("seed", start));
 			eq(arr.length, 2);
 			assertTrue(arr[0].startsWith(start));
 		}
@@ -301,20 +301,20 @@ public class MarkovTests {
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
-			String s = rm.generate(opts("startTokens", start))[0];
+			String s = rm.generate(opts("seed", start))[0];
 			// console.log(i + ") " + s);
 			assertTrue(s.startsWith(start[0]));
 		}
 
 		start[0] = "Achieving";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", start))[0];
+			String res = rm.generate(opts("seed", start))[0];
 			assertTrue(res.startsWith(start[0]));
 		}
 
 		start[0] = "I";
 		for (int i = 0; i < 5; i++) {
-			String[] arr = rm.generate(2, opts("startTokens", start));
+			String[] arr = rm.generate(2, opts("seed", start));
 			eq(arr.length, 2);
 			assertTrue(arr[0].startsWith(start[0]));
 		}
@@ -324,21 +324,21 @@ public class MarkovTests {
 
 		String[] start2 = { "One", "reason" };
 		for (int i = 0; i < 1; i++) {
-			String s = rm.generate(opts("startTokens", start2))[0];
+			String s = rm.generate(opts("seed", start2))[0];
 			assertTrue(s.startsWith(String.join(" ", start2)));
 		}
 
 		start2[0] = "Achieving";
 		start2[1] = "personal";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", start2))[0];
+			String res = rm.generate(opts("seed", start2))[0];
 			assertTrue(res.startsWith(String.join(" ", start2)));
 		}
 
 		start2[0] = "I";
 		start2[1] = "also";
 		for (int i = 0; i < 5; i++) {
-			String res = rm.generate(opts("startTokens", start2))[0];
+			String res = rm.generate(opts("seed", start2))[0];
 			assertTrue(res.startsWith(String.join(" ", start2)));
 		}
 	}

@@ -121,21 +121,21 @@ public class RiMarkov {
 		int maxLength = Util.intOpt("maxLength", opts, 35);
 		float temp = Util.floatOpt("temperature", opts, 0);
 		boolean allowDups = Util.boolOpt("allowDuplicates", opts);
-		String[] startTokens = this.startTokens(opts);
+		String[] seed = this.seedTokens(opts);
 
 		List<String> result = new ArrayList<>();
 		List<Node> tokens = new ArrayList<>();
 
 		int tries = 0;
 		while (result.size() < num) {
-			Node[] arr = this.initSentence(startTokens);
-			// startTokens should be added just once
+			Node[] arr = this.initSentence(seed);
+			// seed should be added just once
 			if (tokens != null && arr != null && tokens.size() == 0) {
 				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
 			}
 
 			if (tokens.size() == 0) throw new RiTaException(
-					"[Markov] No sentence starts with: '" + startTokens + "'");
+					"[Markov] No sentence starts with: '" + seed + "'");
 
 			while (tokens.size() != 0 && tokens.size() < maxLength) {
 				Node[] tokensArray = tokens.toArray(new Node[tokens.size()]);
@@ -341,22 +341,21 @@ public class RiMarkov {
 		}
 	}
 
-	private String[] startTokens(Map<String, Object> opts) {
-		String[] startTokens = new String[0];
-		if (opts == null) {
-			return startTokens;
-		}
-		if (opts.containsKey("startTokens")) {
-			Object st = opts.get("startTokens");
+	private String[] seedTokens(Map<String, Object> opts) {
+		String[] seed = new String[0];
+		if (opts == null) return seed;
+
+		if (opts.containsKey("seed")) {
+			Object st = opts.get("seed");
 			if (st instanceof String) {
 				//if (st.getClass().getName().equals("java.lang.String"))
-				startTokens = this.doTokenize((String) st);
+				seed = this.doTokenize((String) st);
 			}
 			else {
-				startTokens = (String[]) st;
+				seed = (String[]) st;
 			}
 		}
-		return startTokens;
+		return seed;
 	}
 
 	private boolean validateMlms(Node word, Node[] nodes) {
