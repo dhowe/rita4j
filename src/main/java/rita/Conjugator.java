@@ -1,6 +1,7 @@
 package rita;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 
@@ -104,7 +105,7 @@ public class Conjugator {
 					+ "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|let|cost|burst|beat|beset|set|upset|hit|offset|put|quit|"
 					+ "wed|typeset|wed|spread|split|slit|read|run|rerun|shut|shed)$", 0) };
 
-	private static final RE[] PAST_TENSE_RULES = { new RE("^(reduce)$", 0, "d", 0), new RE("e$", 0, "d", 1),
+	private static final RE[] PAST_TENSE_RULES = { new RE("^(reduce)$", 0, "d", 0),
 			new RE("^" + VERBAL_PREFIX + "?[pls]ay$", 1, "id", 1), new RE(CONS + "y$", 1, "ied", 1),
 			new RE("^(fling|cling|hang)$", 3, "ung", 0), new RE("(([sfc][twlp]?r?|w?r)ing)$", 3, "ang", 1),
 			new RE("^" + VERBAL_PREFIX + "?(bend|spend|send|lend|spend)$", 1, "t", 0),
@@ -192,7 +193,7 @@ public class Conjugator {
 			new RE("^wake$", 3, "oke", 0), new RE("^win$", 3, "won", 0), new RE("^wear$", 3, "ore", 0),
 			new RE("^wind$", 3, "ound", 0), new RE("^weave$", 4, "ove", 0), new RE("^write$", 3, "ote", 0),
 			new RE("^trek$", 1, "cked", 0), new RE("^ko$", 1, "o'd", 0), new RE("^bid", 2, "ade", 0),
-			new RE("^win$", 2, "on", 0), new RE("^swim", 2, "am", 0),
+			new RE("^win$", 2, "on", 0), new RE("^swim", 2, "am", 0), new RE("e$", 0, "d", 1),
 
 			// Null past forms
 			new RE("^" + VERBAL_PREFIX + "?(cast|thrust|typeset|cut|bid|upset|wet|bet|cut|hit|hurt|inset|"
@@ -347,6 +348,8 @@ public class Conjugator {
 		PRESENT_TENSE_RULESET.put("doubling", false);
 	}
 
+	private static final String[] TO_BE = new String[] { "am", "are", "is", "was", "were" };
+
 	public static String conjugate(String verb, String args) {
 		
 		if (RE.test("^[123][SP](Pr|Pa|Fu)$", args)) {
@@ -383,12 +386,14 @@ public class Conjugator {
 		
 		// ----------------------- start --------------------------
 
-		String v = verb.toLowerCase(); // handle to-be forms
+		String v = verb.toLowerCase(); 
 
-		String[] c = { "am", "are", "is", "was", "were" };
-		List<String> list = Arrays.asList(c);
-		if (list.contains(v))
-			v = "be";
+		List<String> list = Arrays.asList(TO_BE);
+		if (list.contains(v)) {
+			v = "be"; // handle to-be forms
+		} else {
+			v = handleStem(v); // handle stems
+		}
 
 		String verbForm, frontVG = v, actualModal = null;
 		ArrayList<String> conjs = new ArrayList<String>();
@@ -577,5 +582,31 @@ public class Conjugator {
 		return theVerb;
 	}
 
+	private static String handleStem(String word) {
+		if (RiTa.hasWord(word) && RiTa.isVerb(word))
+			return word;
+		Map<String, Object> searchArgs = new HashMap<String, Object>();
+		searchArgs.put("pos", "v");
+		String w = word;
+		while (w.length() > 1) {
+			Pattern regex = Pattern.compile("^" + w);
+			String[] guess = RiTa.search(regex, searchArgs);
+			if (guess == null || guess.length == 0) {
+				w = w.substring(0, w.length() - 1);
+				continue;
+			}
+			// look for shorter words first
+			Arrays.sort(guess, (a, b) -> Integer.compare(a.length(), b.length()));
+			for (int i = 0; i < guess.length; i++) {
+				if (word.equals(guess[i]))
+					return word;
+				if (RiTa.stem(guess[i]).equals(word))
+					return guess[i];
+			}
+			w = w.substring(0, w.length() - 1);
+		}
+		// can't find possible word in dict, return the input
+		return word;
+	}
 	
 }
