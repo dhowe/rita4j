@@ -97,10 +97,10 @@ public class ConjugatorTests {
 		String[] s, a;
 
 		eq("swum", RiTa.pastPart("swim"));
-		
+
 		// Example of using opts
 		eq(RiTa.conjugate("be", RiTa.opts("form", RiTa.GERUND)), "being");
-		
+
 		Map<String, Object> args = new HashMap<String, Object>();
 		s = new String[] { "swim", "need", "open" };
 		a = new String[] { "swims", "needs", "opens" };
@@ -256,6 +256,72 @@ public class ConjugatorTests {
 			eq(c, a[i]);
 		}
 
+	}
+	
+	@Test
+	public void acceptStem() {
+		Map<String, Object> argsPSPast = new HashMap<String, Object>();
+		Map<String, Object> argsPSPresent = new HashMap<String, Object>();
+		Map<String, Object> argsSTPresent = new HashMap<String, Object>();
+		argsPSPast.put("number", RiTa.PLURAL);
+		argsPSPast.put("person", RiTa.SECOND);
+		argsPSPast.put("tense", RiTa.PAST);
+		argsPSPresent.put("number", RiTa.PLURAL);
+		argsPSPresent.put("person", RiTa.SECOND);
+		argsPSPresent.put("tense", RiTa.PRESENT);
+		argsSTPresent.put("number", RiTa.SINGULAR);
+		argsSTPresent.put("person", RiTa.THIRD);
+		argsSTPresent.put("tense", RiTa.PRESENT);
+
+		String stem = RiTa.stem("walking");
+		assertEquals("walked", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("walk", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("walks", RiTa.conjugate(stem, argsSTPresent));
+		
+		stem = RiTa.stem("writing");
+		assertEquals("wrote", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("write", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("writes", RiTa.conjugate(stem, argsSTPresent));
+
+		stem = RiTa.stem("asked");
+		assertEquals("asked", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("ask", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("asks", RiTa.conjugate(stem, argsSTPresent));
+
+		stem = RiTa.stem("admired");
+		assertEquals("admired", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("admire", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("admires", RiTa.conjugate(stem, argsSTPresent));
+
+		stem = RiTa.stem("cured");
+		assertEquals("cured", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("cure", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("cures", RiTa.conjugate(stem, argsSTPresent));
+
+		stem = RiTa.stem("studies");
+		assertEquals("studied", RiTa.conjugate(stem, argsPSPast));
+		assertEquals("study", RiTa.conjugate(stem, argsPSPresent));
+		assertEquals("studies", RiTa.conjugate(stem, argsSTPresent));
+
+		//random pairs
+		String[][] pairs = new String[][] {
+				new String[] { "accompanying", "accompanied" },
+				new String[] { "feeling", "felt" },
+      			new String[] { "placating", "placated" },
+      			new String[] { "centralizing", "centralized" }, 
+      			new String[] { "humanized", "humanized" },
+      			new String[] { "boosted", "boosted" },
+      			new String[] { "wearing", "wore" },
+         		new String[] { "aroused", "aroused"},
+      			new String[] { "rising", "rose" },
+      			new String[] { "raising", "raised" },
+      			new String[] { "vibrating", "vibrated" },
+      			new String[] { "injection", "injected" },
+				new String[] { "vibration", "vibrated" },
+		};
+		for (int i = 0; i < pairs.length; i++) {
+			assertEquals(pairs[i][1], RiTa.conjugate(RiTa.stem(pairs[i][0]), argsPSPast));
+		}
 	}
 
 	static void eq(String a, String b) {
