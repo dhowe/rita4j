@@ -674,6 +674,35 @@ public class RiTaTests {
 		result = RiTa.kwic("cat", opts);
 		assertEquals("The dog ate the cat, what a tragedy", result[0]);
 		assertEquals("Little Kali loves the cat, it was her", result[1]);
+
+		//use options.text or options.word to override kwic model
+		opts.clear();
+		opts.put("words", new String[] { "The", "dog", "ate", "the", "cat", "that", "ate", "the", "fish", "." });
+		result = RiTa.kwic("fish", opts);
+		assertEquals(1, result.length);
+		assertEquals("ate the cat that ate the fish.", result[0]);
+
+		opts.clear();
+		opts.put("text", "The dog ate the cat that ate the fish.");
+		result = RiTa.kwic("fish", opts);
+		assertEquals(1, result.length);
+		assertEquals("ate the cat that ate the fish.", result[0]);
+
+		opts.clear();
+		opts.put("text", "The dog ate the cat that ate the fish. He yelled at the dog and buy a new fish.");
+		opts.put("numWords", 7);
+		result = RiTa.kwic("fish", opts);
+		assertEquals(2, result.length);
+		assertEquals("dog ate the cat that ate the fish. He yelled at the dog and", result[0]);
+		assertEquals("at the dog and buy a new fish.", result[1]);
+
+		opts.clear();
+		opts.put("words", RiTa.tokenize("The dog ate the cat that ate the fish. He yelled at the dog and buy a new fish."));
+		opts.put("numWords", 7);
+		result = RiTa.kwic("fish", opts);
+		assertEquals(2, result.length);
+		assertEquals("dog ate the cat that ate the fish. He yelled at the dog and", result[0]);
+		assertEquals("at the dog and buy a new fish.", result[1]);
 	}
 
 	@Test
