@@ -2,7 +2,8 @@
 
 ## RiTa: tools for generative natural language
 
-RiTa is a toolkit for generative writing and natural language. It is implemented in Java and JavaScript, with a common API for both, and it is free/libre/open-source via the GPL license.
+RiTa is implemented in Java and JavaScript, with a common API for both, and is free/libre/open-source via the GPL license.
+
 
 ###
 
