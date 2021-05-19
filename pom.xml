@@ -7,7 +7,7 @@
 	<artifactId>rita</artifactId>
 	<version>2.4.86</version>
 	<name>RiTa</name>
-	<description>A toolkit for generative natural language</description>
+	<description>Tools for generative natural language</description>
 	<url>http://www.rednoise.org/rita</url>
 
 	<licenses>
