@@ -12,7 +12,7 @@ RiTa is implemented in Java and JavaScript, with a common API for both, and is f
 * A simple [Java example](#a-simple-example-java)
 * For [Developers](#developing)
 
-:warning: Version 2.0 contains breaking changes! Please check the [release notes](https://rednoise.org/rita/#whats-new-wrapper)
+Note: Version 2.0 contains breaking changes! Please check the [release notes](https://rednoise.org/rita/#whats-new-wrapper)
 
 ### Installation
 
