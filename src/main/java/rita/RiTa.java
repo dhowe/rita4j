@@ -229,20 +229,32 @@ public class RiTa {
 	}
 
 	public static String randomWord() {
-		return lexicon().randomWord(null);
+		return lexicon().randomWord();
 	}
 
 	public static String randomWord(Map<String, Object> opts) {
 		return lexicon().randomWord(opts);
 	}
-
-	public static String randomWord(String pos) {
-		return randomWord(opts("pos", pos));
+	
+	public static String randomWord(String pattern) {
+		return lexicon().randomWord(pattern);
 	}
 
-	public static String randomWord(int syllables) {
-		return randomWord(opts("numSyllables", syllables));
+	public static String randomWord(String pattern, Map<String, Object> opts) {
+		return lexicon().randomWord(pattern, opts);
 	}
+	
+	public static String randomWord(Pattern pattern) {
+		return lexicon().randomWord(pattern, null);
+	}
+	
+	public static String randomWord(Pattern pattern, Map<String, Object> opts) {
+		return lexicon().randomWord(pattern, opts);
+	}
+
+//	public static String randomWord(int syllables) {
+//		return randomWord(opts("numSyllables", syllables));
+//	}
 
 	public static String randomWord(String pos, int syllables) {
 		return randomWord(opts("pos", pos, "numSyllables", syllables));
@@ -318,6 +330,10 @@ public class RiTa {
 
 	public static String[] search(String regex) {
 		return search(regex, null);
+	}
+	
+	public static String[] search(Map<String, Object> opts) {
+		return lexicon().search((String) null, opts);
 	}
 
 	public static String[] search(String regex, Map<String, Object> opts) {

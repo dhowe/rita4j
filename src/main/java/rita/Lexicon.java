@@ -204,7 +204,7 @@ public class Lexicon {
 			"person", RiTa.THIRD,
 			"tense", RiTa.PRESENT);
 
-	private boolean isMassNoun(String w, String pos) {
+	private boolean isMassNoun(String w, String pos) { // ?
 		return w.endsWith("ness")
 				|| w.endsWith("ism")
 				|| pos.indexOf("vbg") > 0
@@ -249,39 +249,69 @@ public class Lexicon {
 		throw new RiTaException("No random word with options: " + opts);
 	}
 
-	public String randomWord(Map<String, Object> opts) {
-
-		return this.randomWord(null, opts);
+	public String randomWord() {
+		return randomWord((String) null, null);
 	}
 
-	public String randomWord(String regex, Map<String, Object> opts) {
+	public String randomWord(String pattern) {
+		return randomWord(pattern, null);
+	}
+
+	public String randomWord(Map<String, Object> opts) {
+
+		return this.randomWord((String) null, opts);
+	}
+
+	public String randomWord(Pattern pattern) {
+		return this.randomWord(pattern, null);
+	}
+
+	// takes Pattern or String or null
+	public String randomWord(Object pattern, Map<String, Object> opts) {
 
 		if (opts == null) opts = new HashMap<String, Object>();
 		opts.put("limit", 1); // delegate to search
-		String[] search = this.search(regex, opts);
-		if (search == null || search.length < 1) {
+
+		String[] result = pattern instanceof Pattern // java is ugly
+				? this.search((Pattern) pattern, opts)
+				: this.search((String) pattern, opts);
+
+		if (result == null || result.length < 1) {
 			throw new RiTaException("No random word with options: " + opts);
 		}
-		return search[0];
+		
+		return result[0]; // limit is 1
 	}
 
-	public String[] search(String regex, Map<String, Object> opts) {
+	public String[] search() {
+		return search((String) null, null);
+	}
+
+	public String[] search(Map<String, Object> opts) {
+		return search((String) null, opts);
+	}
+
+	public String[] search(String pattern) {
+		return search(pattern, null);
+	}
+
+	public String[] search(String pattern, Map<String, Object> opts) {
 
 		Pattern re = null;
-		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^[01]+$", regex)) {
-			regex = regex.replaceAll("([01])(?=([01]))", "$1/");
+		if (pattern == null) {
+			pattern = Util.strOpt("regex", opts);
 		}
-		if (regex != null) re = Pattern.compile(regex);
+		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^[01]+$", pattern)) {
+			pattern = pattern.replaceAll("([01])(?=([01]))", "$1/");
+		}
+		if (pattern != null) re = Pattern.compile(pattern);
 		return search(re, opts);
 	}
 
-	public String[] search(Pattern re, Map<String, Object> opts) {
-
-		final String TargetPos = "targetPos", Stresses = "stresses";
-		final String Phones = "phones", Stress = "1", Spc = " ";
+	public String[] search(Pattern regex, Map<String, Object> opts) {
 
 		String[] words = words();
-		if (re == null && (opts == null || opts.size() < 1)) return words;
+		if (regex == null && (opts == null || opts.size() < 1)) return words;
 
 		String type = Util.strOpt("type", opts, "");
 
@@ -291,14 +321,16 @@ public class Lexicon {
 		opts = this.parseArgs(opts);
 
 		int limit = (int) opts.get("limit");
+		String tpos = (String) opts.get(TARGET_POS);
 		List<String> result = new ArrayList<String>();
+
 		for (int i = 0; i < words.length; i++) {
 
 			String word = words[i], data[] = dict.get(word);
 
 			if (!this.checkCriteria(word, data, opts)) continue;
 
-			if (((String) opts.get(TargetPos)).length() > 0) {
+			if (tpos.length() > 0) {
 				word = matchPos(word, data, opts, limit == 1);
 				if (word == null) continue;
 				// Note: we may have changed the word here (e.g. via conjugation)
@@ -306,20 +338,20 @@ public class Lexicon {
 				if (!word.equals(words[i])) data = dict.get(word);
 			}
 
-			if (re != null) {
-				if (type.equals(Stresses)) {
+			if (regex != null) {
+				if (type.equals(STRESSES)) {
 					//String stresses = RiTa.analyzer.analyzeWord(word)[1];
 					String phones = data != null ? data[0] : this.rawPhones(word);
 					String stresses = RiTa.analyzer.phonesToStress(phones);
-					if (RE.test(re, stresses)) result.add(word);
+					if (RE.test(regex, stresses)) result.add(word);
 				}
-				else if (type.equals(Phones)) {
+				else if (type.equals(PHONES)) {
 					String phones = data != null ? data[0] : this.rawPhones(word);
-					phones = phones.replaceAll(Stress, "").replaceAll(Spc, Analyzer.DELIM);
-					if (RE.test(re, phones)) result.add(word);
+					phones = phones.replaceAll(STRESS, "").replaceAll(SPC, Analyzer.DELIM);
+					if (RE.test(regex, phones)) result.add(word);
 				}
 				else {
-					if (RE.test(re, word)) result.add(word);
+					if (RE.test(regex, word)) result.add(word); // match letters
 				}
 			}
 			else {
@@ -801,9 +833,12 @@ public class Lexicon {
 		return opts;
 	}
 
+	private static final String TARGET_POS = "targetPos", STRESSES = "stresses";
+	private static final String PHONES = "phones", STRESS = "1", SPC = " ";
+
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);
-		console.log(RiTa.lexicon().randomWord(null));
+		console.log(RiTa.lexicon().randomWord());
 		//		System.out.println(lex.dict.get("dog")[0]);
 		//		System.out.println(lex.dict.get("dog")[1]);
 		//		System.out.println(lex._rawPhones("dog"));
