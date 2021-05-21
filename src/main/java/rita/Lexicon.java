@@ -228,8 +228,8 @@ public class Lexicon {
 		}
 		return true;
 	}
-	
-	public String randomWordX(Map<String, Object> opts) {
+
+	public String randomWordOld(Map<String, Object> opts) {
 
 		opts = this.parseArgs(opts);     // default to 4, not 3
 		opts.put("minLength", Util.intOpt("minLength", opts, 4));
@@ -248,25 +248,25 @@ public class Lexicon {
 		}
 		throw new RiTaException("No random word with options: " + opts);
 	}
-	
+
 	public String randomWord(Map<String, Object> opts) {
-	
-    return this.randomWord(null, opts);
+
+		return this.randomWord(null, opts);
 	}
-	
+
 	public String randomWord(String regex, Map<String, Object> opts) {
-		
+
 		if (opts == null) opts = new HashMap<String, Object>();
 		opts.put("limit", 1); // delegate to search
-    String[] search = this.search(regex, opts);
-    if (search == null || search.length < 1) {
-    	throw new RiTaException("No random word with options: " + opts);
-    }
-    return search[0];
+		String[] search = this.search(regex, opts);
+		if (search == null || search.length < 1) {
+			throw new RiTaException("No random word with options: " + opts);
+		}
+		return search[0];
 	}
 
 	public String[] search(String regex, Map<String, Object> opts) {
-		
+
 		Pattern re = null;
 		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^[01]+$", regex)) {
 			regex = regex.replaceAll("([01])(?=([01]))", "$1/");
@@ -279,17 +279,17 @@ public class Lexicon {
 
 		final String TargetPos = "targetPos", Stresses = "stresses";
 		final String Phones = "phones", Stress = "1", Spc = " ";
-		
+
 		String[] words = words();
 		if (re == null && (opts == null || opts.size() < 1)) return words;
-		
+
 		String type = Util.strOpt("type", opts, "");
-		
+
 		boolean tmp = RiTa.SILENCE_LTS;
 		RiTa.SILENCE_LTS = true;
 
 		opts = this.parseArgs(opts);
-		
+
 		int limit = (int) opts.get("limit");
 		List<String> result = new ArrayList<String>();
 		for (int i = 0; i < words.length; i++) {
@@ -439,7 +439,6 @@ public class Lexicon {
 		return Arrays.copyOfRange(result, 0,
 				Math.min(result.length, Util.intOpt("limit", opts)));
 	}
-
 
 	public String[] rhymes(String theWord) {
 		return this.rhymes(theWord, null);
@@ -786,11 +785,11 @@ public class Lexicon {
 			else if (tpos.equals("a")) tpos = "jj";
 		}
 		if (opts == null) opts = new HashMap<>();
-		
+
 		// if limit==1 (eg, for randomWord) then default minLength = 4;
 		int limit = Util.intOpt("limit", opts, 10);
 		int defMinLen = limit > 1 ? 3 : 4;
-		
+
 		opts.put("limit", limit);
 		opts.put("pluralize", pluralize);
 		opts.put("conjugate", conjugate);
