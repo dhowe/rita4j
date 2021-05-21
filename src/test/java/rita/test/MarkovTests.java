@@ -369,6 +369,26 @@ public class MarkovTests {
 			}
 		}
 
+		mlms = 12;
+		rm = new RiMarkov(3, opts("maxLengthMatch", mlms, "trace", false));
+		rm.addText(RiTa.sentences(sample2));
+		sents = rm.generate(5);
+		for (int i = 0; i < sents.length; i++) {
+			String sent = sents[i];
+			String[] toks = RiTa.tokenize(sent);
+			for (int j = 0; j <= toks.length - rm.n; j++) {
+				String[] part = Arrays.copyOfRange(toks, j, j + rm.n);
+				String res = RiTa.untokenize(part);
+				assertTrue(sample2.indexOf(res) > -1, "output not found in text: '" + res + "'");
+			}
+			for (int j = 0; j <= toks.length - (mlms + 1); j++) {
+				String[] part = Arrays.copyOfRange(toks, j, j + (mlms + 1));
+				String res = RiTa.untokenize(part);
+				assertTrue(sample2.indexOf(res) < 0,
+						"Got '" + sent + "'\n\nBut '" + res + "' was found in input:\n\n" + sample + "\n\n" + rm.input);
+			}
+		}
+
 	}
 
 	@Test
