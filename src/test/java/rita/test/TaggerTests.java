@@ -92,6 +92,7 @@ public class TaggerTests {
 		String txt;
 
 		arrayEq(RiTa.pos(""), new String[] {});
+		arrayEq(RiTa.pos(" "), new String[] {});
 		arrayEq(RiTa.pos("freed"), new String[] { "jj" });
 		arrayEq(RiTa.pos("biped"), new String[] { "nn" });
 		arrayEq(RiTa.pos("greed"), new String[] { "nn" });
@@ -245,41 +246,11 @@ public class TaggerTests {
 	@Test
 	public void callPosInline() {
 
-		String result, answer;
-		String txt;
-
-		// with Map (NOT relevant for Java as we can't have different return types)
-
-		/*
-		 * Map<String, Object> hm = new HashMap<String, Object>(); hm.put("inline",
-		 * true);
-		 * 
-		 * eq(RiTa.pos("", hm), ""); eq(RiTa.pos("asdfaasd", hm),
-		 * "asdfaasd/nn");
-		 * 
-		 * result = RiTa.pos("clothes", hm); answer = "clothes/nns";
-		 * eq(result, answer);
-		 * 
-		 * result = RiTa.pos("teeth", hm); answer = "teeth/nns"; eq(result,
-		 * answer);
-		 * 
-		 * result = RiTa.pos("There is a cat.", hm); answer =
-		 * "There/ex is/vbz a/dt cat/nn ."; eq(result, answer);
-		 * 
-		 * result = RiTa.pos("The boy, dressed in red, ate an apple.", hm); answer =
-		 * "The/dt boy/nn , dressed/vbn in/in red/jj , ate/vbd an/dt apple/nn .";
-		 * eq(result, answer);
-		 * 
-		 * txt =
-		 * "The dog ran faster than the other dog.  But the other dog was prettier.";
-		 * result = RiTa.pos(txt, hm); answer =
-		 * "The/dt dog/nn ran/vbd faster/rbr than/in the/dt other/jj dog/nn . But/cc the/dt other/jj dog/nn was/vbd prettier/jjr ."
-		 * ; eq(result, answer);
-		 */
-
-		// without Map argument
 		eq(RiTa.posInline(""), "");
+		//eq(RiTa.posInline(" "), ""); // TODO: FAILING
 		eq(RiTa.posInline("asdfaasd"), "asdfaasd/nn");
+
+		String result, answer, txt;
 
 		result = RiTa.posInline("clothes");
 		answer = "clothes/nns";

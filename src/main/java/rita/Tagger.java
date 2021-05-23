@@ -36,10 +36,15 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	}
 
 	public String tagInline(String[] words, boolean useSimpleTags) {
+
 		if (words == null || words.length == 0) return "";
+
 		String[] tags = tag(words, useSimpleTags);
+
 		if (words.length != tags.length) throw new RuntimeException(
-				"Tagger: invalid state:" + Arrays.toString(words));
+				"Tagger: invalid state: words(" + words.length
+						+ ")=" + Arrays.toString(words) + " tags("
+						+ tags.length + ")=" + Arrays.toString(tags));
 
 		String delimiter = "/";
 		String sb = "";
@@ -72,7 +77,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	}
 
 	public String[] tag(String words, boolean useSimpleTags) {
-		if (words == null || words.length() < 1) return new String[0];
+		if (words == null || words.trim().length() < 1) {
+			return new String[0];
+		}
 		return tag(Tokenizer.tokenize(words), useSimpleTags);
 	}
 
@@ -89,14 +96,14 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 		for (int i = 0; i < wordsArr.length; i++) {
 			String word = wordsArr[i];
+			if (word == null || word.length() < 1) continue;
 
-			if (word.length() < 1) {
-				result[i] = "";
-				continue;
-			}
+			//			if (word.length() < 1) {
+			//				result[i] = "";
+			//				continue;
+			//			}
 
 			if (word.length() == 1) {
-
 				result[i] = handleSingleLetter(word);
 				continue;
 			}
@@ -186,6 +193,8 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		for (int i = 0, l = words.length; i < l; i++) {
 
 			String word = words[i];
+			if (word == null || word.length() < 1) continue;
+
 			String tag = result[i];
 			String[] results = result;
 			// transform 1a: DT, {VBD | VBP | VB} --> DT, NN
@@ -386,7 +395,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				// singularize and test (eg 'thieves')
 				checkPluralNounOrVerb(RiTa.singularize(word), result);
 			}
-			
+
 			if (result.size() > 0) return result.toArray(new String[result.size()]);
 
 		}

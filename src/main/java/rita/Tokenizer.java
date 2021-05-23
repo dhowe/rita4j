@@ -168,6 +168,7 @@ public class Tokenizer {
 
 		words = words.trim();
 
+		@SuppressWarnings("unchecked")
 		ArrayList<String> htmlTags = (ArrayList<String>) pushTags(words).get(0);
 		words = (String) pushTags(words).get(1);
 
