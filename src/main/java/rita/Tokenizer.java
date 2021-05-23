@@ -23,7 +23,8 @@ public class Tokenizer {
 		return tokens(text, null);
 	}
 	
-	public static String[] tokens(String text, String regex) {
+	public static String[] tokens(String text, String regex) { // SYNC:
+    // opts: {includePunct, caseSensitive, sort, ignoreStopWords} ?
     String[] words = tokenize(text, regex);
     Set<String> tokens = new HashSet<String>();
     for (int i = 0; i < words.length; i++) {
@@ -31,6 +32,7 @@ public class Tokenizer {
 				tokens.add(words[i].toLowerCase());
 			}
 		}
+    // TODO: includePunct, caseSensitive, ignoreStopWords
     List<String> toSort = new ArrayList<String>(tokens);
     Collections.sort(toSort);
     return (String[]) toSort.toArray(new String[toSort.size()]);
