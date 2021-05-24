@@ -80,6 +80,167 @@ public class LexiconTests {
 	}
 
 	@Test
+	public void callRandomWordWithRegex() {
+		// regex as first parameter
+		String result = RiTa.randomWord("^a");
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^a[a-zA-Z]+", result));
+
+		result = RiTa.randomWord("^apple$");
+		assertEquals("apple", result);
+
+		result = RiTa.randomWord("le");
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*",result));
+
+		result = RiTa.randomWord(Pattern.compile("^a"));
+		assertTrue(Pattern.matches("^a[a-zA-Z]*", result));
+
+		result = RiTa.randomWord(Pattern.compile("^apple$"));
+		assertEquals("apple", result);
+
+		result = RiTa.randomWord(Pattern.compile("le"));
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
+
+		Map<String, Object> hm = opts("type", "stresses");
+		result = RiTa.randomWord("0/1/0", hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		result = RiTa.randomWord("^0/1/0$", hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+
+		result = RiTa.randomWord("010", hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		result = RiTa.randomWord("^010$", hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+		
+		result = RiTa.randomWord(Pattern.compile("0/1/0"), hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		result = RiTa.randomWord(Pattern.compile("^0/1/0$"), hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+
+		hm = opts("type", "phones");
+		result = RiTa.randomWord("^th", hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^th[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		result = RiTa.randomWord("v$", hm);
+		assertTrue(Pattern.matches("[a-z\\-]*v$", RiTa.analyze(result).get("phones")));
+
+		result = RiTa.randomWord("^b-ih-l-iy-v$", hm);
+		assertEquals("believe", result);
+
+		result = RiTa.randomWord("ae", hm);
+		assertTrue(Pattern.matches("[a-z\\-]*ae[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		result = RiTa.randomWord(Pattern.compile("^th"), hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^th[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		result = RiTa.randomWord(Pattern.compile("v$"), hm);
+		assertTrue(Pattern.matches("[a-z\\-]*v$", RiTa.analyze(result).get("phones")));
+
+		result = RiTa.randomWord(Pattern.compile("^b-ih-l-iy-v$"), hm);
+		assertEquals("believe", result);
+
+		result = RiTa.randomWord(Pattern.compile("ae"), hm);
+		assertTrue(Pattern.matches("[a-z\\-]*ae[a-z\\-]*", RiTa.analyze(result).get("phones")));
+		
+		//regex in options
+		hm = opts("regex", "^a");
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^a[a-zA-Z]+", result));
+
+		hm = opts("regex", "^apple$");
+		result = RiTa.randomWord(hm);
+		assertEquals("apple", result);
+
+		hm = opts("regex", "le");
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*",result));
+
+		hm = opts("regex", Pattern.compile("^a"));
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("^a[a-zA-Z]*", result));
+
+		hm.put("regex", Pattern.compile("^apple$"));
+		result = RiTa.randomWord(hm);
+		assertEquals("apple", result);
+
+		hm.put("regex", Pattern.compile("le"));
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
+
+		hm = opts("type", "stresses");
+		hm.put("regex", "0/1/0");
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		hm.put("regex", "^0/1/0$");
+		result = RiTa.randomWord(hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+
+		hm.put("regex", "010");
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		hm.put("regex", "^010$");
+		result = RiTa.randomWord(hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+		
+		hm.put("regex", Pattern.compile("0/1/0"));
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
+
+		hm.put("regex", Pattern.compile("^0/1/0$"));
+		result = RiTa.randomWord(hm);
+		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
+
+		hm = opts("type", "phones");
+		hm.put("regex", "^th");
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^th[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		hm.put("regex", "v$");
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-z\\-]*v$", RiTa.analyze(result).get("phones")));
+
+		hm.put("regex", "^b-ih-l-iy-v$");
+		result = RiTa.randomWord(hm);
+		assertEquals("believe", result);
+
+		hm.put("regex", "ae");
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-z\\-]*ae[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		hm.put("regex", Pattern.compile("^th"));
+		result = RiTa.randomWord(hm);
+		assertTrue(result.length() > 3);
+		assertTrue(Pattern.matches("^th[a-z\\-]*", RiTa.analyze(result).get("phones")));
+
+		hm.put("regex", Pattern.compile("v$"));
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-z\\-]*v$", RiTa.analyze(result).get("phones")));
+
+		hm.put("regex", Pattern.compile("^b-ih-l-iy-v$"));
+		result = RiTa.randomWord(hm);
+		assertEquals("believe", result);
+
+		hm.put("regex", Pattern.compile("ae"));
+		result = RiTa.randomWord(hm);
+		assertTrue(Pattern.matches("[a-z\\-]*ae[a-z\\-]*", RiTa.analyze(result).get("phones")));
+	}
+
+	@Test
 	public void handleAnAugmentedLexicon() {
 		Lexicon lexicon = RiTa.lexicon();
 		lexicon.dict.put("deg", new String[] { "d-eh1-g", "nn" });
