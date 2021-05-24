@@ -268,7 +268,7 @@ public class Lexicon {
 
 	// takes Pattern or String or null
 	public String randomWord(Object pattern, Map<String, Object> opts) {
-		if (pattern == null && opts.get("regex") != null) {
+		if (pattern == null && opts != null && opts.get("regex") != null) {
 			pattern = opts.get("regex");
 		}
 

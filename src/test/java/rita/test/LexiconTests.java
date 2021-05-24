@@ -429,6 +429,9 @@ public class LexiconTests {
 		};
 		assertArrayEquals(results, RiTa.search("phant"));
 		assertArrayEquals(results, RiTa.search("phant"));
+		//regex in options
+		Map<String, Object> hm = opts("regex", "phant");
+		assertArrayEquals(results, RiTa.search(hm));
 	}
 
 	@Test
@@ -458,6 +461,35 @@ public class LexiconTests {
 				"infantile",
 				"infantry"
 		});
+
+		//regex in options
+		Map<String, Object> hm = opts("type", "phones", "limit", 5);
+		hm.put("regex", "f-ah-n-t");
+		res1 = RiTa.search(hm);
+		assertArrayEquals(res1, new String[] {
+			"elephant",
+			"infant",
+			"infantile",
+			"infantry",
+			"oftentimes"
+		});
+
+		hm = opts("type", "phones", "limit", 10);
+		hm.put("regex", "f-a[eh]-n-t");
+		res2 = RiTa.search(hm);
+		assertArrayEquals(res2, new String[] {
+			"elephant",
+			"elephantine",
+			"fantasia",
+			"fantasize",
+			"fantastic",
+			"fantastically",
+			"fantasy",
+			"infant",
+			"infantile",
+			"infantry"
+		});
+
 	}
 
 	@Test
@@ -533,6 +565,22 @@ public class LexiconTests {
 				"appreciatively",
 				"authoritarianism",
 				"colonialism" });
+
+		hm.put("regex", "0/1/0/0/0/0");
+		assertArrayEquals(RiTa.search(hm), new String[] {
+				"accountability",
+				"anticipatory",
+				"appreciatively",
+				"authoritarianism",
+				"colonialism" });
+			
+		hm.put("regex", "010000");
+		assertArrayEquals(RiTa.search(hm), new String[] {
+					"accountability",
+					"anticipatory",
+					"appreciatively",
+					"authoritarianism",
+					"colonialism" });
 
 		hm.put("maxLength", 11);
 
