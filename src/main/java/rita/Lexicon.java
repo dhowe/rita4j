@@ -268,6 +268,9 @@ public class Lexicon {
 
 	// takes Pattern or String or null
 	public String randomWord(Object pattern, Map<String, Object> opts) {
+		if (pattern == null && opts != null && opts.get("regex") != null) {
+			pattern = opts.get("regex");
+		}
 
 		if (opts == null) opts = new HashMap<String, Object>();
 		opts.put("limit", 1); // delegate to search
@@ -301,7 +304,7 @@ public class Lexicon {
 		if (pattern == null) {
 			pattern = Util.strOpt("regex", opts);
 		}
-		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^[01]+$", pattern)) {
+		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^\\^?[01]+\\$?$", pattern)) {
 			pattern = pattern.replaceAll("([01])(?=([01]))", "$1/");
 		}
 		if (pattern != null) re = Pattern.compile(pattern);
