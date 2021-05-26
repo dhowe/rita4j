@@ -42,7 +42,7 @@ public class Lexicon {
 
 	public String[] alliterations(String theWord, Map<String, Object> opts) {
 
-		if (theWord == null || theWord.length() == 0) return EA;
+		if (theWord == null || theWord.length() < 2) return EA;
 
 		opts = this.parseArgs(opts);
 
@@ -486,7 +486,7 @@ public class Lexicon {
 		int limit = Util.intOpt("limit", opts);
 		String tpos = Util.strOpt("targetPos", opts);
 
-		if (theWord == null || theWord.length() == 0) return EA;
+		if (theWord == null || theWord.length() < 2) return EA;
 
 		String phone = this.lastStressedPhoneToEnd(theWord);
 		if (phone == null) return EA;

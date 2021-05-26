@@ -878,6 +878,10 @@ public class LexiconTests {
 			assertTrue(RiTa.isAlliteration(result[i], "cat"));// , "FAIL2: " + result[i]
 		}
 
+		//for single letter words return []
+		assertArrayEquals(new String[] {}, RiTa.alliterations("a"));
+		assertArrayEquals(new String[] {}, RiTa.alliterations("I"));
+		assertArrayEquals(new String[] {}, RiTa.alliterations("K"));
 	}
 
 	public static boolean contains(String[] arr, String item) {
@@ -909,7 +913,13 @@ public class LexiconTests {
 		assertTrue(Arrays.asList(RiTa.rhymes("tense", opts("limit", 100))).contains("sense"));
 		assertTrue(Arrays.asList(RiTa.rhymes("shore",opts("limit", 100))).contains("more"));
 		assertTrue(Arrays.asList(RiTa.rhymes("weight",opts("limit", 100))).contains("eight"));
-		assertTrue(Arrays.asList(RiTa.rhymes("eight",opts("limit", 100))).contains("weight"));
+		assertTrue(Arrays.asList(RiTa.rhymes("eight", opts("limit", 100))).contains("weight"));
+		
+		//for single letter words return []
+		assertArrayEquals(RiTa.rhymes("a"), new String[] {});
+		assertArrayEquals(RiTa.rhymes("I"), new String[] {});
+		assertArrayEquals(RiTa.rhymes("K"), new String[] {});
+		assertArrayEquals(RiTa.rhymes("Z"), new String[] {});
 	}
 
 	@Test
