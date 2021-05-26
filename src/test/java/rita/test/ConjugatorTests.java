@@ -256,6 +256,111 @@ public class ConjugatorTests {
 			eq(c, a[i]);
 		}
 
+		String[] original = new String[] { "run", "walk", "swim", "create" };
+		// passive
+		String[] expected = new String[] { "is run", "is walked", "is swum", "is created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("passive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		// progressive
+		expected = new String[] { "is running", "is walking", "is swimming", "is creating" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("progressive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		// interrogative
+		expected = new String[] { "run", "walk", "swim", "create" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("interrogative", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//perfect
+		expected = new String[] { "has run", "has walked", "has swum", "has created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("perfect", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//gerund passive
+		expected = new String[] { "being run", "being walked", "being swum", "being created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.GERUND);
+		args.put("passive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//gerund progressive
+		expected = new String[] { "being running", "being walking", "being swimming", "being creating" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.GERUND);
+		args.put("progressive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//gerund interrogative
+		expected = new String[] { "running", "walking", "swimming", "creating" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.GERUND);
+		args.put("interrogative", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//gerund perfect
+		expected = new String[] { "having run", "having walked", "having swum", "having created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.GERUND);
+		args.put("perfect", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//infinitive passive
+		expected = new String[] { "to be run", "to be walked", "to be swum", "to be created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.INFINITIVE);
+		args.put("passive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//infinitive progressive
+		expected = new String[] { "to be running", "to be walking", "to be swimming", "to be creating" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.INFINITIVE);
+		args.put("progressive", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//infinitive interrogative
+		expected = new String[] { "to run", "to walk", "to swim", "to create" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.INFINITIVE);
+		args.put("interrogative", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
+		//infinitive perfect
+		expected = new String[] { "to have run", "to have walked", "to have swum", "to have created" };
+		args.clear();
+		args.put("person", RiTa.THIRD);
+		args.put("form", RiTa.INFINITIVE);
+		args.put("perfect", true);
+		for (int i = 0; i < 4; i++) {
+			assertEquals(expected[i], RiTa.conjugate(original[i], args));
+		}
 	}
 	
 	@Test
