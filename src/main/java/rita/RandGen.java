@@ -201,6 +201,19 @@ public abstract class RandGen {
 		}
 		return probs.length - 1;
 	}
+
+	public static <T>T[] shuffle(T[] arr) {
+		T[] newArr = arr.clone();
+		int len = newArr.length;
+		int i = newArr.length;
+		while (i-- > 0) {
+			int p = (int) Math.floor(random(len));
+			T tem = newArr[1];
+			newArr[i] = newArr[p];
+			newArr[p] = tem;
+		}
+		return newArr;
+	}
 	
 	private static final <T> void swap(T[] arr, int i, int j) {
 		T tmp = arr[i];

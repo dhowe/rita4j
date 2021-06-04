@@ -274,6 +274,7 @@ public class Lexicon {
 
 		if (opts == null) opts = new HashMap<String, Object>();
 		opts.put("limit", 1); // delegate to search
+		opts.put("shuffle", true);
 
 		String[] result = pattern instanceof Pattern // java is ugly
 				? this.search((Pattern) pattern, opts)
@@ -327,9 +328,12 @@ public class Lexicon {
 		String tpos = (String) opts.get(TARGET_POS);
 		List<String> result = new ArrayList<String>();
 
-		for (int i = 0; i < words.length; i++) {
+		int len = words.length;
+		int start = (boolean) opts.get("shuffle")? (int)(Math.floor(RiTa.random(len))) : 0;
 
-			String word = words[i], data[] = dict.get(word);
+		for (int i = 0; i < len; i++) {
+			int idx = (start + i) % len;
+			String word = words[idx], data[] = dict.get(word);
 
 			if (!this.checkCriteria(word, data, opts)) continue;
 
@@ -338,7 +342,7 @@ public class Lexicon {
 				if (word == null) continue;
 				// Note: we may have changed the word here (e.g. via conjugation)
 				// and it is also may no longer be in the dictionary
-				if (!word.equals(words[i])) data = dict.get(word);
+				if (!word.equals(words[idx])) data = dict.get(word);
 			}
 
 			if (regex != null) {
@@ -833,6 +837,7 @@ public class Lexicon {
 		opts.put("minLength", Util.intOpt("minLength", opts, defMinLen));
 		opts.put("numSyllables", Util.intOpt("numSyllables", opts, 0));
 		opts.put("minDistance", Util.intOpt("minDistance", opts, 1));
+		opts.put("shuffle", Util.boolOpt("shuffle", opts));
 		return opts;
 	}
 

@@ -77,6 +77,23 @@ public class LexiconTests {
 		result = RiTa.randomWord(opts("pos", "v", "numSyllables", 1));
 		assertTrue(result.length() > 0);
 		assertTrue(RiTa.isVerb(result));
+
+		//randomWord should be random
+		ArrayList<String> results = new ArrayList<String>();
+		for (int i = 0; i < 10; i++) {
+			String w = RiTa.randomWord(opts("pos", "nns"));
+			results.add(w);
+		}
+		assertTrue(results.size() == 10);
+		int idx = 0;
+		while (idx < results.size() - 1) {
+			if (results.get(idx).equals(results.get(idx + 1))) {
+				results.remove(idx);
+			} else {
+				idx++;
+			}
+		}
+		assertTrue(results.size() > 1);
 	}
 
 	@Test
@@ -90,7 +107,22 @@ public class LexiconTests {
 		assertEquals("apple", result);
 
 		result = RiTa.randomWord("le");
-		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*",result));
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
+		
+		ArrayList<String> results = new ArrayList<String>();
+		for (int i = 0; i < 10; i++) {
+			results.add(RiTa.randomWord("^a"));
+		}
+		assertTrue(results.size() == 10);
+		int idx = 0;
+		while (idx < results.size() - 1) {
+			if (results.get(idx).equals(results.get(idx + 1))) {
+				results.remove(idx);
+			} else {
+				idx++;
+			}
+		}
+		assertTrue(results.size() > 1);
 
 		result = RiTa.randomWord(Pattern.compile("^a"));
 		assertTrue(Pattern.matches("^a[a-zA-Z]*", result));
@@ -100,6 +132,23 @@ public class LexiconTests {
 
 		result = RiTa.randomWord(Pattern.compile("le"));
 		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
+
+		while (results.size() > 0) {
+			results.remove(0);
+		}
+		for (int i = 0; i < 10; i++) {
+			results.add(RiTa.randomWord(Pattern.compile("^a")));
+		}
+		assertTrue(results.size() == 10);
+		idx = 0;
+		while (idx < results.size() - 1) {
+			if (results.get(idx).equals(results.get(idx + 1))) {
+				results.remove(idx);
+			} else {
+				idx++;
+			}
+		}
+		assertTrue(results.size() > 1);
 
 		Map<String, Object> hm = opts("type", "stresses");
 		result = RiTa.randomWord("0/1/0", hm);
