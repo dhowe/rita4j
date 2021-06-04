@@ -329,7 +329,11 @@ public class Lexicon {
 		List<String> result = new ArrayList<String>();
 
 		int len = words.length;
-		int start = (boolean) opts.get("shuffle")? (int)(Math.floor(RiTa.random(len))) : 0;
+		int start = 0;
+		if ((boolean) opts.get("shuffle")) {
+			start = (int) (Math.floor(RiTa.random(len)));
+			words = RandGen.shuffle(words);
+		}
 
 		for (int i = 0; i < len; i++) {
 			int idx = (start + i) % len;

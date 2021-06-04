@@ -208,7 +208,7 @@ public abstract class RandGen {
 		int i = newArr.length;
 		while (i-- > 0) {
 			int p = (int) Math.floor(random(len));
-			T tem = newArr[1];
+			T tem = newArr[i];
 			newArr[i] = newArr[p];
 			newArr[p] = tem;
 		}
