@@ -73,6 +73,9 @@ public class Lexicon {
 		}
 
 		String[] words = words();
+		if ((boolean) opts.get("shuffle")) {
+			words = RandGen.shuffle(words);
+		}
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);
@@ -500,6 +503,9 @@ public class Lexicon {
 		if (phone == null) return EA;
 
 		String[] words = words();
+		if ((boolean) opts.get("shuffle")) {
+			words = RandGen.shuffle(words);
+		}
 		List<String> result = new ArrayList<>();
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
@@ -547,6 +553,11 @@ public class Lexicon {
 
 		ArrayList<String> result = new ArrayList<String>();
 		int minVal = Integer.MAX_VALUE;
+
+		if ((boolean) opts.get("shuffle")) {
+			words = RandGen.shuffle(words);
+		}
+
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
 			String[] rdata = dict.get(word);

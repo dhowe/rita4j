@@ -328,7 +328,7 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void callRandomWordNNS() {
+	public void callRandomWordPOS() {
 		Map<String, Object> hm = opts("pos", "nns");
 		//Map<String, Object> bad = new HashMap<String, Object>();
 
@@ -336,9 +336,8 @@ public class LexiconTests {
 			String result = RiTa.randomWord(hm);
 			if (!Inflector.isPlural(result)) {
 				// For now, just warn here as there are too many edge cases (see #521)
-				System.err.println("Pluralize/Singularize problem: randomWord(nns) was "
-						+ result + " (" + "isPlural=" + Inflector.isPlural(result) +
-						"), singularized is " + RiTa.singularize(result) + ")");
+				System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result + " (" + "isPlural="
+						+ Inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result) + ")");
 			}
 			assertFalse(result.endsWith("ness"));
 			assertFalse(result.endsWith("isms"));
@@ -354,12 +353,9 @@ public class LexiconTests {
 		//			Entry<String, Object> e = it.next();
 		//			System.out.println("\""+e.getKey()+"\", \""+e.getValue()+"\",");
 		//		}
-	}
 
-	@Test
-	public void callRandomWordPos() {
 		String[] pos = { "nn", "jj", "jjr", "wp" };
-		Map<String, Object> hm = new HashMap<String, Object>();
+		hm = new HashMap<String, Object>();
 		for (int j = 0; j < pos.length; j++) {
 			for (int i = 0; i < 5; i++) {
 				hm.clear();
@@ -367,14 +363,29 @@ public class LexiconTests {
 				String result = RiTa.randomWord(hm);
 				String best = RiTa.tagger.allTags(result)[0];
 				if (!best.equals(pos[j])) {
-					System.out.println(result + ": " + pos[j] + " ?= "
-							+ best + "/" + RiTa.tagger.allTags(result)[0]);
+					System.out.println(result + ": " + pos[j] + " ?= " + best + "/" + RiTa.tagger.allTags(result)[0]);
 				}
 				assertEquals(pos[j], best);
 			}
 		}
+		
+		ArrayList<String> results = new ArrayList<String>();
+		for (int i = 0; i < 10; i++) {
+			results.add(RiTa.randomWord(opts("pos", "nns")));
+		}
+		assertTrue(results.size() == 10);
 
+		int i = 0;
+		while (i < results.size() - 1) {
+			if (results.get(i).equals(results.get(i + 1))) {
+				results.remove(i);
+			} else {
+				i++;
+			}
+		}
+		assertTrue(results.size() > 1);
 	}
+
 
 	@Test
 	public void callRandomWordSyls() {
