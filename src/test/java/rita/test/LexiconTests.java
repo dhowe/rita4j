@@ -46,6 +46,35 @@ public class LexiconTests {
 		result = RiTa.randomWord();
 		assertTrue(result != null);
 		assertTrue(result.length() >= 4);
+
+		//string opts
+		result = RiTa.randomWord(opts("pos", "v"));
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
+
+		result = RiTa.randomWord(opts("numSyllables", 5));
+		assertTrue(result.length() > 0);
+
+		result = RiTa.randomWord(opts("pos", "v", "numSyllables", 1));
+		assertTrue(result.length() > 0);
+		assertTrue(RiTa.isVerb(result));
+
+		//randomWord should be random
+		ArrayList<String> results = new ArrayList<String>();
+		for (int i = 0; i < 10; i++) {
+			String w = RiTa.randomWord(opts("pos", "nns"));
+			results.add(w);
+		}
+		assertTrue(results.size() == 10);
+		int idx = 0;
+		while (idx < results.size() - 1) {
+			if (results.get(idx).equals(results.get(idx + 1))) {
+				results.remove(idx);
+			} else {
+				idx++;
+			}
+		}
+		assertTrue(results.size() > 1);
 	}
 
 	@Test
