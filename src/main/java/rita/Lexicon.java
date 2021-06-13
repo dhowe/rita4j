@@ -276,17 +276,27 @@ public class Lexicon {
 		}
 
 		if (opts == null) opts = new HashMap<String, Object>();
-		opts.put("limit", 1); // delegate to search
+		// delegate to search {limit=1, shuffle=true, strictPos=true} 
+		opts.put("limit", 1); 
 		opts.put("shuffle", true);
+		opts.put("strictPos", true);
 
 		String[] result = pattern instanceof Pattern // java is ugly
 				? this.search((Pattern) pattern, opts)
 				: this.search((String) pattern, opts);
 
-		if (result == null || result.length < 1) {
-			throw new RiTaException("No random word with options: " + opts);
+		// relax our pos constraints if we got nothing
+		if (result.length < 1 && opts.get("pos") != null) {
+			opts.put("strictPos", false);
+			result = pattern instanceof Pattern 
+			? this.search((Pattern) pattern, opts)
+			: this.search((String) pattern, opts);
 		}
 		
+		if (result == null || result.length < 1) {
+			opts.clear();
+			throw new RiTaException("No random word with options: " + opts);
+		}
 		return result[0]; // limit is 1
 	}
 
@@ -346,6 +356,7 @@ public class Lexicon {
 
 			if (tpos.length() > 0) {
 				word = matchPos(word, data, opts, limit == 1);
+				// word = matchPos(word, data, opts, limit == 1 || (boolean) opts.get("strictPos"));
 				if (word == null) continue;
 				// Note: we may have changed the word here (e.g. via conjugation)
 				// and it is also may no longer be in the dictionary

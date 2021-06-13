@@ -32,25 +32,6 @@ public class LexiconTests {
 		result = RiTa.randomWord(hm);
 		assertTrue(result.length() > 0);
 
-		hm.put("pos", "nn");
-		result = RiTa.randomWord(hm);
-		assertTrue(result.length() > 0);
-
-		hm.clear();
-		hm.put("pos", "nns");
-		result = RiTa.randomWord(hm);
-		assertTrue(result.length() > 0);
-
-		hm.clear();
-		hm.put("pos", "n");
-		result = RiTa.randomWord(hm);
-		assertTrue(result.length() > 0);
-
-		hm.clear();
-		hm.put("pos", "v");
-		result = RiTa.randomWord(hm);
-		assertTrue(result.length() > 0);
-
 		hm.clear();
 		hm.put("numSyllables", 3);
 		result = RiTa.randomWord(hm);
@@ -328,9 +309,13 @@ public class LexiconTests {
 	}
 
 	@Test
-	public void callRandomWordPOS() {
+	public void callRandomWordWithPOS() {
 		Map<String, Object> hm = opts("pos", "nns");
 		//Map<String, Object> bad = new HashMap<String, Object>();
+
+		assertThrows(RiTaException.class, () -> {
+			String res = RiTa.randomWord(opts("pos", "xxx"));
+		});
 
 		for (int i = 0; i < 1000; i++) {
 			String result = RiTa.randomWord(hm);
@@ -355,12 +340,13 @@ public class LexiconTests {
 		//		}
 
 		String[] pos = { "nn", "jj", "jjr", "wp" };
+		String result = "";
 		hm = new HashMap<String, Object>();
 		for (int j = 0; j < pos.length; j++) {
 			for (int i = 0; i < 5; i++) {
 				hm.clear();
 				hm.put("pos", pos[j]);
-				String result = RiTa.randomWord(hm);
+				result = RiTa.randomWord(hm);
 				String best = RiTa.tagger.allTags(result)[0];
 				if (!best.equals(pos[j])) {
 					System.out.println(result + ": " + pos[j] + " ?= " + best + "/" + RiTa.tagger.allTags(result)[0]);
@@ -384,11 +370,31 @@ public class LexiconTests {
 			}
 		}
 		assertTrue(results.size() > 1);
+
+		//////////////////////////////////////////////////////////////
+		result = RiTa.randomWord(opts("pos", "v"));
+     	assertTrue(result.length() > 0, "randomWord v=" + result);
+
+     	result = RiTa.randomWord(opts("pos", "n"));
+     	assertTrue(result.length() > 0, "randomWord v=" + result);
+
+		result = RiTa.randomWord(opts("pos", "nn"));
+     	assertTrue(result.length() > 0, "randomWord v=" + result);
+		
+		result = RiTa.randomWord(opts("pos", "nns"));
+     	assertTrue(result.length() > 0, "randomWord v=" + result);
+
+		result = RiTa.randomWord(opts("pos", "v"));
+		assertTrue(result.length() > 0, "randomWord v=" + result);
+		 
+		result = RiTa.randomWord(opts("pos", "v"));
+     	assertTrue(result.length() > 0, "randomWord v=" + result);
+
 	}
 
 
 	@Test
-	public void callRandomWordSyls() {
+	public void callRandomWordWithSyls() {
 		int i = 0;
 		String result = "";
 		String syllables = "";
