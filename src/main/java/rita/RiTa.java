@@ -136,6 +136,10 @@ public class RiTa {
 		return lexicon().isRhyme(word1, word2, noLTS);
 	}
 
+	public static boolean isStem(String word) {
+		return lexicon().hasWord(word, true) && word.equals(stem(word));
+	}
+
 	public static boolean isStopWord(String word) {
 		return Arrays.asList(RiTa.STOP_WORDS).contains(word.toLowerCase());
 	}

@@ -101,12 +101,24 @@ public class Lexicon {
 
 		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
-
+	
 	public boolean hasWord(String word) {
-		return (word != null && word.length() > 0)
-				? //Inflector.isPlural(word.toLowerCase())//?why
-				this.dict.containsKey(word.toLowerCase())
-				: false;
+		return hasWord(word, false); 
+	}
+
+	public boolean hasWord(String word, boolean strict) {
+		if (word == null || word.length() == 0) {
+			return false;
+		}
+		if (strict) return this.dict.containsKey(word.toLowerCase());
+		if (this.dict.containsKey(word.toLowerCase())) return true;
+		// plural?
+		word = RiTa.singularize(word);
+		if (this.dict.containsKey(word.toLowerCase())) return true;
+		// conjugations?
+		word = RiTa.stem(word);
+		if (this.dict.containsKey(word.toLowerCase())) return true;
+		return false;
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean noLts) {
