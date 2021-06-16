@@ -347,12 +347,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	 * or the best guess(es) if not found.
 	 */
 	public String[] allTags(String word) {
-		return allTags(word, false);
+		return allTags(word, new HashMap<String, Object>());
 	}
 
-	public String[] allTags(String word, boolean noDerivations) {
-		return allTags(word, noDerivations, false);
-	}
 	/*
 	 * Return the array of all pos tags from the lexicon,
 	 * or the best guess(es) if not found, unless if noDerivations
@@ -361,10 +358,12 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	 * rita#130: add noGuessing parameter, if true, derivation will 
 	 * return emptyArray if no rule matched
 	 */
-	public String[] allTags(String word, boolean noDerivations, boolean noGuessing) {
+	public String[] allTags(String word, HashMap<String, Object> opts) {
+		boolean noGuessing = opts.get("noGuessing") == null ? false : (boolean) opts.get("noGuessing");
+		boolean noDerivations = opts.get("noDerivations") == null ? false : (boolean) opts.get("noDerivations");
 		String[] posdata = RiTa.lexicon().posArr(word);
 		// System.out.println("data : " + Arrays.toString(posdata));
-		if (posdata.length == 0) posdata = derivePosData(word, noGuessing);
+		if (posdata.length == 0 && !noDerivations) posdata = derivePosData(word, noGuessing);
 		//if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
 		return posdata;
 	}
@@ -527,7 +526,10 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	private boolean checkType(String word, String[] tagArray) {
 		boolean noGuessing = tagArray.equals(NOUNS) ? true : false;
-		return Arrays.asList(allTags(word, false, noGuessing)).stream()
+		HashMap<String, Object> opts = new HashMap<String, Object>();
+		opts.put("noDerivations", false);
+		opts.put("noGuessing", noGuessing);
+		return Arrays.asList(allTags(word, opts)).stream()
 				.filter(p -> Arrays.asList(tagArray).contains(p))
 				.collect(Collectors.toList()).size() > 0;
 	}
