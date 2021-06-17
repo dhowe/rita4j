@@ -798,16 +798,16 @@ public class RiTaTests {
 		});
 	}
 
-	@Test
-	public void shouldCallIsStem() {
-		assertTrue(RiTa.isStem("dog"));
-    	assertTrue(RiTa.isStem("cat"));
-    	assertTrue(RiTa.isStem("play"));
-    	assertTrue(RiTa.isStem("run"));
-    	assertTrue(!RiTa.isStem("dogs"));
-    	assertTrue(!RiTa.isStem("played"));
-    	assertTrue(!RiTa.isStem("writing"));
-	}
+	// @Test
+	// public void shouldCallIsStem() {
+	// 	assertTrue(RiTa.isStem("dog"));
+    // 	assertTrue(RiTa.isStem("cat"));
+    // 	assertTrue(RiTa.isStem("play"));
+    // 	assertTrue(RiTa.isStem("run"));
+    // 	assertTrue(!RiTa.isStem("dogs"));
+    // 	assertTrue(!RiTa.isStem("played"));
+    // 	assertTrue(!RiTa.isStem("writing"));
+	// }
 
 	//--------------------------------helper----------------------
 	private static <T extends Comparable<T>> boolean listEq(List<T> a, List<T> b) {

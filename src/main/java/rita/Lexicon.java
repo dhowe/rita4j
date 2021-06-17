@@ -103,21 +103,23 @@ public class Lexicon {
 	}
 	
 	public boolean hasWord(String word) {
-		return hasWord(word, false); 
+		return hasWord(word, new HashMap<String, Object> ()); 
 	}
 
-	public boolean hasWord(String word, boolean strict) {
+	public boolean hasWord(String word, HashMap<String, Object> opts) {
+		boolean strict = opts.get("strict") == null ? false : (boolean) opts.get("strict");
 		if (word == null || word.length() == 0) {
 			return false;
 		}
-		if (strict) return this.dict.containsKey(word.toLowerCase());
-		if (this.dict.containsKey(word.toLowerCase())) return true;
+		boolean exist = this.dict.containsKey(word.toLowerCase());
+		if (strict || exist) return exist;
 		// plural?
 		word = RiTa.singularize(word);
 		if (this.dict.containsKey(word.toLowerCase())) return true;
-		// conjugations?
-		word = RiTa.stem(word);
-		if (this.dict.containsKey(word.toLowerCase())) return true;
+		
+		// TODOs: need a Conjugator.unconjugate()
+		word = RiTa.stem(word.toLowerCase());
+		if (this.dict.containsKey(word)) return true;
 		return false;
 	}
 

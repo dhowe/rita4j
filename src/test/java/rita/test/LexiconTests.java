@@ -29,10 +29,12 @@ public class LexiconTests {
     	assertTrue(RiTa.hasWord("played"));
     	assertTrue(RiTa.hasWord("written"));
 
-    	// strict mode
-    	assertTrue(!RiTa.lexicon().hasWord("dogs", true));
-    	assertTrue(!RiTa.lexicon().hasWord("played", true));
-    	assertTrue(!RiTa.lexicon().hasWord("cats", true));
+		// strict mode
+		HashMap<String, Object> opts = new HashMap<String, Object>();
+		opts.put("strict", true);
+    	assertTrue(!RiTa.lexicon().hasWord("dogs", opts));
+    	assertTrue(!RiTa.lexicon().hasWord("played", opts));
+    	assertTrue(!RiTa.lexicon().hasWord("cats", opts));
 	}
 
 	@Test
