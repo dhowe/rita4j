@@ -147,7 +147,7 @@ public class GrammarTests {
 		Map<String, Integer> results = new HashMap<String, Integer>();
 		RiGrammar rg = new RiGrammar(h);
 		Pattern regex = Pattern.compile("[AB] C");
-		for (int i = 0; i < 10; i++) {
+		for (int i = 0; i < 20; i++) {
 			String res = rg.expand();
 			assertTrue(regex.matcher(res).find());
 			results.put(res, results.containsKey(res) ? results.get(res) + 1 : 1);
