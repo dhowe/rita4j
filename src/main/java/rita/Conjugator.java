@@ -577,14 +577,16 @@ public class Conjugator {
 	}
 
 	public static String pastPart(String verb) {
-		if (isPastPart(verb)) return verb;
+		if (isPastParticiple(verb)) return verb;
 		return checkRules(PAST_PARTICIPLE_RULESET, verb);
 	}
 
-	private static boolean isPastPart(String word) {
+	private static boolean isPastParticiple(String word) {
 		String w = word.toLowerCase();
 		// word in dict
 		if (RiTa.lexicon().posArr(w) != null && Arrays.asList(RiTa.lexicon().posArr(word)).contains("vbn")) return true;
+		//irregular
+		if (Arrays.asList(IRREGULAR_PAST_PART).contains(w)) return true;
 		// ends with ed?
 		if (w.endsWith("ed")) {
 			String[] pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 1)); // created
@@ -610,12 +612,11 @@ public class Conjugator {
 			if (Pattern.compile("^(writt|ridd|chidd|swoll)$").matcher(stem).matches()) return true;
 		}
 		// ends with n,t,d
-		if (w.endsWith("n") || w.endsWith("d") || w.endsWith("t")) {
+		if (Pattern.compile("[ndt]$").matcher(w).matches()) {
 			String[] pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 1));
 			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
 		}
-		//irregular
-		if (Arrays.asList(IRREGULAR_PAST_PART).contains(w)) return true;
+		
 		return false;
 	}
 
