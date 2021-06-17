@@ -583,37 +583,40 @@ public class Conjugator {
 
 	private static boolean isPastParticiple(String word) {
 		String w = word.toLowerCase();
+		Lexicon lex = RiTa.lexicon();
+		String[] posArr = lex.posArr(w);
 		// word in dict
-		if (RiTa.lexicon().posArr(w) != null && Arrays.asList(RiTa.lexicon().posArr(word)).contains("vbn")) return true;
+		if (posArr != null && Arrays.asList(posArr).contains("vbn")) return true;
 		//irregular
 		if (Arrays.asList(IRREGULAR_PAST_PART).contains(w)) return true;
 		// ends with ed?
 		if (w.endsWith("ed")) {
-			String[] pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 1)); // created
-			if (pos == null || pos.length == 0) pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 2)); // played
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1)); // created
+			if (pos == null || pos.length == 0) pos = lex.posArr(w.substring(0, w.length() - 2)); // played
 			if ((pos == null || pos.length == 0) && w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
-				pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 3)); // hopped
+				pos = lex.posArr(w.substring(0, w.length() - 3)); // hopped
 			}
 			if ((pos == null || pos.length == 0) && w.endsWith("ied")) {
-				pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 3) + "y"); // cried
+				pos = lex.posArr(w.substring(0, w.length() - 3) + "y"); // cried
 			}
 			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
 		}
 		// ends with en?
 		if (w.endsWith("en")) {
-			String[] pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 1)); // driven
-			if (pos == null || pos.length == 0) pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 2)); // eaten
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1)); // driven
+			if (pos == null || pos.length == 0) pos = lex.posArr(w.substring(0, w.length() - 2)); // eaten
 			if ((pos == null || pos.length == 0)&& w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
-				pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 3)); // forgotten
+				pos = lex.posArr(w.substring(0, w.length() - 3)); // forgotten
 			}
 			if (pos != null && (Arrays.asList(pos).contains("vb") || Arrays.asList(pos).contains("vbd"))) return true;
+			
 			//special cases
 			String stem = w.substring(0, w.length() - 2);
 			if (Pattern.compile("^(writt|ridd|chidd|swoll)$").matcher(stem).matches()) return true;
 		}
 		// ends with n,t,d
 		if (Pattern.compile("[ndt]$").matcher(w).matches()) {
-			String[] pos = RiTa.lexicon().posArr(w.substring(0, w.length() - 1));
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1));
 			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
 		}
 		
