@@ -454,6 +454,10 @@ public class TaggerTests {
 		assertTrue(!RiTa.isNoun("sleepily"));
 		assertTrue(!RiTa.isNoun("excitedly"));
 		assertTrue(!RiTa.isNoun("energetically"));
+
+		//verbs esp. past particle
+		assertTrue(!RiTa.isNoun("heard"));
+		assertTrue(!RiTa.isNoun("deterred"));
 	}
 
 	@Test

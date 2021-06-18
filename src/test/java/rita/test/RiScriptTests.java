@@ -835,7 +835,7 @@ public class RiScriptTests {
 
 		// $$: need at least one to not match
 		int matches = 0;
-		int count = 5;
+		int count = 10;
 		Pattern regex = Pattern.compile("^(Dave|Jack|Mary) is called (Dave|Jack|Mary)\\.");
 		ctx = opts();
 		ctx.put("$$name", "(Dave | Jack | Mary)");

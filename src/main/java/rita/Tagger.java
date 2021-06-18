@@ -347,7 +347,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	 * or the best guess(es) if not found.
 	 */
 	public String[] allTags(String word) {
-		return allTags(word, false);
+		return allTags(word, new HashMap<String, Object>());
 	}
 
 	/*
@@ -355,16 +355,24 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	 * or the best guess(es) if not found, unless if noDerivations
 	 * is true, in which case null is returned if the word is not
 	 * in the lexicon
+	 * rita#130: add noGuessing parameter, if true, derivation will 
+	 * return emptyArray if no rule matched
 	 */
-	public String[] allTags(String word, boolean noDerivations) {
+	public String[] allTags(String word, HashMap<String, Object> opts) {
+		boolean noGuessing = opts.get("noGuessing") == null ? false : (boolean) opts.get("noGuessing");
+		boolean noDerivations = opts.get("noDerivations") == null ? false : (boolean) opts.get("noDerivations");
 		String[] posdata = RiTa.lexicon().posArr(word);
 		// System.out.println("data : " + Arrays.toString(posdata));
-		if (posdata.length == 0) posdata = derivePosData(word);
-		if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
+		if (posdata.length == 0 && !noDerivations) posdata = derivePosData(word, noGuessing);
+		//if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
 		return posdata;
 	}
-
+	
 	String[] derivePosData(String word) {
+		return derivePosData(word, false);
+	}
+
+	String[] derivePosData(String word, boolean noGuessing) {
 		/*
 		 * Try for a verb or noun inflection VBD Verb, past tense VBG Verb, gerund or
 		 * present participle VBN Verb, past participle VBP Verb, non-3rd person
@@ -403,6 +411,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 			pos = lexicon.posArr(word.substring(0, word.length() - 1));
 			if (pos.length < 1) pos = lexicon.posArr(word.substring(0, word.length() - 2));
+			if (pos.length < 1) pos = lexicon.posArr(word.substring(0, word.length() - 3));
 			if (Arrays.asList(pos).contains("vb")) {
 				return new String[] { "vbd", "vbn" }; // hate-> hated || row->rowed
 			}
@@ -422,6 +431,28 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 						return new String[] { "vbg" }; // hating
 					}
 				}
+				// else 
+				if (word.charAt(word.length() - 4) == word.charAt(word.length() - 5)) {
+					// e.g running
+					pos = lexicon.posArr(stem.substring(0, stem.length() - 1));
+					if (Arrays.asList(pos).contains("vb")) {
+						return new String[] { "vbg" }; // hating
+					}
+				}
+			}
+		} else if (word.endsWith("ly")) {
+			String stem = word.substring(0, word.length() - 2);
+			if (stem.length() > 0) {
+				pos = lexicon.posArr(stem);
+				if (Arrays.asList(pos).contains("jj")) {
+					return new String[] { "rb" }; // high -> highly
+				}
+				if (stem.charAt(stem.length() - 1) == 'i') {
+					pos = lexicon.posArr(stem.substring(0, stem.length() - 1) + "y"); // happy -> happily
+					if (Arrays.asList(pos).contains("jj")) {
+						return new String[] { "rb" }; 
+					}
+				}
 			}
 		}
 
@@ -434,7 +465,10 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			return new String[] { "dt" };
 		}
 
-		// Give up with a best guess
+		// Give up 
+		if (noGuessing) {
+			return new String[] {};
+		}
 		if (word.endsWith("ly")) {
 			return new String[] { "rb" };
 		}
@@ -491,7 +525,11 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	}
 
 	private boolean checkType(String word, String[] tagArray) {
-		return Arrays.asList(allTags(word)).stream()
+		boolean noGuessing = tagArray.equals(NOUNS) ? true : false;
+		HashMap<String, Object> opts = new HashMap<String, Object>();
+		opts.put("noDerivations", false);
+		opts.put("noGuessing", noGuessing);
+		return Arrays.asList(allTags(word, opts)).stream()
 				.filter(p -> Arrays.asList(tagArray).contains(p))
 				.collect(Collectors.toList()).size() > 0;
 	}
