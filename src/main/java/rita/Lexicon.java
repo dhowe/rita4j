@@ -101,12 +101,26 @@ public class Lexicon {
 
 		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
-
+	
 	public boolean hasWord(String word) {
-		return (word != null && word.length() > 0)
-				? //Inflector.isPlural(word.toLowerCase())//?why
-				this.dict.containsKey(word.toLowerCase())
-				: false;
+		return hasWord(word, new HashMap<String, Object> ()); 
+	}
+
+	public boolean hasWord(String word, HashMap<String, Object> opts) {
+		boolean strict = opts.get("strict") == null ? false : (boolean) opts.get("strict");
+		if (word == null || word.length() == 0) {
+			return false;
+		}
+		boolean exist = this.dict.containsKey(word.toLowerCase());
+		if (strict || exist) return exist;
+		// plural?
+		word = RiTa.singularize(word);
+		if (this.dict.containsKey(word.toLowerCase())) return true;
+		
+		// TODOs: need a Conjugator.unconjugate()
+		word = RiTa.stem(word.toLowerCase());
+		if (this.dict.containsKey(word)) return true;
+		return false;
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean noLts) {

@@ -20,6 +20,21 @@ public class LexiconTests {
 	@Test
 	public void callHasWord() {
 		assertTrue(RiTa.hasWord("random"));
+		assertTrue(RiTa.hasWord("dog"));
+    	assertTrue(RiTa.hasWord("dogs"));
+    	assertTrue(RiTa.hasWord("men"));
+    	assertTrue(RiTa.hasWord("happily"));
+    	assertTrue(RiTa.hasWord("play"));
+    	assertTrue(RiTa.hasWord("plays"));
+    	assertTrue(RiTa.hasWord("played"));
+    	assertTrue(RiTa.hasWord("written"));
+
+		// strict mode
+		HashMap<String, Object> opts = new HashMap<String, Object>();
+		opts.put("strict", true);
+    	assertTrue(!RiTa.lexicon().hasWord("dogs", opts));
+    	assertTrue(!RiTa.lexicon().hasWord("played", opts));
+    	assertTrue(!RiTa.lexicon().hasWord("cats", opts));
 	}
 
 	@Test
