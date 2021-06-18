@@ -11,6 +11,15 @@ public class Conjugator {
 	private static final String ANY_STEM = "^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$";
 	private static final String VERBAL_PREFIX = "((be|with|pre|un|over|re|mis|under|out|up|fore|for|counter|co|sub)(-?))";
 	private static final String[] MODALS = { "shall", "would", "may", "might", "ought", "should" };
+	private static final String[] IRREGULAR_PAST_PART = { "done", "gone", "abode", "been", "begotten", "begun", "bent", "bid",
+	"bidden", "bled", "born", "bought", "brought", "built", "caught", "clad", "chlung", "could", "crept",
+	"dove", "drunk", "dug", "dwelt", "fed", "felt", "fled", "flung", "fought", "found", "ground", "had",
+	"held", "hung", "hurt", "kept", "knelt", "laid", "lain", "led", "left", "lent", "lit", "lost", "made",
+	"met", "mown", "paid", "pled", "relaid", "rent", "rung", "said", "sat", "sent", "shod", "shot", "slain",
+	"slept", "slid", "smelt", "sold", "sought", "spat", "sped", "spelt", "spent", "split", "spolit", "sprung",
+	"spun", "stood", "stuck", "struck", "stung", "stunk", "sung", "sunk", "swept", "sworn", "swum", "swung",
+	"taight", "thought", "told", "torn", "undergone", "understood", "wept", "woken", "won", "worn", "wound",
+			"wrung" };
 
 	private static final RE[] ING_FORM_RULES = {
 			new RE(CONS + "ie$", 2, "ying", 1),
@@ -568,7 +577,50 @@ public class Conjugator {
 	}
 
 	public static String pastPart(String verb) {
+		if (isPastParticiple(verb)) return verb;
 		return checkRules(PAST_PARTICIPLE_RULESET, verb);
+	}
+
+	private static boolean isPastParticiple(String word) {
+		String w = word.toLowerCase();
+		Lexicon lex = RiTa.lexicon();
+		String[] posArr = lex.posArr(w);
+		// word in dict
+		if (posArr != null && Arrays.asList(posArr).contains("vbn")) return true;
+		//irregular
+		if (Arrays.asList(IRREGULAR_PAST_PART).contains(w)) return true;
+		// ends with ed?
+		if (w.endsWith("ed")) {
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1)); // created
+			if (pos == null || pos.length == 0) pos = lex.posArr(w.substring(0, w.length() - 2)); // played
+			if ((pos == null || pos.length == 0) && w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
+				pos = lex.posArr(w.substring(0, w.length() - 3)); // hopped
+			}
+			if ((pos == null || pos.length == 0) && w.endsWith("ied")) {
+				pos = lex.posArr(w.substring(0, w.length() - 3) + "y"); // cried
+			}
+			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
+		}
+		// ends with en?
+		if (w.endsWith("en")) {
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1)); // driven
+			if (pos == null || pos.length == 0) pos = lex.posArr(w.substring(0, w.length() - 2)); // eaten
+			if ((pos == null || pos.length == 0)&& w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
+				pos = lex.posArr(w.substring(0, w.length() - 3)); // forgotten
+			}
+			if (pos != null && (Arrays.asList(pos).contains("vb") || Arrays.asList(pos).contains("vbd"))) return true;
+			
+			//special cases
+			String stem = w.substring(0, w.length() - 2);
+			if (Pattern.compile("^(writt|ridd|chidd|swoll)$").matcher(stem).matches()) return true;
+		}
+		// ends with n,t,d
+		if (Pattern.compile("[ndt]$").matcher(w).matches()) {
+			String[] pos = lex.posArr(w.substring(0, w.length() - 1));
+			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
+		}
+		
+		return false;
 	}
 
 	private static String verbForm(String theVerb, int tense, int person, int number) {
