@@ -399,6 +399,21 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			if (pos != null && Arrays.asList(pos).contains("vb")) {
 				return new String[] { "nn" };
 			}
+			pos = lexicon.posArr(word.substring(0, word.length() - 2) + "e"); // investigator 
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+		}
+
+		if (word.endsWith("er")) {
+			pos = lexicon.posArr(word.substring(0, word.length() - 2)); // builder
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+			pos = lexicon.posArr(word.substring(0, word.length() - 1)); // dancer 
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
 		}
 
 		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
