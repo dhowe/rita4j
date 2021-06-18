@@ -19,56 +19,53 @@ public class Inflector {
 	}
 
 	public static final String pluralize(String word, Map<String, Object> opts) {
+		if (isPlural(word, opts)) return word;
 		return adjustNumber(word, PLURALIZE, Util.boolOpt("dbug", opts));
 	}
 
 	public static final boolean isPlural(String word) {
-		return isPlural(word, false);
+		return isPlural(word, null);
 	}
 
-	public static final boolean isPlural(String word, boolean dbug) {
+	public static final boolean isPlural(String word, Map<String, Object> opts) {
 
 		if (word == null || word.length() < 1) return false;
+
+		boolean dbug = Util.boolOpt("dbug", opts);
 
 		word = word.toLowerCase();
 
 		if (Arrays.asList(Util.MASS_NOUNS).contains(word)) {
+			if (dbug) System.out.println(word + " is mass nouns");
 			return true;
 		}
 
+		Lexicon lex = RiTa.lexicon();
 		String sing = RiTa.singularize(word);
-		Map<String, String[]> dict = RiTa.lexicon().dict;
-		String[] pos, data = dict.get(sing);
 
-		// Is singularized form different and n lexicon as 'nn'?
-		if (!sing.equals(word) && data != null && data.length == 2) {
-			pos = data[1].split(" ");
-			if (Arrays.asList(pos).contains("nn")) return true;
+		// Is singularized form different and n lexicon as 'nn' or tag as 'nn' (noGuessing)?
+		if (!sing.equals(word) && 
+		Arrays.asList(RiTa.tagger.allTags(sing, RiTa.opts("noGuessing", true))).contains("nn")) {
+			if (dbug) System.out.println(word + "'s singular form " + sing + " is nn");
+			return true;
 		}
 
 		// A general modal form? (for example, ends in 'ness')
-		if (word.endsWith("ness") && sing.equals(RiTa.pluralize(word))) {
+		if (ENDS_IN_NESS.matcher(word).matches()) {
+			if (dbug) System.out.println(word + " is general modal form");
 			return true;
 		}
 
-		// Is word without final 's in lexicon as 'nn'?
-		if (word.endsWith("s")) {
-			data = dict.get(word.substring(0, word.length() - 1));
-			if (data != null && data.length == 2) {
-				pos = data[1].split(" ");
-				for (int i = 0; i < pos.length; i++) {
-					if (Arrays.asList(pos).contains("nn")) return true;
-				}
-			}
+		if (word.endsWith("ae") && word.equals(sing + "e")) {
+			if (dbug) System.out.println(word + ": latin rule -a to -ae");
+			return true;
 		}
-
-		if (RE.test(DEFAULT_IS_PLURAL, word)) return true;
-
-		RE[] rules = SINGULAR_RULES;
-		for (int i = 0; i < rules.length; i++) {
-			RE rule = rules[i];
-			if (rule.applies(word)) {
-				if (dbug) console.log(word + " hit -> " + rule);
+		
+		for (int i = 0; i < IS_PLURAL_RULES.length; i++) {
+			Pattern rule = IS_PLURAL_RULES[i];
+			if (rule.matcher(word).matches()) {
+				if (dbug)
+					System.out.println(word + " hit" + rule.toString());
 				return true;
 			}
 		}
@@ -84,8 +81,33 @@ public class Inflector {
 
 	private static final int SINGULARIZE = 1, PLURALIZE = 2;
 	private static final Pattern DEFAULT_IS_PLURAL = Pattern.compile("(ae|ia|s)$");
+	private static final Pattern ENDS_IN_NESS = Pattern.compile("([a-z]+ness)$");
 	private static final RE DEFAULT_SINGULAR_RULE = new RE("^.*s$", 1);
 	private static final RE DEFAULT_PLURAL_RULE = new RE("^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$", 0, "s");
+	private static final Pattern[] IS_PLURAL_RULES = new Pattern[] {
+		// a subset of SING_RULES, delete the rules that might cause false positive
+		Pattern.compile("(houses|pluses|cases)$"),
+		Pattern.compile("^(apices|cortices)$"),
+		Pattern.compile("^(meninges|phalanges)$"),
+		Pattern.compile("^(octopus|pinch|fetus|genus|sinus|tomato|kiss|pelvis)es$"),
+		Pattern.compile("^(whizzes)$"),
+		Pattern.compile("(l|w)ives$"),
+		Pattern.compile("^(appendices|matrices)$"),
+		Pattern.compile("^(indices|apices|cortices)$"),
+		Pattern.compile("^(media|millennia|consortia|septa|memorabilia|data|femora)$"),
+		Pattern.compile("^(memoranda|bacteria|curricula|minima|maxima|referenda|spectra|phenomena|criteria)$"),
+		Pattern.compile("^[lm]ice$"),
+		Pattern.compile("feet$"),
+		Pattern.compile("teeth$"),
+		Pattern.compile("children$"),
+		Pattern.compile("geese$"),
+		Pattern.compile("^concerti$"),
+		Pattern.compile("people$"),
+		Pattern.compile("^oxen"),
+		Pattern.compile("(treatises|chemises)$"),
+		// other rules
+		Pattern.compile("(human|german|roman|femur)s"),
+	};
 	private static final RE[] SINGULAR_RULES = {
 			new RE("(houses|pulses|cases)$", 1, ""),
 			new RE("^(apices|cortices)$", 4, "ex"),

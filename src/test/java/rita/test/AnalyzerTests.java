@@ -84,7 +84,7 @@ public class AnalyzerTests {
 				"teeth", "tooth",
 				"kisses", "kiss",
 				"children", "child",
-				"randomwords", "randomword",
+				// "randomwords", "randomword", // should be seen as two words: "random word"
 				"deer", "deer",
 				"sheep", "sheep",
 				"shrimp", "shrimp",
@@ -103,7 +103,7 @@ public class AnalyzerTests {
 				"buses", "bus",
 				"happiness", "happiness",
 				"crises", "crisis",
-				"apotheses", "apothesis",
+				"apotheoses", "apotheosis",
 				"stimuli", "stimulus",
 				"corpora", "corpus",
 				"women", "woman",
@@ -225,7 +225,7 @@ public class AnalyzerTests {
 
 			res1 = Inflector.singularize(testPairs[i], RiTa.opts("dbug", dbug));
 			res2 = Inflector.pluralize(testPairs[i + 1], RiTa.opts("dbug", dbug));
-			res3 = Inflector.isPlural(testPairs[i], dbug);
+			res3 = Inflector.isPlural(testPairs[i], RiTa.opts("dbug", dbug));
 
 			// singularize
 			assertEquals(testPairs[i + 1], res1, "FAIL: singularize(" + testPairs[i]
@@ -236,6 +236,9 @@ public class AnalyzerTests {
 			assertEquals(testPairs[i], res2, "FAIL: pluralize(" + testPairs[i + 1]
 					+ ") was " + res2 + ", but expected " + testPairs[i] + "\n        "
 					+ "singularize(" + testPairs[i] + ") was " + res1 + "\n\n");
+
+			// pluralize plural word should return input
+			assertEquals(testPairs[i], Inflector.pluralize(testPairs[i]));
 
 			// isPlural
 			assertTrue(res3, "FAIL: isPlural(" + testPairs[i] + ") was false\n\n");

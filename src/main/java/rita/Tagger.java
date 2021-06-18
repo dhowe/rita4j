@@ -380,6 +380,38 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		 */
 		String[] pos;
 		Lexicon lexicon = RiTa.lexicon();
+		if (word.endsWith("ress")) {
+			pos = lexicon.posArr(word.substring(0, word.length() - 3)); // murderess
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+			pos = lexicon.posArr(word.substring(0, word.length() - 4)); // actress
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+		}
+
+		if (word.endsWith("or")) {
+			pos = lexicon.posArr(word.substring(0, word.length() - 2)); // actor
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+			pos = lexicon.posArr(word.substring(0, word.length() - 2) + "e"); // investigator 
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+		}
+
+		if (word.endsWith("er")) {
+			pos = lexicon.posArr(word.substring(0, word.length() - 2)); // builder
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+			pos = lexicon.posArr(word.substring(0, word.length() - 1)); // dancer 
+			if (pos != null && Arrays.asList(pos).contains("vb")) {
+				return new String[] { "nn" };
+			}
+		}
 
 		if (word.endsWith("ies")) { // 3rd-person sing. present (satisfies, falsifies)
 
@@ -407,7 +439,8 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			if (result.size() > 0) return result.toArray(new String[result.size()]);
 
 		}
-		else if (word.endsWith("ed")) { // simple past or past participle
+		
+		if (word.endsWith("ed")) { // simple past or past participle
 
 			pos = lexicon.posArr(word.substring(0, word.length() - 1));
 			if (pos.length < 1) pos = lexicon.posArr(word.substring(0, word.length() - 2));
@@ -417,7 +450,8 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			}
 
 		}
-		else if (word.endsWith("ing")) {
+		
+		if (word.endsWith("ing")) {
 
 			String stem = word.substring(0, word.length() - 3);
 			if (stem.length() > 0) {
@@ -440,7 +474,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 					}
 				}
 			}
-		} else if (word.endsWith("ly")) {
+		}
+		
+		if (word.endsWith("ly")) {
 			String stem = word.substring(0, word.length() - 2);
 			if (stem.length() > 0) {
 				pos = lexicon.posArr(stem);
@@ -521,7 +557,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	}
 
 	private boolean isLikelyPlural(String word) {
-		return lexHas("n", RiTa.singularize(word)) || Inflector.isPlural(word);
+		return lexHas("n", RiTa.singularize(word));// || Inflector.isPlural(word);
 	}
 
 	private boolean checkType(String word, String[] tagArray) {
