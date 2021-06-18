@@ -10,7 +10,6 @@ public class TokenizerTests {
 	@Test
 	public void callTokenizeThenUntokenize() {
 		
-		// JC: why are some of these commented out?
 		String[] tests = {
 				"Dr. Chan is talking slowly with Mr. Cheng, and they're friends.",
 				"He can't didn't couldn't shouldn't wouldn't eat.",
@@ -42,14 +41,6 @@ public class TokenizerTests {
 		};
 		for (int i = 0; i < tests.length; i++) {
 			String[] tokenized = RiTa.tokenize(tests[i]);
-			for (int j = 0; j < tokenized.length; j++) {
-				if (j != tokenized.length - 1) {
-					//System.out.print(tokenized[j] + "//");
-				}
-				else {
-					//System.out.println(tokenized[j]);
-				}
-			}
 			String untokenized = RiTa.untokenize(tokenized);
 			//System.out.println(untokenized);
 			eq(untokenized, tests[i]);

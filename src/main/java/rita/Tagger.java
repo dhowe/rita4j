@@ -360,12 +360,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	 * return emptyArray if no rule matched
 	 */
 	public String[] allTags(String word, Map<String, Object> opts) {
-		boolean noGuessing = Util.boolOpt("noGuessing", opts); // JC:
-		boolean noDerivations = Util.boolOpt("noDerivations", opts); // JC:
-		//boolean noGuessing = opts.get("noGuessing") == null ? false : (boolean) opts.get("noGuessing");
-		//boolean noDerivations = opts.get("noDerivations") == null ? false : (boolean) opts.get("noDerivations");
+		boolean noGuessing = Util.boolOpt("noGuessing", opts); 
+		boolean noDerivations = Util.boolOpt("noDerivations", opts); 
 		String[] posdata = RiTa.lexicon().posArr(word);
-		// System.out.println("data : " + Arrays.toString(posdata));
 		if (posdata.length == 0 && !noDerivations) posdata = derivePosData(word, noGuessing);
 		//if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
 		return posdata;
@@ -529,10 +526,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	private boolean checkType(String word, String[] tagArray) {
 		boolean noGuessing = tagArray.equals(NOUNS) ? true : false;
-//		HashMap<String, Object> opts = new HashMap<String, Object>(); 
-//		opts.put("noDerivations", false);
-//		opts.put("noGuessing", noGuessing);
-		Map<String, Object> opts = RiTa.opts("noDerivations", false, "noGuessing", noGuessing); // JC:
+		Map<String, Object> opts = RiTa.opts("noDerivations", false, "noGuessing", noGuessing);
 		return Arrays.asList(allTags(word, opts)).stream()
 				.filter(p -> Arrays.asList(tagArray).contains(p))
 				.collect(Collectors.toList()).size() > 0;
