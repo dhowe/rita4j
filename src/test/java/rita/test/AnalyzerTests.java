@@ -167,8 +167,7 @@ public class AnalyzerTests {
 				"quizes", "quiz",
 				"spyglasses", "spyglass",
 				"overpasses", "overpass",
-				"clones", "clone",
-				//according to Cambridge dictionary clone is n. [c]
+				"clones", "clones",
 				"microwaves", "microwave",
 				"hypotheses", "hypothesis",
 				"pretenses", "pretense",
@@ -481,6 +480,33 @@ public class AnalyzerTests {
 		input = "gaggle of goose";
 		expected = "gaggle of geese";
 		assertEquals(expected, RiTa.pluralize(input));
+	}
+
+	@Test
+	public void doNothingWhenInputToPluralizeIsPlural() {
+		String[] tests = new String[] { "tidings", "schnapps", "canvases", "censuses", "bonuses", "isthmuses",
+				"thermoses", "circuses", "tongs", "emeriti" };
+		for (int i = 0; i < tests.length; i++) {
+			assertEquals(tests[i], RiTa.pluralize(tests[i]));
+		}
+	}
+
+	@Test
+	public void returnTrueForPluralNouns() {
+		String[] tests = new String[] { "tidings", "schnapps", "canvases", "censuses", "bonuses", "isthmuses",
+				"thermoses", "circuses", "tongs", "emeriti" };
+		for (int i = 0; i < tests.length; i++) {
+			assertTrue(Inflector.isPlural(tests[i]));
+		}
+	}
+
+	@Test
+	public void handleSinglarNounsInTaggerAllTags() {
+		String[] tests = new String[] { "tiding", "census", "bonus", "thermos", "circus" };
+		for (int i = 0; i < tests.length; i++) {
+			String[] tags = RiTa.tagger.allTags(tests[i]);
+			assertTrue(Arrays.asList(tags).contains("nn"));
+		}
 	}
 
 	static void eq(String a, String b) {
