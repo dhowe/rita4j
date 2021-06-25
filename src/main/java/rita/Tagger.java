@@ -470,7 +470,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 					// e.g running
 					pos = lexicon.posArr(stem.substring(0, stem.length() - 1));
 					if (Arrays.asList(pos).contains("vb")) {
-						return new String[] { "vbg" }; // hating
+						return new String[] { "vbg", "nn" }; // hating
 					}
 				}
 			}
