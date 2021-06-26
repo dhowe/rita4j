@@ -221,6 +221,18 @@ public class TaggerTests {
 			// console.log(checks[i] + ": " + RiTa.pos(checks[i])[0]);
 			arrayEq(RiTa.pos(checks[i]), new String[] { "nn" });
 		}
+
+		// vbg will not be wrongly tagged as nn
+		arrayEq(RiTa.pos("He is running toward me"), new String[] {"prp", "vbz", "vbg", "in", "prp"});
+		arrayEq(RiTa.pos("She is riding a bike"), new String[] {"prp", "vbz", "vbg", "dt", "nn"});
+		arrayEq(RiTa.pos("he stands still, thinking about the words"), new String[] {"prp", "vbz", "rb", ",", "vbg", "in", "dt", "nns"});
+		arrayEq(RiTa.pos("She walked out of the room smoking"),new String[]{"prp", "vbd", "in", "in", "dt", "nn", "vbg"});
+		arrayEq(RiTa.pos("He kept saying his adventure story"),new String[]{"prp", "vbd", "vbg", "prp$", "nn", "nn"});
+		arrayEq(RiTa.pos("Drinking is his hobby"), new String[]{"vbg", "vbz", "prp$", "nn"});
+		arrayEq(RiTa.pos("The kid playing at the corner is the boss"), new String[] {"dt", "nn", "vbg", "in", "dt", "nn", "vbz", "dt", "nn"});
+		arrayEq(RiTa.pos("She is the leader of the reading group"), new String[] {"prp", "vbz", "dt", "nn", "in", "dt", "vbg", "nn"});
+		arrayEq(RiTa.pos("I love working"), new String[]{"prp", "vbp", "vbg"});
+		arrayEq(RiTa.pos("I was thinking about buying a car"), new String[] { "prp", "vbd", "vbg", "in", "vbg", "dt", "nn" });
 	}
 
 	@Test
