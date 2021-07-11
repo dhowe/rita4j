@@ -1,7 +1,7 @@
 lexer grammar RiScriptLexer;
 
 /*
- Note: changing file requires a re-compile: use $ npm run watch.grammar
+ Note: changing this file requires a re-compile: use $ npm run watch.grammar
  
  Rule Priority --------------------------------------------------------------------------------
  First, select the lexer rule which matches the longest input If the text matches an implicitly
@@ -12,9 +12,8 @@ lexer grammar RiScriptLexer;
 LCOMM: '/*' .*? '*/' -> channel(HIDDEN);
 BCOMM: '//' ~[\r\n\u2028\u2029]* -> channel(HIDDEN);
 
-Q: {_input.LA(-1)=='}'}? '?';
-MDS: {_input.LA(-1)==']'}? '(' -> pushMode(MD);
-// Java: Q: {_input.LA(-1)=='}'}? '?'; MDS: {_input.LA(-1)==']'}? '(' -> pushMode(MD) ;
+LCBQ: RCB '?'; // question mark after } for cexpr
+MDLS: RB LP -> pushMode(MDL); // start md link: ']()'
 
 LP: '(';
 RP: ')';
@@ -46,6 +45,7 @@ CONT: '\\' NL -> channel(HIDDEN);
 
 fragment NIDENT: [A-Za-z_0-9] [A-Za-z_0-9-]*;
 
-mode MD;
-MDT: ~(')')+;
-MDE: ')' -> popMode;
+// markdown
+mode MDL;
+MDLT: ~(')')+;
+MDLE: ')' -> popMode;

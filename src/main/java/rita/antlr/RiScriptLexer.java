@@ -17,26 +17,26 @@ public class RiScriptLexer extends Lexer {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		LCOMM=1, BCOMM=2, Q=3, MDS=4, LP=5, RP=6, LB=7, RB=8, LCB=9, RCB=10, FS=11, 
-		AST=12, DOL=13, COM=14, GT=15, LT=16, DOT=17, WS=18, ESC=19, NL=20, DIDENT=21, 
-		DYN=22, SYM=23, OR=24, EQ=25, ENT=26, INT=27, OP=28, CHR=29, IDENT=30, 
-		CONT=31, MDT=32, MDE=33;
+		LCOMM=1, BCOMM=2, LCBQ=3, MDLS=4, LP=5, RP=6, LB=7, RB=8, LCB=9, RCB=10, 
+		FS=11, AST=12, DOL=13, COM=14, GT=15, LT=16, DOT=17, WS=18, ESC=19, NL=20, 
+		DIDENT=21, DYN=22, SYM=23, OR=24, EQ=25, ENT=26, INT=27, OP=28, CHR=29, 
+		IDENT=30, CONT=31, MDLT=32, MDLE=33;
 	public static final int
-		MD=1;
+		MDL=1;
 	public static String[] channelNames = {
 		"DEFAULT_TOKEN_CHANNEL", "HIDDEN"
 	};
 
 	public static String[] modeNames = {
-		"DEFAULT_MODE", "MD"
+		"DEFAULT_MODE", "MDL"
 	};
 
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"LCOMM", "BCOMM", "Q", "MDS", "LP", "RP", "LB", "RB", "LCB", "RCB", "FS", 
-			"AST", "DOL", "COM", "GT", "LT", "DOT", "WS", "ESC", "NL", "DIDENT", 
+			"LCOMM", "BCOMM", "LCBQ", "MDLS", "LP", "RP", "LB", "RB", "LCB", "RCB", 
+			"FS", "AST", "DOL", "COM", "GT", "LT", "DOT", "WS", "ESC", "NL", "DIDENT", 
 			"DYN", "SYM", "OR", "EQ", "ENT", "INT", "OP", "CHR", "IDENT", "CONT", 
-			"NIDENT", "MDT", "MDE"
+			"NIDENT", "MDLT", "MDLE"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
@@ -50,10 +50,10 @@ public class RiScriptLexer extends Lexer {
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
-			null, "LCOMM", "BCOMM", "Q", "MDS", "LP", "RP", "LB", "RB", "LCB", "RCB", 
-			"FS", "AST", "DOL", "COM", "GT", "LT", "DOT", "WS", "ESC", "NL", "DIDENT", 
-			"DYN", "SYM", "OR", "EQ", "ENT", "INT", "OP", "CHR", "IDENT", "CONT", 
-			"MDT", "MDE"
+			null, "LCOMM", "BCOMM", "LCBQ", "MDLS", "LP", "RP", "LB", "RB", "LCB", 
+			"RCB", "FS", "AST", "DOL", "COM", "GT", "LT", "DOT", "WS", "ESC", "NL", 
+			"DIDENT", "DYN", "SYM", "OR", "EQ", "ENT", "INT", "OP", "CHR", "IDENT", 
+			"CONT", "MDLT", "MDLE"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -114,31 +114,6 @@ public class RiScriptLexer extends Lexer {
 	@Override
 	public ATN getATN() { return _ATN; }
 
-	@Override
-	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
-		switch (ruleIndex) {
-		case 2:
-			return Q_sempred((RuleContext)_localctx, predIndex);
-		case 3:
-			return MDS_sempred((RuleContext)_localctx, predIndex);
-		}
-		return true;
-	}
-	private boolean Q_sempred(RuleContext _localctx, int predIndex) {
-		switch (predIndex) {
-		case 0:
-			return _input.LA(-1)=='}';
-		}
-		return true;
-	}
-	private boolean MDS_sempred(RuleContext _localctx, int predIndex) {
-		switch (predIndex) {
-		case 1:
-			return _input.LA(-1)==']';
-		}
-		return true;
-	}
-
 	public static final String _serializedATN =
 		"\3\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786\u5964\2#\u00ef\b\1\b\1\4"+
 		"\2\t\2\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n"+
@@ -179,13 +154,13 @@ public class RiScriptLexer extends Lexer {
 		"\2\2JN\3\2\2\2KM\13\2\2\2LK\3\2\2\2MP\3\2\2\2NO\3\2\2\2NL\3\2\2\2OQ\3"+
 		"\2\2\2PN\3\2\2\2QR\7,\2\2RS\7\61\2\2ST\3\2\2\2TU\b\2\2\2U\5\3\2\2\2VW"+
 		"\7\61\2\2WX\7\61\2\2X\\\3\2\2\2Y[\n\2\2\2ZY\3\2\2\2[^\3\2\2\2\\Z\3\2\2"+
-		"\2\\]\3\2\2\2]_\3\2\2\2^\\\3\2\2\2_`\b\3\2\2`\7\3\2\2\2ab\6\4\2\2bc\7"+
-		"A\2\2c\t\3\2\2\2de\6\5\3\2ef\7*\2\2fg\3\2\2\2gh\b\5\3\2h\13\3\2\2\2ij"+
-		"\7*\2\2j\r\3\2\2\2kl\7+\2\2l\17\3\2\2\2mn\7]\2\2n\21\3\2\2\2op\7_\2\2"+
-		"p\23\3\2\2\2qr\7}\2\2r\25\3\2\2\2st\7\177\2\2t\27\3\2\2\2uv\7\61\2\2v"+
-		"\31\3\2\2\2wx\7,\2\2x\33\3\2\2\2yz\7&\2\2z\35\3\2\2\2{|\7.\2\2|\37\3\2"+
-		"\2\2}~\7@\2\2~!\3\2\2\2\177\u0080\7>\2\2\u0080#\3\2\2\2\u0081\u0082\7"+
-		"\60\2\2\u0082%\3\2\2\2\u0083\u0084\t\3\2\2\u0084\'\3\2\2\2\u0085\u0086"+
+		"\2\\]\3\2\2\2]_\3\2\2\2^\\\3\2\2\2_`\b\3\2\2`\7\3\2\2\2ab\5\26\13\2bc"+
+		"\7A\2\2c\t\3\2\2\2de\5\22\t\2ef\5\f\6\2fg\3\2\2\2gh\b\5\3\2h\13\3\2\2"+
+		"\2ij\7*\2\2j\r\3\2\2\2kl\7+\2\2l\17\3\2\2\2mn\7]\2\2n\21\3\2\2\2op\7_"+
+		"\2\2p\23\3\2\2\2qr\7}\2\2r\25\3\2\2\2st\7\177\2\2t\27\3\2\2\2uv\7\61\2"+
+		"\2v\31\3\2\2\2wx\7,\2\2x\33\3\2\2\2yz\7&\2\2z\35\3\2\2\2{|\7.\2\2|\37"+
+		"\3\2\2\2}~\7@\2\2~!\3\2\2\2\177\u0080\7>\2\2\u0080#\3\2\2\2\u0081\u0082"+
+		"\7\60\2\2\u0082%\3\2\2\2\u0083\u0084\t\3\2\2\u0084\'\3\2\2\2\u0085\u0086"+
 		"\7^\2\2\u0086\u0087\t\4\2\2\u0087)\3\2\2\2\u0088\u008a\7\17\2\2\u0089"+
 		"\u0088\3\2\2\2\u0089\u008a\3\2\2\2\u008a\u008b\3\2\2\2\u008b\u008c\7\f"+
 		"\2\2\u008c+\3\2\2\2\u008d\u008e\7\60\2\2\u008e\u008f\5>\37\2\u008f-\3"+

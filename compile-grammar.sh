@@ -43,7 +43,8 @@ rm -rf $OUTPUT_DIR/* #$OUTPUT_DIR/antlr/*
 
 # here use sed to copy files from js to java: src/main/java/rita/grammar/
 cp $GRAMMAR_DIR/RiScriptParser.g4  $OUTPUT_DIR
-sed 's/this.//g; s/\.charCodeAt(0)//g' $GRAMMAR_DIR/RiScriptLexer.g4 > $OUTPUT_DIR/RiScriptLexer.g4
+cp $GRAMMAR_DIR/RiScriptLexer.g4  $OUTPUT_DIR
+#sed 's/this.//g; s/\.charCodeAt(0)//g' $GRAMMAR_DIR/RiScriptLexer.g4 > $OUTPUT_DIR/RiScriptLexer.g4
 
 java -Xmx500M -cp "$CLASSPATH" org.antlr.v4.Tool -Dlanguage=Java -lib $OUTPUT_DIR -o $WORK_DIR -visitor -no-listener -Xexact-output-dir -package rita.antlr $OUTPUT_DIR/RiScript*.g4
 
