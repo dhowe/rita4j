@@ -211,6 +211,7 @@ public class AnalyzerTests {
 				"beaux", "beau",
 				"milieux", "milieu",
 				//"clones", "clone",
+				"knives", "knife"
 		};
 
 		String res1, res2;

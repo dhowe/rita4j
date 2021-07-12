@@ -122,7 +122,7 @@ public class Inflector {
 			new RE("^(" + NOUNS_ENDING_W_S + ")es$", 2, ""),
 			// new RE("^(to|wheez|ooz|us|enterpris|alcov|hous|hors|cas|daz|hiv|div|additiv|groov|univers|conclav|promis|spous|laps|microwav|pretens|zombi|hears|hippi|yuppi|purs|phras|missiv|paus|directiv|calori|mov|expans)es$",
 			// 		1), //End with: es -> e, above one is a better way?
-			new RE("(l|w)ives$", 3, "fe"),
+			new RE("(l|w|kn)ives$", 3, "fe"),
 			new RE("(men|women)$", 2, "an"),
 			new RE("ves$", 3, "f"),
 			new RE("^(appendices|matrices)$", 3, "x"),
