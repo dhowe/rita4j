@@ -413,9 +413,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			}
 			if (word.charAt(word.length() - 3) == word.charAt(word.length() - 4)) {
 				pos = lexicon.posArr(word.substring(0, word.length() - 3)); // programmer 
-			if (pos != null && Arrays.asList(pos).contains("vb")) {
-				return new String[] { "nn" };
-			}
+				if (pos != null && Arrays.asList(pos).contains("vb")) {
+					return new String[] { "nn" };
+				}
 			}
 		}
 
