@@ -233,6 +233,16 @@ public class TaggerTests {
 		arrayEq(RiTa.pos("She is the leader of the reading group"), new String[] {"prp", "vbz", "dt", "nn", "in", "dt", "vbg", "nn"});
 		arrayEq(RiTa.pos("I love working"), new String[]{"prp", "vbp", "vbg"});
 		arrayEq(RiTa.pos("I was thinking about buying a car"), new String[] { "prp", "vbd", "vbg", "in", "vbg", "dt", "nn" });
+		
+		// js#179
+		arrayEq(RiTa.pos("lancer"), new String[] { "nn" });
+		arrayEq(RiTa.pos("dancer"), new String[] { "nn" });
+		arrayEq(RiTa.pos("builder"), new String[] { "nn" });
+		arrayEq(RiTa.pos("mixer"), new String[] { "nn" });
+		arrayEq(RiTa.pos("programmer"), new String[] { "nn" });
+		arrayEq(RiTa.pos("He is a dancer"), new String[] { "prp", "vbz", "dt", "nn" });
+		arrayEq(RiTa.pos("She is a body builder"), new String[] { "prp", "vbz", "dt", "nn", "nn" });
+		arrayEq(RiTa.pos("I am a programmer"), new String[] { "prp", "vbp", "dt", "nn" });
 	}
 
 	@Test
