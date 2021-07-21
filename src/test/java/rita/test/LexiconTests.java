@@ -336,10 +336,12 @@ public class LexiconTests {
 		});
 
 		List<String> knownBad = Arrays.asList(new String[] { // TODO:
-				"fracases", "magpies", "arthritis", "bronchitis", "hepatitis", "encephalitis", "strives" // ??
+				"fracases", "magpies", "arthritis", "bronchitis", "hepatitis", "encephalitis" 
 		});
+		
+		// TODO: Why is "strives" returned as a plural?   
 
-		for (int i = 0; i < 10000; i++) {
+		for (int i = 0; i < 100; i++) {
 			String result = RiTa.randomWord(hm);
 			if (!knownBad.contains(result) && !Inflector.isPlural(result)) {
 				//if (!Inflector.isPlural(result)) {

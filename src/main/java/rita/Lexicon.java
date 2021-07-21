@@ -250,26 +250,6 @@ public class Lexicon {
 		return true;
 	}
 
-	public String randomWordOld(Map<String, Object> opts) {
-
-		opts = this.parseArgs(opts);     // default to 4, not 3
-		opts.put("minLength", Util.intOpt("minLength", opts, 4));
-
-		String[] words = words();
-		String tpos = Util.strOpt("targetPos", opts);
-		int ran = (int) Math.floor(RandGen.random(words.length));
-		for (int k = 0; k < words.length; k++) {
-			int j = (ran + k) % words.length;
-			String word = words[j];
-			String[] rdata = dict.get(word);
-			if (!this.checkCriteria(word, rdata, opts)) continue;
-			if (tpos.length() == 0) return words[j]; // done if no pos
-			String result = this.matchPos(word, rdata, opts, true);
-			if (result != null) return result;
-		}
-		throw new RiTaException("No random word with options: " + opts);
-	}
-
 	public String randomWord() {
 		return randomWord((String) null, null);
 	}
