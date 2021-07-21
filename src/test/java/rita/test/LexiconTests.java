@@ -910,7 +910,6 @@ public class LexiconTests {
 		assertArrayEquals(RiTa.alliterations("freedom", hm), new String[] {
 				"featherbeddings",
 				"fundamentalists",
-				"malfunctionings",
 				"pharmaceuticals",
 				"photosyntheses",
 				"reconfigurations",
