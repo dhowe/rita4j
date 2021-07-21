@@ -21,20 +21,20 @@ public class LexiconTests {
 	public void callHasWord() {
 		assertTrue(RiTa.hasWord("random"));
 		assertTrue(RiTa.hasWord("dog"));
-    	assertTrue(RiTa.hasWord("dogs"));
-    	assertTrue(RiTa.hasWord("men"));
-    	assertTrue(RiTa.hasWord("happily"));
-    	assertTrue(RiTa.hasWord("play"));
-    	assertTrue(RiTa.hasWord("plays"));
-    	assertTrue(RiTa.hasWord("played"));
-    	assertTrue(RiTa.hasWord("written"));
+		assertTrue(RiTa.hasWord("dogs"));
+		assertTrue(RiTa.hasWord("men"));
+		assertTrue(RiTa.hasWord("happily"));
+		assertTrue(RiTa.hasWord("play"));
+		assertTrue(RiTa.hasWord("plays"));
+		assertTrue(RiTa.hasWord("played"));
+		assertTrue(RiTa.hasWord("written"));
 
 		// strict mode
-		HashMap<String, Object> opts = new HashMap<String, Object>();
-		opts.put("strict", true);
-    	assertTrue(!RiTa.lexicon().hasWord("dogs", opts));
-    	assertTrue(!RiTa.lexicon().hasWord("played", opts));
-    	assertTrue(!RiTa.lexicon().hasWord("cats", opts));
+		Map<String, Object> opts = opts("noDerivations", true);
+
+		assertTrue(!RiTa.hasWord("dogs", opts));
+		assertTrue(!RiTa.hasWord("played", opts));
+		assertTrue(!RiTa.hasWord("cats", opts));
 	}
 
 	@Test
@@ -85,7 +85,8 @@ public class LexiconTests {
 		while (idx < results.size() - 1) {
 			if (results.get(idx).equals(results.get(idx + 1))) {
 				results.remove(idx);
-			} else {
+			}
+			else {
 				idx++;
 			}
 		}
@@ -104,7 +105,7 @@ public class LexiconTests {
 
 		result = RiTa.randomWord("le");
 		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
-		
+
 		ArrayList<String> results = new ArrayList<String>();
 		for (int i = 0; i < 10; i++) {
 			results.add(RiTa.randomWord("^a"));
@@ -114,7 +115,8 @@ public class LexiconTests {
 		while (idx < results.size() - 1) {
 			if (results.get(idx).equals(results.get(idx + 1))) {
 				results.remove(idx);
-			} else {
+			}
+			else {
 				idx++;
 			}
 		}
@@ -140,7 +142,8 @@ public class LexiconTests {
 		while (idx < results.size() - 1) {
 			if (results.get(idx).equals(results.get(idx + 1))) {
 				results.remove(idx);
-			} else {
+			}
+			else {
 				idx++;
 			}
 		}
@@ -160,7 +163,7 @@ public class LexiconTests {
 
 		result = RiTa.randomWord("^010$", hm);
 		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
-		
+
 		result = RiTa.randomWord(Pattern.compile("0/1/0"), hm);
 		assertTrue(result.length() > 3);
 		assertTrue(Pattern.matches("[01/]*0/1/0[01/]*", RiTa.analyze(result).get("stresses")));
@@ -194,7 +197,7 @@ public class LexiconTests {
 
 		result = RiTa.randomWord(Pattern.compile("ae"), hm);
 		assertTrue(Pattern.matches("[a-z\\-]*ae[a-z\\-]*", RiTa.analyze(result).get("phones")));
-		
+
 		//regex in options
 		hm = opts("regex", "^a");
 		result = RiTa.randomWord(hm);
@@ -207,7 +210,7 @@ public class LexiconTests {
 
 		hm = opts("regex", "le");
 		result = RiTa.randomWord(hm);
-		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*",result));
+		assertTrue(Pattern.matches("[a-zA-Z]*le[a-zA-Z]*", result));
 
 		hm = opts("regex", Pattern.compile("^a"));
 		result = RiTa.randomWord(hm);
@@ -239,7 +242,7 @@ public class LexiconTests {
 		hm.put("regex", "^010$");
 		result = RiTa.randomWord(hm);
 		assertEquals("0/1/0", RiTa.analyze(result).get("stresses"));
-		
+
 		hm.put("regex", Pattern.compile("0/1/0"));
 		result = RiTa.randomWord(hm);
 		assertTrue(result.length() > 3);
@@ -332,13 +335,20 @@ public class LexiconTests {
 			String res = RiTa.randomWord(opts("pos", "xxx"));
 		});
 
-		for (int i = 0; i < 1000; i++) {
+		List<String> knownBad = Arrays.asList(new String[] { // TODO:
+				"fracases", "magpies", "arthritis", "bronchitis", "hepatitis", "encephalitis", "strives" // ??
+		});
+
+		for (int i = 0; i < 10000; i++) {
 			String result = RiTa.randomWord(hm);
-			if (!Inflector.isPlural(result)) {
+			if (!knownBad.contains(result) && !Inflector.isPlural(result)) {
+				//if (!Inflector.isPlural(result)) {
+
 				// For now, just warn here as there are too many edge cases (see #521)
-				System.err.println("Pluralize/Singularize problem: randomWord(nns) was " + result + " (" + "isPlural="
+				System.err.println("Pluralize/singularize problem: randomWord(nns) was " + result + " (" + "isPlural="
 						+ Inflector.isPlural(result) + "), singularized is " + RiTa.singularize(result) + ")");
 			}
+
 			assertFalse(result.endsWith("ness"));
 			assertFalse(result.endsWith("isms"));
 			// TODO: occasional problem here, examples: beaux
@@ -369,7 +379,7 @@ public class LexiconTests {
 				assertEquals(pos[j], best);
 			}
 		}
-		
+
 		ArrayList<String> results = new ArrayList<String>();
 		for (int i = 0; i < 10; i++) {
 			results.add(RiTa.randomWord(opts("pos", "nns")));
@@ -380,7 +390,8 @@ public class LexiconTests {
 		while (i < results.size() - 1) {
 			if (results.get(i).equals(results.get(i + 1))) {
 				results.remove(i);
-			} else {
+			}
+			else {
 				i++;
 			}
 		}
@@ -388,25 +399,24 @@ public class LexiconTests {
 
 		//////////////////////////////////////////////////////////////
 		result = RiTa.randomWord(opts("pos", "v"));
-     	assertTrue(result.length() > 0, "randomWord v=" + result);
+		assertTrue(result.length() > 0, "randomWord v=" + result);
 
-     	result = RiTa.randomWord(opts("pos", "n"));
-     	assertTrue(result.length() > 0, "randomWord v=" + result);
+		result = RiTa.randomWord(opts("pos", "n"));
+		assertTrue(result.length() > 0, "randomWord v=" + result);
 
 		result = RiTa.randomWord(opts("pos", "nn"));
-     	assertTrue(result.length() > 0, "randomWord v=" + result);
-		
+		assertTrue(result.length() > 0, "randomWord v=" + result);
+
 		result = RiTa.randomWord(opts("pos", "nns"));
-     	assertTrue(result.length() > 0, "randomWord v=" + result);
+		assertTrue(result.length() > 0, "randomWord v=" + result);
 
 		result = RiTa.randomWord(opts("pos", "v"));
 		assertTrue(result.length() > 0, "randomWord v=" + result);
-		 
+
 		result = RiTa.randomWord(opts("pos", "v"));
-     	assertTrue(result.length() > 0, "randomWord v=" + result);
+		assertTrue(result.length() > 0, "randomWord v=" + result);
 
 	}
-
 
 	@Test
 	public void callRandomWordWithSyls() {
@@ -447,7 +457,7 @@ public class LexiconTests {
 		Pattern regex = Pattern.compile("^a");
 		String[] result = RiTa.search(regex);
 		for (int i = 0; i < Math.min(100, result.length); i++) {
-			assertTrue(result[i].charAt(0) == 'a', " " +  result[i]);
+			assertTrue(result[i].charAt(0) == 'a', " " + result[i]);
 		}
 	}
 
@@ -457,42 +467,42 @@ public class LexiconTests {
 		//assertEquals(11, RiTa.search(opts("limit", 11)).length); -> to knownIssue
 		assertEquals(11, RiTa.search("", opts("limit", 11)).length);
 		String[] expected = new String[] {
-			"abalone", "abandonment",
-  			"abbey", "abbot",
-     		"abbreviation", "abdomen",
-      		"abduction", "aberration",
-      		"ability", "abnormality"
+				"abalone", "abandonment",
+				"abbey", "abbot",
+				"abbreviation", "abdomen",
+				"abduction", "aberration",
+				"ability", "abnormality"
 		};
 		//assertArrayEquals(expected, RiTa.search(opts("pos", "n")));
 		assertArrayEquals(expected, RiTa.search("", opts("pos", "n", "limit", 10)));
 
 		expected = new String[] {
-			"abashed", "abate",
-      		"abbey", "abbot",
-      		"abet", "abhor",
-      		"abide", "abject",
-      		"ablaze", "able"
+				"abashed", "abate",
+				"abbey", "abbot",
+				"abet", "abhor",
+				"abide", "abject",
+				"ablaze", "able"
 		};
 
 		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2)));
 		assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "limit", 10)));
 
 		expected = new String[] {
-			"abbey", "abbot",
-      		"abode", "abscess",
-      		"absence", "abstract",
-      		"abuse", "abyss",
-      		"accent", "access"
+				"abbey", "abbot",
+				"abode", "abscess",
+				"absence", "abstract",
+				"abuse", "abyss",
+				"accent", "access"
 		};
 		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 2, "pos", "n")));
 		assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 2, "pos", "n", "limit", 10)));
 
 		expected = new String[] {
-			"ace", "ache",
-      		"act", "age",
-      		"aid", "aide",
-      		"aim", "air",
-      		"aisle", "ale"
+				"ace", "ache",
+				"act", "age",
+				"aid", "aide",
+				"aim", "air",
+				"aisle", "ale"
 		};
 		//assertArrayEquals(expected, RiTa.search(opts("numSyllables", 1, "pos", "n")));
 		assertArrayEquals(expected, RiTa.search("", opts("numSyllables", 1, "pos", "n", "limit", 10)));
@@ -548,34 +558,34 @@ public class LexiconTests {
 		hm.put("regex", "f-ah-n-t");
 		res1 = RiTa.search(hm);
 		assertArrayEquals(res1, new String[] {
-			"elephant",
-			"infant",
-			"infantile",
-			"infantry",
-			"oftentimes"
+				"elephant",
+				"infant",
+				"infantile",
+				"infantry",
+				"oftentimes"
 		});
 
 		hm = opts("type", "phones", "limit", 10);
 		hm.put("regex", "f-a[eh]-n-t");
 		res2 = RiTa.search(hm);
 		assertArrayEquals(res2, new String[] {
-			"elephant",
-			"elephantine",
-			"fantasia",
-			"fantasize",
-			"fantastic",
-			"fantastically",
-			"fantasy",
-			"infant",
-			"infantile",
-			"infantry"
+				"elephant",
+				"elephantine",
+				"fantasia",
+				"fantasize",
+				"fantastic",
+				"fantastically",
+				"fantasy",
+				"infant",
+				"infantile",
+				"infantry"
 		});
 
 	}
 
 	@Test
 	public void callSearchWithPos() { // TODO: use opts()
-		
+
 		String[] res;
 		Map<String, Object> hm = new HashMap<String, Object>();
 		hm.put("type", "stresses");
@@ -584,7 +594,7 @@ public class LexiconTests {
 		assertArrayEquals(RiTa.search("010", hm), new String[] { "abalone", "abandonment", "abbreviation", "abdomen", "abduction" });
 
 		hm.put("numSyllables", 3);
-		assertArrayEquals(RiTa.search("010", hm), new String[] { "abdomen", "abduction", "abortion", "abruptness", "absorber"});
+		assertArrayEquals(RiTa.search("010", hm), new String[] { "abdomen", "abduction", "abortion", "abruptness", "absorber" });
 
 		hm.clear();
 		hm.put("type", "phones");
@@ -600,13 +610,13 @@ public class LexiconTests {
 		hm.put("limit", 5);
 		hm.put("pos", "v");
 		assertArrayEquals(RiTa.search("f-a[eh]-n-t", hm), new String[] { "fantasize" });
-		
+
 		hm.clear();
 		hm.put("type", "phones");
 		hm.put("limit", 5);
 		hm.put("pos", "vb");
 		assertArrayEquals(RiTa.search("f-a[eh]-n-t", hm), new String[] { "fantasize" });
-		
+
 		hm.clear();
 		hm.put("type", "stresses");
 		hm.put("limit", 5);
@@ -619,7 +629,7 @@ public class LexiconTests {
 		hm.put("numSyllables", 3);
 		assertArrayEquals(RiTa.search("010", hm),
 				new String[] { "abductions", "abortions", "absorbers", "abstentions", "abstractions" });
-    
+
 		hm.clear();
 		hm.put("type", "phones");
 		hm.put("limit", 3);
@@ -654,14 +664,14 @@ public class LexiconTests {
 				"appreciatively",
 				"authoritarianism",
 				"colonialism" });
-			
+
 		hm.put("regex", "010000");
 		assertArrayEquals(RiTa.search(hm), new String[] {
-					"accountability",
-					"anticipatory",
-					"appreciatively",
-					"authoritarianism",
-					"colonialism" });
+				"accountability",
+				"anticipatory",
+				"appreciatively",
+				"authoritarianism",
+				"colonialism" });
 
 		hm.put("maxLength", 11);
 
@@ -747,36 +757,36 @@ public class LexiconTests {
 		String[] expected;
 
 		expected = new String[] {
-			"accountability",
-      		"anticipatory",
-      		"appreciatively",
-      		"authoritarianism",
-      		"colonialism"
+				"accountability",
+				"anticipatory",
+				"appreciatively",
+				"authoritarianism",
+				"colonialism"
 		};
 		assertArrayEquals(expected, RiTa.search("010000", opts("type", "stresses", "limit", 5)));
-		
+
 		expected = new String[] {
-			"colonialism",
-      		"imperialism",
-      		"materialism"
+				"colonialism",
+				"imperialism",
+				"materialism"
 		};
 		assertArrayEquals(expected, RiTa.search("010000", opts("type", "stresses", "limit", 5, "maxLength", 11)));
 
 		expected = new String[] {
-			"accountability",
-      		"anticipatory",
-      		"appreciatively",
-      		"authoritarianism",
-      		"conciliatory"
+				"accountability",
+				"anticipatory",
+				"appreciatively",
+				"authoritarianism",
+				"conciliatory"
 		};
 		assertArrayEquals(expected, RiTa.search("010000", opts("type", "stresses", "limit", 5, "minLength", 12)));
 
 		expected = new String[] {
-			"accountability",
-      		"anticipatory",
-      		"appreciatively",
-      		"authoritarianism",
-      		"colonialism"
+				"accountability",
+				"anticipatory",
+				"appreciatively",
+				"authoritarianism",
+				"colonialism"
 		};
 		assertArrayEquals(expected, RiTa.search("0/1/0/0/0/0", opts("type", "stresses", "limit", 5)));
 		assertArrayEquals(expected, RiTa.search("0\\/1\\/0\\/0\\/0\\/0", opts("type", "stresses", "limit", 5)));
@@ -797,34 +807,33 @@ public class LexiconTests {
 		expected = new String[] { "infant" };
 		assertArrayEquals(expected,
 				RiTa.search("f-ah-n-t", opts("type", "phones", "limit", 3, "pos", "n", "numSyllables", 2)));
-		
+
 		expected = new String[] { "fantasize" };
 		assertArrayEquals(expected, RiTa.search("f-a[eh]-n-t", opts("type", "phones", "pos", "v", "limit", 5)));
 
-
 		expected = new String[] { "fantasize" };
 		assertArrayEquals(expected, RiTa.search("f-a[eh]-n-t", opts("type", "phones", "pos", "vb", "limit", 5)));
-		
-		expected = new String[] { 
-			"abalone",
-        	"abandonments",
-        	"abbreviations",
-        	"abductions",
-        	"abilities" 
+
+		expected = new String[] {
+				"abalone",
+				"abandonments",
+				"abbreviations",
+				"abductions",
+				"abilities"
 		};
 		//assertArrayEquals(expected, RiTa.search("010", opts("type", "stresses", "limit", 5, "pos", "nns")));
 		//assertArrayEquals(expected, RiTa.search("/0\\/1\\/0/", opts("type", "stresses", "limit", 5, "pos", "nns")));
 
 		expected = new String[] {
-			"abductions",
-        	"abortions",
-        	"absorbers",
-        	"abstentions",
-        	"abstractions"
+				"abductions",
+				"abortions",
+				"absorbers",
+				"abstentions",
+				"abstractions"
 		};
 		//assertArrayEquals(expected,
-				//RiTa.search("010", opts("type", "stresses", "limit", 5, "pos", "nns", "numSyllables", 3)));
-		
+		//RiTa.search("010", opts("type", "stresses", "limit", 5, "pos", "nns", "numSyllables", 3)));
+
 		expected = new String[] { "elephants", "infants", "infantries" };
 		assertArrayEquals(expected, RiTa.search("f-ah-n-t", opts("type", "phones", "pos", "nns", "limit", 3)));
 	}
@@ -960,9 +969,9 @@ public class LexiconTests {
 		}
 
 		//for single letter words return []
-		assertArrayEquals(new String[] {}, RiTa.alliterations("a"));
-		assertArrayEquals(new String[] {}, RiTa.alliterations("I"));
-		assertArrayEquals(new String[] {}, RiTa.alliterations("K"));
+		assertArrayEquals(new String[] { }, RiTa.alliterations("a"));
+		assertArrayEquals(new String[] { }, RiTa.alliterations("I"));
+		assertArrayEquals(new String[] { }, RiTa.alliterations("K"));
 	}
 
 	public static boolean contains(String[] arr, String item) {
@@ -990,17 +999,17 @@ public class LexiconTests {
 		assertFalse(Arrays.asList(RiTa.rhymes("hose")).contains("house"));
 		assertFalse(Arrays.asList(RiTa.rhymes("sieve")).contains("mellow"));
 		assertFalse(Arrays.asList(RiTa.rhymes("swag")).contains("grab"));
-		
+
 		assertTrue(Arrays.asList(RiTa.rhymes("tense", opts("limit", 100))).contains("sense"));
-		assertTrue(Arrays.asList(RiTa.rhymes("shore",opts("limit", 100))).contains("more"));
-		assertTrue(Arrays.asList(RiTa.rhymes("weight",opts("limit", 100))).contains("eight"));
+		assertTrue(Arrays.asList(RiTa.rhymes("shore", opts("limit", 100))).contains("more"));
+		assertTrue(Arrays.asList(RiTa.rhymes("weight", opts("limit", 100))).contains("eight"));
 		assertTrue(Arrays.asList(RiTa.rhymes("eight", opts("limit", 100))).contains("weight"));
-		
+
 		//for single letter words return []
-		assertArrayEquals(RiTa.rhymes("a"), new String[] {});
-		assertArrayEquals(RiTa.rhymes("I"), new String[] {});
-		assertArrayEquals(RiTa.rhymes("K"), new String[] {});
-		assertArrayEquals(RiTa.rhymes("Z"), new String[] {});
+		assertArrayEquals(RiTa.rhymes("a"), new String[] { });
+		assertArrayEquals(RiTa.rhymes("I"), new String[] { });
+		assertArrayEquals(RiTa.rhymes("K"), new String[] { });
+		assertArrayEquals(RiTa.rhymes("Z"), new String[] { });
 	}
 
 	@Test
@@ -1036,7 +1045,7 @@ public class LexiconTests {
 		String[] rhymes = RiTa.rhymes("weight", opts("pos", "vb", "limit", 100));
 		assertFalse(Arrays.asList(rhymes).contains("eight"));
 		assertTrue(Arrays.asList(rhymes).contains("hate"));
-		
+
 		rhymes = RiTa.rhymes("abated", opts("pos", "vbd", "limit", 100));
 		assertTrue(Arrays.asList(rhymes).contains("annihilated"));
 		assertTrue(Arrays.asList(rhymes).contains("allocated"));
@@ -1058,8 +1067,8 @@ public class LexiconTests {
 		hm.put("numSyllables", 3);
 		assertFalse(Arrays.asList(RiTa.rhymes("cat", hm)).contains("hat"));
 		assertFalse(Arrays.asList(RiTa.rhymes("yellow", hm)).contains("mellow"));
-		
-    // special case, where word is not in dictionary
+
+		// special case, where word is not in dictionary
 		String[] rhymes = RiTa.rhymes("abated", opts("numSyllables", 3));
 		assertTrue(Arrays.asList(rhymes).contains("elated"));
 		assertFalse(Arrays.asList(rhymes).contains("abated"));
@@ -1087,7 +1096,7 @@ public class LexiconTests {
 		Map<String, Object> hm = new HashMap<String, Object>();
 
 		result = RiTa.spellsLike("");
-		assertArrayEquals(result, new String[] {});
+		assertArrayEquals(result, new String[] { });
 
 		result = RiTa.spellsLike("banana", hm);
 		assertArrayEquals(result, new String[] { "banal", "bonanza", "cabana", "manna" });
@@ -1169,7 +1178,7 @@ public class LexiconTests {
 		Arrays.asList(result).forEach(r -> assertEquals(4, r.length()));
 		assertArrayEquals(result, new String[] { "dice", "rice" });
 	}
-	
+
 	@Test
 	public void callSpellsLikeOptions() {
 		String[] result;
@@ -1212,8 +1221,7 @@ public class LexiconTests {
 
 		expected = new String[] { "ache", "bide", "bite", "cite", "dine" };
 		result = RiTa.spellsLike("ice", opts(
-			"minLength", 4, "maxLength", 4, "pos", "v", "limit", 5
-		));
+				"minLength", 4, "maxLength", 4, "pos", "v", "limit", 5));
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(result[i].length() == 4);
 		}
@@ -1221,8 +1229,7 @@ public class LexiconTests {
 
 		expected = new String[] { "dice", "rice" };
 		result = RiTa.spellsLike("ice", opts( // dice, rice ??
-			"minLength", 4, "maxLength", 4, "pos", "nns", "limit", 5
-		));
+				"minLength", 4, "maxLength", 4, "pos", "nns", "limit", 5));
 		for (int i = 0; i < result.length; i++) {
 			assertTrue(result[i].length() == 4);
 		}
@@ -1301,7 +1308,6 @@ public class LexiconTests {
 		result = RiTa.soundsLike("try", opts("matchSpelling", true, "maxLength", 3));
 		answer = new String[] { "cry", "dry", "fry", "pry", "wry" };
 		eql(result, answer);
-
 
 		result = RiTa.soundsLike("try", opts("matchSpelling", true, "minLength", 4));
 		answer = new String[] { "tray" };
@@ -1423,7 +1429,7 @@ public class LexiconTests {
 		Arrays.sort(b);// hack
 		String s = "";
 		boolean ok = a.length == b.length;
-		int len = Math.max(a.length, b.length); 
+		int len = Math.max(a.length, b.length);
 		for (int i = 0; i < len; i++) {
 			s += i + ") " + (i < a.length ? a[i] : "NA") + " " + (i < b.length ? b[i] : "NA") + "\n";
 			if (ok && !a[i].equals(b[i])) ok = false;

@@ -60,7 +60,11 @@ public class RiTa {
 	}
 
 	public static boolean hasWord(String word) {
-		return lexicon().hasWord(word);
+		return hasWord(word, null);
+	}
+	
+	public static boolean hasWord(String word,  Map<String, Object> opts) {
+		return lexicon().hasWord(word, opts);
 	}
 
 	public static boolean isAbbrev(String input) {

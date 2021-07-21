@@ -106,13 +106,16 @@ public class Lexicon {
 		return hasWord(word, null); 
 	}
 
-	public boolean hasWord(String word, HashMap<String, Object> opts) {
+	public boolean hasWord(String word, Map<String, Object> opts) {
+		
 		if (word == null || word.length() == 0) {
 			return false;
 		}
-		boolean strict = Util.boolOpt("strict", opts);
+		
 		boolean exists = this.dict.containsKey(word.toLowerCase());
-		if (strict || exists) return exists;
+		boolean noDerivations = Util.boolOpt("noDerivations", opts);
+		
+		if (noDerivations || exists) return exists;
 		
 		// plural?
 		word = RiTa.singularize(word);
