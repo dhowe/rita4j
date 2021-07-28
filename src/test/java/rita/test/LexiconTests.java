@@ -35,6 +35,18 @@ public class LexiconTests {
 		assertTrue(!RiTa.hasWord("dogs", opts));
 		assertTrue(!RiTa.hasWord("played", opts));
 		assertTrue(!RiTa.hasWord("cats", opts));
+
+		// https://github.com/dhowe/rita/issues/139 
+		assertTrue(!RiTa.hasWord("bunning"));
+		assertTrue(!RiTa.hasWord("coyes"));
+		assertTrue(!RiTa.hasWord("soes"));
+		assertTrue(!RiTa.hasWord("knews"));
+		assertTrue(!RiTa.hasWord("fastering"));
+		assertTrue(!RiTa.hasWord("loosering"));
+		assertTrue(!RiTa.hasWord("knews"));  // SYNC:
+	
+		assertTrue(!RiTa.hasWord("barkness")); 
+		assertTrue(!RiTa.hasWord("horne")); 
 	}
 
 	@Test

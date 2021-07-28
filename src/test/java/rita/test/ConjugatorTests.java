@@ -452,6 +452,59 @@ public class ConjugatorTests {
 		}
 	}
 
+	@Test
+	public void callUnconjugate() {
+		// regular words
+    // 3rd person singular
+    assertEquals(rita.Conjugator.unconjugate("plays"),"play");
+    assertEquals(rita.Conjugator.unconjugate("takes"),"take");
+    assertEquals(rita.Conjugator.unconjugate("gets"),"get");
+    assertEquals(rita.Conjugator.unconjugate("comes"),"come");
+    assertEquals(rita.Conjugator.unconjugate("goes"),"go");
+    assertEquals(rita.Conjugator.unconjugate("teaches"),"teach");
+    assertEquals(rita.Conjugator.unconjugate("fixes"),"fix");
+    assertEquals(rita.Conjugator.unconjugate("misses"),"miss");
+    assertEquals(rita.Conjugator.unconjugate("studies"),"study");
+    assertEquals(rita.Conjugator.unconjugate("tries"),"try");
+    assertEquals(rita.Conjugator.unconjugate("carries"),"carry");
+    // ed
+    assertEquals(rita.Conjugator.unconjugate("watched"),"watch");
+    assertEquals(rita.Conjugator.unconjugate("planted"),"plant");
+    assertEquals(rita.Conjugator.unconjugate("watered"),"water");
+    assertEquals(rita.Conjugator.unconjugate("pulled"),"pull");
+    assertEquals(rita.Conjugator.unconjugate("picked"),"pick");
+    assertEquals(rita.Conjugator.unconjugate("liked"),"like");
+    assertEquals(rita.Conjugator.unconjugate("moved"),"move");
+    assertEquals(rita.Conjugator.unconjugate("tasted"),"taste");
+    assertEquals(rita.Conjugator.unconjugate("tried"),"try");
+    assertEquals(rita.Conjugator.unconjugate("studied"),"study");
+    assertEquals(rita.Conjugator.unconjugate("carried"),"carry");
+    // ing
+    assertEquals(rita.Conjugator.unconjugate("blowing"),"blow");
+    assertEquals(rita.Conjugator.unconjugate("raining"),"rain");
+    assertEquals(rita.Conjugator.unconjugate("coming"),"come");
+    assertEquals(rita.Conjugator.unconjugate("having"),"have");
+    assertEquals(rita.Conjugator.unconjugate("running"),"run");
+    assertEquals(rita.Conjugator.unconjugate("putting"),"put"); 
+    assertEquals(rita.Conjugator.unconjugate("sitting"),"sit");
+
+    //irregular
+    assertEquals(rita.Conjugator.unconjugate("has"),"have");
+    assertEquals(rita.Conjugator.unconjugate("had"),"have");
+    assertEquals(rita.Conjugator.unconjugate("sat"),"sit");
+    assertEquals(rita.Conjugator.unconjugate("shown"),"show");
+    assertEquals(rita.Conjugator.unconjugate("ate"),"eat");
+    assertEquals(rita.Conjugator.unconjugate("went"),"go");
+	assertEquals(rita.Conjugator.unconjugate("met"), "meet");
+	
+	// base form
+	assertEquals(rita.Conjugator.unconjugate("have"), "have");
+	assertEquals(rita.Conjugator.unconjugate("eat"), "eat");
+	assertEquals(rita.Conjugator.unconjugate("play"), "play");
+	assertEquals(rita.Conjugator.unconjugate("go"), "go");
+	assertEquals(rita.Conjugator.unconjugate("do"), "do");
+	}
+
 	static void eq(String a, String b) {
 		eq(a, b, "");
 	}

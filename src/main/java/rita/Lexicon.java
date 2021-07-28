@@ -118,13 +118,12 @@ public class Lexicon {
 		if (noDerivations || exists) return exists;
 		
 		// plural?
-		word = RiTa.singularize(word);
-		if (this.dict.containsKey(word.toLowerCase())) return true;
+		String sing = RiTa.singularize(word);
+		if (this.dict.containsKey(sing.toLowerCase()) && Arrays.asList(RiTa.tagger.allTags(sing)).contains("nn")) return true;
 		
 		// TODO: need a Conjugator.unconjugate() ?
-		word = RiTa.stem(word.toLowerCase());
-		
-		return (this.dict.containsKey(word));
+		String unconj = Conjugator.unconjugate(word);
+		return (this.dict.containsKey(unconj) && Arrays.asList(RiTa.tagger.allTags(unconj)).contains("vb"));
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean noLts) {
