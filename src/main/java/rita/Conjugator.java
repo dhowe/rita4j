@@ -591,10 +591,14 @@ public class Conjugator {
 		if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_IN_DICT).indexOf(word) % 2 == 0 ) {
 			return VERB_LEMMATIZER_EXCEPTIONS_IN_DICT[Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_IN_DICT).indexOf(word)
 					+ 1];
+		} else if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_IN_DICT).indexOf(word) % 2 == 1) {
+			return word;
 		}
-		// if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) > -1) {
-		// 	return VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT[Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT)
-		// 			.indexOf(word) + 1];
+		// if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) % 2 == 0 ) {
+		// 	return VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT[Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word)
+		// 			+ 1];
+		// } else if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) % 2 == 1) {
+		// 	return word;
 		// }
 		Map<String, Object> opt = new HashMap<String, Object>();
 		opt.put("noGuessing", true);
