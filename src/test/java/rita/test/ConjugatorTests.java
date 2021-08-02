@@ -384,6 +384,16 @@ public class ConjugatorTests {
 		for (int i = 0; i < 4; i++) {
 			assertEquals(expected[i], RiTa.conjugate(original[i], args));
 		}
+
+		//deal with non-base form
+		args.clear();
+		args.put("tense", RiTa.PRESENT);
+		args.put("number", RiTa.SINGULAR);
+		args.put("person", RiTa.THIRD);
+		assertEquals("walks", RiTa.conjugate("walked", args));
+		assertEquals("changes", RiTa.conjugate("changed", args));
+		assertEquals("spends", RiTa.conjugate("spent", args));
+		assertEquals("eats", RiTa.conjugate("eaten", args));
 	}
 	
 	@Test
