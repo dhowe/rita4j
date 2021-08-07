@@ -737,7 +737,8 @@ public class Conjugator {
 		// ----------------------- start --------------------------
 
 		String v = verb.toLowerCase();
-		//make sure v is a base form
+
+		// make sure verb is base form
 		if (!Arrays.asList(RiTa.tagger.allTags(v)).contains("vb")) {
 			v = unconjugate(v) != null && unconjugate(v).length() > 0 ? unconjugate(v) : v;
 		}
@@ -814,22 +815,24 @@ public class Conjugator {
 	}
 
 	public static String unconjugate(String word) {
-		if (Arrays.asList(IRREG_VERBS_LEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_LEX).indexOf(word) % 2 == 0) {
-			return IRREG_VERBS_LEX[Arrays.asList(IRREG_VERBS_LEX).indexOf(word)
-					+ 1];
+
+		List<String> irregsInLex = Arrays.asList(IRREG_VERBS_LEX);
+		if (irregsInLex.contains(word) && irregsInLex.indexOf(word) % 2 == 0) {
+			return IRREG_VERBS_LEX[irregsInLex.indexOf(word) + 1];
 		}
-		else if (Arrays.asList(IRREG_VERBS_LEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_LEX).indexOf(word) % 2 == 1) {
+		else if (irregsInLex.contains(word) && irregsInLex.indexOf(word) % 2 == 1) {
 			return word;
 		}
-		// if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) % 2 == 0 ) {
-		// 	return VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT[Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word)
+
+		// @SYNC: from JS (and from above)
+		// if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 0 ) {
+		// 	return IRREG_VERBS_NOLEX[Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word)
 		// 			+ 1];
-		// } else if (Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) > -1 && Arrays.asList(VERB_LEMMATIZER_EXCEPTIONS_NOT_IN_DICT).indexOf(word) % 2 == 1) {
+		// } else if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 1) {
 		// 	return word;
 		// }
-		Map<String, Object> opt = new HashMap<String, Object>();
-		opt.put("noGuessing", true);
-		String[] tags = RiTa.tagger.allTags(word, opt);
+
+		String[] tags = RiTa.tagger.allTags(word, RiTa.opts("noGuessing", true));
 		boolean notAVerb = tags.length > 0;
 		for (int i = 0; i < tags.length; i++) {
 			if (tags[i].equals("vb")) {
@@ -841,22 +844,22 @@ public class Conjugator {
 			}
 		}
 
-		if (notAVerb) {
-			return null;
-		}
+		if (notAVerb) return null;
+
 		// Verb lemmatization rules
 
 		// 1) 3rd person present
 		if (word.endsWith("ies")) {
 			return word.replaceAll("ies$", "y");
 		}
-		else if (word.endsWith("ches") || word.endsWith("ses") || word.endsWith("shes") || word.endsWith("xes") || word.endsWith("zes")
-				|| word.endsWith("oes")) {
+		else if (word.endsWith("ches") || word.endsWith("ses") || word.endsWith("shes")
+				|| word.endsWith("xes") || word.endsWith("zes") || word.endsWith("oes")) {
 			return word.replaceAll("es$", "");
 		}
 		else if (word.endsWith("s")) {
 			return word.replaceAll("s$", "");
 		}
+
 		// 2) past forms
 		else if (word.endsWith("ied")) {
 			return word.replaceAll("ied$", "y");
@@ -902,42 +905,38 @@ public class Conjugator {
 
 	private static String checkRules(Map<String, Object> ruleset, String theVerb) {
 
-		if (theVerb == null || theVerb.length() == 0)
-			return "";
+		if (theVerb == null || theVerb.length() == 0) return "";
+
 		theVerb = theVerb.trim();
 
 		boolean dbug = false;
-		String res;
-		String name = (String) ruleset.get("name");
+		String res, name = (String) ruleset.get("name");
 		RE[] rules = (RE[]) ruleset.get("rules");
 		RE defRule = (RE) ruleset.get("defaultRule");
 
-		if (rules == null)
-			System.err.println("no rule: " + (String) ruleset.get("name") + " of " + theVerb);
-		if (Arrays.asList(MODALS).contains(theVerb))
-			return theVerb;
+		if (rules == null) System.err.println("no rule: " + (String) ruleset.get("name") + " of " + theVerb);
+
+		if (Arrays.asList(MODALS).contains(theVerb)) return theVerb;
 
 		for (int i = 0; i < rules.length; i++) {
-			if (dbug)
-				console.log("checkRules(" + name + ").fire(" + i + ")=" + rules[i]);
+			if (dbug) console.log("checkRules(" + name + ").fire(" + i + ")=" + rules[i]);
 			if (rules[i].applies(theVerb)) {
 				String got = rules[i].fire(theVerb);
-				if (dbug)
-					console.log("HIT(" + name + ").fire(" + i + ")=" + rules[i] + "_returns: " + got);
+				if (dbug) console.log("HIT(" + name + ").fire(" + i + ")=" + rules[i] + "_returns: " + got);
 				return got;
 			}
 		}
-		if (dbug)
-			console.log("NO HIT!");
+
+		if (dbug) console.log("NO HIT!");
 
 		if ((boolean) ruleset.get("doubling") && Arrays.asList(VERB_CONS_DOUBLING).contains(theVerb)) {
-			if (dbug)
-				console.log("doDoubling!");
+			if (dbug) console.log("doDoubling!");
 			theVerb = doubleFinalConsonant(theVerb);
 		}
+
 		res = defRule.fire(theVerb);
-		if (dbug)
-			console.log("checkRules(" + name + ").returns: " + res);
+		if (dbug) console.log("checkRules(" + name + ").returns: " + res);
+
 		return res;
 	}
 
