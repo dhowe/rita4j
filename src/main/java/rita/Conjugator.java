@@ -519,6 +519,10 @@ public class Conjugator {
 		// ----------------------- start --------------------------
 
 		String v = verb.toLowerCase(); 
+		//make sure v is a base form
+		if (!Arrays.asList(RiTa.tagger.allTags(v)).contains("vb")) {
+			v = unconjugate(v) != null && unconjugate(v).length() > 0 ? unconjugate(v) : v;
+		}
 
 		List<String> list = Arrays.asList(TO_BE);
 		if (list.contains(v)) {
@@ -838,7 +842,7 @@ public class Conjugator {
 		if (RiTa.hasWord(word) && RiTa.isVerb(word))
 			return word;
 		Map<String, Object> searchArgs = new HashMap<String, Object>();
-		searchArgs.put("pos", "v");
+		searchArgs.put("pos", "vb");
 		String w = word;
 		while (w.length() > 1) {
 			Pattern regex = Pattern.compile("^" + w);
@@ -853,6 +857,8 @@ public class Conjugator {
 				if (word.equals(guess[i]))
 					return word;
 				if (RiTa.stem(guess[i]).equals(word))
+					return guess[i];
+				if (unconjugate(RiTa.stem(guess[i])).equals(word))
 					return guess[i];
 			}
 			w = w.substring(0, w.length() - 1);
