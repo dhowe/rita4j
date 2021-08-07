@@ -163,6 +163,14 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	}
 
 	public boolean isVerb(String word) {
+		// check irregular verbs (added 7/31/21)
+		if (Arrays.asList(Conjugator.IRREG_VERBS_LEX_VB).contains(word)) {
+			return true;
+		}
+		// if (Arrays.asList(Conjugator.IRREG_VERBS_NOLEX).contains(word)) {
+		// 	return true;
+		// }
+		
 		return checkType(word, VERBS);
 	}
 
