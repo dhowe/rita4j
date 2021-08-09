@@ -671,13 +671,12 @@ public class Conjugator {
 			return word;
 		}
 
-		// @SYNC: from JS (and from above)
-		// if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 0 ) {
-		// 	return IRREG_VERBS_NOLEX[Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word)
-		// 			+ 1];
-		// } else if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 1) {
-		// 	return word;
-		// }
+		if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 0 ) {
+			return IRREG_VERBS_NOLEX[Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word)
+					+ 1];
+		} else if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 1) {
+			return word;
+		}
 
 		String[] tags = RiTa.tagger.allTags(word, RiTa.opts("noGuessing", true));
 		boolean notAVerb = tags.length > 0;
