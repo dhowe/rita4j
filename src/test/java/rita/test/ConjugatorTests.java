@@ -476,7 +476,9 @@ public class ConjugatorTests {
     assertEquals(rita.Conjugator.unconjugate("misses"),"miss");
     assertEquals(rita.Conjugator.unconjugate("studies"),"study");
     assertEquals(rita.Conjugator.unconjugate("tries"),"try");
-    assertEquals(rita.Conjugator.unconjugate("carries"),"carry");
+	assertEquals(rita.Conjugator.unconjugate("carries"), "carry");
+	assertEquals(rita.Conjugator.unconjugate("wishes"), "wish");
+	assertEquals(rita.Conjugator.unconjugate("blitzes"), "blitz");
     // ed
     assertEquals(rita.Conjugator.unconjugate("watched"),"watch");
     assertEquals(rita.Conjugator.unconjugate("planted"),"plant");
@@ -488,7 +490,9 @@ public class ConjugatorTests {
     assertEquals(rita.Conjugator.unconjugate("tasted"),"taste");
     assertEquals(rita.Conjugator.unconjugate("tried"),"try");
     assertEquals(rita.Conjugator.unconjugate("studied"),"study");
-    assertEquals(rita.Conjugator.unconjugate("carried"),"carry");
+	assertEquals(rita.Conjugator.unconjugate("carried"), "carry");
+	assertEquals(rita.Conjugator.unconjugate("digged"), "dig");
+	assertEquals(rita.Conjugator.unconjugate("flagged"), "flag");
     // ing
     assertEquals(rita.Conjugator.unconjugate("blowing"),"blow");
     assertEquals(rita.Conjugator.unconjugate("raining"),"rain");
@@ -496,7 +500,8 @@ public class ConjugatorTests {
     assertEquals(rita.Conjugator.unconjugate("having"),"have");
     assertEquals(rita.Conjugator.unconjugate("running"),"run");
     assertEquals(rita.Conjugator.unconjugate("putting"),"put"); 
-    assertEquals(rita.Conjugator.unconjugate("sitting"),"sit");
+	assertEquals(rita.Conjugator.unconjugate("sitting"), "sit");
+	assertEquals(rita.Conjugator.unconjugate("pulling"), "pull");
 
     //irregular
     assertEquals(rita.Conjugator.unconjugate("has"),"have");
@@ -513,6 +518,10 @@ public class ConjugatorTests {
 	assertEquals(rita.Conjugator.unconjugate("play"), "play");
 	assertEquals(rita.Conjugator.unconjugate("go"), "go");
 	assertEquals(rita.Conjugator.unconjugate("do"), "do");
+	// not in lex
+	assertEquals(rita.Conjugator.unconjugate("spooning"), "spoon");
+	assertEquals(rita.Conjugator.unconjugate("mepanning"), "mepan");
+	assertEquals(rita.Conjugator.unconjugate("muddling"), "muddle");
 	}
 
 	static void eq(String a, String b) {
