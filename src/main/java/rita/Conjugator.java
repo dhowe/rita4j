@@ -3,9 +3,18 @@ package rita;
 import java.util.*;
 import java.util.regex.Pattern;
 
+import javax.swing.text.WrappedPlainView;
+
+import static rita.RiTa.opts;
+
 import com.google.gson.Gson;
 
+import org.antlr.v4.parse.ANTLRParser.labeledAlt_return;
+
 public class Conjugator {
+	private static String[] verbsEndingInE = new String[] {};
+
+	private static String[] verbsEndingInDoubles = new String[] {};
 
 	public static final String[] IRREG_VERBS_LEX = {
 		"abetted", "abet", "abetting", "abet", "abhorred", "abhor", "abhorring", "abhor", "abode", "abide", "accompanied", "accompany", "acidified", "acidify", "acquitted", "acquit", "acquitting", "acquit", "addrest", "address", "admitted", "admit", "admitting", "admit", "allotted", "allot", "allotting", "allot", "am", "be", "amplified", "amplify", "annulled", "annul", "annulling", "annul", "applied", "apply", "arcked", "arc", "arcking", "arc", "are", "be", "arisen", "arise", "arose", "arise", "ate", "eat", "atrophied", "atrophy", "awoke", "awake", "awoken", "awake", "bade", "bid", "bagged", "bag", "bagging", "bag", "bandied", "bandy", "banned", "ban", "banning", "ban", "barred", "bar", "barrelled", "barrel", "barrelling", "barrel", "barring", "bar", "batted", "bat", "batting", "bat", "beaten", "beat", "beautified", "beautify", "became", "become", "bed", "bed", "bedded", "bed", "bedding", "bed", "bedevilled", "bedevil", "bedevilling", "bedevil", "been", "be", "befallen", "befall", "befell", "befall", "befitted", "befit", "befitting", "befit", "began", "begin", "begat", "beget", "begetting", "beget", "begged", "beg", "begging", "beg", "beginning", "begin", "begot", "beget", "begotten", "beget", "begun", "begin", "beheld", "behold", "beholden", "behold", "belying", "belie", "benefitted", "benefit", "benefitting", "benefit", "bent", "bend", "bespoke", "bespeak", "bespoken", "bespeak", "betted", "bet", "betting", "bet", "bevelled", "bevel", "bevelling", "bevel", "biassed", "bias", "biassing", "bias", "bidden", "bid", "bidding", "bid", "bit", "bite", "bitted", "bit", "bitten", "bite", "bitting", "bit", "bled", "bleed", "blest", "bless", "blew", "blow", "blipped", "blip", "blipping", "blip", "blotted", "blot", "blotting", "blot", "blown", "blow", "blurred", "blur", "blurring", "blur", "bore", "bear", "born", "bear", "borne", "bear", "bought", "buy", "bound", "bind", "bragged", "brag", "bragging", "brag", "bred", "breed", "broke", "break", "broken", "break", "brought", "bring", "browbeaten", "browbeat", "budded", "bud", "budding", "bud", "bugged", "bug", "bugging", "bug", "built", "build", "bullied", "bully", "bummed", "bum", "bumming", "bum", "buried", "bury", "burnt", "burn", "bypast", "bypass", "calcified", "calcify", "came", "come", "cancelled", "cancel", "cancelling", "cancel", "canned", "can", "canning", "can", "capped", "cap", "capping", "cap", "carried", "carry", "caught", "catch", "certified", "certify", "channelled", "channel", "channelling", "channel", "charred", "char", "charring", "char", "chatted", "chat", "chatting", "chat", "chid", "chide", "chidden", "chide", "chinned", "chin", "chinning", "chin", "chiselled", "chisel", "chiselling", "chisel", "chopped", "chop", "chopping", "chop", "chose", "choose", "chosen", "choose", "chugged", "chug", "chugging", "chug", "clad", "clothe", "clarified", "clarify", "classified", "classify", "clipped", "clip", "clipping", "clip", "clogged", "clog", "clogging", "clog", "clung", "cling", "co-ordinate", "coordinate", "co-ordinated", "coordinate", "co-ordinates", "coordinate", "co-ordinating", "coordinate", "codified", "codify", "combatted", "combat", "combatting", "combat", "committed", "commit", "committing", "commit", "compelled", "compel", "compelling", "compel", "complied", "comply", "concurred", "concur", "concurring", "concur", "conferred", "confer", "conferring", "confer", "controlled", "control", "controlling", "control", "copied", "copy", "corralled", "corral", "corralling", "corral", "counselled", "counsel", "counselling", "counsel", "crammed", "cram", "cramming", "cram", "crept", "creep", "cried", "cry", "cropped", "crop", "cropping", "crop", "crucified", "crucify", "cupped", "cup", "cupping", "cup", "curried", "curry", "curst", "curse", "cutting", "cut", "dallied", "dally", "dealt", "deal", "decried", "decry", "deferred", "defer", "deferring", "defer", "defied", "defy", "demurred", "demur", "demurring", "demur", "denied", "deny", "deterred", "deter", "deterring", "deter", "detoxified", "detoxify", "dialled", "dial", "dialling", "dial", "did", "do", "digging", "dig", "dignified", "dignify", "dimmed", "dim", "dimming", "dim", "dipped", "dip", "dipping", "dip", "dirtied", "dirty", "dispelled", "dispel", "dispelling", "dispel", "disqualified", "disqualify", "dissatisfied", "dissatisfy", "diversified", "diversify", "divvied", "divvy", "dizzied", "dizzy", "done", "do", "donned", "don", "donning", "don", "dotted", "dot", "dotting", "dot", "dove", "dive", "dragged", "drag", "dragging", "drag", "drank", "drink", "drawn", "draw", "dreamt", "dream", "drew", "draw", "dried", "dry", "dripped", "drip", "dripping", "drip", "driven", "drive", "dropped", "drop", "dropping", "drop", "drove", "drive", "drubbed", "drub", "drubbing", "drub", "drummed", "drum", "drumming", "drum", "drunk", "drink", "dubbed", "dub", "dubbing", "dub", "duelled", "duel", "duelling", "duel", "dug", "dig", "dwelt", "dwell", "dying", "die", "eaten", "eat", "eavesdropped", "eavesdrop", "eavesdropping", "eavesdrop", "electrified", "electrify", "embedded", "embed", "embedding", "embed", "embodied", "embody", "emitted", "emit", "emitting", "emit", "emptied", "empty", "enthralled", "enthral", "enthralling", "enthral", "envied", "envy", "equalled", "equal", "equalling", "equal", "equipped", "equip", "equipping", "equip", "excelled", "excel", "excelling", "excel", "exemplified", "exemplify", "expelled", "expel", "expelling", "expel", "extolled", "extol", "extolling", "extol", "fallen", "fall", "falsified", "falsify", "fancied", "fancy", "fanned", "fan", "fanning", "fan", "fed", "feed", "feed", "feed", "fell", "fall", "felt", "feel", "ferried", "ferry", "fitted", "fit", "fitting", "fit", "flagged", "flag", "flagging", "flag", "fled", "flee", "flew", "fly", "flipped", "flip", "flipping", "flip", "flitted", "flit", "flitting", "flit", "flopped", "flop", "flopping", "flop", "flown", "fly", "flung", "fling", "fogged", "fog", "fogging", "fog", "forbad", "forbid", "forbade", "forbid", "forbidden", "forbid", "forbidding", "forbid", "foregone", "forego", "foresaw", "foresee", "foreseen", "foresee", "foretold", "foretell", "forewent", "forego", "forgave", "forgive", "forgetting", "forget", "forgiven", "forgive", "forgone", "forgo", "forgot", "forget", "forgotten", "forget", "forsaken", "forsake", "forsook", "forsake", "fortified", "fortify", "forwent", "forgo", "fought", "fight", "found", "find", "fretted", "fret", "fretting", "fret", "fried", "fry", "frolicked", "frolic", "frolicking", "frolic", "froze", "freeze", "frozen", "freeze", "fuelled", "fuel", "fuelling", "fuel", "funnelled", "funnel", "funnelling", "funnel", "gapped", "gap", "gapping", "gap", "gassed", "gas", "gasses", "gas", "gassing", "gas", "gave", "give", "gelled", "gel", "gelling", "gel", "getting", "get", "girt", "gird", "given", "give", "glorified", "glorify", "glutted", "glut", "glutting", "glut", "gnawn", "gnaw", "gone", "go", "got", "get", "gotten", "get", "grabbed", "grab", "grabbing", "grab", "gratified", "gratify", "grew", "grow", "grinned", "grin", "grinning", "grin", "gripped", "grip", "gripping", "grip", "gript", "grip", "gritted", "grit", "gritting", "grit", "ground", "grind", "grovelled", "grovel", "grovelling", "grovel", "grown", "grow", "gummed", "gum", "gumming", "gum", "gunned", "gun", "gunning", "gun", "had", "have", "handicapped", "handicap", "handicapping", "handicap", "harried", "harry", "has", "have", "heard", "hear", "held", "hold", "hewn", "hew", "hid", "hide", "hidden", "hide", "hitting", "hit", "hobnobbed", "hobnob", "hobnobbing", "hobnob", "honied", "honey", "hopped", "hop", "hopping", "hop", "horrified", "horrify", "hove", "heave", "hugged", "hug", "hugging", "hug", "hummed", "hum", "humming", "hum", "hung", "hang", "hurried", "hurry", "identified", "identify", "impelled", "impel", "impelling", "impel", "implied", "imply", "incurred", "incur", "incurring", "incur", "indemnified", "indemnify", "inferred", "infer", "inferring", "infer", "initialled", "initial", "initialling", "initial", "intensified", "intensify", "interred", "inter", "interring", "inter", "interwove", "interweave", "interwoven", "interweave", "is", "be", "jagged", "jag", "jagging", "jag", "jammed", "jam", "jamming", "jam", "jetted", "jet", "jetting", "jet", "jimmied", "jimmy", "jogged", "jog", "jogging", "jog", "justified", "justify", "kept", "keep", "kidded", "kid", "kidding", "kid", "kidnapped", "kidnap", "kidnapping", "kidnap", "knelt", "kneel", "knew", "know", "knitted", "knit", "knitting", "knit", "knotted", "knot", "knotting", "knot", "known", "know", "labelled", "label", "labelling", "label", "laden", "lade", "lagged", "lag", "lagging", "lag", "laid", "lay", "lain", "lie", "lay", "lie", "leant", "lean", "leapfrogged", "leapfrog", "leapfrogging", "leapfrog", "leapt", "leap", "learnt", "learn", "led", "lead", "left", "leave", "lent", "lend", "letting", "let", "levelled", "level", "levelling", "level", "levied", "levy", "libelled", "libel", "libelling", "libel", "liquefied", "liquefy", "lit", "light", "lobbed", "lob", "lobbied", "lobby", "lobbing", "lob", "logged", "log", "logging", "log", "lost", "lose", "lugged", "lug", "lugging", "lug", "lying", "lie", "made", "make", "magnified", "magnify", "manned", "man", "manning", "man", "mapped", "map", "mapping", "map", "marred", "mar", "married", "marry", "marring", "mar", "marshalled", "marshal", "marshalling", "marshal", "marvelled", "marvel", "marvelling", "marvel", "meant", "mean", "met", "meet", "mimicked", "mimic", "mimicking", "mimic", "misapplied", "misapply", "misled", "mislead", "misspelt", "misspell", "mistaken", "mistake", "mistook", "mistake", "misunderstood", "misunderstand", "modelled", "model", "modelling", "model", "modified", "modify", "mollified", "mollify", "molten", "melt", "mopped", "mop", "mopping", "mop", "mown", "mow", "multiplied", "multiply", "mummified", "mummify", "mystified", "mystify", "nabbed", "nab", "nabbing", "nab", "nagged", "nag", "nagging", "nag", "napped", "nap", "napping", "nap", "netted", "net", "netting", "net", "nipped", "nip", "nipping", "nip", "nodded", "nod", "nodding", "nod", "notified", "notify", "nullified", "nullify", "occupied", "occupy", "occurred", "occur", "occurring", "occur", "offsetting", "offset", "omitted", "omit", "omitting", "omit", "ossified", "ossify", "outbidden", "outbid", "outbidding", "outbid", "outdid", "outdo", "outdone", "outdo", "outfitted", "outfit", "outfitting", "outfit", "outgrew", "outgrow", "outgrown", "outgrow", "outputted", "output", "outputting", "output", "outran", "outrun", "outrunning", "outrun", "outshone", "outshine", "outsold", "outsell", "outstripped", "outstrip", "outstripping", "outstrip", "outwitted", "outwit", "outwitting", "outwit", "overcame", "overcome", "overdid", "overdo", "overdone", "overdo", "overdrawn", "overdraw", "overdrew", "overdraw", "overflown", "overflow", "overheard", "overhear", "overhung", "overhang", "overlaid", "overlay", "overlapped", "overlap", "overlapping", "overlap", "overpaid", "overpay", "overridden", "override", "overrode", "override",
@@ -14,186 +23,6 @@ public class Conjugator {
 
 	public static final String[] IRREG_VERBS_NOLEX = {
   		"abutted", "abut", "abutting", "abut", "ad-libbed", "ad-lib", "ad-libbing", "ad-lib", "aerified", "aerify", "air-dried", "air-dry", "airdropped", "airdrop", "airdropping", "airdrop", "appalled", "appal", "appalling", "appal", "averred", "aver", "averring", "aver", "baby-sat", "baby-sit", "baby-sitting", "baby-sit", "back-pedalled", "back-pedal", "back-pedalling", "back-pedal", "backslid", "backslide", "backslidden", "backslide", "befogged", "befog", "befogging", "befog", "begirt", "begird", "bejewelled", "bejewel", "bejewelling", "bejewel", "belly-flopped", "belly-flop", "belly-flopping", "belly-flop", "blabbed", "blab", "blabbing", "blab", "bobbed", "bob", "bobbing", "bob", "bogged-down", "bog-down", "bogged_down", "bog_down", "bogging-down", "bog-down", "bogging_down", "bog_down", "bogs-down", "bog-down", "bogs_down", "bog_down", "booby-trapped", "booby-trap", "booby-trapping", "booby-trap", "bottle-fed", "bottle-feed", "breast-fed", "breast-feed", "brutified", "brutify", "bullshitted", "bullshit", "bullshitting", "bullshit", "bullwhipped", "bullwhip", "bullwhipping", "bullwhip", "caddies", "caddie", "caddying", "caddie", "carolled", "carol", "carolling", "carol", "catnapped", "catnap", "catnapping", "catnap", "citified", "citify", "cleft", "cleave", "clopped", "clop", "clopping", "clop", "clove", "cleave", "cloven", "cleave", "co-opted", "coopt", "co-opting", "coopt", "co-opts", "coopts", "co-starred", "co-star", "co-starring", "co-star", "coiffed", "coif", "coiffing", "coif", "court-martialled", "court-martial", "court-martialling", "court-martial", "crossbred", "crossbreed", "crosscutting", "crosscut", "curtsied", "curtsy", "dabbed", "dab", "dabbing", "dab", "dandified", "dandify", "debarred", "debar", "debarring", "debar", "debugged", "debug", "debugging", "debug", "decalcified", "decalcify", "declassified", "declassify", "decontrolled", "decontrol", "deep-fried", "deep-fry", "dehumidified", "dehumidify", "deified", "deify", "demystified", "demystify", "disbarred", "disbar", "disbarring", "disbar", "disembodied", "disembody", "disembowelled", "disembowel", "disembowelling", "disembowel", "disenthralled", "disenthral", "disenthralling", "disenthral", "disenthralls", "disenthral", "disenthrals", "disenthrall", "disinterred", "disinter", "disinterring", "disinter", "distilled", "distil", "distilling", "distil", "eddied", "eddy", "edified", "edify", "ego-tripped", "ego-trip", "ego-tripping", "ego-trip", "empanelled", "empanel", "empanelling", "empanel", "emulsified", "emulsify", "entrapped", "entrap", "entrapping", "entrap", "fibbed", "fib", "fibbing", "fib", "filled_up", "fill_up", "flip-flopped", "flip-flop", "flip-flopping", "flip-flop", "flogged", "flog", "flogging", "flog", "foreran", "forerun", "forerunning", "forerun", "foxtrotted", "foxtrot", "foxtrotting", "foxtrot", "freeze-dried", "freeze-dry", "frigged", "frig", "frigging", "frig", "fritted", "frit", "fritting", "frit", "fulfilled", "fulfil", "fulfilling", "fulfil", "gambolled", "gambol", "gambolling", "gambol", "gasified", "gasify", "gelt", "geld", "gets_lost", "get_lost", "gets_started", "get_started", "getting_lost", "get_lost", "getting_started", "get_started", "ghostwritten", "ghostwrite", "ghostwrote", "ghostwrite", "giftwrapped", "giftwrap", "giftwrapping", "giftwrap", "gilt", "gild", "gipped", "gip", "gipping", "gip", "glommed", "glom", "glomming", "glom", "goes_deep", "go_deep", "going_deep", "go_deep", "gone_deep", "go_deep", "goose-stepped", "goose-step", "goose-stepping", "goose-step", "got_lost", "get_lost", "got_started", "get_started", "gotten_lost", "get_lost", "gypped", "gyp", "gypping", "gyp", "had_a_feeling", "have_a_feeling", "had_left", "have_left", "had_the_feeling", "have_the_feeling", "hand-knitted", "hand-knit", "hand-knitting", "hand-knit", "handfed", "handfeed", "has_a_feeling", "have_a_feeling", "has_left", "have_left", "has_the_feeling", "have_the_feeling", "having_a_feeling", "have_a_feeling", "having_left", "have_left", "having_the_feeling", "have_the_feeling", "high-hatted", "high-hat", "high-hatting", "high-hat", "hogtying", "hogtie", "horsewhipped", "horsewhip", "horsewhipping", "horsewhip", "humidified", "humidify", "hypertrophied", "hypertrophy", "inbred", "inbreed", "installed", "instal", "installing", "instal", "interbred", "interbreed", "intercutting", "intercut", "interlaid", "interlay", "interlapped", "interlap", "intermarried", "intermarry", "jellified", "jellify", "jibbed", "jib", "jibbing", "jib", "jitterbugged", "jitterbug", "jitterbugging", "jitterbug", "joined_forces", "join_forces", "joining_battle", "join_battle", "joining_forces", "join_forces", "joins_battle", "join_battle", "joins_forces", "join_forces", "joy-ridden", "joy-ride", "joy-rode", "joy-ride", "jumped_off", "jump_off", "jumping_off", "jump_off", "jumps_off", "jump_off", "jutted", "jut", "jutting", "jut", "knapped", "knap", "knapping", "knap", "ko'd", "ko", "ko'ing", "ko", "ko's", "ko", "lallygagged", "lallygag", "lallygagging", "lallygag", "leaves_undone", "leave_undone", "leaving_undone", "leave_undone", "left_undone", "leave_undone", "lignified", "lignify", "liquified", "liquify", "looked_towards", "look_towards", "looking_towards", "look_towards", "looks_towards", "look_towards", "machine-gunned", "machine-gun", "machine-gunning", "machine-gun", "minified", "minify", "miscarried", "miscarry", "misdealt", "misdeal", "misgave", "misgive", "misgiven", "misgive", "mislaid", "mislay", "mispled", "misplead", "misspent", "misspend", "mortified", "mortify", "objectified", "objectify", "outfought", "outfight", "outridden", "outride", "outrode", "outride", "outshot", "outshoot", "outthought", "outthink", "overbidden", "overbid", "overbidding", "overbid", "overblew", "overblow", "overblown", "overblow", "overflew", "overfly", "overgrew", "overgrow", "overgrown", "overgrow", "overshot", "overshoot", "overslept", "oversleep", "overwritten", "overwrite", "overwrote", "overwrite", "pinch-hitting", "pinch-hit", "pistol-whipped", "pistol-whip", "pistol-whipping", "pistol-whip", "played_a_part", "play_a_part", "playing_a_part", "play_a_part", "plays_a_part", "play_a_part", "pommelled", "pommel", "pommelling", "pommel", "prettified", "prettify", "putrefied", "putrefy", "quickstepped", "quickstep", "quickstepping", "quickstep", "rappelled", "rappel", "rappelling", "rappel", "recapped", "recap", "recapping", "recap", "recommitted", "recommit", "recommitting", "recommit", "reified", "reify", "rent", "rend", "repotted", "repot", "repotting", "repot", "retransmitted", "retransmit", "retransmitting", "retransmit", "reunified", "reunify", "rewound", "rewind", "sanctified", "sanctify", "sandbagged", "sandbag", "sandbagging", "sandbag", "scarified", "scarify", "scatted", "scat", "scrammed", "scram", "scramming", "scram", "scrummed", "scrum", "scrumming", "scrum", "shagged", "shag", "shagging", "shag", "shaken_hands", "shake_hands", "shakes_hands", "shake_hands", "shaking_hands", "shake_hands", "sharecropped", "sharecrop", "sharecropping", "sharecrop", "shellacked", "shellac", "shellacking", "shellac", "shook_hands", "shake_hands", "shrink-wrapped", "shrink-wrap", "shrink-wrapping", "shrink-wrap", "sideslipped", "sideslip", "sideslipping", "sideslip", "sightsaw", "sightsee", "sightseen", "sightsee", "skinny-dipped", "skinny-dip", "skinny-dipping", "skinny-dip", "skydove", "skydive", "slunk", "slink", "smit", "smite", "smitten", "smite", "smote", "smite", "snivelled", "snivel", "snivelling", "snivel", "snogged", "snog", "snogging", "snog", "soft-pedalled", "soft-pedal", "soft-pedalling", "soft-pedal", "sparred", "spar", "sparring", "spar", "speechified", "speechify", "spellbound", "spellbind", "spin-dried", "spin-dry", "spoon-fed", "spoon-feed", "stems_from", "stem_from", "stencilled", "stencil", "stencilling", "stencil", "strewn", "strew", "strummed", "strum", "strumming", "strum", "stultified", "stultify", "stupefied", "stupefy", "subjectified", "subjectify", "subtotalled", "subtotal", "subtotalling", "subtotal", "sullied", "sully", "supped", "sup", "supping", "sup", "syllabified", "syllabify", "taken_a_side", "take_a_side", "taken_pains", "take_pains", "taken_steps", "take_steps", "takes_a_side", "take_a_side", "takes_pains", "take_pains", "takes_steps", "take_steps", "taking_a_side", "take_a_side", "taking_pains", "take_pains", "taking_steps", "take_steps", "talcked", "talc", "talcking", "talc", "threw_out", "throw_out", "throwing_out", "throw_out", "thrown_out", "throw_out", "throws_out", "throw_out", "thrummed", "thrum", "thrumming", "thrum", "took_a_side", "take_a_side", "took_pains", "take_pains", "took_steps", "take_steps", "trammed", "tram", "tramming", "tram", "transfixt", "transfix", "transmogrified", "transmogrify", "trepanned", "trepan", "trepanning", "trepan", "typesetting", "typeset", "typewritten", "typewrite", "typewrote", "typewrite", "uglified", "uglify", "unbound", "unbind", "unclad", "unclothe", "underbidding", "underbid", "underfed", "underfeed", "underpaid", "underpay", "undersold", "undersell", "understudied", "understudy", "unfroze", "unfreeze", "unfrozen", "unfreeze", "unlearnt", "unlearn", "unmade", "unmake", "unmanned", "unman", "unmanning", "unman", "unpinned", "unpin", "unpinning", "unpin", "unplugged", "unplug", "unplugging", "unplug", "unslung", "unsling", "unstrung", "unstring", "unstuck", "unstick", "unwrapped", "unwrap", "unwrapping", "unwrap", "unzipped", "unzip", "unzipping", "unzip", "uppercutting", "uppercut", "verbified", "verbify", "versified", "versify", "vivified", "vivify", "vying", "vie", "waylaid", "waylay", "went_deep", "go_deep", "whinnied", "whinny", "whirred", "whir", "whirring", "whir", "window-shopped", "window-shop", "window-shopping", "window-shop", "yakked", "yak", "yakking", "yak", "yapped", "yap", "yapping", "yap"
-	};
-	private static final String[] VB_ENDS_IN_E = {
-			"abate", "abdicate", "abide", "abridge", "abrogate", "absolve", "abuse", "accede", "accelerate",
-			"accentuate", "accommodate", "accrue", "accumulate", "accuse", "ache", "achieve", "acknowledge",
-			"acquiesce", "acquire", "activate", "addle", "adhere", "adjudge", "adjudicate", "administrate", "admire",
-			"adore", "adulterate", "advance", "advantage", "adventure", "advertise", "advise", "advocate", "affiliate",
-			"age", "aggrandize", "aggravate", "aggrieve", "agitate", "agonize", "agree", "alienate", "allege",
-			"alleviate", "allocate", "allude", "alternate", "amalgamate", "amaze", "amble", "amortize", "amputate",
-			"amuse", "analyse", "analyze", "angle", "animate", "annihilate", "annotate", "announce", "annualize",
-			"antagonize", "ante", "anticipate", "ape", "apologize", "appease", "appraise", "appreciate", "apprentice",
-			"apprise", "appropriate", "approve", "approximate", "arbitrate", "argue", "arise", "arouse", "arrange",
-			"arrive", "arrogate", "articulate", "ascribe", "aspire", "assassinate", "assemble", "assimilate",
-			"associate", "assuage", "assume", "assure", "atone", "attire", "attribute", "attune", "authenticate",
-			"authorize", "automate", "avenge", "average", "awake", "awe", "babble", "backdate", "backfire", "baffle",
-			"bake", "balance", "bale", "bandage", "baptize", "barbecue", "bare", "barge", "barricade", "base", "bathe",
-			"battle", "be", "become", "befuddle", "begrudge", "beguile", "behave", "belie", "believe", "belittle",
-			"berate", "besiege", "betide", "beware", "bide", "birdie", "bite", "blame", "blare", "blaze", "blindside",
-			"blockade", "bode", "boggle", "bone", "bore", "bottle", "bounce", "brace", "brake", "brave", "breathe",
-			"breeze", "bribe", "bridge", "bridle", "bristle", "broke", "browse", "bruise", "brutalize", "bubble",
-			"buckle", "budge", "bulge", "bulldoze", "bumble", "bundle", "bungle", "burne", "bustle", "cable", "cage",
-			"cajole", "calculate", "calibrate", "calve", "camouflage", "cannibalize", "capitalize", "capitulate",
-			"captivate", "capture", "care", "caricature", "carve", "cascade", "case", "castigate", "catalogue",
-			"catalyze", "categorize", "cause", "cave", "cease", "cede", "celebrate", "censure", "centralize", "chafe",
-			"challenge", "chance", "change", "characterize", "charge", "chase", "chastise", "chide", "chime", "choke",
-			"choose", "chortle", "chronicle", "chuckle", "circle", "circulate", "cite", "civilize", "cleanse", "clone",
-			"close", "clothe", "coagulate", "coalesce", "cobble", "coddle", "code", "coerce", "coincide", "collaborate",
-			"collapse", "collateralize", "collide", "collude", "colonize", "combine", "come", "commemorate", "commence",
-			"commercialize", "commingle", "commiserate", "commune", "communicate", "communize", "commute", "compare",
-			"compensate", "compete", "compile", "complete", "complicate", "compose", "comprise", "compromise",
-			"compute", "computerize", "concede", "conceive", "concentrate", "conclude", "condense", "condone", "cone",
-			"confide", "confine", "confiscate", "confuse", "congratulate", "congregate", "conjure", "connote",
-			"conserve", "console", "consolidate", "conspire", "constitute", "construe", "consume", "consummate",
-			"contaminate", "contemplate", "continue", "contribute", "contrive", "convene", "converge", "converse",
-			"convince", "convolute", "cooperate", "coordinate", "cope", "correlate", "corroborate", "corrode",
-			"corrugate", "costume", "countenance", "counterbalance", "countersue", "couple", "course", "crackle",
-			"cradle", "crane", "crave", "craze", "create", "cremate", "criminalize", "cringe", "cripple", "criticize",
-			"cruise", "crumble", "crumple", "crusade", "crystallize", "cuddle", "cue", "culminate", "cultivate",
-			"culture", "cure", "curse", "curve", "customize", "cycle", "dabble", "damage", "dance", "dangle", "dare",
-			"date", "dawdle", "daze", "dazzle", "deactivate", "debase", "debate", "debilitate", "decaffeinate",
-			"decease", "deceive", "decelerate", "decentralize", "decide", "decimate", "declare", "decline", "decode",
-			"decompose", "decorate", "decrease", "decree", "dedicate", "deduce", "defame", "define", "deflate",
-			"defuse", "degenerate", "degrade", "dehumanize", "dehydrate", "delegate", "delete", "deliberate",
-			"delineate", "delude", "deluge", "delve", "demilitarize", "demobilize", "democratize", "demonize",
-			"demonstrate", "demoralize", "demote", "denationalize", "denigrate", "denominate", "denote", "denounce",
-			"denuclearize", "denude", "deplete", "deplore", "depose", "depreciate", "deprive", "derange", "deregulate",
-			"deride", "derive", "describe", "desecrate", "desegregate", "deserve", "designate", "desire", "despise",
-			"destabilize", "destine", "deteriorate", "determine", "dethrone", "detonate", "devalue", "devastate",
-			"deviate", "devise", "devote", "diagnose", "dictate", "die", "differentiate", "diffuse", "dilapidate",
-			"dilate", "dilute", "dine", "disable", "disagree", "disapprove", "disassemble", "disassociate",
-			"disbelieve", "disburse", "discharge", "discipline", "disclose", "discontinue", "discourage", "discourse",
-			"discriminate", "disenfranchise", "disengage", "disentangle", "disfigure", "disgorge", "disgrace",
-			"disgruntle", "disguise", "disincline", "disintegrate", "dislike", "dislodge", "dismantle", "disorganize",
-			"disparage", "dispense", "disperse", "displace", "displease", "dispose", "disprove", "dispute",
-			"disseminate", "dissipate", "dissociate", "dissolve", "dissuade", "distance", "distribute", "dive",
-			"diverge", "divide", "divine", "divorce", "divulge", "dodge", "dole", "dominate", "donate", "double",
-			"douse", "downgrade", "downsize", "doze", "dramatize", "drape", "dredge", "dribble", "drive", "drizzle",
-			"dupe", "duplicate", "dwindle", "dye", "ease", "eclipse", "economize", "edge", "editorialize", "educate",
-			"eke", "elaborate", "elapse", "elate", "elevate", "eliminate", "elongate", "elucidate", "elude", "emaciate",
-			"emanate", "emancipate", "emasculate", "embattle", "embezzle", "embrace", "emerge", "emigrate", "empathize",
-			"emphasize", "emulate", "enable", "encase", "encircle", "enclose", "encode", "encourage", "endorse",
-			"endure", "energize", "enforce", "engage", "engrave", "enhance", "enlarge", "enrage", "enrapture",
-			"ensconce", "enshrine", "enslave", "ensnare", "ensue", "ensure", "entangle", "entice", "entitle",
-			"entrance", "entwine", "enumerate", "enunciate", "envisage", "epitomize", "equalize", "equate", "eradicate",
-			"erase", "erode", "escalate", "escape", "espouse", "estimate", "estrange", "evacuate", "evade", "evaluate",
-			"evaporate", "evidence", "evince", "eviscerate", "evoke", "evolve", "exacerbate", "exaggerate", "examine",
-			"exasperate", "excavate", "exchange", "excise", "excite", "exclude", "excommunicate", "excoriate",
-			"excrete", "excuse", "execute", "exercise", "exhale", "exhilarate", "exile", "exonerate", "expedite",
-			"experience", "expire", "explode", "explore", "expose", "expunge", "extenuate", "exterminate", "extradite",
-			"extrapolate", "extricate", "extrude", "exude", "eye", "fabricate", "face", "facilitate", "fade", "fake",
-			"fame", "familiarize", "fantasize", "fare", "fascinate", "fatigue", "faze", "feature", "fence", "fertilize",
-			"fete", "fictionalize", "fiddle", "figure", "file", "finalize", "finance", "fine", "finesse", "fire",
-			"fissure", "fixate", "fizzle", "flagellate", "flame", "flare", "fledge", "flee", "fleece", "fluctuate",
-			"footnote", "forage", "force", "foreclose", "foresee", "forge", "forgive", "formalize", "formulate",
-			"forsake", "fracture", "frame", "franchise", "frazzle", "free", "freeze", "frustrate", "fudge", "fulminate",
-			"fumble", "fume", "fuse", "gage", "galvanize", "gamble", "garble", "gauge", "gaze", "gee", "generalize",
-			"generate", "gentle", "germinate", "gesture", "giggle", "give", "glance", "glare", "glaze", "glide",
-			"glimpse", "glove", "glue", "gobble", "goggle", "google", "gore", "gouge", "grace", "grade", "graduate",
-			"grapple", "grate", "gravitate", "graze", "grease", "grieve", "grimace", "gripe", "grope", "grouse",
-			"grumble", "guarantee", "guide", "gurgle", "guzzle", "gyrate", "haggle", "halogenate", "halve", "handle",
-			"harangue", "harmonize", "hassle", "hate", "have", "he", "headline", "heave", "heckle", "hedge",
-			"hemorrhage", "hesitate", "hibernate", "hide", "hike", "hinge", "hire", "hobble", "hole", "home",
-			"homogenize", "hone", "hope", "hose", "hospitalize", "house", "huddle", "humanize", "humble", "humiliate",
-			"hurdle", "hurtle", "hustle", "hydrolyze", "hype", "hyphenate", "hypnotize", "hypothesize", "idealize",
-			"idle", "idolize", "ignite", "ignore", "illuminate", "illumine", "illustrate", "image", "imagine", "imbibe",
-			"imbue", "imitate", "immerse", "immigrate", "immobilize", "immortalize", "immunize", "impale", "impede",
-			"impinge", "implicate", "implore", "impose", "improve", "improvise", "impute", "inactivate", "inaugurate",
-			"incapacitate", "incarcerate", "incarnate", "incense", "incite", "incline", "include", "incorporate",
-			"increase", "incriminate", "incubate", "indenture", "indicate", "individualize", "indoctrinate", "induce",
-			"indulge", "industrialize", "infiltrate", "inflame", "inflate", "influence", "infringe", "infuriate",
-			"infuse", "ingratiate", "inhale", "initiate", "injure", "innovate", "inoculate", "inquire", "inscribe",
-			"insinuate", "inspire", "instigate", "institute", "institutionalize", "insulate", "insure", "integrate",
-			"intercede", "interface", "interfere", "interlace", "intermingle", "internationalize", "interpolate",
-			"interrelate", "interrogate", "intersperse", "intertwine", "intervene", "interweave", "intimate",
-			"intimidate", "intone", "intrigue", "introduce", "intrude", "inundate", "inure", "invade", "invalidate",
-			"investigate", "invigorate", "invite", "invoke", "involve", "ionize", "irradiate", "irrigate", "irritate",
-			"isolate", "issue", "itemize", "jade", "jeopardize", "jiggle", "jive", "joke", "jostle", "judge", "juggle",
-			"jumble", "juxtapose", "keynote", "kindle", "knuckle", "lace", "lacerate", "lactate", "lade", "lambaste",
-			"laminate", "landscape", "lapse", "largesse", "lease", "leave", "lecture", "legalize", "legislate",
-			"legitimize", "leverage", "liberalize", "liberate", "license", "lie", "like", "line", "lionize",
-			"liquidate", "litigate", "live", "loathe", "localize", "locate", "lodge", "loose", "lope", "lose", "lounge",
-			"love", "lubricate", "lunge", "lure", "magnetize", "make", "malpractice", "manage", "mandate", "mangle",
-			"manhandle", "manicure", "manipulate", "manufacture", "marginalize", "marinate", "masquerade", "massacre",
-			"massage", "mate", "materialize", "mature", "maximize", "measure", "mechanize", "meddle", "mediate",
-			"meditate", "memorialize", "memorize", "menace", "merchandise", "merge", "mesmerize", "message",
-			"metabolize", "mete", "microwave", "migrate", "mince", "mine", "mingle", "miniaturize", "minimize", "mire",
-			"misallocate", "misappropriate", "misbehave", "miscalculate", "mischarge", "misconstrue", "misguide",
-			"mishandle", "misjudge", "mismanage", "misperceive", "misplace", "misprice", "misquote", "misstate",
-			"mistake", "misuse", "mitigate", "mobilize", "moderate", "modernize", "modulate",
-			"monopolize", "moralize", "mortgage", "motivate", "motorize", "mottle", "move", "muddle", "muffle", "mumble", "muscle", "muse", "mutate",
-			"mute", "mutilate", "muzzle", "name", "narrate", "nationalize", "naturalize", "nauseate", "navigate", "necessitate", "needle", "negate",
-			"negotiate", "nestle", "nettle", "neutralize", "nibble", "nickname", "nominate", "normalize", "nose", "nosedive", "note", "notice", "nudge",
-			"nuke", "nurse", "nurture", "obfuscate", "obligate", "oblige", "obliterate", "obscure", "observe", "obtrude", "obviate", "officiate", "ogle",
-			"ooze", "operate", "opine", "oppose", "optimize", "orchestrate", "organize", "originate", "oscillate", "ostracize", "outdate", "outdistance",
-			"outline", "outlive", "outmode", "outpace", "outrage", "outscore", "outshine", "overcharge", "overcome", "overdose", "overemphasize",
-			"overestimate", "overprice", "overproduce", "overrate", "overregulate", "override", "overrule", "oversee", "overstate", "overtake", "overuse",
-			"overvalue", "owe", "pace", "package", "page", "pale", "panelize", "pantomime", "parachute", "parade", "paralyze", "paraphrase", "pare",
-			"parse", "partake", "participate", "paste", "pasteurize", "pasture", "patronize", "pause", "pave", "peddle", "penalize", "penetrate",
-			"perceive", "perfume", "permeate", "perpetrate", "perpetuate", "persecute", "persevere", "personalize", "persuade", "peruse", "pervade",
-			"phase", "phone", "phrase", "picture", "piece", "pierce", "pile", "pillage", "pine", "pipe", "pique", "pirate", "placate", "place",
-			"plagiarize", "plague", "plane", "plate", "please", "pleasure", "pledge", "plunge", "poise", "poke", "polarize", "pole", "police", "politicize",
-			"pollinate", "pollute", "popularize", "populate", "pore", "pose", "postpone", "postulate", "posture", "pounce", "practice", "praise", "prance",
-			"prearrange", "precede", "precipitate", "preclude", "predate", "predicate", "predispose", "predominate", "prefabricate", "preface", "prejudge",
-			"prejudice", "premiere", "prepackage", "prepare", "presage", "prescribe", "preserve", "preside", "pressure", "pressurize", "presume",
-			"presuppose", "price", "pride", "prime", "privatize", "prize", "probe", "procrastinate", "procreate", "procure", "produce", "profile",
-			"proliferate", "promise", "promote", "promulgate", "pronounce", "propagandize", "propagate", "propose", "prorate", "proscribe", "prosecute",
-			"proselytize", "prostitute", "protrude", "prove", "provide", "provoke", "prune", "publicize", "pulsate", "pulse", "pulverize", "punctuate",
-			"puncture", "purchase", "purge", "purse", "pursue", "puzzle", "quadruple", "quake", "quarantine", "queue", "quibble", "quintuple", "quote",
-			"race", "radiate", "radicalize", "rage", "raise", "rake", "ramble", "range", "rankle", "rape", "rate", "rationalize", "rattle", "ravage",
-			"rave", "raze", "reacquire", "reactivate", "realestate", "realize", "reallocate", "reappraise", "rearrange", "reassemble", "reassume",
-			"reassure", "reauthorize", "rebalance", "rebate", "rebuke", "recalculate", "recede", "receive", "recharge", "reciprocate", "recite", "recline",
-			"recognize", "reconcile", "reconstitute", "reconvene", "recreate", "recuperate", "recuse", "recycle", "redecorate", "redefine", "redistribute",
-			"redouble", "reduce", "reemerge", "reexamine", "refile", "refinance", "refine", "reformulate", "refrigerate", "refuse", "refute", "regale",
-			"regenerate", "regulate", "rehabilitate", "rehearse", "reignite", "reimburse", "reimpose", "reincarnate", "reinforce", "reinstate",
-			"reinstitute", "reinsure", "reintegrate", "reintroduce", "reinvigorate", "reiterate", "rejoice", "rejuvenate", "rekindle", "relate", "release",
-			"relegate", "relieve", "relive", "relocate", "remade", "remake", "reminisce", "remove", "rename", "renationalize", "renege", "renegotiate",
-			"renounce", "renovate", "reorganize", "repackage", "repatriate", "rephrase", "replace", "replicate", "reprice", "reproduce", "repudiate",
-			"repulse", "repurchase", "repute", "require", "reroute", "reschedule", "rescue", "resemble", "reserve", "resettle", "reshape", "reshuffle",
-			"reside", "resolve", "resonate", "restage", "restate", "restore", "restructure", "restyle", "resume", "resurface", "resurge", "resuscitate",
-			"retake", "retaliate", "retire", "retrace", "retrieve", "reunite", "reuse", "revalue", "reverberate", "revere", "reverse", "revile", "revise",
-			"revitalize", "revive", "revoke", "revolutionize", "revolve", "rewrite", "rhyme", "riddle", "ride", "ridicule", "riffle", "rile", "rinse",
-			"ripple", "rise", "romance", "romanticize", "rope", "rotate", "rouse", "route", "rove", "rubberize", "ruffle", "rule", "rumble", "ruminate",
-			"rummage", "rupture", "rustle", "sabotage", "sacrifice", "saddle", "salute", "salvage", "salve", "sample", "sanitize", "satirize", "saturate",
-			"saute", "savage", "save", "scale", "scandalize", "scare", "scavenge", "schedule", "scheme", "schmooze", "score", "scramble", "scrape",
-			"scribble", "scrounge", "scrutinize", "sculpture", "scuttle", "secede", "seclude", "secrete", "secure", "seduce", "see", "seethe", "segregate",
-			"seize", "sense", "sensitize", "sentence", "separate", "serenade", "serialize", "serve", "service", "settle", "shackle", "shade", "shake",
-			"shame", "shape", "share", "shave", "shelve", "shine", "shore", "shortchange", "shove", "showcase", "shuffle", "shute", "shuttle", "side",
-			"sideline", "sidle", "silence", "simulate", "single", "situate", "size", "sizzle", "skate", "slate", "slice", "slide", "sluice", "smile",
-			"smoke", "smuggle", "snake", "snare", "sneeze", "snipe", "snooze", "snore", "socialize", "solve", "soothe", "source", "space", "spare",
-			"sparkle", "specialize", "speculate", "spice", "spike", "spite", "splice", "sponge", "sprinkle", "spruce", "squabble", "square", "squeeze",
-			"stabilize", "stage", "stagnate", "stake", "stampede", "standardize", "stare", "startle", "starve", "state", "stave", "stereotype", "sterilize",
-			"stifle", "stimulate", "stipulate", "stockpile", "stoke", "stone", "store", "straddle", "straggle", "strangle", "streamline", "stride",
-			"strike", "strive", "stroke", "structure", "struggle", "stumble", "style", "stylize", "stymie", "subdue", "subjugate", "submerge",
-			"subordinate", "subscribe", "subside", "subsidize", "substantiate", "substitute", "subtitle", "sue", "suffice", "suffocate", "suffuse",
-			"summarize", "superimpose", "supersede", "supervise", "suppose", "surface", "surge", "surmise", "surprise", "survive", "swathe", "swerve",
-			"swindle", "swipe", "symbolize", "sympathize", "synchronize", "syndicate", "synthesize", "table", "tabulate", "tackle", "take", "tame",
-			"tangle", "tantalize", "tape", "taste", "tease", "tee", "telephone", "telescope", "televise", "temporize", "terminate", "terrace", "terrorize",
-			"theme", "theorize", "thieve", "thrive", "throttle", "tickle", "tide", "tie", "tile", "time", "tingle", "tinkle", "tipple", "tiptoe", "tire",
-			"titillate", "title", "toe", "tolerate", "tone", "tongue", "topple", "torture", "tote", "trace", "trade", "traipse", "trample", "transcribe",
-			"transfuse", "translate", "transpire", "transpose", "traumatize", "traverse", "treasure", "treble", "tremble", "trickle", "trifle", "triple",
-			"trivialize", "trouble", "trounce", "trudge", "truncate", "trundle", "tumble", "tune", "tussle", "twine", "twinkle", "type", "unbalance",
-			"underestimate", "underlie", "underline", "undermine", "underrate", "underscore", "understate", "undertake", "underuse", "underutilize",
-			"undervalue", "underwrite", "unhinge", "unionize", "unite", "unnerve", "unscramble", "unsettle", "untie", "update", "upgrade", "upstage",
-			"urbanize", "urge", "use", "utilize", "vacate", "vacillate", "validate", "value", "vandalize", "venerate", "ventilate", "venture", "vibrate",
-			"victimize", "videotape", "vindicate", "violate", "visualize", "voice", "vote", "wade", "waffle", "wage", "waggle", "waive", "wake", "wane",
-			"wangle", "warble", "warehouse", "waste", "wave", "weave", "wedge", "welcome", "were", "wheeze", "while", "whine", "whistle", "whittle",
-			"wholesale", "wiggle", "wince", "wipe", "wire", "wobble", "womanize", "wrangle", "wrestle", "wrinkle", "write", "writhe"
-	};
-	private static final String[] VB_ENDS_IN_DOUBLE = {
-			"access", "add", "address", "agree", "amass", "appall", "assess", "ball", "ballyhoo", "bankroll", "befall", "bill", "bless", "bluff", "boo",
-			"boycott", "bull", "buttress", "buzz", "bypass", "call", "caress", "chill", "class", "compass", "compress", "confess", "crisscross", "cross",
-			"cuff", "cull", "decree", "depress", "digress", "disagree", "discuss", "dismiss", "dispossess", "distill", "distress", "doff", "doo", "dress",
-			"drill", "dull", "dwell", "ebb", "egg", "embarrass", "emboss", "encompass", "engross", "enroll", "express", "fall", "fill", "flee", "foresee",
-			"forestall", "foretell", "free", "fulfill", "fuss", "gall", "gee", "gloss", "grass", "grill", "gross", "guarantee", "guess", "handcuff",
-			"harass", "harness", "huff", "impress", "install", "instill", "kill", "kiss", "loll", "lull", "mass", "mess", "mill", "miss", "misspell",
-			"mothball", "mull", "obsess", "oppress", "outclass", "outguess", "outsell", "overbill", "overfill", "oversee", "pall", "pass", "piss", "poll",
-			"possess", "press", "process", "profess", "progress", "puff", "pull", "purr", "putt", "quell", "reassess", "rebuff", "recall", "recess",
-			"redress", "refill", "regress", "repossess", "repress", "reprocess", "resell", "roll", "scoff", "scuff", "see", "sell", "shampoo", "shell",
-			"shoo", "skill", "smell", "sniff", "snowball", "snuff", "spell", "spill", "staff", "stall", "stiff", "still", "stonewall", "stress", "stroll",
-			"stuff", "suppress", "surpass", "swell", "taboo", "tattoo", "tee", "tell", "thrill", "till", "toll", "toss", "trespass", "truss", "wall",
-			"well", "will", "witness", "woo", "yell"
 	};
 	private static final String CONS = "[bcdfghjklmnpqrstvwxyz]";
 	private static final String ANY_STEM = "^((\\w+)(-\\w+)*)(\\s((\\w+)(-\\w+)*))*$";
@@ -662,6 +491,14 @@ public class Conjugator {
 	}
 
 	public static String unconjugate(String word) {
+		//lazy load
+		if (verbsEndingInE.length < 1) {
+			verbsEndingInE = RiTa.search("e$", opts("limit", 999999, "minLength", 1, "pos", "vb"));
+		}
+
+		if (verbsEndingInDoubles.length < 1) {
+			verbsEndingInDoubles = RiTa.search("([a-z])\\1+$", opts("limit", 999999, "minLength", 1, "pos", "vb"));
+		}
 
 		List<String> irregsInLex = Arrays.asList(IRREG_VERBS_LEX);
 		if (irregsInLex.contains(word) && irregsInLex.indexOf(word) % 2 == 0) {
@@ -670,14 +507,71 @@ public class Conjugator {
 		else if (irregsInLex.contains(word) && irregsInLex.indexOf(word) % 2 == 1) {
 			return word;
 		}
-
-		if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 0 ) {
-			return IRREG_VERBS_NOLEX[Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word)
+		List<String> irregsNoLex = Arrays.asList(IRREG_VERBS_NOLEX);
+		if (irregsNoLex.indexOf(word) > -1 && irregsNoLex.indexOf(word) % 2 == 0 ) {
+			return IRREG_VERBS_NOLEX[irregsNoLex.indexOf(word)
 					+ 1];
-		} else if (Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) > -1 && Arrays.asList(IRREG_VERBS_NOLEX).indexOf(word) % 2 == 1) {
+		} else if (irregsNoLex.indexOf(word) > -1 && irregsNoLex.indexOf(word) % 2 == 1) {
 			return word;
 		}
 
+		// Verb lemmatization rules
+
+		// 1) 3rd person present
+		if (word.endsWith("s")) {
+
+			if (word.endsWith("ies")) {
+				return word.substring(0, word.length() - 3) + "y";
+			}
+			else if (Pattern.compile("[a-z]+(ch|s|sh|x|z|o)es$").matcher(word).matches()) {
+				return word.substring(0, word.length() - 2);
+			}
+			return word.substring(0, word.length() - 1);
+		}
+
+		// 2) past forms
+		else if (word.endsWith("ed")) {
+
+			if (word.endsWith("ied")) {
+				return word.substring(0, word.length() - 3) + "y";
+			}
+			else if (Pattern.compile("[a-z]+([a-z])\\1ed$").matcher(word).matches()) {
+				if (Arrays.asList(verbsEndingInDoubles).contains(word.replaceAll("ed$", ""))) {
+					return word.substring(0, word.length() - 2);
+				}
+				return word.substring(0, word.length() - 3);
+			}
+			else if (word.endsWith("ed")) {
+				if (Arrays.asList(verbsEndingInE).contains(word.replaceAll("d$", ""))) {
+					return word.substring(0, word.length() - 1);
+				}
+				else {
+					return word.substring(0, word.length() - 2);
+				}
+			}
+		}
+
+		// 3) ends with 'ing'
+		else if (word.endsWith("ing")) {
+			if (Pattern.compile("[a-z]+([a-z])\\1ing$").matcher(word).matches()) {
+				if (Arrays.asList(verbsEndingInDoubles).contains(word.replaceAll("ing$", ""))) {
+					return word.substring(0, word.length() - 3);
+				}
+				return word.substring(0, word.length() - 4);
+			}
+			if (word.endsWith("ying")) {
+				if (Arrays.asList(verbsEndingInE).contains(word.replaceAll("ying$", "ie"))) {
+					return word.substring(0, word.length() - 4) + "ie";
+				}
+			}
+			if (Arrays.asList(verbsEndingInE).contains(word.replaceAll("ing$", "e"))) {
+				return word.substring(0, word.length() - 3) + "e";
+			}
+
+			return word.substring(0, word.length() - 3);
+
+		}
+		
 		String[] tags = RiTa.tagger.allTags(word, RiTa.opts("noGuessing", true));
 		boolean notAVerb = tags.length > 0;
 		for (int i = 0; i < tags.length; i++) {
@@ -689,63 +583,7 @@ public class Conjugator {
 				break;
 			}
 		}
-
-		if (notAVerb) return null;
-
-		// Verb lemmatization rules
-
-		// 1) 3rd person present
-		if (word.endsWith("ies")) {
-			return word.replaceAll("ies$", "y");
-		}
-		else if (word.endsWith("ches") || word.endsWith("ses") || word.endsWith("shes")
-				|| word.endsWith("xes") || word.endsWith("zes") || word.endsWith("oes")) {
-			return word.replaceAll("es$", "");
-		}
-		else if (word.endsWith("s")) {
-			return word.replaceAll("s$", "");
-		}
-
-		// 2) past forms
-		else if (word.endsWith("ied")) {
-			return word.replaceAll("ied$", "y");
-		}
-		else if (word.endsWith("ed") && word.charAt(word.length() - 3) == word.charAt(word.length() - 4)) {
-			if (Arrays.asList(VB_ENDS_IN_DOUBLE).contains(word.replaceAll("ed$", ""))) {
-				return word.replaceAll("ed$", "");
-			}
-			return word.replaceAll("[a-z]ed$", "");
-		}
-		else if (word.endsWith("ed")) {
-			if (Arrays.asList(VB_ENDS_IN_E).contains(word.replaceAll("d$", ""))) {
-				return word.replaceAll("d$", "");
-			}
-			else {
-				return word.replaceAll("ed$", "");
-			}
-		}
-
-		// 3) ends with 'ing'
-		else if (word.endsWith("ing") && word.charAt(word.length() - 4) == word.charAt(word.length() - 5)) {
-			if (Arrays.asList(VB_ENDS_IN_DOUBLE).contains(word.replaceAll("ing$", ""))) {
-				return word.replaceAll("ing$", "");
-			}
-			return word.replaceAll("[a-z]ing$", "");
-		}
-		else if (word.endsWith("ying")) {
-			if (Arrays.asList(VB_ENDS_IN_E).contains(word.replaceAll("ying$", "ie"))) {
-				return word.replaceAll("ying$", "ie");
-			}
-		}
-		else if (word.endsWith("ing")) {
-			if (Arrays.asList(VB_ENDS_IN_E).contains(word.replaceAll("ing$", "e"))) {
-				return word.replaceAll("ing$", "e");
-			}
-			else {
-				return word.replaceAll("ing$", "");
-			}
-		}
-
+		if (notAVerb) return word;
 		return word;
 	}
 
