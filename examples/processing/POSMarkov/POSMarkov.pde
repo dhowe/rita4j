@@ -3,7 +3,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 
-Markov markov;
+RiMarkov markov;
 Map<String, List<String>> dictionary = new HashMap <String, List<String>>();
 
 String[] files = { "wittgenstein.txt", "kafka.txt" };
@@ -20,7 +20,7 @@ void setup()
   fill(0);
 
   // create a markov model from file[0]
-  markov = new Markov(4);
+  markov = RiTa.markov(4);
   markov.addText(join(loadStrings(files[0]), ""));
 
   // load the vocabulary from file[1]
@@ -61,7 +61,7 @@ String[] linesInPos(String[] lines) {
       linesInPos[i] += posTags[j]+" ";
   }
   return linesInPos;
-}//end of linesInPos
+}
 
 String[] PosToText(String[] originalLines, String[] linesInPos, Map<String, List<String>> dictionary) {
 
@@ -94,11 +94,11 @@ String[] PosToText(String[] originalLines, String[] linesInPos, Map<String, List
         lines[i] += Poss[j];
         spCH++;
       }
-    }//end of j loop
-  }//end of i loop
+    }
+  }
 
   return lines;
-}//end of PosToText
+}
 
 
 Map generateDictionary(String[] lines) {
@@ -106,6 +106,7 @@ Map generateDictionary(String[] lines) {
   Map<String, List<String>> dictionary = new HashMap <String, List<String>>();
 
   for (int i = 0; i < lines.length; i++) {
+    
     String line = lines[i].replaceAll("[^a-zA-Z ]", "");
     line = line.replaceAll("([A-Z])", "").toLowerCase();
     String[] words = split(line, ' ');
@@ -114,7 +115,7 @@ Map generateDictionary(String[] lines) {
       String[] posTags;
       try {
         posTags = RiTa.pos(words[j]);
-      } catch (NullPointerException e) {
+      } catch (Exception e) {
         posTags = new String[0];
       }
       if (posTags.length > 0 && posTags[0].matches("[a-zA-Z\u0024]++")) {
@@ -129,4 +130,4 @@ Map generateDictionary(String[] lines) {
   }
 
   return dictionary;
-}//end of generateDictionarys
+}

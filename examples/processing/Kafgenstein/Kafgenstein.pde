@@ -1,8 +1,8 @@
 import rita.*;
 
-String line = "click to (re)generate!";
+String line = "click to (re)generate";
 int x = 160, y = 240;
-Markov markov;
+RiMarkov markov;
 
 void setup()
 {

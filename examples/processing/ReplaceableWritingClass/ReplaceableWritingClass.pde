@@ -84,7 +84,7 @@ Word[] createWords(String txt, float tx, float ty, float tw, float lead) {
   words[0] = new Word(strs[0], tx, ty);
   for (int i = 1; i < strs.length; i++) {
     float x = words[i-1].x + textWidth(strs[i-1]);
-    if (!RiTa.isPunctuation(strs[i])) x+= spcw;
+    if (!RiTa.isPunct(strs[i])) x+= spcw;
     float y = words[i-1].y;
     if (i < words.length -1) {
       float nw = textWidth(strs[i]);

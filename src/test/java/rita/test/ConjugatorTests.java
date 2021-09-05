@@ -13,6 +13,8 @@ public class ConjugatorTests {
 
 	@Test
 	public void callPastPart() {
+		eq(RiTa.pastPart("pen"), "penned"); // rita #150
+		 
 		eq(RiTa.pastPart("sleep"), "slept");
 		eq(RiTa.pastPart("withhold"), "withheld");
 

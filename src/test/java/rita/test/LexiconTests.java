@@ -1284,13 +1284,14 @@ public class LexiconTests {
 		result = RiTa.soundsLike("happy", opts("minDistance", 2));
 		assertTrue(result.length > answer.length); // more
 
-		/*
+		/*  ????  SYNC
 		result = RiTa.soundsLike("cat");
 		answer = new String[] { "bat", "cab", "cache", "calf", "calve", "can",
 				"can't", "cap", "capped", "cash", "cashed", "cast", "caste", "catch",
 				"catty", "caught", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
 				"kite", "mat", "matt", "matte", "pat", "rat", "sat", "tat", "that", "vat" };
-		eql(result, answer);*/
+		eql(result, answer);
+		*/
 
 		result = RiTa.soundsLike("cat", opts("limit", 5));
 		answer = new String[] { "bat", "cab", "cache", "calf", "calve" };
@@ -1298,7 +1299,7 @@ public class LexiconTests {
 
 		result = RiTa.soundsLike("cat", opts("minLength", 2, "maxLength", 4, "limit", 50));
 		answer = new String[] { "bat", "cab", "calf", "can", "cant", "cap", "cash", "cast", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
-				"kite", "mat", "matt", "pat", "rat", "sat", "tat", "that", "vat" };
+				"kite", "mat", "matt", "pat", "rat", "sat", "that", "vat" };
 		eql(result, answer);
 
 		result = RiTa.soundsLike("cat", opts(

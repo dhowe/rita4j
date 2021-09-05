@@ -1,6 +1,6 @@
 import rita.*;
 
-Grammar grammar;
+RiGrammar grammar;
 String[] lines = {"click to", "generate", "a haiku"};
 
 void setup()
