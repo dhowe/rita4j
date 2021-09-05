@@ -930,15 +930,24 @@ public class Conjugator {
 
 		// ends with ed?
 		if (w.endsWith("ed")) {
+			
 			String[] pos = lex.posArr(w.substring(0, w.length() - 1)); // created
-			if (pos == null || pos.length == 0) pos = lex.posArr(w.substring(0, w.length() - 2)); // played
-			if ((pos == null || pos.length == 0) && w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
-				pos = lex.posArr(w.substring(0, w.length() - 3)); // hopped
+			
+			if (pos == null || pos.length == 0) {
+				
+				pos = lex.posArr(w.substring(0, w.length() - 2)); // played
+				
+				if (w.length() > 3 && w.charAt(w.length() - 3) == w.charAt(w.length() - 4)) {
+					pos = lex.posArr(w.substring(0, w.length() - 3)); // hopped
+				}
+				
+				if (w.endsWith("ied")) {
+					pos = lex.posArr(w.substring(0, w.length() - 3) + "y"); // cried
+				}
 			}
-			if ((pos == null || pos.length == 0) && w.endsWith("ied")) {
-				pos = lex.posArr(w.substring(0, w.length() - 3) + "y"); // cried
+			if (Arrays.asList(pos).contains("vb")) {
+				return true;
 			}
-			if (pos != null && Arrays.asList(pos).contains("vb")) return true;
 		}
 
 		// ends with en?
