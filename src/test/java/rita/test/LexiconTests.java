@@ -1298,7 +1298,7 @@ public class LexiconTests {
 		eql(result, answer);
 
 		result = RiTa.soundsLike("cat", opts("minLength", 2, "maxLength", 4, "limit", 50));
-		answer = new String[] { "bat", "cab", "calf", "can", "cant", "cap", "cash", "cast", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
+		answer = new String[] { "bat", "cab", "calf", "can", "cap", "cash", "cast", "chat", "coat", "cot", "curt", "cut", "fat", "hat", "kit",
 				"kite", "mat", "matt", "pat", "rat", "sat", "that", "vat" };
 		eql(result, answer);
 

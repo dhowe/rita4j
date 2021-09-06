@@ -9,6 +9,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	public static final String[] ADV = { "rb", "rbr", "rbs", "rp" };
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
+	public static final String[] EX_BE = { "is", "are", "was", "were", "isn't", "aren't", "wasn't", "weren't" };
 
 	////////////////////////////////////////////////////////////////////////
 
@@ -341,6 +342,35 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				if (i > 0 && results[i - 1].matches("^(nns|nnps|prp)$")) {
 					tag = "vbp";
 					if (dbug) logCustom("13", word, tag);
+				}
+			}
+			
+			// issue#83 sequential adjectives(jc): (?:dt)? (?:jj)* (nn) (?:jj)* nn 
+      		// && $1 can be tagged as jj-> $1 convert to jj (e.g a light blue sky)
+			if (tag.equals("nn") && i < results.length - 1
+					&& Arrays.asList(Arrays.copyOfRange(result, 0, i + 1)).contains("nn")) {
+				int idx = Arrays.asList(Arrays.copyOfRange(result, 0, i + 1)).indexOf("nn");
+				boolean allJJ = true;
+				for (int k = 0; k < idx; k++) {
+					if (!result[i + 1 + k].equals("jj")) {
+						allJJ = false;
+						break;
+					}
+				}
+				if (allJJ && Arrays.asList(allTags(word)).contains("jj")) {
+					tag = "jj";
+				}
+			}
+
+      		// https://github.com/dhowe/rita/issues/148 
+			// "there"
+			  
+			if (word.toLowerCase().equals("there")) {
+				if (i < words.length - 1 && words[i + 1].length() > 0 && Arrays.asList(EX_BE).contains(words[i + 1])) {
+					tag = "ex";
+				}
+				if (i > 0 && results[i - 1].equals("in")) {
+					tag = "nn";
 				}
 			}
 
