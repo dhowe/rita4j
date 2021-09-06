@@ -650,7 +650,7 @@ public class Lexicon {
 	public String posData(String word) {
 		String[] rdata = lookupRaw(word);
 		return (rdata != null && rdata.length == 2)
-				? rdata[1].replaceAll("'", "").replaceAll("\\]", "")
+				? rdata[1].replaceAll("\\]", "")
 				: null;
 	}
 
@@ -697,7 +697,7 @@ public class Lexicon {
 
 		for (int i = 1; i < lines.size() - 1; i++) // ignore JS prefix/suffix
 		{
-			String line = lines.get(i).replaceAll("[\"'\\[\\]]", "");
+			String line = lines.get(i).replaceAll("[\"\\[\\]]", "");
 			String[] parts = line.split(DELIM);
 			if (parts == null || parts.length != 2) {
 				throw new RiTaException("Illegal entry: " + line);
