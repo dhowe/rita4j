@@ -222,18 +222,27 @@ public class TaggerTests {
 			arrayEq(RiTa.pos(checks[i]), new String[] { "nn" });
 		}
 
+		//sequential adjectives
+		arrayEq(RiTa.pos("a light blue sky"), new String[] { "dt", "jj", "jj", "nn" });
+
 		// vbg will not be wrongly tagged as nn
-		arrayEq(RiTa.pos("He is running toward me"), new String[] {"prp", "vbz", "vbg", "in", "prp"});
-		arrayEq(RiTa.pos("She is riding a bike"), new String[] {"prp", "vbz", "vbg", "dt", "nn"});
-		arrayEq(RiTa.pos("he stands still, thinking about the words"), new String[] {"prp", "vbz", "rb", ",", "vbg", "in", "dt", "nns"});
-		arrayEq(RiTa.pos("She walked out of the room smoking"),new String[]{"prp", "vbd", "in", "in", "dt", "nn", "vbg"});
-		arrayEq(RiTa.pos("He kept saying his adventure story"),new String[]{"prp", "vbd", "vbg", "prp$", "nn", "nn"});
-		arrayEq(RiTa.pos("Drinking is his hobby"), new String[]{"vbg", "vbz", "prp$", "nn"});
-		arrayEq(RiTa.pos("The kid playing at the corner is the boss"), new String[] {"dt", "nn", "vbg", "in", "dt", "nn", "vbz", "dt", "nn"});
-		arrayEq(RiTa.pos("She is the leader of the reading group"), new String[] {"prp", "vbz", "dt", "nn", "in", "dt", "vbg", "nn"});
-		arrayEq(RiTa.pos("I love working"), new String[]{"prp", "vbp", "vbg"});
-		arrayEq(RiTa.pos("I was thinking about buying a car"), new String[] { "prp", "vbd", "vbg", "in", "vbg", "dt", "nn" });
-		
+		arrayEq(RiTa.pos("He is running toward me"), new String[] { "prp", "vbz", "vbg", "in", "prp" });
+		arrayEq(RiTa.pos("She is riding a bike"), new String[] { "prp", "vbz", "vbg", "dt", "nn" });
+		arrayEq(RiTa.pos("he stands still, thinking about the words"),
+				new String[] { "prp", "vbz", "rb", ",", "vbg", "in", "dt", "nns" });
+		arrayEq(RiTa.pos("She walked out of the room smoking"),
+				new String[] { "prp", "vbd", "in", "in", "dt", "nn", "vbg" });
+		arrayEq(RiTa.pos("He kept saying his adventure story"),
+				new String[] { "prp", "vbd", "vbg", "prp$", "nn", "nn" });
+		arrayEq(RiTa.pos("Drinking is his hobby"), new String[] { "vbg", "vbz", "prp$", "nn" });
+		arrayEq(RiTa.pos("The kid playing at the corner is the boss"),
+				new String[] { "dt", "nn", "vbg", "in", "dt", "nn", "vbz", "dt", "nn" });
+		arrayEq(RiTa.pos("She is the leader of the reading group"),
+				new String[] { "prp", "vbz", "dt", "nn", "in", "dt", "vbg", "nn" });
+		arrayEq(RiTa.pos("I love working"), new String[] { "prp", "vbp", "vbg" });
+		arrayEq(RiTa.pos("I was thinking about buying a car"),
+				new String[] { "prp", "vbd", "vbg", "in", "vbg", "dt", "nn" });
+
 		// js#179
 		arrayEq(RiTa.pos("lancer"), new String[] { "nn" });
 		arrayEq(RiTa.pos("dancer"), new String[] { "nn" });
@@ -243,6 +252,18 @@ public class TaggerTests {
 		arrayEq(RiTa.pos("He is a dancer"), new String[] { "prp", "vbz", "dt", "nn" });
 		arrayEq(RiTa.pos("She is a body builder"), new String[] { "prp", "vbz", "dt", "nn", "nn" });
 		arrayEq(RiTa.pos("I am a programmer"), new String[] { "prp", "vbp", "dt", "nn" });
+
+		// rita#148
+		arrayEq(RiTa.pos("I have gone alone in there"), new String[] { "prp", "vbp", "vbn", "rb", "in", "nn" });
+		arrayEq(RiTa.pos("We stopped and went on from there"),
+				new String[] { "prp", "vbd", "cc", "vbd", "in", "in", "nn" });
+		arrayEq(RiTa.pos("She lives there"), new String[] { "prp", "vbz", "rb" });
+		arrayEq(RiTa.pos("He was standing there"), new String[] { "prp", "vbd", "vbg", "rb" });
+		arrayEq(RiTa.pos("There are good reasons to save the world"),
+				new String[] { "ex", "vbp", "jj", "nns", "to", "vb", "dt", "nn" });
+		arrayEq(RiTa.pos("There is a pig"), new String[] { "ex", "vbz", "dt", "nn" });
+		arrayEq(RiTa.pos("There isn't a world that is worth saving"),
+				new String[] { "ex", "vbz", "dt", "nn", "in", "vbz", "jj", "vbg" });
 	}
 
 	@Test
