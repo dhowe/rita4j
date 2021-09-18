@@ -28,7 +28,7 @@ public class RiTaTests {
 
 	@Test
 	public void accessStaticConstantAndFunction() {
-		assertEquals("2", RiTa.VERSION);
+		assertEquals("2.4", RiTa.VERSION);
 		assertTrue(RiTa.hasWord("dog"));
 	}
 

@@ -13,7 +13,8 @@ public class RiTa {
 	public static Map<String, Function<String, String>> addTransform(String name, Function<String, String> func) {
 		if (func != null) {
 			RiScript.transforms.put(name, func);
-		} else {
+		}
+		else {
 			RiScript.transforms.remove(name);
 		}
 		return RiScript.transforms;
@@ -62,8 +63,8 @@ public class RiTa {
 	public static boolean hasWord(String word) {
 		return hasWord(word, null);
 	}
-	
-	public static boolean hasWord(String word,  Map<String, Object> opts) {
+
+	public static boolean hasWord(String word, Map<String, Object> opts) {
 		return lexicon().hasWord(word, opts);
 	}
 
@@ -76,10 +77,13 @@ public class RiTa {
 	}
 
 	public static boolean isAbbrev(String input, boolean ignoreCase) {
-		if (input == null || input.length() == 0)
+		if (input == null || input.length() == 0) {
 			return false;
-		if (ignoreCase)
-			input = input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
+		}
+		if (ignoreCase) {
+			input = input.substring(0, 1).toUpperCase()
+					+ input.substring(1).toLowerCase();
+		}
 		return Arrays.stream(ABRV).anyMatch(input::equals);
 	}
 
@@ -157,14 +161,12 @@ public class RiTa {
 	}
 
 	public static String[] kwic(String word, int numWords) {
-		if (concorder == null)
-			concorder = new Concorder();
+		if (concorder == null) concorder = new Concorder();
 		return concorder.kwic(word, numWords);
 	}
 
 	public static String[] kwic(String word, Map<String, Object> opts) {
-		if (concorder == null)
-			concorder = new Concorder();
+		if (concorder == null) concorder = new Concorder();
 		return concorder.kwic(word, opts);
 	}
 
@@ -243,7 +245,7 @@ public class RiTa {
 	public static String randomWord(Map<String, Object> opts) {
 		return lexicon().randomWord(opts);
 	}
-	
+
 	public static String randomWord(String pattern) {
 		return lexicon().randomWord(pattern);
 	}
@@ -251,18 +253,14 @@ public class RiTa {
 	public static String randomWord(String pattern, Map<String, Object> opts) {
 		return lexicon().randomWord(pattern, opts);
 	}
-	
+
 	public static String randomWord(Pattern pattern) {
 		return lexicon().randomWord(pattern, null);
 	}
-	
+
 	public static String randomWord(Pattern pattern, Map<String, Object> opts) {
 		return lexicon().randomWord(pattern, opts);
 	}
-
-//	public static String randomWord(int syllables) {
-//		return randomWord(opts("numSyllables", syllables));
-//	}
 
 	public static String randomWord(String pos, int syllables) {
 		return randomWord(opts("pos", pos, "numSyllables", syllables));
@@ -339,7 +337,7 @@ public class RiTa {
 	public static String[] search(String regex) {
 		return search(regex, null);
 	}
-	
+
 	public static String[] search(Map<String, Object> opts) {
 		return lexicon().search((String) null, opts);
 	}
@@ -412,21 +410,6 @@ public class RiTa {
 		return Tokenizer.untokenize(words, delim);
 	}
 
-	// public static String[] words() {
-	// 	return words((Pattern) null);
-	// }
-
-	// public static String[] words(Map<String, Object> opts) {
-	// 	return words(Util.strOpt("pattern", opts));
-	// }
-
-	// public static String[] words(String regex) {
-	// 	return words(Pattern.compile(regex));
-	// }
-
-	// public static String[] words(Pattern regex) {
-	// 	return lexicon().words(regex);
-	// }
 	// deprecated
 	public static RiScript scripting() {
 		return new RiScript();
@@ -475,7 +458,8 @@ public class RiTa {
 	}
 
 	public static String capitalize(String s) {
-		return s == null || s.length() == 0 ? "" : String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
+		return s == null || s.length() == 0 ? ""
+				: String.valueOf(s.charAt(0)).toUpperCase() + s.substring(1);
 	}
 
 	public static Lexicon lexicon() { // singleton
@@ -483,8 +467,8 @@ public class RiTa {
 			try {
 				_lexicon = new Lexicon(DICT_PATH);
 			} catch (Exception e) {
-				throw new RiTaException("Cannot load dictionary at " + DICT_PATH + " " + System.getProperty("user.dir"),
-						e);
+				throw new RiTaException("Cannot load dictionary at "
+						+ DICT_PATH + " " + System.getProperty("user.dir"), e);
 			}
 		}
 		return _lexicon;
@@ -514,28 +498,26 @@ public class RiTa {
 	public static final int NORMAL = 9;
 	public static final int INFINITIVE = 1;
 	public static final int GERUND = 2;
-	//	public static final int IMPERATIVE = 3;
-	//	public static final int BARE_INFINITIVE = 4;
-	//	public static final int SUBJUNCTIVE = 5;
 
 	public static final char STRESS = '1', NOSTRESS = '0';
 	public static final String VOWELS = "aeiou";
-	public static final String VERSION = "2";
+	public static final String VERSION = "2.4";//__VERSION__
 
 	public static final Pattern ONLY_PUNCT = Pattern.compile("^[\\p{Punct}|\ufffd]*$");
 	public static final Pattern IS_LETTER = Pattern.compile("^[a-z\u00C0-\u00ff]+$");
 	public /*tmp,for testing*/ static final String DYN = "$$";
 	static final String LP = "(", RP = ")", BN = "\n";
 	static final String DOT = ".", SYM = "$", EQ = "=", EOF = "<EOF>";
-	//static final String VSYM = "[" + SYM + DYN + "]\\w+", FUNC = LP + RP;
 	static final String VSYM = "\\${1,2}\\w+", FUNC = LP + RP;
 
 	public static String[] ABRV = { "Adm.", "Capt.", "Cmdr.", "Col.", "Dr.", "Gen.", "Gov.", "Lt.", "Maj.", "Messrs.",
 			"Mr.", "Mrs.", "Ms.", "Prof.", "Rep.", "Reps.", "Rev.", "Sen.", "Sens.", "Sgt.", "Sr.", "St.", "A.k.a.",
 			"C.f.", "I.e.", "E.g.", "Vs.", "V.", "Jan.", "Feb.", "Mar.", "Apr.", "Mar.", "Jun.", "Jul.", "Aug.",
 			"Sept.", "Oct.", "Nov.", "Dec." };
+
 	public static String[] QUESTIONS = { "was", "what", "when", "where", "which", "why", "who", "will", "would", "who",
 			"how", "if", "is", "could", "might", "does", "are", "have" };
+
 	public static String[] STOP_WORDS = { "and", "a", "of", "in", "i", "you", "is", "to", "that", "it", "for", "on",
 			"have", "with", "this", "be", "not", "are", "as", "was", "but", "or", "from", "my", "at", "if", "they",
 			"your", "all", "he", "by", "one", "me", "what", "so", "can", "will", "do", "an", "about", "we", "just",
