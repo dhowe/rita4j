@@ -1858,6 +1858,17 @@ public class RiScriptTests {
 	}
 
 	@Test
+	public void supportSingleNorepeatChoices_SEQUENCES() {// FIX FOR rita#157
+		int count = 5;
+		Pattern regex = Pattern.compile("^a[ bdcae]+e$");
+		for (int i = 0; i < count; i++) {
+			String res = RiTa.evaluate("$b $b.nr", RiTa.opts("$$b","(a (b | c | d) e).nr"));
+			//System.out.println(i+") '"+res+"'");
+			assertTrue(regex.matcher(res).find());
+		}
+  }
+  
+	@Test
 	public void supportNorepeatInlineTransforms_SEQUENCES() {
 		int count = 5;
 		boolean fail = false;
