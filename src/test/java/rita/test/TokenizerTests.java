@@ -131,7 +131,7 @@ public class TokenizerTests {
 		arrayEq(output, expected);
 
 		input = "123 123 1 2 3 1,1 1.1 23.45.67 22/05/2012 12th May,2012";
-		expected = new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1", ".", "1", "23", ".", "45", ".", "67",
+		expected = new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1.1", "23.45", ".", "67",
 				"22/05/2012", "12th", "May", ",", "2012" };
 		output = RiTa.tokenize(input);
 		arrayEq(output, expected);
@@ -497,6 +497,30 @@ public class TokenizerTests {
 	  	for (int i = 0; i < inputs.length; i++) {
 		  	eq(RiTa.untokenize(inputs[i]), outputs[i]);
 	  	}
+	}
+
+	@Test
+	public void handleDecimalNumbers() {
+		// tokenize
+		arrayEq(RiTa.tokenize("27.3"), new String[] { "27.3" });
+		arrayEq(RiTa.tokenize("-27.3"), new String[] { "-27.3" });
+		arrayEq(RiTa.tokenize("1.9e10"), new String[] { "1.9e10" });
+		arrayEq(RiTa.tokenize("200,000.51"), new String[] { "200,000.51" });
+		arrayEq(RiTa.tokenize("-200,000.51"), new String[] { "-200,000.51" });
+		arrayEq(RiTa.tokenize("His score was 91.2"), new String[] { "His", "score", "was", "91.2" });
+		arrayEq(RiTa.tokenize("He owed 200,000 dollars."), new String[] { "He", "owed", "200,000", "dollars", "." });
+		arrayEq(RiTa.tokenize("He owed 200,000."), new String[] { "He", "owed", "200,000", "." });
+		arrayEq(RiTa.tokenize("He owed 200,000.50."), new String[] { "He", "owed", "200,000.50", "." });
+		// untokenize
+		assertEquals("27.3", RiTa.untokenize(new String[] { "27.3" }));
+		assertEquals("-27.3", RiTa.untokenize(new String[] { "-27.3" }));
+		assertEquals("1.9e10", RiTa.untokenize(new String[] { "1.9e10" }));
+		assertEquals("200,000.51", RiTa.untokenize(new String[] { "200,000.51" }));
+		assertEquals("-200,000.51", RiTa.untokenize(new String[] { "-200,000.51" }));
+		assertEquals("His score was 91.2", RiTa.untokenize( new String[] { "His", "score", "was", "91.2" }));
+		assertEquals("He owed 200,000 dollars.", RiTa.untokenize( new String[] { "He", "owed", "200,000", "dollars", "." }));
+		assertEquals("He owed 200,000.", RiTa.untokenize( new String[] { "He", "owed", "200,000", "." }));
+		assertEquals("He owed 200,000.50.",RiTa.untokenize( new String[] { "He", "owed", "200,000.50", "." }));
 	}
 
 	@Test

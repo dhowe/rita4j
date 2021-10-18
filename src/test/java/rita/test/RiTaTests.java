@@ -393,7 +393,7 @@ public class RiTaTests {
 				new String[] { "\"", "Oh", "God", ",", "\"", "he", "thought", "." },
 				new String[] { "The", "boy", ",", "dressed", "in", "red", ",", "ate", "an", "apple", "." },
 				new String[] { "why", "?", "Me", "?", "huh", "?", "!" },
-				new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1", ".", "1", "23", ".", "45", ".", "67", "22/05/2012", "12th", "May",
+				new String[] { "123", "123", "1", "2", "3", "1", ",", "1", "1.1", "23.45", ".", "67", "22/05/2012", "12th", "May",
 						",", "2012" },
 				new String[] { "The", "boy", "screamed", ",", "\"", "Where", "is", "my", "apple", "?", "\"" },
 				new String[] { "The", "boy", "screamed", ",", "\u201C", "Where", "is", "my", "apple", "?", "\u201D" },
