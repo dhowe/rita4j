@@ -356,6 +356,9 @@ public class Tokenizer {
 			Pattern.compile("([Cc])([Oo])([Rr]?)([Pp]?)[\\.]"),//co. and Corp.
 			Pattern.compile("([Ll])([Tt])([Dd])[\\.]"), //ltd.
 			Pattern.compile("(Prof|PROF|prof)[\\.]"), //Prof.
+			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)"), //(-)27.3
+			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)e([\\-]?[0-9]+)"), //(-)1.2e10
+			Pattern.compile("([0-9]{3}),([0-9]{3})"), // large numbers like 200,200
 			//---------------------------------------------------------------
 			Pattern.compile("\\.{3}"),
 			Pattern.compile("([\\?\\!\\\"\\u201C\\\\.,;:@#$%&])"),
@@ -416,6 +419,9 @@ public class Tokenizer {
 			Pattern.compile("_([Cc])([Oo])([Rr]?)([Pp]?)_"),//Co. and Corp.
 			Pattern.compile("_([Ll])([Tt])([Dd])_"), // ltd.
 			Pattern.compile("_(Prof|PROF|prof)_"),//Prof.
+			Pattern.compile("([\\-]?[0-9]+)DECIMALDOT([0-9]+)_"), //(-)27.3
+			Pattern.compile("_([\\-][0-9]+)DECIMALDOT([0-9]+)POWERE([\\-]?[0-9]+)_"), //(-)1.2e10
+			Pattern.compile("_DECIMALCOMMA_"), // large numbers like 200,000
 	};
 
 	private static final String DELIM = "___";
@@ -443,6 +449,9 @@ public class Tokenizer {
 			"_$1$2$3$4_",
 			"_$1$2$3_",
 			"_$1_",
+			"$1DECIMALDOT$2_",
+			"_$1DECIMALDOT$2POWERE$3_",
+			"$1_DECIMALCOMMA_$2",
 			"_elipsisDDD_",
 			" $1 ",
 			" ",
@@ -501,6 +510,9 @@ public class Tokenizer {
 			"$1$2$3$4.",// Co. and Corp.
 			"$1$2$3.",// ltd.
 			"$1.", // Prof.
+			"$1.$2", // (-)27.3
+			"$1.$2e$3", // (-)1.2e10
+			",", // 200,000
 	};
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");
