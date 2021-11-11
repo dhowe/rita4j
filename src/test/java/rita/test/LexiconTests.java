@@ -18,6 +18,21 @@ public class LexiconTests {
 	}
 
 	@Test
+	public void callModifyLexicon() { // SYNC:
+		assertTrue(RiTa.hasWord("abandon"));
+		Map<String, String[]> dict = RiTa.lexicon().dict;
+
+		dict.remove("abandon");
+		assertTrue(!RiTa.hasWord("abandon"));
+		
+		dict.put("aband", new String[]{ "ah b-ae1-n-d", "nn" });
+		assertTrue(RiTa.hasWord("aband"));
+		
+		dict.remove("aband"); // reset
+		dict.put("aband", new String[]{ "ah b-ae1-n d-ah-n", "vb vbp"});
+	}
+	
+	@Test
 	public void callHasWord() {
 		assertTrue(RiTa.hasWord("random"));
 		assertTrue(RiTa.hasWord("dog"));
