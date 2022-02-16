@@ -66,6 +66,7 @@ public class Tokenizer {
 		boolean thisNBPunct, lastNBPunct, lastNAPunct, thisQuote;
 		boolean lastQuote, thisComma, isLast, lastComma, lastEndWithS;
 		boolean nextIsS, thisLBracket, thisRBracket, lastLBracket;
+		boolean thisLineBreak;
 		boolean lastRBracket, lastIsWWW, thisDomin, withinQuote = false;
 		boolean afterQuote = false, midSentence = false, nextNoSpace = false;
 
@@ -80,15 +81,15 @@ public class Tokenizer {
 			if (arr[i] == null) continue;
 
 			thisComma = arr[i].equals(",");
-			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches() || UNTOKENIZE_HTMLTAG_RE[2].matcher(arr[i]).matches();
+			thisNBPunct = NB_PUNCT.matcher(arr[i]).matches() || UNTOKENIZE_HTMLTAG_RE[2].matcher(arr[i]).matches() || LINEBREAKS_RE.matcher(arr[i]).matches();
 			//thisNAPunct = NA_PUNCT.matcher(arr[i]).matches();
 			thisQuote = QUOTES.matcher(arr[i]).matches();
 			thisLBracket = LBRACKS.matcher(arr[i]).matches();
 			thisRBracket = RBRACKS.matcher(arr[i]).matches();
 			thisDomin = DOMIN.matcher(arr[i]).matches();
 			lastComma = arr[i - 1].equals(",");
-			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches();
-			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches() || UNTOKENIZE_HTMLTAG_RE[1].matcher(arr[i - 1]).matches();
+			lastNBPunct = NB_PUNCT.matcher(arr[i - 1]).matches() || LINEBREAKS_RE.matcher(arr[i - 1]).matches();
+			lastNAPunct = NA_PUNCT.matcher(arr[i - 1]).matches() || UNTOKENIZE_HTMLTAG_RE[1].matcher(arr[i - 1]).matches() || LINEBREAKS_RE.matcher(arr[i - 1]).matches();
 			lastQuote = QUOTES.matcher(arr[i - 1]).matches();
 			lastLBracket = LBRACKS.matcher(arr[i - 1]).matches();
 			lastRBracket = RBRACKS.matcher(arr[i - 1]).matches();
@@ -97,6 +98,7 @@ public class Tokenizer {
 			lastIsWWW = WWW.matcher(arr[i - 1]).matches();
 			nextIsS = i == arr.length - 1 ? false : (arr[i + 1].equals("s") || arr[i + 1].equals("S"));
 			isLast = (i == arr.length - 1);
+			thisLineBreak = LINEBREAKS_RE.matcher(arr[i]).matches();
 
 			if ((arr[i - 1].equals(".") && thisDomin) || nextNoSpace) {
 				nextNoSpace = false;
@@ -143,7 +145,7 @@ public class Tokenizer {
 				midSentence = false;
 			}
 			else if ((!thisNBPunct && !lastQuote && !lastNAPunct && !lastLBracket && !thisRBracket)
-					|| (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket)) {
+					|| (!isLast && thisNBPunct && lastNBPunct && !lastNAPunct && !lastQuote && !lastLBracket && !thisRBracket && !thisLineBreak)) {
 				result += delim;
 			}
 
@@ -190,7 +192,7 @@ public class Tokenizer {
 		}
 
 		words = words.trim();
-		String[] result = words.split("\\s+");
+		String[] result = words.split(" +");
 		ArrayList<String> toReturn = popTags(result, htmlTags);
 		return toReturn.toArray(new String[] {});
 	}
@@ -330,6 +332,7 @@ public class Tokenizer {
 	private static final Pattern WWW = Pattern.compile("^(www[0-9]?|WWW[0-9]?)$");
 	private static final Pattern DOMIN = Pattern.compile("^(com|org|edu|net|xyz|gov|int|eu|hk|tw|cn|de|ch|fr)$");
 	private static final Pattern ALPHA_RE = Pattern.compile("^[A-Za-z]+$");
+	private static final Pattern LINEBREAKS_RE = Pattern.compile("([\r\n\u001e]|\r\n|\n\r)");
 
 	private static final Pattern[] TOKPAT1 = new Pattern[] {
 			//save abbreviation ------------------------------------
@@ -359,6 +362,11 @@ public class Tokenizer {
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)"), //(-)27.3
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)e([\\-]?[0-9]+)"), //(-)1.2e10
 			Pattern.compile("([0-9]{3}),([0-9]{3})"), // large numbers like 200,200
+			Pattern.compile("\r\n"), // CR LF
+			Pattern.compile("\n\r"), // LF CR
+			Pattern.compile("\n"), // LF
+			Pattern.compile("\r"), // CR
+			Pattern.compile("\u001e"), // RS
 			//---------------------------------------------------------------
 			Pattern.compile("\\.{3}"),
 			Pattern.compile("([\\?\\!\\\"\\u201C\\\\.,;:@#$%&])"),
@@ -422,6 +430,11 @@ public class Tokenizer {
 			Pattern.compile("([\\-]?[0-9]+)DECIMALDOT([0-9]+)_"), //(-)27.3
 			Pattern.compile("_([\\-][0-9]+)DECIMALDOT([0-9]+)POWERE([\\-]?[0-9]+)_"), //(-)1.2e10
 			Pattern.compile("_DECIMALCOMMA_"), // large numbers like 200,000
+			Pattern.compile("_LINEFEED_"), // LF
+			Pattern.compile("_CARRIAGERETURN_"), // CR
+			Pattern.compile("_CARRIAGERETURNLINEFEED_"), // CR LF
+			Pattern.compile("_LINEFEEDCARRIAGERETURN_"), // LF CR
+			Pattern.compile("_RECORDSEPARATOR_"), // RS
 	};
 
 	private static final String DELIM = "___";
@@ -452,6 +465,11 @@ public class Tokenizer {
 			"$1DECIMALDOT$2_",
 			"_$1DECIMALDOT$2POWERE$3_",
 			"$1_DECIMALCOMMA_$2",
+			" _CARRIAGERETURNLINEFEED_ ",
+			" _LINEFEEDCARRIAGERETURN_ ",
+			" _LINEFEED_ ",
+			" _CARRIAGERETURN_ ",
+			" _RECORDSEPARATOR_ ",
 			"_elipsisDDD_",
 			" $1 ",
 			" ",
@@ -513,6 +531,11 @@ public class Tokenizer {
 			"$1.$2", // (-)27.3
 			"$1.$2e$3", // (-)1.2e10
 			",", // 200,000
+			"\n",
+			"\r",
+			"\r\n",
+			"\n\r",
+			"\u001e",
 	};
 
 	private static final Pattern LINEBREAKS = Pattern.compile("(\r?\n)+");

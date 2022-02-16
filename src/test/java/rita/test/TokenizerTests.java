@@ -524,6 +524,26 @@ public class TokenizerTests {
 	}
 
 	@Test
+	public void handleLineBreaks(){
+		arrayEq(RiTa.tokenize("A CARAFE, THAT IS A BLIND GLASS.\nA kind in glass and a cousin."), new String[] { 
+			"A", "CARAFE", ",",
+			"THAT", "IS", "A",
+			"BLIND", "GLASS", ".", "\n",
+			"A", "kind", "in",
+			"glass", "and", "a",
+			"cousin", "." });
+		assertEquals("A CARAFE, THAT IS A BLIND GLASS.\nA kind in glass and a cousin.", RiTa.untokenize(RiTa.tokenize("A CARAFE, THAT IS A BLIND GLASS.\nA kind in glass and a cousin.")));
+		arrayEq(RiTa.tokenize("A CARAFE, THAT IS A BLIND GLASS.\r\nA kind in glass and a cousin."), new String[] { 
+			"A", "CARAFE", ",",
+			"THAT", "IS", "A",
+			"BLIND", "GLASS", ".", "\r\n",
+			"A", "kind", "in",
+			"glass", "and", "a",
+			"cousin", "." });
+		assertEquals("A CARAFE, THAT IS A BLIND GLASS.\r\nA kind in glass and a cousin.", RiTa.untokenize(RiTa.tokenize("A CARAFE, THAT IS A BLIND GLASS.\r\nA kind in glass and a cousin.")));
+	}
+
+	@Test
 	public void callSentences() {
 
 		String input = "Stealth's Open Frame, OEM style LCD monitors are designed for special mounting applications. The slim profile packaging provides an excellent solution for building into kiosks, consoles, machines and control panels. If you cannot find an off the shelf solution call us today about designing a custom solution to fit your exact needs.";
