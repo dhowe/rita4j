@@ -4,196 +4,380 @@ import static rita.RiTa.opts;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.text.DecimalFormat;
+import java.util.regex.*;
 
 public class RiMarkov {
-
-	public static String SS = "<s>", SE = "</s>";
-	private static DecimalFormat DF = new DecimalFormat("0.000");
-
 	public int n;
 	public Node root;
 	public List<String> input;
-	protected Function<String, String[]> _tokenize;
-	protected Function<String[], String> _untokenize;
+	protected Function<String, String[]> _tokenize = null;
+	protected Function<String[], String> _untokenize = null;
+	private static DecimalFormat DF = new DecimalFormat("0.000");
+	private static final Pattern MULTI_SP_RE = Pattern.compile(" +");
 
 	protected int mlm, treeifyTimes, maxAttempts;
 	protected boolean trace, disableInputChecks;// logDuplicates;
 
-	public RiMarkov(int n) {
+	public List<String> sentenceStarts;
+	public Set<String> sentenceEnds;
+
+	public RiMarkov(int n){
 		this(n, null);
 	}
 
-	@SuppressWarnings("unchecked")
-	public RiMarkov(int n, Map<String, Object> opts) {
-
+	@SuppressWarnings("uncheck")
+	public RiMarkov(int n, Map<String, Object> opts){
+		if (n < 2) throw new RiTaException("minimum N is 2");
 		this.n = n;
-		this.root = new Node("ROOT");
-
+		this.root = new Node(null, "ROOT");
+		this.trace = Util.boolOpt("trace", opts);
+		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
+		this.maxAttempts = Util.intOpt("maxAttempts", opts, 999);
 		if (opts != null && opts.containsKey("tokenize")) {
 			this._tokenize = (Function<String, String[]>) opts.get("tokenize");
 		}
-
-		this.trace = Util.boolOpt("trace", opts);
-		this.maxAttempts = Util.intOpt("maxAttempts", opts, 999);
-		//this.logDuplicates = Util.boolOpt("logDuplicates", opts); // ?
+		if (opts != null && opts.containsKey("untokenize")) {
+			this._untokenize = (Function<String[], String>) opts.get("untokenize");
+		}
 		this.disableInputChecks = Util.boolOpt("disableInputChecks", opts);
-
-		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
-		if (mlm != 0 && mlm <= n) {
-			throw new RiTaException("[Markov] maxLengthMatch(mlm) must be > N");
-		}
-		if (mlm > 0 && disableInputChecks) {
-			throw new RiTaException("[Markov] 'disableInputChecks' and "
-					+ "'maxLengthMatch' cannot be used together");
-		}
-
-		// only create 'input' if we have an mlm
-		if (this.mlm != 0 || !this.disableInputChecks) {
-			this.input = new ArrayList<>();
-		}
+		this.sentenceStarts = new ArrayList<String>();
+		this.sentenceEnds = new HashSet<String>();
+		if (!this.disableInputChecks || this.mlm > 0) this.input = new ArrayList<String>();
+		if (opts != null && opts.containsKey("text")) this.addText((String) opts.get("text"));
 	}
 
-	public void addText(String s) {
-		addText(s, 1);
+	public void addText(String text){
+		this.addText(text, 1);
 	}
 
-	public void addText(String text, int multiplier) {
-		addText(RiTa.sentences(text), multiplier);
+	public void addText(String[] text){
+		this.addText(text, 1);
 	}
 
-	public void addText(String[] sents) {
-		addText(sents, 1);
+	public void addText(String text, int multiplier){
+		this.addText(RiTa.sentences(text), multiplier);
 	}
 
-	public void addText(String[] sents, int multiplier) {
-
-		// add new tokens for each sentence start/end
-		List<String> tokens = new ArrayList<String>();
-		for (int k = 0; k < multiplier; k++) {
+	public void addText(String[] sents, int multiplier){
+		List<String> allWords = new ArrayList<String>();
+		for (int k = 0; k < multiplier; k++){
 			for (int i = 0; i < sents.length; i++) {
-				String[] words = this.doTokenize(sents[i]);
-				tokens.add(RiMarkov.SS);
-				tokens.addAll(Arrays.asList(words));
-				tokens.add(RiMarkov.SE);
+				String[] words = this._tokenize == null ? RiTa.tokenize(sents[i]) : this._tokenize.apply(sents[i]);
+				this.sentenceStarts.add(words[0]);
+				this.sentenceEnds.add(words[words.length - 1]);
+				allWords.addAll(Arrays.asList(words));
 			}
-			this.treeify(tokens.toArray(new String[tokens.size()]));
+			this.treeify(allWords.toArray(String[]::new));
 		}
 
-		if (!this.disableInputChecks || this.mlm != 0) {
-			this.input.addAll(tokens);
+		if (!this.disableInputChecks || this.mlm > 0) {
+			for (int i = 0; i < allWords.size(); i++) {
+				this.input.add(allWords.get(i));
+			}
 		}
 	}
 
-	/*TODO: ? 
-	public void addTokens(String[] words) {
-		this.addTokens(words, 1);
-	}
-	
-	public void addTokens(String[] words, int multiplier) {
-		for (int k = 0; k < multiplier; k++) {
-			this.treeify(words);
-		}
-		if (!this.disableInputChecks || this.mlm != 0) {
-			this.input.addAll(Arrays.asList(words));
-		}
-	}*/
-
-	public String toString() {
-		return this.root.asTree().replaceAll("\\{\\}", "");
+	public String[] generate(){
+		return this.generate(1, null);
 	}
 
-	public String[] generate() {
-		return generate(1, null);
-	}
-
-	public String[] generate(int n) {
-		return generate(n, opts());
+	public String[] generate(int n){
+		return this.generate(n, null);
 	}
 
 	public String[] generate(Map<String, Object> opts) {
-		return generate(1, opts);
+		return this.generate(1, opts);
 	}
 
 	public String[] generate(int num, Map<String, Object> opts) {
-
 		int minLength = Util.intOpt("minLength", opts, 5);
 		int maxLength = Util.intOpt("maxLength", opts, 35);
-		float temp = Util.floatOpt("temperature", opts, 0);
-		boolean allowDups = Util.boolOpt("allowDuplicates", opts);
-		String[] seed = this.seedTokens(opts);
+		float temperature = Util.floatOpt("temperature", opts, 0);
 
-		List<String> result = new ArrayList<>();
-		List<Node> tokens = new ArrayList<>();
+		if (temperature < 0) throw new RiTaException("Temperature option must be greater than 0");
 
 		int tries = 0;
-		while (result.size() < num) {
-			Node[] arr = this.initSentence(seed);
-			// seed should be added just once
-			if (tokens != null && arr != null && tokens.size() == 0) {
-				tokens.addAll(new ArrayList<>(Arrays.asList(arr)));
+		List<Node> tokens = new ArrayList<Node>();
+		List<String> usedStarts = new ArrayList<String>();
+		int minIdx = 0;
+		List<Integer> sentenceIdxs = new ArrayList<Integer>();
+		List<Node> markedNodes = new ArrayList<Node>();
+		Predicate<Node> notMarkedPre = n -> {
+			String tmap = "";
+			for (Node e : tokens) {
+				tmap += e.token;
+			}
+			return n.marked == null ? true : !n.marked.equals(tmap);
+		};
+
+		/////////////////////////// local functions //////////////////////////////////
+		class Local{
+			void unmarkNodes(){
+				markedNodes.forEach((n) -> {n.marked = null;});
 			}
 
-			if (tokens.size() == 0) throw new RiTaException(
-					"[Markov] No sentence starts with: '" + seed + "'");
+			int resultCount(){
+				return tokens.stream().filter(t -> _isEnd(t)).toArray(Node[]::new).length;
+			}
 
-			while (tokens.size() != 0 && tokens.size() < maxLength) {
-				Node[] tokensArray = tokens.toArray(new Node[tokens.size()]);
-				Node parent = this._pathTo(tokensArray);
-				if (parent == null || parent.isLeaf()) {
-					fail(tokens, "no parent", ++tries);
-					tokens = new ArrayList<>();// to reset tokens
-					break;
+			void markNode(Node node) {
+				if (node != null) {
+					String tmap = "";
+					for (Node e : tokens) {
+						tmap += e.token;
+					}
+					node.marked = tmap;
+					markedNodes.add(node);
+				}
+			}
+
+			boolean notMarked(Node cn){
+				String tmap = "";
+				for (Node e : tokens) {
+					tmap += e.token;
+				}
+				return cn.marked == null ? true : ! cn.marked.equals(tmap);
+			}
+			
+			boolean validateSentence(Node next, int tries, List<Integer> sentenceIdxs){
+				this.markNode(next);
+				int sentIdx = this.sentenceIdx(sentenceIdxs);
+
+				if (trace) System.out.println(1 + (tokens.size() - sentIdx) + " " +
+				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +",")+ "]");
+
+				List<String> sentence = new ArrayList<String>(tokens.subList(sentIdx, tokens.size()).stream().map(t -> t.token).toList());
+				sentence.add(next.token);
+
+				if (sentence.size() < minLength) {
+					this.fail("too-short (pop: " + next.token + ")", tries, sentenceIdxs);
+					return false;
 				}
 
-				Node next = this._selectNext(parent, temp, tokensArray);
-				if (next == null) {
-					fail(tokens, "no next", ++tries);
-					tokens = new ArrayList<>();// to reset tokens
-					break; // possible if all children are excluded
+				if (!disableInputChecks && isSubArrayList(sentence, input)){
+					this.fail("in-input (pop: " + next.token + ")", tries, sentenceIdxs);
+					return false;
+				}
+
+				String flatSent = doUntokenize(sentence.toArray(String[]::new));
+				List<String> cur = tokens.subList(0, sentIdx).stream().map(t -> t.token).toList();
+				if (!Util.boolOpt("allowDuplicates", opts) && isSubArrayList(sentence, cur)){
+					this.fail("duplicate (pop: " + next.token + ")", tries, sentenceIdxs);
+					return false;
 				}
 
 				tokens.add(next);
-				if (next.token.equals(RiMarkov.SE)) {
-					tokens.remove(tokens.size() - 1);
 
-					if (tokens.size() >= minLength) {
+				if (trace) System.out.println("OK (" + this.resultCount() + "/" + num + ") \"" +
+				flatSent + "\" sidxs=[" + sentenceIdxs + "]\n");
 
-						List<String> stringToks = new ArrayList<>();
-						tokens.forEach(t -> stringToks.add(t.token));
+				return true;
+			}
 
-						if (isSubArrayList(stringToks, this.input)) {
-							fail(tokens, "in input", ++tries);
-							tokens = new ArrayList<>();// to reset tokens
-							break;
+			List<Integer> fail(String msg, int tries, List<Integer> sentenceIdxs){
+				int sentIdx = this.sentenceIdx(sentenceIdxs);
+				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).toArray(Node[]::new)), false, tries, sentenceIdxs);
+			}
+
+			List<Integer> fail(String msg, String sentence, int tries, List<Integer> sentenceIdxs){
+				return this.fail(msg,sentence,false, tries, sentenceIdxs);
+			}
+
+			List<Integer> fail(String msg, boolean forceBacktrack, int tries,List<Integer> sentenceIdxs) {
+				int sentIdx = this.sentenceIdx(sentenceIdxs);
+				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).toArray(Node[]::new)), forceBacktrack, tries, sentenceIdxs);
+			}
+
+			List<Integer> fail(String msg, String sentence, boolean forceBacktrack, int tries, List<Integer> sentenceIdxs){
+				if (tries > maxAttempts) throwError(tries, this.resultCount());
+				Node parent = _pathTo(tokens.toArray(Node[]::new));
+				int numChildren = parent != null ? parent.childNodes(opts("filter", notMarkedPre)).length : 0;
+
+				if (trace) System.out.println("Fail:" + msg + "\n  -> \"" + sentence + "\" " +
+				tries + " tries, " + this.resultCount() + " successes, numChildren=" + numChildren
+				+ (forceBacktrack ? " forceBacktrack*" : (" parent=\"" + parent.token
+				  + "\" goodKids=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce((a,c) -> a + c +",") + "]"
+				  + "\" allKids=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a,c) -> a + c +",") + "]")));
+
+				if (forceBacktrack || numChildren == 0) {
+					List<Integer> updatedSidxs = this.backtrack(sentenceIdxs);
+					return updatedSidxs;
+				}
+				return null;
+			}
+
+			// step back until we have a parent with children
+    		// or we have reached our start
+    		// return the updated sentenceIdxs
+			List<Integer> backtrack(List<Integer> sidxs) {
+				Node parent;
+				Node[] tc;
+				for (int i = 0; i < 99; i ++) {
+					Node last = tokens.remove(tokens.size() - 1);
+					this.markNode(last);
+
+					if (_isEnd(last)) sidxs.remove(sidxs.size() - 1);
+
+					int sentIdx = this.sentenceIdx(sidxs);
+					int backtrackUntil = Math.max(sentIdx, minIdx);
+
+					if (trace) System.out.println("backtrack#" + tokens.size() + 
+					"pop \"" + last.token + "\" " + (tokens.size() - sentIdx)
+					+ "/" + backtrackUntil + " " + _flatten(tokens.toArray(Node[]::new)));
+
+					parent = _pathTo(tokens.toArray(Node[]::new));
+					tc = parent.childNodes(opts("filter", notMarkedPre));
+
+					if (tokens.size() <= backtrackUntil) {
+
+						if (minIdx > 0) {
+							if (tokens.size() <= minIdx) {
+								if (tc.length < 0) throw new RiTaException("back at barren-seed1: case 0");
+								if (trace) System.out.println("case 1");
+								return sidxs;
+							} else {
+								if (tc.length < 0) {
+									if (trace) System.out.println("case 2: back at SENT-START: \""
+									+ _flatten(tokens.toArray(Node[]::new)) + "\" sentenceIdxs=" + sidxs
+									+ " ok=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",")
+									+ "] all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "]");
+									sidxs.remove(sidxs.size() - 1);
+								} else {
+									if (trace) System.out.println("case 3");
+								}
+							}
+						} else {
+
+							if (trace) System.out.println("case 4: back at start of sentence"
+							+ " or 0: " + tokens.size() + sidxs);
+
+							if (tokens.size() < 1) {
+								this.selectStart();
+								return new ArrayList<Integer>();
+							}
 						}
 
-						String sent = this._flatten(stringToks);
-						if (!allowDups && result.contains(sent)) {
-							fail(tokens, "is dup", ++tries);
-							tokens = new ArrayList<>();// to reset tokens
-							break;
-						}
-
-						if (this.trace) System.out.println("-- GOOD " + sent.replaceAll(" +", " "));
-
-						result.add(sent.replaceAll(" +", " "));
-						break;
+						return sidxs;
 					}
 
-					fail(tokens, "too short", ++tries);
-					tokens = new ArrayList<>();// to reset tokens
-					break;
+					if (tc.length > 0) {
+						sentIdx = this.sentenceIdx(sidxs);
+
+						if (trace) System.out.println((tokens.size() - sentIdx)
+						+ ' ' + _flatten(tokens.toArray(Node[]::new)) + "\n  ok=["
+						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "] all=[" + 
+						Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "]");
+
+						return sidxs;
+					}
+				}
+
+				throw new RiTaException("Invalid state in backtrack() ["
+				+ tokens.stream().map(t -> t.token).reduce((a,c) -> a+c+",") + ']');
+			}
+
+			int sentenceIdx(List<Integer> sentenceIdxs){
+				int len = sentenceIdxs.size();
+				return len != 0 ? sentenceIdxs.get(len - 1) : 0;
+			}
+
+			void selectStart(){
+				String[] seedArr = null;
+				String seedStr = null;
+				if ( opts != null && opts.containsKey("seed")){
+					try {
+						seedStr = Util.strOpt("seed", opts, null);
+					} catch (Exception e) {
+						try {
+							seedArr = (String[]) opts.get("seed");
+						} catch (Exception ee) {
+							throw new RiTaException("Invalid seed");
+						}
+					} 
+				}
+				if (seedStr != null && seedStr.length() > 0){
+					seedArr = doTokenize(seedStr);
+				} 
+				
+				if (seedArr != null) {
+					Node node  = _pathTo(seedArr, root);
+					while(!node.isRoot()) {
+						tokens.add(0, node);
+						node = node.parent;
+					}
+				} else if (tokens.size() < 1 || _isEnd(tokens.get(tokens.size() - 1))) {
+
+					String[] usableStarts = sentenceStarts.stream().filter(ss -> this.notMarked(root.child(ss))).toArray(String[]::new);
+					if (usableStarts.length < 1) throw new RiTaException("No valid sentence-starts remaining");
+					String start = RiTa.random(usableStarts);
+					Node startTok = root.child(start);
+					markNode(startTok);
+					usableStarts = sentenceStarts.stream().filter(ss -> notMarked(root.child(ss))).toArray(String[]::new);//?
+					tokens.add(startTok);
+				} else {
+					throw new RiTaException("Invalid call to selectStart: " + _flatten(tokens.toArray(Node[]::new)));
 				}
 			}
-			if (tokens != null && tokens.size() >= maxLength) {
-				fail(tokens, "too long", ++tries);
-				tokens = new ArrayList<>();// to reset tokens
+		}
+		Local lo = new Local();
+		
+		///////////////////////////////////// code ///////////////////////////////////////////////
+		lo.selectStart();
+
+		while(lo.resultCount() < num) {
+			int sentIdx = lo.sentenceIdx(sentenceIdxs);
+
+			if (tokens.size() - sentIdx >= maxLength) {
+				tries ++;
+				List<Integer> newsidxs = lo.fail("too-long", "0", true, tries, sentenceIdxs);
+				if (newsidxs != null) sentenceIdxs = newsidxs;
+				continue;
 			}
+
+			Node parent = this._pathTo(tokens.toArray(Node[]::new));
+			double doubleTemp = (double)temperature;
+			Node next = this._selectNext(parent, doubleTemp, tokens.toArray(Node[]::new), notMarkedPre);
+
+			if (next == null) {
+				tries ++;
+				List<Integer> newsidxs =lo.fail("mlm-fail(" + this.mlm + ")", this._flatten(tokens.toArray(Node[]::new)), true, tries, sentenceIdxs);
+				if (newsidxs != null) sentenceIdxs = newsidxs;
+				continue;
+			}
+
+			if (this._isEnd(next)) {
+				boolean success = lo.validateSentence(next, tries, sentenceIdxs);
+				if (success) {
+					sentenceIdxs.add(tokens.size());
+				}
+				continue;
+			}
+
+			tokens.add(next);
+
+			if (this.trace) System.out.println(tokens.size() - sentIdx + next.token +
+				"[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a+c+",") + "]");
 		}
 
-		return result.toArray(new String[result.size()]);
+		lo.unmarkNodes();
+
+		String str = doUntokenize(tokens.stream().map(t-> t.token).toArray(String[]::new));
+		return num > 1 ? this._splitEnds(str) : new String[] {str};
 	}
+
+	// public String toJSON() {
+
+	// }
+
+	// public static fromJSON(json) {
+		
+	// }
 
 	public String[] completions(String[] preArray) {
 		return completions(preArray, null);
@@ -270,30 +454,6 @@ public class RiMarkov {
 		return result;
 	}
 
-	public float probability(String[] dataArray) {
-		if (dataArray == null || dataArray.length == 0) {
-			return 0;
-		}
-		Node tn = this._pathTo(dataArray);
-		if (tn != null && tn.token.length() > 0) {
-			return (float) tn.nodeProb(true);
-		}
-		else {
-			return 0;
-		}
-	}
-
-	public double probability(String path) {
-		double p = 0;
-		if (path.length() != 0) {
-			Node tn = this.root.child(path);
-			if (tn != null) {
-				p = tn.nodeProb(true);
-			} //true=excludeMetaTags
-		}
-		return p;
-	}
-
 	public Map<String, Object> probabilities(String path) {
 		return probabilities(this.doTokenize(path), 0);
 	}
@@ -327,36 +487,47 @@ public class RiMarkov {
 		return probs;
 	}
 
+	public float probability(String[] dataArray) {
+		if (dataArray == null || dataArray.length == 0) {
+			return 0;
+		}
+		Node tn = this._pathTo(dataArray);
+		if (tn != null && tn.token.length() > 0) {
+			return (float) tn.nodeProb(true);
+		}
+		else {
+			return 0;
+		}
+	}
+
+	public double probability(String path) {
+		double p = 0;
+		if (path.length() != 0) {
+			Node tn = this.root.child(path);
+			if (tn != null) {
+				p = tn.nodeProb(true);
+			} //true=excludeMetaTags
+		}
+		return p;
+	}
+
+	public String toString(){
+		return this.toString(this.root, false);
+	}
+
+	public String toString(Node root){
+		return this.toString(root, false);
+	}
+
+	public String toString(Node root, boolean sort){
+		return root.asTree(sort).replaceAll("{}", "");
+	}
+
 	public int size() {
-
-		return this.root.childCount();
+		return this.root.childCount(true);
 	}
 
-	////////////////////////////// end API ////////////////////////////////
-
-	private void fail(List<Node> tokens, String msg, int t) {
-		this._logError(t, tokens, msg);
-		if (t >= this.maxAttempts) {
-			throw new RiTaException("[Markov] Exceeded maxAttempts:" + t);
-		}
-	}
-
-	private String[] seedTokens(Map<String, Object> opts) {
-		String[] seed = new String[0];
-		if (opts == null) return seed;
-
-		if (opts.containsKey("seed")) {
-			Object st = opts.get("seed");
-			if (st instanceof String) {
-				//if (st.getClass().getName().equals("java.lang.String"))
-				seed = this.doTokenize((String) st);
-			}
-			else {
-				seed = (String[]) st;
-			}
-		}
-		return seed;
-	}
+    ////////////////////////////// end API ////////////////////////////////
 
 	private boolean validateMlms(Node word, Node[] nodes) {
 		List<String> check = new ArrayList<>();
@@ -372,13 +543,21 @@ public class RiMarkov {
 		return !isSubArrayList(subArr, this.input);
 	}
 
-	private Node _selectNext(Node parent, double temp, Node[] tokens) {
-		// basic case: just prob. select from children
-		if (this.mlm == 0 || this.mlm > tokens.length) { //if no mlm input or tokens.length < mlm
-			return parent.pselect();
+	private Node _selectNext(Node parent, double temp, Node[] tokens, Predicate<Node> filter){
+		if (parent == null) throw new RiTaException("no parent:" + this._flatten(tokens));
+
+		Node[] children = parent.childNodes(RiTa.opts("filter", filter));
+		if (children.length < 1) {
+			if (this.trace) System.out.println("No children to select, parent=" + parent.token
+			+ " children=ok[], all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token) + "]");
+			return null;
 		}
 
-		Node[] children = parent.childNodes();
+		// basic case: just prob. select from children
+		if (this.mlm == 0 || this.mlm > tokens.length) { //if no mlm input or tokens.length < mlm
+			return parent.pselect(filter);
+		}
+
 		List<Integer> weights = new ArrayList<>();
 		for (Node n : children) {
 			weights.add(n.count);
@@ -400,50 +579,21 @@ public class RiMarkov {
 		return null;
 	}
 
-	public Node[] initSentence() {
-		return initSentence(null, this.root);
+	private boolean _isEnd(String token){
+		if (token == null) return false;
+		return this.sentenceEnds.contains(token);
 	}
 
-	public Node[] initSentence(String[] initWith) {
-		return initSentence(initWith, this.root);
-	}
-
-	protected Node[] initSentence(String[] initWith, Node root) {
-
-		List<Node> tokens = new ArrayList<>();
-		if (initWith == null) {
-			tokens.add(root.child(RiMarkov.SS).pselect());
-		}
-		else {
-			if (initWith.length > 0) {
-				Node st = this._pathTo(initWith, root);
-				if (st == null) {
-					return null;
-				}// fail
-				while (!st.isRoot()) {
-					tokens.add(0, st);
-					st = st.parent;
-				}
-			}
-			else {
-				tokens.add(this.root.child(RiMarkov.SS).pselect());
+	private boolean _isEnd(Node node){
+		if (node != null) {
+			if (node.token != null) {
+				String check = node.token;
+				return this.sentenceEnds.contains(check);
+			} else {
+				return false;
 			}
 		}
-		return tokens.toArray(new Node[tokens.size()]);
-	}
-
-	private void treeify(String[] tokens) {
-		Node root = this.root;
-		for (int i = 0; i < tokens.length; i++) {
-			Node node = root;
-			//words = tokens.slice(i, i + this.n);
-			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
-			for (int j = 0; j < words.length; j++) {
-				if (words[j] != null) {
-					node = node.addChild(words[j]);
-				}
-			}
-		}
+		return false;
 	}
 
 	private Node _pathTo(Node[] path) {
@@ -478,87 +628,248 @@ public class RiMarkov {
 		return node; // can be undefined
 	}
 
-	private String _flatten(Node[] nodes) {
-		if (nodes == null || nodes.length == 0) {
-			return "";
-		}
-
-		else {
-			String res = new String();
-			for (int i = 0; i < nodes.length; i++) {
-				res += nodes[i].token;
-				if (i != nodes.length - 1) {
-					res += " ";
+	private void treeify(String[] tokens) {
+		Node root = this.root;
+		for (int i = 0; i < tokens.length; i++) {
+			Node node = root;
+			//words = tokens.slice(i, i + this.n);
+			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
+			int wrap = 0;
+			for (int j = 0; j < words.length; j++) {
+				boolean hidden = false;
+				if ( j >= words.length) {
+					words[j] = tokens[wrap++];
+					hidden = true;
 				}
-			}
-			return res;
-		}
-	}
-
-	private String _flatten(String[] tokens) {
-		return this.doUntokenize(tokens);
-	}
-
-	private String _flatten(List<String> tokens) {
-		return _flatten(tokens.toArray(new String[tokens.size()]));
-	}
-
-	private void _logError(int tries, List<Node> toks, String msg) {
-		if (this.trace) {
-			System.out.println(tries + " FAIL" + (msg.length() > 0
-					? "(" + msg + ")"
-					: "") + ": " + this._flatten(toks.toArray(new Node[0])));
-		}
-	}
-
-	private boolean isSubArrayList(List<String> find, List<String> arr) {
-		if (arr == null || arr.size() == 0) return false;
-		OUT: for (int i = find.size() - 1; i < arr.size(); i++) {
-			for (int j = 0; j < find.size(); j++) {
-				if (!find.get(find.size() - j - 1).equals(arr.get(i - j))) {
-					continue OUT;
-				}
-				if (j == find.size() - 1) {
-					return true;
-				}
+				node = node.addChild(words[j]);
+				if (hidden) node.hidden = true;
 			}
 		}
-		return false;
+	}
+
+	private String[] _splitEnds(String str) {
+		List<String> se = new ArrayList<String>();
+		se.addAll(this.sentenceEnds); 
+		String rec = se.stream().collect(Collectors.joining("|", "", ""));
+		//rec = rec.substring(0, rec.length()-1);
+		rec = rec.replaceAll("([.*+?^${}()\\]\\[\\\\])", "\\\\$1"); 
+		rec = "(?<=[" + rec + "])";
+		List<String> arr = new ArrayList<String>();
+		String[] parts = str.split(rec);
+		// for (int i = 0; i < parts.length; i++) {
+		// 	if (parts[i].length() < 1) continue;
+		// 	if ((i % 2) == 0) {
+		// 		arr.add(parts[i]);
+		// 	} else {
+		// 		String tem = arr.get(arr.size() - 1);
+		// 		arr.set(arr.size() - 1, tem + parts[i]);
+		// 	}
+		// }
+		// return arr.stream().map(a -> a.trim()).toArray(String[]::new);
+		return parts;
+	}	
+
+	private String _flatten(Node node){
+		return node.token;
+	}
+
+	private String _flatten(Node[] nodes){
+		if (nodes == null || nodes.length < 1) return "";
+		String[] arr = new String[nodes.length];
+		for (int i = 0; i < nodes.length; i++) {
+			arr[i] = nodes[i] != null ? nodes[i].token : "[undef]";
+		}
+		String sent = this.doUntokenize(arr);
+		return sent.replaceAll(" +", " ");
+	}
+
+	/////////////////////////////////////////////////
+	public class Node {
+		public String token;
+		protected Map<String, Object> children;
+		protected Node parent;
+		protected int count;
+		protected int numChildren;
+		public String marked; // need to be able to store token hash
+		public boolean hidden;
+
+		Node(Node parent, String word){
+			this(parent, word, 0);
+		}
+
+		public Node(Node parent, String word, int count){
+			this.children = new HashMap<String, Object>();
+			this.parent = parent;
+			this.token = word;
+			this.count = count;
+			this.numChildren = -1;
+			this.marked = null;
+		}
+
+		public Node child(Node n){
+			return this.child(n.token);
+		}
+
+		public Node child(String word){
+			String lookup = word;
+			if (this.children.containsKey(lookup)) {
+				return (Node) this.children.get(lookup);
+			} else {
+				return null;
+			}
+		}
+
+		public Node pselect(){
+			return this.pselect(null);
+		}
+
+		public Node pselect(Predicate<Node> filter){
+			Map<String, Object>opts = new HashMap<String, Object>();
+			opts.put("filter", filter);
+			Node[] children = this.childNodes(opts);
+			if (children == null || children.length < 1) {
+				throw new RiTaException("No eligible child for \"" + this.token
+				+ "\" children=[" + Arrays.asList(this.childNodes()).stream().map(t -> t.token).toArray() + "]");
+			}
+			List<Integer> weights = new ArrayList<>();
+			for (Node n : children) {
+				weights.add(n.count);
+			}
+			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
+			double[] pdist = RandGen.ndist(wArr);
+			int idx = RandGen.pselect(pdist);
+			return children[idx];
+		}
+
+		public boolean isLeaf(){
+			return this.isLeaf(false);
+		}
+
+		public boolean isLeaf(boolean ignoreHidden) {
+			return this.childCount(ignoreHidden) < 1;
+		}
+
+		public boolean isRoot(){
+			return this.parent == null;
+		}
+
+		public Node[] childNodes(){
+			return this.childNodes(null);
+		}
+
+		public Node[] childNodes(Map<String, Object> opts){
+			boolean sort = Util.boolOpt("sort", opts);
+			Predicate<Node> filter = null;
+			if (opts != null && opts.containsKey("filter")) {
+				filter = (Predicate) opts.get("filter");
+			}
+			Node[] kids = this.children.values().toArray(Node[]::new);
+			if (filter != null) kids = Arrays.asList(kids).stream().filter(filter).toArray(Node[]::new);
+			if (sort){
+				kids = Arrays.asList(kids).stream().sorted((a,b) -> b.count != a.count ? b.count - a.count : b.token.compareTo(a.token)).toArray(Node[]::new);
+			}
+			return kids;
+		}
+
+		public int childCount(){
+			return this.childCount(false);
+		}
+
+		public int childCount(boolean ignoreHidden) {
+			if (this.numChildren == -1) {
+				Map<String, Object> opts = RiTa.opts();
+				if (ignoreHidden) {
+					opts.put("filter", (Predicate<Node>)(t -> !t.hidden));
+				}
+				this.numChildren = 0;
+				for (Node child : this.childNodes(opts)) {
+					this.numChildren += child.count;
+				}
+			}
+			return this.numChildren;
+		}
+
+		public double nodeProb(){
+			return this.nodeProb(false);
+		}
+
+		public double nodeProb(boolean excludeMetaTags){
+			if (this.parent == null) throw new RiTaException("no parent");
+			return this.count / this.parent.childCount(excludeMetaTags);
+		}
+
+		public Node addChild(String word){
+			return this.addChild(word, 1);
+		}
+
+		public Node addChild(String word, int count){
+			this.numChildren = -1;
+			Node node = (Node) this.children.get(word);
+			if (node == null) {
+				node = new Node(this, word);
+				this.children.put(word, node);
+			}
+			node.count += count;
+			return node;
+		}
+
+		public String toString(){
+			return this.parent == null ? "'" + this.token + "' [" + this.count
+			+ ",p=" + DF.format(this.nodeProb()) + "]" : "Root";
+		}
+
+		public String asTree(){
+			return this.asTree(false, false);
+		}
+
+		public String asTree(boolean sort){
+			return this.asTree(sort, false);
+		}
+
+		public String asTree(boolean sort, boolean showHiddenNodes){
+			String s = this.token + " ";
+			if (this.parent != null) {
+				s += "(" + this.count + ")->";
+			}
+			s += "{";
+			return this.childCount() != 0
+					? stringulate(this, s, 1, true)
+					: s + "}";
+		}
+	}
+
+	// --------------------------------------------------------------------
+	private static String stringulate(Node mn, String str, int depth) {
+		return stringulate(mn, str, depth, false, false);
 	}
 
 	private static String stringulate(Node mn, String str, int depth, boolean sort) {
+		return stringulate(mn, str, depth, sort, false);
+	}
+
+	private static String stringulate(Node mn, String str, int depth, boolean sort, boolean ignoreHidden){
 		String indent = "\n";
-		if (mn.children == null || mn.children.size() == 0) {
-			return str;
-		}
-
-		List<Node> l = new ArrayList<Node>(mn.children.values());
-		l.sort(byCount);
-
-		for (int j = 0; j < depth; j++)
+		Map<String, Object> opts = RiTa.opts("sort", true, "filter", (Predicate<Node>)(t -> !t.hidden));
+		Node[]l = mn.childNodes(opts);
+		if(l.length < 1) return str;
+		for (int j = 0; j < depth; j++) {
 			indent += "  ";
-
-		for (int i = 0; i < l.size(); i++) {
-
-			Node node = l.get(i);
-			//if (node.token == SS || node.token == SE) continue;
+		}
+		for (int i = 0; i < l.length; i++) {
+			Node node = l[i];
 			if (node != null && node.token != null) {
 				str += indent + "'" + encode(node.token) + "'";
-				if (!node.isRoot()) {
-					String prob = DF.format(node.nodeProb());
-					str += " [" + node.count + ",p=" + prob + "]";
+				if (!node.isRoot()) str +=  " [" + node.count + ",p=" + DF.format(node.nodeProb()) + "]";
+				if (!node.isLeaf(ignoreHidden)) {
+					str += "  {";
 				}
-				if (!node.isLeaf()) str += "  {";
-
-				str = mn.childCount() > 0 ? stringulate(node, str, depth + 1, sort) : str + "}";
+				str = mn.childCount(ignoreHidden) > 0 ? stringulate(node, str, depth + 1, sort) : str + "}";
 			}
 		}
-
 		indent = "\n";
 		for (int j = 0; j < depth - 1; j++) {
 			indent += "  ";
 		}
-
 		return str + indent + "}";
 	}
 
@@ -580,150 +891,32 @@ public class RiMarkov {
 		return tok;
 	}
 
-	//////////////////////////////////////////////////////////////////////////
-
-	public class Node {
-
-		public String token;
-		protected Node parent;
-		protected int count = 0, numChildren = -1;
-		protected Map<String, Node> children;
-
-		Node(String word) { // for root only
-			this(null, word);
-		}
-
-		public Node(Node p, String word) {
-			this(p, word, 1); // JC: never more than one 'real' constructor
-		}
-
-		private Node(Node par, String word, int cnt) {
-			parent = par;
-			token = word;
-			count = cnt;
-		}
-
-		// Find a (direct) child node with matching token
-		public Node child(Node word) {
-			return this.child(word.token);
-		}
-
-		// Find a (direct) child node with matching token
-		public Node child(String word) {
-			return this.children != null ? this.children.get(word) : null;
-		}
-
-		public Node pselect() {
-			Node[] children = this.childNodes();
-			List<Integer> weights = new ArrayList<>();
-			for (Node n : children) {
-				weights.add(n.count);
-			}
-			int[] wArr = weights.stream().mapToInt(i -> i).toArray();
-			double[] pdist = RandGen.ndist(wArr);
-			return children[RandGen.pselect(pdist)];
-		}
-
-		public boolean isLeaf() {
-			return this.childCount() < 1;
-		}
-
-		public boolean isRoot() {
-			return this.parent == null;
-		}
-
-		public Node[] childNodes() {
-			return childNodes(false);
-		}
-
-		public Node[] childNodes(boolean sorted) {
-			if (children == null) return new Node[0];
-
-			Collection<Node> kids = this.children.values();
-			Node[] kidsArray = kids.toArray(new Node[kids.size()]);
-			// TODO:
-			//			if (sorted) Arrays.sort(kids, new SortByCount());
-			return kidsArray;
-		}
-
-		public int childCount() {
-			return childCount(false);
-		}
-
-		public int childCount(boolean excludeMetaTags) {
-			if (this.numChildren == -1) { // a sort of cache
-				int sum = 0;
-				if (this.children == null) return 0;
-				for (String k : this.children.keySet()) {
-					if (k == null || (excludeMetaTags && (k.equals(RiMarkov.SS) || k.equals(RiMarkov.SE)))) {
-						continue;
-					}
-					sum += this.children.get(k).count;
-				}
-				this.numChildren = sum;
-			}
-			return this.numChildren;
-		}
-
-		public double nodeProb() {
-			return nodeProb(false);
-		}
-
-		public double nodeProb(boolean excludeMetaTags) {
-			if (this.parent == null) {
-				throw new RiTaException("no parent for: " + this);
-			}
-			double result = (double) this.count /
-					(double) this.parent.childCount(excludeMetaTags);
-			// System.out.println("C:" + this.count + " " +
-			// this.parent.childCount(excludeMetaTags) + "->" + result);
-			return result;
-		}
-
-		public Node addChild(String word) {
-			return addChild(word, 1);
-		}
-
-		public Node addChild(String word, int count) {
-			this.numChildren = -1; // invalidate cache
-			if (this.children == null) {
-				this.children = new HashMap<String, Node>();
-			}
-			Node node = this.children.get(word);
-			if (node == null) {
-				node = new Node(this, word);
-				this.children.put(word, node);
-			}
-			else {
-				node.count += count;
-			}
-			return node;
-		}
-
-		public String asTree() {
-			String s = this.token + " ";
-			if (this.parent != null) {
-				s += "(" + this.count + ")->";
-			}
-			s += "{";
-			return this.childCount() != 0
-					? stringulate(this, s, 1, true)
-					: s + "}";
-		}
-
-		public String toString() {
-			if (this.parent == null) return "Root";
-			String prob = DF.format(this.nodeProb());
-			return this.token + "(" + this.count + "/" + prob + "%)";
-		}
+	public void populate(Node objNode, Map<String, Object> jsonNode){
+		if (jsonNode == null) return;
+		// TODOs
 	}
 
-	static final Comparator<RiMarkov.Node> byCount = new Comparator<RiMarkov.Node>() {
-		public int compare(RiMarkov.Node a, RiMarkov.Node b) {
-			return b.count != a.count ? b.count - a.count
-					: b.token.toLowerCase().compareTo(a.token.toLowerCase());
+	private void throwError(int tries, int oks){
+		throw new RiTaException("Failed after " + tries + " tries"
+		+ (oks > 0 ? " and " + oks + " successes" : "")
+		+ ", you may need to adjust options or add more text");
+	}
+
+	
+	private boolean isSubArrayList(List<String> find, List<String> arr) {
+		if (arr == null || arr.size() == 0) return false;
+		OUT: for (int i = find.size() - 1; i < arr.size(); i++) {
+			for (int j = 0; j < find.size(); j++) {
+				if (!find.get(find.size() - j - 1).equals(arr.get(i - j))) {
+					continue OUT;
+				}
+				if (j == find.size() - 1) {
+					return true;
+				}
+			}
 		}
-	};
+		return false;
+	}
 
 	private String[] doTokenize(String s) {
 		return this._tokenize != null ? this._tokenize.apply(s) : RiTa.tokenize(s);
