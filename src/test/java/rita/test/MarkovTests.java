@@ -16,6 +16,7 @@ public class MarkovTests {
 	String sample = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself.";
 	String sample2 = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself. After all, I did occasionally want to be embarrassed.";
 	String sample3 = sample + " One reason people are dishonest is to achieve power.";
+	String sample4 = "The Sun is a barren, rocky world without air and water. It has dark lava on its surface. The Sun is filled with craters. It has no light of its own. It gets its light from the Sun. The Sun keeps changing its shape as it moves around the Sun. It spins on its Sun in 273 days. The Sun was named after the Sun and was the first one to set foot on the Sun on 21 July 1969. They reached the Sun in their space craft named the Sun. The Sun is a huge ball of gases. It has a diameter of two km. It is so huge that it can hold millions of planets inside it. The Sun is mainly made up of hydrogen and helium gas. The surface of the Sun is known as the Sun surface. The Sun is surrounded by a thin layer of gas known as the chromospheres. Without the Sun, there would be no life on the Sun. There would be no plants, no animals and no Sun. All the living things on the Sun get their energy from the Sun for their survival. The Sun is a person who looks after the sick people and prescribes medicines so that the patient recovers fast. In order to become a Sun, a person has to study medicine. The Sun lead a hard life. Its life is very busy. The Sun gets up early in the morning and goes in circle. The Sun works without taking a break. The Sun always remains polite so that we feel comfortable with it. Since the Sun works so hard we should realise its value. The Sun is an agricultural country. Most of the people on the Sun live in villages and are farmers. The Sun grows cereal, vegetables and fruits. The Sun leads a tough life. The Sun gets up early in the morning and goes in circles. The Sun stays and work in the sky until late evening. The Sun usually lives in a dark house. Though the Sun works hard it remains poor. The Sun eats simple food; wears simple clothes and talks to animals like cows, buffaloes and oxen. Without the Sun there would be no cereals for us to eat. The Sun plays an important role in the growth and economy of the sky.";
 
 	@Test
 	public void callConstructor() {
@@ -25,58 +26,99 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void callMarkov() {
-		RiMarkov rm = RiTa.markov(3);
+	public void callRiMarkov() {
+		RiMarkov rm = new RiMarkov(3);
 		assertTrue(rm != null);
-		assertTrue(rm.n == 3);
+		assertEquals(0, rm.size());
 
-		rm = RiTa.markov(4, RiTa.opts());
-		assertTrue(rm != null);
-		assertTrue(rm.n == 4);
+		// should throw when options conflict
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov r = new RiMarkov(3, opts("maxLengthMatch", 2));
+		});
 	}
 
 	@Test
-	public void callRandomSelect() {
-		// TODO: compare these tests to JS version and add comments below.
-		//       why are the expected values not being used?
+	public void callRiTaMarkov(){
+		RiMarkov rm = RiTa.markov(3);
+		assertTrue(rm != null);
+		assertEquals(0, rm.size());
+
+		rm = RiTa.markov(3, opts("text", "The dog ran away"));
+		assertEquals(4, rm.size());
+
+		RiMarkov rm1 = RiTa.markov(3, opts("text", ""));
+		assertEquals(0, rm1.size());
+		assertThrows(RiTaException.class, () ->{rm1.generate();});
+
+		rm = RiTa.markov(3,opts("text", sample));
+		assertTrue(rm.generate().length > 0);
+
+		RiMarkov rm2 = RiTa.markov(3, opts("text", "Too short."));
+		assertThrows(RiTaException.class, () -> {rm2.generate();});
+
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov rm3 = RiTa.markov(3, opts("text", 1));
+		});
+
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov rm4 = RiTa.markov(3, opts("text", false));
+		});
+		
+		rm = RiTa.markov(3, opts("text", new String[]{"Sentence one.", "Sentence two."}));
+		assertEquals(6, rm.size());
+
+		rm = RiTa.markov(3, opts("text", RiTa.sentences(sample)));
+		assertTrue(rm.generate().length > 0);
+
+		assertThrows(RiTaException.class, () ->{ RiMarkov r1 = RiTa.markov(1);});
+		assertThrows(RiTaException.class, () ->{ RiMarkov r1 = RiTa.markov(3, opts("maxLengthMatch", 2));});
+	}
+
+	@Test
+	public void callRandompSelect() {
+		assertEquals(0, RandGen.pselect(new double[] {1}));
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
-		double[] expected = { 2, 2, 1.75, 1.55 }; // JC ??
+		double[] expected = { 2, 2, 1.75, 1.55 }; 
 		double[] temps = { .5, 1, 2, 10 };
-		for (int x = 0; x < 10; x++) { // repeat 100 times
-			List<double[]> distrs = new ArrayList<double[]>();
-			List<Double> results = new ArrayList<Double>();
+		List<double[]> distrs = new ArrayList<double[]>();
+		List<Double> results = new ArrayList<Double>();
 
-			for (double t : temps) {
-				double[] r = RandGen.ndist(weights, t);
-				distrs.add(r);
-			}
-
-			int numTests = 10000;
-			double[] mathExpectation = new double[temps.length];
-			for (int i = 0; i < distrs.size(); i++) {
-				double[] distr = distrs.get(i);
-				double exp = 0;
-				for (int j = 0; j < distr.length; j++) {
-					exp += distr[j] * j;
-				}
-				mathExpectation[i] = exp;
-			}
-			// System.out.println(Arrays.toString(mathExpectation));
-			//[1.9995862274865503, 1.9740881265419985, 1.8551142981725457, 1.8898448665172576]
-
-			for (double[] sm : distrs) {
-				int sum = 0;
-				for (int j = 0; j < numTests; j++) {
-					sum += RandGen.pselect(sm);
-				}
-				double r = (double) sum / numTests;
-				results.add(r);
-			}
-
-			for (int j = 0; j < 4; j++) {
-				eq(results.get(j), mathExpectation[j], .1);
-			}
+		for (double t : temps) {
+			double[] r = RandGen.ndist(weights, t);
+			distrs.add(r);
 		}
+
+		int numTests = 100;
+		distrs.forEach(sm -> {
+			double sum = 0;
+			for (int j = 0; j < numTests; j++) {
+				sum += RandGen.pselect(sm);
+			}
+			results.add(sum / numTests);
+		});
+
+		assertTrue(Math.abs(results.get(0) - expected[0]) < 0.1);
+		assertTrue(Math.abs(results.get(1) - expected[1]) < 0.2);
+		assertTrue(Math.abs(results.get(2) - expected[2]) < 0.4);
+		assertTrue(Math.abs(results.get(3) - expected[3]) < 1);
+
+		// TODO: RandGen.pselect2()
+
+		// double[][] distr = new double[][] {{1, 2, 3, 4}, {0.1, 0.2, 0.3, 0.4}, {0.2, 0.3, 0.4, 0.5}};
+		// expected = new double[] {3, 0.3, 0.3857};
+		// for (int k = 0; k < 10; k++) {
+		// 	List<Double> res = new ArrayList<Double>();
+		// 	Arrays.asList(distr).forEach((sm) ->{
+		// 		double sum = 0;
+		// 		for (int j = 0; j < 1000; j++) {
+		// 			sum += RandGen.pselect2(sm);
+		// 		}
+		// 		res.add(sum/1000);
+		// 	});
+		// 	assertTrue(Math.abs(res.get(0) - expected[0]) < 0.5);
+		// 	assertTrue(Math.abs(res.get(1) - expected[1]) < 0.05);
+		// 	assertTrue(Math.abs(res.get(2) - expected[2]) < 0.05);
+		// }
 	}
 
 	@Test
@@ -145,27 +187,86 @@ public class MarkovTests {
 		}
 	}
 
-	@Test
-	public void callInitSentence() {
-		RiMarkov rm = new RiMarkov(4);
-		String txt = "The young boy ate it. The fat boy gave up.";
-		rm.addText(txt);
-		RiMarkov.Node[] toks = rm.initSentence();
-		eq(toks.length, 1);
-		eq(toks[0].token, "The");
+	// @Test
+	// public void callInitSentence() {
+	// 	RiMarkov rm = new RiMarkov(4);
+	// 	String txt = "The young boy ate it. The fat boy gave up.";
+	// 	rm.addText(txt);
+	// 	RiMarkov.Node[] toks = rm.initSentence();
+	// 	eq(toks.length, 1);
+	// 	eq(toks[0].token, "The");
 
-		rm = new RiMarkov(4);
-		rm.addText(RiTa.sentences(sample));
-		toks = rm.initSentence(new String[] { "I", "also" });
-		eq(toks.length, 2);
-		eq(toks[0].token + " " + toks[1].token, new String("I also"));
+	// 	rm = new RiMarkov(4);
+	// 	rm.addText(RiTa.sentences(sample));
+	// 	toks = rm.initSentence(new String[] { "I", "also" });
+	// 	eq(toks.length, 2);
+	// 	eq(toks[0].token + " " + toks[1].token, new String("I also"));
+	// }
+
+	@Test
+	public void throwOnGenerateForEmptyModel(){
+		RiMarkov rm = new RiMarkov(4, opts("maxLengthMatch", 6));
+		assertThrows(RiTaException.class, () -> {
+			rm.generate(5);
+		});
 	}
 
 	@Test
 	public void throwOnFailedGenerate() {
-		RiMarkov rm = new RiMarkov(4);
-		rm.addText(RiTa.sentences("just two sentences. should fail."));
-		assertThrows(RiTaException.class, () -> rm.generate(5));
+		RiMarkov rm = new RiMarkov(4, opts("maxLengthMatch", 6));
+		rm.addText(RiTa.sentences(sample));
+		assertThrows(RiTaException.class, () ->{rm.generate(5);});
+
+		RiMarkov rm1 = new RiMarkov(4, opts("maxLengthMatch", 5));
+		rm1.addText(RiTa.sentences(sample));
+		assertThrows(RiTaException.class, () -> {rm.generate(5);});
+
+		RiMarkov rm2 = new RiMarkov(4, opts("maxAttempts", 1));
+		rm2.addText("This is a text that is too short.");
+		assertThrows(RiTaException.class, () -> rm2.generate(5));
+	}
+
+	@Test
+	public void splitOnCustomTokenizers() {
+		String[] sents = new String[] {"asdfasdf-", "aqwerqwer+", "asdfasdf*"};
+		Function<String, String[]> tokenizer = (String sent) -> {
+			return sent.split("");
+		};
+		Function<String[], String> untokenizer = (String[] sens) -> {
+			return String.join("", sens);
+		};
+
+		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
+		rm.addText(sents);
+
+		String[] se = rm.sentenceEnds.toArray(String[]::new);
+		assertArrayEquals(new String[]{"*", "+", "-"}, se);
+
+		// String[] res = rm._splitEnds(String.join("", sents));
+		// assertArrayEquals(sents, res);
+	}
+
+	@Test
+	public void applyCustomTokenizers() {
+		String[] sents = new String[] {"asdfasdf-", "aqwerqwer+", "asdfasdf*"};
+		Function<String, String[]> tokenizer = (String sent) -> {
+			return sent.split("");
+		};
+		Function<String[], String> untokenizer = (String[] sens) -> {
+			return String.join("", sens);
+		};
+		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
+		rm.addText(sents);
+
+		assertArrayEquals(new String[] {"a", "a", "a"}, rm.sentenceStarts.toArray(String[]::new));
+		assertTrue(rm.sentenceEnds.size() == 3);
+		assertTrue(rm.sentenceEnds.contains("-"));
+		assertTrue(rm.sentenceEnds.contains("+"));
+		assertTrue(rm.sentenceEnds.contains("*"));
+
+		String[] res = rm.generate(2, opts("seed", "as", "maxLength", 20));
+		assertEquals(2, res.length);
+		assertTrue(Pattern.compile("^as.*[-=*]$").matcher(res[0]).matches());
 	}
 
 	@Test
@@ -179,34 +280,7 @@ public class MarkovTests {
 		String[] result = rm.generate(5, hm);
 		eq(result.length, 5);
 		for (String r : result) {
-			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
-		}
-
-	}
-
-	@Test
-	public void applyCustomTokenizer() {
-		String text = "家安春夢家安春夢！家安春夢德安春夢？家安春夢安安春夢。";
-		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
-		Map<String, Object> hm = opts();
-		Function<String, String[]> tokenize = (sent) -> {
-			return sent.split("");
-		};
-		Function<String[], String> untokenize = (sents) -> {
-			return String.join("", sents);
-		};
-		hm.put("tokenize", tokenize);
-		hm.put("untokenize", untokenize);
-		RiMarkov rm = new RiMarkov(4, hm);
-		rm.addText(sentArray);
-
-		hm.clear();
-		hm.put("seed", "家");
-		String[] result = rm.generate(5, hm);//-> did not tokenize to "家","安".....
-		eq(result.length, 5);
-
-		for (String r : result) {
-			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
+			assertTrue(r.matches("^[^，；。？！]+[，；。？！]$"));
 		}
 
 	}

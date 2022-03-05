@@ -38,6 +38,7 @@ public class RiMarkov {
 		this.root = new Node(null, "ROOT");
 		this.trace = Util.boolOpt("trace", opts);
 		this.mlm = Util.intOpt("maxLengthMatch", opts, 0);
+		if (this.mlm != 0 && this.mlm < this.n) throw new RiTaException("maxLengthMatch must be >= N");
 		this.maxAttempts = Util.intOpt("maxAttempts", opts, 999);
 		if (opts != null && opts.containsKey("tokenize")) {
 			this._tokenize = (Function<String, String[]>) opts.get("tokenize");
@@ -49,7 +50,25 @@ public class RiMarkov {
 		this.sentenceStarts = new ArrayList<String>();
 		this.sentenceEnds = new HashSet<String>();
 		if (!this.disableInputChecks || this.mlm > 0) this.input = new ArrayList<String>();
-		if (opts != null && opts.containsKey("text")) this.addText((String) opts.get("text"));
+		if (opts != null && opts.containsKey("text")) {
+			String textstr = null;
+			String[] textarr = null;
+			try {
+				textstr = Util.strOpt("text", opts, null);
+			} catch (Exception e) {
+				//not String
+				try {
+					textarr = (String[]) opts.get("text");
+				} catch (Exception ee) {
+					throw new RiTaException("invalid text option");
+				}
+			}
+			if (textarr != null) {
+				this.addText(textarr);
+			} else if (textstr != null) {
+				this.addText(textstr);
+			}
+		}
 	}
 
 	public void addText(String text){
@@ -68,6 +87,7 @@ public class RiMarkov {
 		List<String> allWords = new ArrayList<String>();
 		for (int k = 0; k < multiplier; k++){
 			for (int i = 0; i < sents.length; i++) {
+				if (sents[i].length() < 1) continue;
 				String[] words = this._tokenize == null ? RiTa.tokenize(sents[i]) : this._tokenize.apply(sents[i]);
 				this.sentenceStarts.add(words[0]);
 				this.sentenceEnds.add(words[words.length - 1]);
@@ -635,13 +655,13 @@ public class RiMarkov {
 			//words = tokens.slice(i, i + this.n);
 			String[] words = Arrays.copyOfRange(tokens, i, i + this.n);
 			int wrap = 0;
-			for (int j = 0; j < words.length; j++) {
+			for (int j = 0; j < this.n; j++) {
 				boolean hidden = false;
 				if ( j >= words.length) {
 					words[j] = tokens[wrap++];
 					hidden = true;
 				}
-				node = node.addChild(words[j]);
+				if (words[j] != null) node = node.addChild(words[j]);
 				if (hidden) node.hidden = true;
 			}
 		}
@@ -678,6 +698,7 @@ public class RiMarkov {
 		String[] arr = new String[nodes.length];
 		for (int i = 0; i < nodes.length; i++) {
 			arr[i] = nodes[i] != null ? nodes[i].token : "[undef]";
+			if (arr[i] == null) arr[i] = "[null]";
 		}
 		String sent = this.doUntokenize(arr);
 		return sent.replaceAll(" +", " ");
