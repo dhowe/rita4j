@@ -118,9 +118,11 @@ public class RiMarkov {
 	public String[] generate(int num, Map<String, Object> opts) {
 		int minLength = Util.intOpt("minLength", opts, 5);
 		int maxLength = Util.intOpt("maxLength", opts, 35);
-		float temperature = Util.floatOpt("temperature", opts, 0);
-
-		if (temperature < 0) throw new RiTaException("Temperature option must be greater than 0");
+		float temperature = 0;
+		if (opts != null && opts.containsKey("temperature")) {
+			temperature = (float) opts.get("temperature");
+			if (temperature <= 0) throw new RiTaException("Temperature option must be greater than 0");
+		}
 
 		int tries = 0;
 		List<Node> tokens = new ArrayList<Node>();
@@ -158,11 +160,7 @@ public class RiMarkov {
 			}
 
 			boolean notMarked(Node cn){
-				String tmap = "";
-				for (Node e : tokens) {
-					tmap += e.token;
-				}
-				return cn.marked == null ? true : ! cn.marked.equals(tmap);
+				return notMarkedPre.test(cn);
 			}
 			
 			boolean validateSentence(Node next, int tries, List<Integer> sentenceIdxs){
@@ -170,7 +168,7 @@ public class RiMarkov {
 				int sentIdx = this.sentenceIdx(sentenceIdxs);
 
 				if (trace) System.out.println(1 + (tokens.size() - sentIdx) + " " +
-				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +",")+ "]");
+				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +"|")+ "]");
 
 				List<String> sentence = new ArrayList<String>(tokens.subList(sentIdx, tokens.size()).stream().map(t -> t.token).toList());
 				sentence.add(next.token);
@@ -195,7 +193,7 @@ public class RiMarkov {
 				tokens.add(next);
 
 				if (trace) System.out.println("OK (" + this.resultCount() + "/" + num + ") \"" +
-				flatSent + "\" sidxs=[" + sentenceIdxs + "]\n");
+				flatSent + "\" sidxs=[" + sentenceIdxs.stream().map(i -> Integer.toString(i)).reduce((a,c) -> a + c + ",") + "]\n");
 
 				return true;
 			}
@@ -248,7 +246,7 @@ public class RiMarkov {
 					int backtrackUntil = Math.max(sentIdx, minIdx);
 
 					if (trace) System.out.println("backtrack#" + tokens.size() + 
-					"pop \"" + last.token + "\" " + (tokens.size() - sentIdx)
+					" pop \"" + last.token + "\" " + (tokens.size() - sentIdx)
 					+ "/" + backtrackUntil + " " + _flatten(tokens.toArray(Node[]::new)));
 
 					parent = _pathTo(tokens.toArray(Node[]::new));
@@ -275,7 +273,7 @@ public class RiMarkov {
 						} else {
 
 							if (trace) System.out.println("case 4: back at start of sentence"
-							+ " or 0: " + tokens.size() + sidxs);
+							+ " or 0: " + tokens.size() + " [" + sidxs.stream().map(idx -> Integer.toString(idx)).reduce((a,c) -> a + c + ",") + "]");
 
 							if (tokens.size() < 1) {
 								this.selectStart();
@@ -291,8 +289,8 @@ public class RiMarkov {
 
 						if (trace) System.out.println((tokens.size() - sentIdx)
 						+ ' ' + _flatten(tokens.toArray(Node[]::new)) + "\n  ok=["
-						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "] all=[" + 
-						Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "]");
+						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|") + "] all=[" + 
+						Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|") + "]");
 
 						return sidxs;
 					}
@@ -327,6 +325,7 @@ public class RiMarkov {
 				
 				if (seedArr != null) {
 					Node node  = _pathTo(seedArr, root);
+					if (node == null) throw new RiTaException("invalid seed");
 					while(!node.isRoot()) {
 						tokens.add(0, node);
 						node = node.parent;
@@ -334,6 +333,8 @@ public class RiMarkov {
 				} else if (tokens.size() < 1 || _isEnd(tokens.get(tokens.size() - 1))) {
 
 					String[] usableStarts = sentenceStarts.stream().filter(ss -> this.notMarked(root.child(ss))).toArray(String[]::new);
+					if (trace) System.out.println("All sentence-starts : [" + sentenceStarts.stream().reduce((a, c) -> a + c + ",") + "] Marked sentence-starts: [" +
+						sentenceStarts.stream().filter(ss -> !this.notMarked(root.child(ss))).reduce((a, c) -> a + c + ",") + "]");
 					if (usableStarts.length < 1) throw new RiTaException("No valid sentence-starts remaining");
 					String start = RiTa.random(usableStarts);
 					Node startTok = root.child(start);
@@ -381,8 +382,8 @@ public class RiMarkov {
 
 			tokens.add(next);
 
-			if (this.trace) System.out.println(tokens.size() - sentIdx + next.token +
-				"[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a+c+",") + "]");
+			if (this.trace) System.out.println(tokens.size() - sentIdx + " " + next.token +
+				"[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a+c+"|") + "]");
 		}
 
 		lo.unmarkNodes();
@@ -417,7 +418,7 @@ public class RiMarkov {
 				if (!RiTa.SILENT) {
 					System.err.println("Markov.completions() WARNING: no node found in preArray");
 				}
-				return new String[0];
+				return null;
 			}
 			Node[] next = tn.childNodes();
 			for (int i = 0; i < next.length; i++) {
@@ -520,10 +521,10 @@ public class RiMarkov {
 		}
 	}
 
-	public double probability(String path) {
+	public double probability(String data) {
 		double p = 0;
-		if (path.length() != 0) {
-			Node tn = this.root.child(path);
+		if (data != null && data.length() != 0) {
+			Node tn = this.root.child(data);
 			if (tn != null) {
 				p = tn.nodeProb(true);
 			} //true=excludeMetaTags
@@ -540,7 +541,7 @@ public class RiMarkov {
 	}
 
 	public String toString(Node root, boolean sort){
-		return root.asTree(sort).replaceAll("{}", "");
+		return root.asTree(sort).replaceAll("\\{\\}", "");
 	}
 
 	public int size() {
@@ -569,7 +570,7 @@ public class RiMarkov {
 		Node[] children = parent.childNodes(RiTa.opts("filter", filter));
 		if (children.length < 1) {
 			if (this.trace) System.out.println("No children to select, parent=" + parent.token
-			+ " children=ok[], all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token) + "]");
+			+ " children=ok[], all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a, c) -> a + c + "|") + "]");
 			return null;
 		}
 
@@ -676,16 +677,9 @@ public class RiMarkov {
 		rec = "(?<=[" + rec + "])";
 		List<String> arr = new ArrayList<String>();
 		String[] parts = str.split(rec);
-		// for (int i = 0; i < parts.length; i++) {
-		// 	if (parts[i].length() < 1) continue;
-		// 	if ((i % 2) == 0) {
-		// 		arr.add(parts[i]);
-		// 	} else {
-		// 		String tem = arr.get(arr.size() - 1);
-		// 		arr.set(arr.size() - 1, tem + parts[i]);
-		// 	}
-		// }
-		// return arr.stream().map(a -> a.trim()).toArray(String[]::new);
+		for (int i = 0; i < parts.length; i++) {
+			parts[i] = parts[i].trim();
+		}
 		return parts;
 	}	
 
@@ -802,10 +796,12 @@ public class RiMarkov {
 				if (ignoreHidden) {
 					opts.put("filter", (Predicate<Node>)(t -> !t.hidden));
 				}
-				this.numChildren = 0;
-				for (Node child : this.childNodes(opts)) {
-					this.numChildren += child.count;
+				int num = 0;
+				Node[] children = this.childNodes(opts);
+				for (int i = 0; i < children.length; i++) {
+					num += children[i].count;
 				}
+				this.numChildren = num;
 			}
 			return this.numChildren;
 		}
@@ -816,7 +812,8 @@ public class RiMarkov {
 
 		public double nodeProb(boolean excludeMetaTags){
 			if (this.parent == null) throw new RiTaException("no parent");
-			return this.count / this.parent.childCount(excludeMetaTags);
+			int all = this.parent.childCount(excludeMetaTags);
+			return (double) this.count / all;
 		}
 
 		public Node addChild(String word){
