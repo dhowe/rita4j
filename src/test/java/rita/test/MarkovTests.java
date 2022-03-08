@@ -242,7 +242,7 @@ public class MarkovTests {
 		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
 		rm.addText(sents);
 
-		String[] se = rm.sentenceEnds.toArray(String[]::new);
+		String[] se = rm.sentenceEnds.stream().toArray(String[]::new);
 		assertArrayEquals(new String[]{"*", "+", "-"}, se);
 
 		// String[] res = rm._splitEnds(String.join("", sents));
@@ -261,7 +261,7 @@ public class MarkovTests {
 		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
 		rm.addText(sents);
 
-		assertArrayEquals(new String[] {"a", "a", "a"}, rm.sentenceStarts.toArray(String[]::new));
+		assertArrayEquals(new String[] {"a", "a", "a"}, rm.sentenceStarts.stream().toArray(String[]::new));
 		assertTrue(rm.sentenceEnds.size() == 3);
 		assertTrue(rm.sentenceEnds.contains("-"));
 		assertTrue(rm.sentenceEnds.contains("+"));
@@ -811,7 +811,7 @@ public class MarkovTests {
 		//		assertArrayEquals(Object.keys(se.children), new String[] { Markov.SS });
 		Set<String> ts = new TreeSet<>();
 		ts.addAll(rm.sentenceStarts);
-		String[] st = ts.toArray(String[]::new);
+		String[] st = ts.stream().toArray(String[]::new);
 		assertArrayEquals(new String[] { "Achieving", "Although", "For", "He", "However", "I", "One"}, st);
 	}
 
