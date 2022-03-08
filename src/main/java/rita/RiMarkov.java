@@ -93,7 +93,7 @@ public class RiMarkov {
 				this.sentenceEnds.add(words[words.length - 1]);
 				allWords.addAll(Arrays.asList(words));
 			}
-			this.treeify(allWords.toArray(String[]::new));
+			this.treeify(allWords.stream().toArray(String[]::new));
 		}
 
 		if (!this.disableInputChecks || this.mlm > 0) {
@@ -180,7 +180,7 @@ public class RiMarkov {
 				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +"|").map(Object::toString)
 				.orElse("")+ "]");
 
-				List<String> sentence = new ArrayList<String>(tokens.subList(sentIdx, tokens.size()).stream().map(t -> t.token).toList());
+				List<String> sentence = new ArrayList<String>(tokens.subList(sentIdx, tokens.size()).stream().map(t -> t.token).collect(Collectors.toList()));
 				sentence.add(next.token);
 
 				if (sentence.size() < minLength) {
@@ -193,8 +193,8 @@ public class RiMarkov {
 					//return false;
 				}
 
-				String flatSent = doUntokenize(sentence.toArray(String[]::new));
-				List<String> cur = tokens.subList(0, sentIdx).stream().map(t -> t.token).toList();
+				String flatSent = doUntokenize(sentence.stream().toArray(String[]::new));
+				List<String> cur = tokens.subList(0, sentIdx).stream().map(t -> t.token).collect(Collectors.toList());
 				if (!Util.boolOpt("allowDuplicates", opts) && isSubArrayList(sentence, cur)){
 					return this.fail("duplicate (pop: " + next.token + ")", tries, sentenceIdxs);
 					//return false;
@@ -211,7 +211,7 @@ public class RiMarkov {
 
 			List<Integer> fail(String msg, int tries, List<Integer> sentenceIdxs){
 				int sentIdx = this.sentenceIdx(sentenceIdxs);
-				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).toArray(Node[]::new)), false, tries, sentenceIdxs);
+				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).stream().toArray(Node[]::new)), false, tries, sentenceIdxs);
 			}
 
 			List<Integer> fail(String msg, String sentence, int tries, List<Integer> sentenceIdxs){
@@ -220,12 +220,12 @@ public class RiMarkov {
 
 			List<Integer> fail(String msg, boolean forceBacktrack, int tries,List<Integer> sentenceIdxs) {
 				int sentIdx = this.sentenceIdx(sentenceIdxs);
-				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).toArray(Node[]::new)), forceBacktrack, tries, sentenceIdxs);
+				return this.fail(msg, _flatten(tokens.subList(sentIdx, tokens.size()).stream().toArray(Node[]::new)), forceBacktrack, tries, sentenceIdxs);
 			}
 
 			List<Integer> fail(String msg, String sentence, boolean forceBacktrack, int tries, List<Integer> sentenceIdxs){
 				if (tries > maxAttempts) throwError(tries, this.resultCount());
-				Node parent = _pathTo(tokens.toArray(Node[]::new));
+				Node parent = _pathTo(tokens.stream().toArray(Node[]::new));
 				int numChildren = parent != null ? parent.childNodes(opts("filter", notMarkedPre)).length : 0;
 
 				if (trace) System.out.println("Fail:" + msg + "\n  -> \"" + sentence + "\" " +
@@ -260,9 +260,9 @@ public class RiMarkov {
 
 					if (trace) System.out.println("backtrack#" + tokens.size() + 
 					" pop \"" + last.token + "\" " + (tokens.size() - sentIdx)
-					+ "/" + backtrackUntil + " " + _flatten(tokens.toArray(Node[]::new)));
+					+ "/" + backtrackUntil + " " + _flatten(tokens.stream().toArray(Node[]::new)));
 
-					parent = _pathTo(tokens.toArray(Node[]::new));
+					parent = _pathTo(tokens.stream().toArray(Node[]::new));
 					tc = parent.childNodes(opts("filter", notMarkedPre));
 
 					if (tokens.size() <= backtrackUntil) {
@@ -275,7 +275,7 @@ public class RiMarkov {
 							} else {
 								if (tc.length < 0) {
 									if (trace) System.out.println("case 2: back at SENT-START: \""
-									+ _flatten(tokens.toArray(Node[]::new)) + "\" sentenceIdxs=" + sidxs
+									+ _flatten(tokens.stream().toArray(Node[]::new)) + "\" sentenceIdxs=" + sidxs
 									+ " ok=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",").map(Object::toString)
 									.orElse("")	+ "] all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce( (a,c) -> a+c+",").map(Object::toString)
 									.orElse("") + "]");
@@ -303,7 +303,7 @@ public class RiMarkov {
 						sentIdx = this.sentenceIdx(sidxs);
 
 						if (trace) System.out.println((tokens.size() - sentIdx)
-						+ ' ' + _flatten(tokens.toArray(Node[]::new)) + "\n  ok=["
+						+ ' ' + _flatten(tokens.stream().toArray(Node[]::new)) + "\n  ok=["
 						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|").map(Object::toString)
 						.orElse("") + "] all=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|").map(Object::toString)
 						.orElse("") + "]");
@@ -356,7 +356,7 @@ public class RiMarkov {
 					usableStarts = sentenceStarts.stream().filter(notMarkedPreString).toArray(String[]::new);//?
 					tokens.add(startTok);
 				} else {
-					throw new RiTaException("Invalid call to selectStart: " + _flatten(tokens.toArray(Node[]::new)));
+					throw new RiTaException("Invalid call to selectStart: " + _flatten(tokens.stream().toArray(Node[]::new)));
 				}
 			}
 		}
@@ -375,13 +375,13 @@ public class RiMarkov {
 				continue;
 			}
 
-			Node parent = this._pathTo(tokens.toArray(Node[]::new));
+			Node parent = this._pathTo(tokens.stream().toArray(Node[]::new));
 			double doubleTemp = (double)temperature;
-			Node next = this._selectNext(parent, doubleTemp, tokens.toArray(Node[]::new), notMarkedPre);
+			Node next = this._selectNext(parent, doubleTemp, tokens.stream().toArray(Node[]::new), notMarkedPre);
 
 			if (next == null) {
 				tries ++;
-				List<Integer> newsidxs =lo.fail("mlm-fail(" + this.mlm + ")", this._flatten(tokens.toArray(Node[]::new)), true, tries, sentenceIdxs);
+				List<Integer> newsidxs =lo.fail("mlm-fail(" + this.mlm + ")", this._flatten(tokens.stream().toArray(Node[]::new)), true, tries, sentenceIdxs);
 				if (newsidxs != null) sentenceIdxs = newsidxs;
 				continue;
 			}
@@ -797,7 +797,7 @@ public class RiMarkov {
 			if (opts != null && opts.containsKey("filter")) {
 				filter = (Predicate<Node>) opts.get("filter");
 			}
-			Node[] kids = this.children.values().toArray(Node[]::new);
+			Node[] kids = this.children.values().stream().toArray(Node[]::new);
 			if (filter != null) kids = Arrays.asList(kids).stream().filter(filter).toArray(Node[]::new);
 			if (sort){
 				kids = Arrays.asList(kids).stream().sorted((a,b) -> b.count != a.count ? b.count - a.count : b.token.compareTo(a.token)).toArray(Node[]::new);
