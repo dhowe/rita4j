@@ -137,6 +137,14 @@ public class RiMarkov {
 			}
 			return n.marked == null ? true : !n.marked.equals(tmap);
 		};
+		Predicate<String> notMarkedPreString = ss -> {
+			Node node = this.root.child(ss);
+			String tmap = "";
+			for (Node e : tokens) {
+				tmap += e.token;
+			}
+			return node.marked == null ? true : !node.marked.equals(tmap);
+		};
 
 		/////////////////////////// local functions //////////////////////////////////
 		class Local{
@@ -163,39 +171,42 @@ public class RiMarkov {
 				return notMarkedPre.test(cn);
 			}
 			
-			boolean validateSentence(Node next, int tries, List<Integer> sentenceIdxs){
+			//return null if valid, otherwise updated sidxs
+			List<Integer> validateSentence(Node next, int tries, List<Integer> sentenceIdxs){
 				this.markNode(next);
 				int sentIdx = this.sentenceIdx(sentenceIdxs);
 
 				if (trace) System.out.println(1 + (tokens.size() - sentIdx) + " " +
-				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +"|")+ "]");
+				next.token + " [" + Arrays.asList(next.parent.childNodes()).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a + c +"|").map(Object::toString)
+				.orElse("")+ "]");
 
 				List<String> sentence = new ArrayList<String>(tokens.subList(sentIdx, tokens.size()).stream().map(t -> t.token).toList());
 				sentence.add(next.token);
 
 				if (sentence.size() < minLength) {
-					this.fail("too-short (pop: " + next.token + ")", tries, sentenceIdxs);
-					return false;
+					return this.fail("too-short (pop: " + next.token + ")", tries, sentenceIdxs);
+					//return false;
 				}
 
 				if (!disableInputChecks && isSubArrayList(sentence, input)){
-					this.fail("in-input (pop: " + next.token + ")", tries, sentenceIdxs);
-					return false;
+					return this.fail("in-input (pop: " + next.token + ")", tries, sentenceIdxs);
+					//return false;
 				}
 
 				String flatSent = doUntokenize(sentence.toArray(String[]::new));
 				List<String> cur = tokens.subList(0, sentIdx).stream().map(t -> t.token).toList();
 				if (!Util.boolOpt("allowDuplicates", opts) && isSubArrayList(sentence, cur)){
-					this.fail("duplicate (pop: " + next.token + ")", tries, sentenceIdxs);
-					return false;
+					return this.fail("duplicate (pop: " + next.token + ")", tries, sentenceIdxs);
+					//return false;
 				}
 
 				tokens.add(next);
-
+				sentenceIdxs.add(tokens.size());
 				if (trace) System.out.println("OK (" + this.resultCount() + "/" + num + ") \"" +
-				flatSent + "\" sidxs=[" + sentenceIdxs.stream().map(i -> Integer.toString(i)).reduce((a,c) -> a + c + ",") + "]\n");
+				flatSent + "\" sidxs=[" + sentenceIdxs.stream().map(i -> Integer.toString(i)).reduce((a,c) -> a + c + ",").map(Object::toString)
+				.orElse("") + "]\n");
 
-				return true;
+				return null;
 			}
 
 			List<Integer> fail(String msg, int tries, List<Integer> sentenceIdxs){
@@ -220,8 +231,10 @@ public class RiMarkov {
 				if (trace) System.out.println("Fail:" + msg + "\n  -> \"" + sentence + "\" " +
 				tries + " tries, " + this.resultCount() + " successes, numChildren=" + numChildren
 				+ (forceBacktrack ? " forceBacktrack*" : (" parent=\"" + parent.token
-				  + "\" goodKids=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce((a,c) -> a + c +",") + "]"
-				  + "\" allKids=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a,c) -> a + c +",") + "]")));
+				  + "\" goodKids=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce((a,c) -> a + c +",").map(Object::toString)
+				  .orElse("") + "]"
+				  + "\" allKids=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a,c) -> a + c +",").map(Object::toString)
+				  .orElse("") + "]")));
 
 				if (forceBacktrack || numChildren == 0) {
 					List<Integer> updatedSidxs = this.backtrack(sentenceIdxs);
@@ -263,8 +276,9 @@ public class RiMarkov {
 								if (tc.length < 0) {
 									if (trace) System.out.println("case 2: back at SENT-START: \""
 									+ _flatten(tokens.toArray(Node[]::new)) + "\" sentenceIdxs=" + sidxs
-									+ " ok=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",")
-									+ "] all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce( (a,c) -> a+c+",") + "]");
+									+ " ok=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+",").map(Object::toString)
+									.orElse("")	+ "] all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce( (a,c) -> a+c+",").map(Object::toString)
+									.orElse("") + "]");
 									sidxs.remove(sidxs.size() - 1);
 								} else {
 									if (trace) System.out.println("case 3");
@@ -273,7 +287,8 @@ public class RiMarkov {
 						} else {
 
 							if (trace) System.out.println("case 4: back at start of sentence"
-							+ " or 0: " + tokens.size() + " [" + sidxs.stream().map(idx -> Integer.toString(idx)).reduce((a,c) -> a + c + ",") + "]");
+							+ " or 0: " + tokens.size() + " [" + sidxs.stream().map(idx -> Integer.toString(idx)).reduce((a,c) -> a + c + ",").map(Object::toString)
+							.orElse("") + "]");
 
 							if (tokens.size() < 1) {
 								this.selectStart();
@@ -289,15 +304,16 @@ public class RiMarkov {
 
 						if (trace) System.out.println((tokens.size() - sentIdx)
 						+ ' ' + _flatten(tokens.toArray(Node[]::new)) + "\n  ok=["
-						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|") + "] all=[" + 
-						Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|") + "]");
+						+ Arrays.asList(tc).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|").map(Object::toString)
+						.orElse("") + "] all=[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().map(t -> t.token).reduce( (a,c) -> a+c+"|").map(Object::toString)
+						.orElse("") + "]");
 
 						return sidxs;
 					}
 				}
 
 				throw new RiTaException("Invalid state in backtrack() ["
-				+ tokens.stream().map(t -> t.token).reduce((a,c) -> a+c+",") + ']');
+				+ tokens.stream().map(t -> t.token).reduce((a,c) -> a+c+",").map(Object::toString).orElse("") + ']');
 			}
 
 			int sentenceIdx(List<Integer> sentenceIdxs){
@@ -323,7 +339,7 @@ public class RiMarkov {
 					seedArr = doTokenize(seedStr);
 				} 
 				
-				if (seedArr != null) {
+				if (seedArr != null && seedArr.length > 0) {
 					Node node  = _pathTo(seedArr, root);
 					if (node == null) throw new RiTaException("invalid seed");
 					while(!node.isRoot()) {
@@ -332,14 +348,12 @@ public class RiMarkov {
 					}
 				} else if (tokens.size() < 1 || _isEnd(tokens.get(tokens.size() - 1))) {
 
-					String[] usableStarts = sentenceStarts.stream().filter(ss -> this.notMarked(root.child(ss))).toArray(String[]::new);
-					if (trace) System.out.println("All sentence-starts : [" + sentenceStarts.stream().reduce((a, c) -> a + c + ",") + "] Marked sentence-starts: [" +
-						sentenceStarts.stream().filter(ss -> !this.notMarked(root.child(ss))).reduce((a, c) -> a + c + ",") + "]");
+					String[] usableStarts = sentenceStarts.stream().filter(notMarkedPreString).toArray(String[]::new);
 					if (usableStarts.length < 1) throw new RiTaException("No valid sentence-starts remaining");
 					String start = RiTa.random(usableStarts);
 					Node startTok = root.child(start);
 					markNode(startTok);
-					usableStarts = sentenceStarts.stream().filter(ss -> notMarked(root.child(ss))).toArray(String[]::new);//?
+					usableStarts = sentenceStarts.stream().filter(notMarkedPreString).toArray(String[]::new);//?
 					tokens.add(startTok);
 				} else {
 					throw new RiTaException("Invalid call to selectStart: " + _flatten(tokens.toArray(Node[]::new)));
@@ -373,9 +387,9 @@ public class RiMarkov {
 			}
 
 			if (this._isEnd(next)) {
-				boolean success = lo.validateSentence(next, tries, sentenceIdxs);
-				if (success) {
-					sentenceIdxs.add(tokens.size());
+				List<Integer> updatedSidxs = lo.validateSentence(next, tries, sentenceIdxs);
+				if (updatedSidxs != null) {
+					sentenceIdxs = updatedSidxs;
 				}
 				continue;
 			}
@@ -383,7 +397,8 @@ public class RiMarkov {
 			tokens.add(next);
 
 			if (this.trace) System.out.println(tokens.size() - sentIdx + " " + next.token +
-				"[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a+c+"|") + "]");
+				"[" + Arrays.asList(parent.childNodes(opts("filter", notMarkedPre))).stream().filter(t -> t != next).map(t -> t.token).reduce((a,c) -> a+c+"|").map(Object::toString)
+				.orElse("") + "]");
 		}
 
 		lo.unmarkNodes();
@@ -552,16 +567,12 @@ public class RiMarkov {
 
 	private boolean validateMlms(Node word, Node[] nodes) {
 		List<String> check = new ArrayList<>();
-		for (Node node : nodes) {
+		Node[] slice = Arrays.copyOfRange(nodes, nodes.length - this.mlm, nodes.length);
+		for (Node node : slice) {
 			check.add(node.token);
 		}
 		check.add(word.token); // string
-		int lastX = this.mlm + 1;
-		List<String> subArr = new ArrayList<String>(check.subList(check.size() - lastX, check.size()));
-		if (this.mlm > 0 && this.input == null) { // double-check
-			throw new RiTaException("[Markov] Invalid state: mlm > 0 and null input list");
-		}
-		return !isSubArrayList(subArr, this.input);
+		return !isSubArrayList(check, this.input);
 	}
 
 	private Node _selectNext(Node parent, double temp, Node[] tokens, Predicate<Node> filter){
@@ -570,7 +581,8 @@ public class RiMarkov {
 		Node[] children = parent.childNodes(RiTa.opts("filter", filter));
 		if (children.length < 1) {
 			if (this.trace) System.out.println("No children to select, parent=" + parent.token
-			+ " children=ok[], all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a, c) -> a + c + "|") + "]");
+			+ " children=ok[], all=[" + Arrays.asList(parent.childNodes()).stream().map(t -> t.token).reduce((a, c) -> a + c + "|").map(Object::toString)
+			.orElse("") + "]");
 			return null;
 		}
 
@@ -579,22 +591,29 @@ public class RiMarkov {
 			return parent.pselect(filter);
 		}
 
-		List<Integer> weights = new ArrayList<>();
-		for (Node n : children) {
-			weights.add(n.count);
+		int[] weights = new int[children.length];
+		for (int i : weights) {
+			weights[i] = children[i].count;
 		}
-		int[] wArr = weights.stream().mapToInt(i -> i).toArray();
-		double[] pdist = RandGen.ndist(wArr, temp);
+		double[] pdist = RandGen.ndist(weights, temp);
 		int tries = children.length * 2;
 		float selector = RandGen.random();
 
 		// loop 2x here as selector may skip earlier nodes
+		List<String> tried = new ArrayList<String>();
 		for (int i = 0, pTotal = 0; i < tries; i++) {
 			int idx = i % children.length;
 			pTotal += pdist[idx];
 			Node next = children[idx];
-			if (selector < pTotal && validateMlms(next, tokens)) {
-				return next;
+			if (selector < pTotal) {
+				if (!tried.contains(next.token)) {
+					tried.add(next.token);
+					if (this.validateMlms(next, tokens)) {
+						return next;
+					} else {
+						return null;
+					}
+				}
 			}
 		}
 		return null;
@@ -773,10 +792,10 @@ public class RiMarkov {
 		}
 
 		public Node[] childNodes(Map<String, Object> opts){
-			boolean sort = Util.boolOpt("sort", opts);
+			boolean sort = Util.boolOpt("sort", opts, false);
 			Predicate<Node> filter = null;
 			if (opts != null && opts.containsKey("filter")) {
-				filter = (Predicate) opts.get("filter");
+				filter = (Predicate<Node>) opts.get("filter");
 			}
 			Node[] kids = this.children.values().toArray(Node[]::new);
 			if (filter != null) kids = Arrays.asList(kids).stream().filter(filter).toArray(Node[]::new);
