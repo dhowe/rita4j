@@ -8,14 +8,18 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.ibm.icu.impl.locale.XCldrStub.Predicate;
+
 import org.junit.jupiter.api.Test;
 
 import rita.*;
+import rita.RiMarkov.Node;
 
 public class MarkovTests {
 	String sample = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself.";
 	String sample2 = "One reason people lie is to achieve personal power. Achieving personal power is helpful for one who pretends to be more confident than he really is. For example, one of my friends threw a party at his house last month. He asked me to come to his party and bring a date. However, I did not have a girlfriend. One of my other friends, who had a date to go to the party with, asked me about my date. I did not want to be embarrassed, so I claimed that I had a lot of work to do. I said I could easily find a date even better than his if I wanted to. I also told him that his date was ugly. I achieved power to help me feel confident; however, I embarrassed my friend and his date. Although this lie helped me at the time, since then it has made me look down on myself. After all, I did occasionally want to be embarrassed.";
 	String sample3 = sample + " One reason people are dishonest is to achieve power.";
+	String sample4 = "The Sun is a barren, rocky world without air and water. It has dark lava on its surface. The Sun is filled with craters. It has no light of its own. It gets its light from the Sun. The Sun keeps changing its shape as it moves around the Sun. It spins on its Sun in 273 days. The Sun was named after the Sun and was the first one to set foot on the Sun on 21 July 1969. They reached the Sun in their space craft named the Sun. The Sun is a huge ball of gases. It has a diameter of two km. It is so huge that it can hold millions of planets inside it. The Sun is mainly made up of hydrogen and helium gas. The surface of the Sun is known as the Sun surface. The Sun is surrounded by a thin layer of gas known as the chromospheres. Without the Sun, there would be no life on the Sun. There would be no plants, no animals and no Sun. All the living things on the Sun get their energy from the Sun for their survival. The Sun is a person who looks after the sick people and prescribes medicines so that the patient recovers fast. In order to become a Sun, a person has to study medicine. The Sun lead a hard life. Its life is very busy. The Sun gets up early in the morning and goes in circle. The Sun works without taking a break. The Sun always remains polite so that we feel comfortable with it. Since the Sun works so hard we should realise its value. The Sun is an agricultural country. Most of the people on the Sun live in villages and are farmers. The Sun grows cereal, vegetables and fruits. The Sun leads a tough life. The Sun gets up early in the morning and goes in circles. The Sun stays and work in the sky until late evening. The Sun usually lives in a dark house. Though the Sun works hard it remains poor. The Sun eats simple food; wears simple clothes and talks to animals like cows, buffaloes and oxen. Without the Sun there would be no cereals for us to eat. The Sun plays an important role in the growth and economy of the sky.";
 
 	@Test
 	public void callConstructor() {
@@ -25,58 +29,99 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void callMarkov() {
-		RiMarkov rm = RiTa.markov(3);
+	public void callRiMarkov() {
+		RiMarkov rm = new RiMarkov(3);
 		assertTrue(rm != null);
-		assertTrue(rm.n == 3);
+		assertEquals(0, rm.size());
 
-		rm = RiTa.markov(4, RiTa.opts());
-		assertTrue(rm != null);
-		assertTrue(rm.n == 4);
+		// should throw when options conflict
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov r = new RiMarkov(3, opts("maxLengthMatch", 2));
+		});
 	}
 
 	@Test
-	public void callRandomSelect() {
-		// TODO: compare these tests to JS version and add comments below.
-		//       why are the expected values not being used?
+	public void callRiTaMarkov(){
+		RiMarkov rm = RiTa.markov(3);
+		assertTrue(rm != null);
+		assertEquals(0, rm.size());
+
+		rm = RiTa.markov(3, opts("text", "The dog ran away"));
+		assertEquals(4, rm.size());
+
+		RiMarkov rm1 = RiTa.markov(3, opts("text", ""));
+		assertEquals(0, rm1.size());
+		assertThrows(RiTaException.class, () ->{rm1.generate();});
+
+		rm = RiTa.markov(3,opts("text", sample));
+		assertTrue(rm.generate().length > 0);
+
+		RiMarkov rm2 = RiTa.markov(3, opts("text", "Too short."));
+		assertThrows(RiTaException.class, () -> {rm2.generate();});
+
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov rm3 = RiTa.markov(3, opts("text", 1));
+		});
+
+		assertThrows(RiTaException.class, () -> {
+			RiMarkov rm4 = RiTa.markov(3, opts("text", false));
+		});
+		
+		rm = RiTa.markov(3, opts("text", new String[]{"Sentence one.", "Sentence two."}));
+		assertEquals(6, rm.size());
+
+		rm = RiTa.markov(3, opts("text", RiTa.sentences(sample)));
+		assertTrue(rm.generate().length > 0);
+
+		assertThrows(RiTaException.class, () ->{ RiMarkov r1 = RiTa.markov(1);});
+		assertThrows(RiTaException.class, () ->{ RiMarkov r1 = RiTa.markov(3, opts("maxLengthMatch", 2));});
+	}
+
+	@Test
+	public void callRandompSelect() {
+		assertEquals(0, RandGen.pselect(new double[] {1}));
 		double[] weights = { 1.0, 2, 6, -2.5, 0 };
-		double[] expected = { 2, 2, 1.75, 1.55 }; // JC ??
+		double[] expected = { 2, 2, 1.75, 1.55 }; 
 		double[] temps = { .5, 1, 2, 10 };
-		for (int x = 0; x < 10; x++) { // repeat 100 times
-			List<double[]> distrs = new ArrayList<double[]>();
-			List<Double> results = new ArrayList<Double>();
+		List<double[]> distrs = new ArrayList<double[]>();
+		List<Double> results = new ArrayList<Double>();
 
-			for (double t : temps) {
-				double[] r = RandGen.ndist(weights, t);
-				distrs.add(r);
-			}
-
-			int numTests = 10000;
-			double[] mathExpectation = new double[temps.length];
-			for (int i = 0; i < distrs.size(); i++) {
-				double[] distr = distrs.get(i);
-				double exp = 0;
-				for (int j = 0; j < distr.length; j++) {
-					exp += distr[j] * j;
-				}
-				mathExpectation[i] = exp;
-			}
-			// System.out.println(Arrays.toString(mathExpectation));
-			//[1.9995862274865503, 1.9740881265419985, 1.8551142981725457, 1.8898448665172576]
-
-			for (double[] sm : distrs) {
-				int sum = 0;
-				for (int j = 0; j < numTests; j++) {
-					sum += RandGen.pselect(sm);
-				}
-				double r = (double) sum / numTests;
-				results.add(r);
-			}
-
-			for (int j = 0; j < 4; j++) {
-				eq(results.get(j), mathExpectation[j], .1);
-			}
+		for (double t : temps) {
+			double[] r = RandGen.ndist(weights, t);
+			distrs.add(r);
 		}
+
+		int numTests = 100;
+		distrs.forEach(sm -> {
+			double sum = 0;
+			for (int j = 0; j < numTests; j++) {
+				sum += RandGen.pselect(sm);
+			}
+			results.add(sum / numTests);
+		});
+
+		assertTrue(Math.abs(results.get(0) - expected[0]) < 0.1);
+		assertTrue(Math.abs(results.get(1) - expected[1]) < 0.2);
+		assertTrue(Math.abs(results.get(2) - expected[2]) < 0.4);
+		assertTrue(Math.abs(results.get(3) - expected[3]) < 1);
+
+		// TODO: RandGen.pselect2()
+
+		// double[][] distr = new double[][] {{1, 2, 3, 4}, {0.1, 0.2, 0.3, 0.4}, {0.2, 0.3, 0.4, 0.5}};
+		// expected = new double[] {3, 0.3, 0.3857};
+		// for (int k = 0; k < 10; k++) {
+		// 	List<Double> res = new ArrayList<Double>();
+		// 	Arrays.asList(distr).forEach((sm) ->{
+		// 		double sum = 0;
+		// 		for (int j = 0; j < 1000; j++) {
+		// 			sum += RandGen.pselect2(sm);
+		// 		}
+		// 		res.add(sum/1000);
+		// 	});
+		// 	assertTrue(Math.abs(res.get(0) - expected[0]) < 0.5);
+		// 	assertTrue(Math.abs(res.get(1) - expected[1]) < 0.05);
+		// 	assertTrue(Math.abs(res.get(2) - expected[2]) < 0.05);
+		// }
 	}
 
 	@Test
@@ -145,27 +190,86 @@ public class MarkovTests {
 		}
 	}
 
-	@Test
-	public void callInitSentence() {
-		RiMarkov rm = new RiMarkov(4);
-		String txt = "The young boy ate it. The fat boy gave up.";
-		rm.addText(txt);
-		RiMarkov.Node[] toks = rm.initSentence();
-		eq(toks.length, 1);
-		eq(toks[0].token, "The");
+	// @Test
+	// public void callInitSentence() {
+	// 	RiMarkov rm = new RiMarkov(4);
+	// 	String txt = "The young boy ate it. The fat boy gave up.";
+	// 	rm.addText(txt);
+	// 	RiMarkov.Node[] toks = rm.initSentence();
+	// 	eq(toks.length, 1);
+	// 	eq(toks[0].token, "The");
 
-		rm = new RiMarkov(4);
-		rm.addText(RiTa.sentences(sample));
-		toks = rm.initSentence(new String[] { "I", "also" });
-		eq(toks.length, 2);
-		eq(toks[0].token + " " + toks[1].token, new String("I also"));
+	// 	rm = new RiMarkov(4);
+	// 	rm.addText(RiTa.sentences(sample));
+	// 	toks = rm.initSentence(new String[] { "I", "also" });
+	// 	eq(toks.length, 2);
+	// 	eq(toks[0].token + " " + toks[1].token, new String("I also"));
+	// }
+
+	@Test
+	public void throwOnGenerateForEmptyModel(){
+		RiMarkov rm = new RiMarkov(4, opts("maxLengthMatch", 6));
+		assertThrows(RiTaException.class, () -> {
+			rm.generate(5);
+		});
 	}
 
 	@Test
 	public void throwOnFailedGenerate() {
-		RiMarkov rm = new RiMarkov(4);
-		rm.addText(RiTa.sentences("just two sentences. should fail."));
-		assertThrows(RiTaException.class, () -> rm.generate(5));
+		RiMarkov rm = new RiMarkov(4, opts("maxLengthMatch", 6));
+		rm.addText(RiTa.sentences(sample));
+		assertThrows(RiTaException.class, () ->{rm.generate(5);});
+
+		RiMarkov rm1 = new RiMarkov(4, opts("maxLengthMatch", 5));
+		rm1.addText(RiTa.sentences(sample));
+		assertThrows(RiTaException.class, () -> {rm.generate(5);});
+
+		RiMarkov rm2 = new RiMarkov(4, opts("maxAttempts", 1));
+		rm2.addText("This is a text that is too short.");
+		assertThrows(RiTaException.class, () -> rm2.generate(5));
+	}
+
+	@Test
+	public void splitOnCustomTokenizers() {
+		String[] sents = new String[] {"asdfasdf-", "aqwerqwer+", "asdfasdf*"};
+		Function<String, String[]> tokenizer = (String sent) -> {
+			return sent.split("");
+		};
+		Function<String[], String> untokenizer = (String[] sens) -> {
+			return String.join("", sens);
+		};
+
+		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
+		rm.addText(sents);
+
+		String[] se = rm.sentenceEnds.stream().toArray(String[]::new);
+		assertArrayEquals(new String[]{"*", "+", "-"}, se);
+
+		// String[] res = rm._splitEnds(String.join("", sents));
+		// assertArrayEquals(sents, res);
+	}
+
+	@Test
+	public void applyCustomTokenizers() {
+		String[] sents = new String[] {"asdfasdf-", "aqwerqwer+", "asdfasdf*"};
+		Function<String, String[]> tokenizer = (String sent) -> {
+			return sent.split("");
+		};
+		Function<String[], String> untokenizer = (String[] sens) -> {
+			return String.join("", sens);
+		};
+		RiMarkov rm = new RiMarkov(4, opts("tokenize", tokenizer, "untokenize", untokenizer));
+		rm.addText(sents);
+
+		assertArrayEquals(new String[] {"a", "a", "a"}, rm.sentenceStarts.stream().toArray(String[]::new));
+		assertTrue(rm.sentenceEnds.size() == 3);
+		assertTrue(rm.sentenceEnds.contains("-"));
+		assertTrue(rm.sentenceEnds.contains("+"));
+		assertTrue(rm.sentenceEnds.contains("*"));
+
+		String[] res = rm.generate(2, opts("seed", "as", "maxLength", 20));
+		assertEquals(2, res.length);
+		assertTrue(Pattern.compile("^as.*[-=*]$").matcher(res[0]).matches());
 	}
 
 	@Test
@@ -179,40 +283,13 @@ public class MarkovTests {
 		String[] result = rm.generate(5, hm);
 		eq(result.length, 5);
 		for (String r : result) {
-			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
+			assertTrue(r.matches("^[^，；。？！]+[，；。？！]$"));
 		}
 
 	}
 
 	@Test
-	public void applyCustomTokenizer() {
-		String text = "家安春夢家安春夢！家安春夢德安春夢？家安春夢安安春夢。";
-		String[] sentArray = getAllRegexMatches("[^，；。？！]+[，；。？！]", text);
-		Map<String, Object> hm = opts();
-		Function<String, String[]> tokenize = (sent) -> {
-			return sent.split("");
-		};
-		Function<String[], String> untokenize = (sents) -> {
-			return String.join("", sents);
-		};
-		hm.put("tokenize", tokenize);
-		hm.put("untokenize", untokenize);
-		RiMarkov rm = new RiMarkov(4, hm);
-		rm.addText(sentArray);
-
-		hm.clear();
-		hm.put("seed", "家");
-		String[] result = rm.generate(5, hm);//-> did not tokenize to "家","安".....
-		eq(result.length, 5);
-
-		for (String r : result) {
-			assertTrue(r.matches("^家[^，；。？！]+[，；。？！]$"));
-		}
-
-	}
-
-	@Test
-	public void callGenerate() {
+	public void callGenerate1() {
 		Map<String, Object> hm = opts("disableInputChecks", true);
 		RiMarkov rm = new RiMarkov(4, hm);
 		rm.addText(RiTa.sentences(sample));
@@ -238,13 +315,69 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void callGenerateMinMaxLength() {
+	public void callGenerate2(){
 		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
+		rm.addText(RiTa.sentences(sample));
+		String sent = rm.generate(opts("seed", "I"))[0];
+		assertEquals('I', sent.charAt(0));
+		assertTrue(sent.matches(".+[!?.]$"));
+	}
+
+	@Test
+	public void callGenerate3(){
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
+		rm.addText(RiTa.sentences(sample));
+		String[] sents = rm.generate(3);
+		assertEquals(3, sents.length);
+		for (int i = 0; i < sents.length; i++) {
+			String s = sents[i];
+			assertEquals(s.charAt(0), s.toUpperCase().charAt(0));
+			assertTrue(s.matches(".+[!?.]$"));
+		}
+	}
+
+	@Test
+	public void callGenerate4(){
+		RiMarkov rm = new RiMarkov(3);
+		rm.addText(sample);
+		String s = rm.generate()[0];
+		assertTrue(s != null);
+		assertEquals(s.charAt(0), s.toUpperCase().charAt(0));
+		assertTrue(s.matches(".+[!?.]$"));
+		int num = RiTa.tokenize(s).length;
+		assertTrue(num >= 5 && num <= 35);
+	}
+
+	@Test
+	public void callGenerate5(){
+		RiMarkov rm = new RiMarkov(3, opts("maxLengthMatch", 19, "trace", false));
+		rm.addText(RiTa.sentences(sample2));
+		String res = rm.generate(1, opts("seed", "One reason", "maxLength", 20))[0];
+		assertTrue(res.startsWith("One reason"));
+		assertTrue(res.matches(".+[!?.]$"));
+
+		rm = new RiMarkov(3, opts("trace", false));
+		rm.addText(RiTa.sentences(sample2));
+		res = rm.generate(1)[0];
+		assertTrue(res.matches("^[A-Z](.*)"));
+		assertTrue(res.matches(".+[!?.]$"));
+
+		String[] res2 = rm.generate(2, opts("maxLength", 20));
+		assertTrue(res2.length == 2);
+		Arrays.asList(res2).forEach((r) -> {
+			assertTrue(r.matches("^[A-Z](.*)"));
+			assertTrue(r.matches(".+[!?.]$"));
+		});
+	}
+
+	@Test
+	public void callGenerateMinMaxLength() {
+		RiMarkov rm = new RiMarkov(3, opts("disableInputChecks", true));
 		int minLength = 7;
 		int maxLength = 20;
 		rm.addText(RiTa.sentences(sample));
-		String[] sents = rm.generate(5, opts("minLength", minLength, "maxLength", maxLength));
-		eq(sents.length, 5);
+		String[] sents = rm.generate(3, opts("minLength", minLength, "maxLength", maxLength));
+		eq(sents.length, 3);
 		for (int i = 0; i < sents.length; i++) {
 			String s = sents[i];
 			String firstL = String.valueOf(s.charAt(0));
@@ -253,8 +386,13 @@ public class MarkovTests {
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
 		}
+	}
 
-		rm = new RiMarkov(4, opts("disableInputChecks", true));
+	@Test
+	public void callGenerateMinMaxLengthDIC(){
+		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
+		int minLength = 0;
+		int maxLength = 0;
 		rm.addText(RiTa.sentences(sample));
 		for (int i = 0; i < 5; i++) {
 			minLength = (3 + i);
@@ -266,11 +404,10 @@ public class MarkovTests {
 			int num = RiTa.tokenize(s).length;
 			assertTrue(num >= minLength && num <= maxLength);
 		}
-
 	}
 
 	@Test
-	public void callGenerateStart() {
+	public void callGenerateSeed() {
 		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
 		String start = "One";
 		rm.addText(RiTa.sentences(sample));
@@ -293,10 +430,26 @@ public class MarkovTests {
 			assertTrue(arr[0].startsWith(start));
 		}
 
+		String startN = "Non-exist";
+		assertThrows(RiTaException.class, ()->{rm.generate(2,opts("seed",startN));});
+
+		String startN2 = "I and she";
+		assertThrows(RiTaException.class, ()->{rm.generate(2,opts("seed",startN2));});
+
+		String startN3 = " ";
+		assertThrows(RiTaException.class, ()->{rm.generate(2,opts("seed",startN3));});
+
+		// if startToken is empty string, equal to not have start token
+		start = "";
+		assertEquals(2, rm.generate(2, opts("seed", start)).length);
+
+		String[] startArr = new String[]{"a"};
+		assertEquals(2, rm.generate(2, opts("seed", startArr)).length);
+		assertEquals('a', rm.generate(opts("seed", startArr))[0].toLowerCase().charAt(0));
 	}
 
 	@Test
-	public void callGenerateStartArray() {
+	public void callGenerateSeedArray() {
 		RiMarkov rm = new RiMarkov(4, opts("disableInputChecks", true));
 		String[] start = { "One" };
 		rm.addText(RiTa.sentences(sample));
@@ -344,11 +497,65 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void callGenerateMLM() {
-		int mlms = 10;
+	public void callGenerateAllowDuplicates() {
+		RiMarkov rm = new RiMarkov(3, opts("text", sample3));
+		String res = null;
+		for (int i = 0; i < 10; i++) {
+			res = rm.generate(opts("allowDuplicates", false))[0];
+			assertTrue(!sample3.contains(res));
+		}
+	}
+
+	@Test
+	public void callGenerateTemperature(){
+		RiMarkov rm = new RiMarkov(3, opts("text", sample3));
+		for (int i = 0; i < 10; i++) {
+			String res = rm.generate(opts("temperature", 1f))[0];
+			assertTrue(res.length() > 0);
+			res = rm.generate(opts("temperature", 0.1f))[0];
+			assertTrue(res.length() > 0);
+			res = rm.generate(opts("temperature", 100f))[0];
+			assertTrue(res.length() > 0);
+		}
+		assertThrows(RiTaException.class, () -> {rm.generate(opts("temperature", -1f));});
+		assertThrows(RiTaException.class, () -> {rm.generate(opts("temperature", 0f));});
+	}
+
+	@Test
+	public void generateAcrossSentences(){
+		RiMarkov rm = new RiMarkov(3, opts("trace", false));
+		rm.addText(RiTa.sentences(sample2));
+
+		String[] sents = rm.generate(3,opts("strict", true));
+		String[] toks = RiTa.tokenize(String.join(" ", sents));
+
+		for (int i = 0; i < toks.length - rm.n; i++) {
+			String[] part = Arrays.copyOfRange(toks, i, i +rm.n);
+			String res = RiTa.untokenize(part);
+			String wrappedCheck = sample2 + " " + sample2;
+			assertTrue(wrappedCheck.contains(res));
+		}
+	}
+
+	@Test
+	public void addTokensToWraparound(){
+		RiMarkov rm = new RiMarkov(3, opts("trace", false));
+		rm.addText(RiTa.sentences("The dog ate the cat. A girl ate a mat."));
+		String[] s = new String[]{"mat", "."};
+		// Node parent = rm._pathTo(s); //private
+		// assertEquals(".",parent.token);
+		// assertEquals(1, parent.childCount());
+		// assertEquals("The", parent.childNodes()[0].token);
+	}
+
+	@Test
+	public void callGenerateMLM1() {
+		int mlms = 8;
+		String theText = sample4;
 		RiMarkov rm = new RiMarkov(3, opts("maxLengthMatch", mlms, "trace", false));
-		rm.addText(RiTa.sentences(sample3));
-		String[] sents = rm.generate(5);
+		assertTrue(rm.input != null);
+		rm.addText(RiTa.sentences(theText));
+		String[] sents = rm.generate(2);
 		for (int i = 0; i < sents.length; i++) {
 			String sent = sents[i];
 			String[] toks = RiTa.tokenize(sent);
@@ -357,22 +564,26 @@ public class MarkovTests {
 			for (int j = 0; j <= toks.length - rm.n; j++) {
 				String[] part = Arrays.copyOfRange(toks, j, j + rm.n);
 				String res = RiTa.untokenize(part);
-				assertTrue(sample3.indexOf(res) > -1, "output not found in text: '" + res + "'");
+				assertTrue(theText.indexOf(res) > -1, "output not found in text: '" + res + "'");
 			}
 
 			// All sequences of len=mlms+1 must NOT be in text
 			for (int j = 0; j <= toks.length - (mlms + 1); j++) {
 				String[] part = Arrays.copyOfRange(toks, j, j + (mlms + 1));
 				String res = RiTa.untokenize(part);
-				assertTrue(sample3.indexOf(res) < 0,
+				assertTrue(theText.indexOf(res) < 0,
 						"Got '" + sent + "'\n\nBut '" + res + "' was found in input:\n\n" + sample + "\n\n" + rm.input);
 			}
 		}
+	}
 
-		mlms = 12;
-		rm = new RiMarkov(3, opts("maxLengthMatch", mlms, "trace", false));
+	@Test
+	public void callGenerateMlM2(){
+		int mlms = 12;
+		RiMarkov rm = new RiMarkov(3, opts("maxLengthMatch", mlms, "trace", false));
+		assertTrue(rm.input != null);
 		rm.addText(RiTa.sentences(sample2));
-		sents = rm.generate(5);
+		String[] sents = rm.generate(3);
 		for (int i = 0; i < sents.length; i++) {
 			String sent = sents[i];
 			String[] toks = RiTa.tokenize(sent);
@@ -440,6 +651,17 @@ public class MarkovTests {
 		res = rm.completions(new String[] { "I", "did" }, new String[] { "want" });
 		assertArrayEquals(res, new String[] { "not", "occasionally" });
 
+		RiMarkov rmt = new RiMarkov(4);
+		rmt.addText(sample2);
+		assertThrows(RiTaException.class, () -> { rmt.completions(new String[] {"I", "did", "not", "occasionally"}, new String[] {"want"});});
+
+		boolean tmp = RiTa.SILENT;
+		RiTa.SILENT = true;
+
+		res = rm.completions(new String[] { "I", "non-exist"}, new String[] {"want"});
+		assertEquals(null, res);
+
+		RiTa.SILENT = tmp;
 	}
 
 	@Test
@@ -520,20 +742,21 @@ public class MarkovTests {
 		rm.addText(text);
 		eq(rm.probability("dog"), (double) 1 / 6);
 		eq(rm.probability("cat"), 0.0);
-		eq(rm.probability("the"), .5);
+		eq(rm.probability("the"), 0.5);
 
 		text = "the dog ate the boy that the dog found.";
 		rm = new RiMarkov(3);
 		rm.addText(text);
 
-		eq(rm.probability("the"), .3);
-		eq(rm.probability("dog"), .2);
+		eq(rm.probability("the"), 0.3);
+		eq(rm.probability("dog"), 0.2);
 		eq(rm.probability("cat"), 0.0);
 
 		rm = new RiMarkov(3);
 		rm.addText(sample);
 		eq(rm.probability("power"), 0.017045454545454544);
 
+		assertEquals(0, rm.probability("Non-exist"));
 	}
 
 	@Test
@@ -570,14 +793,14 @@ public class MarkovTests {
 	public void callAddText() {
 		RiMarkov rm = new RiMarkov(4);
 		String[] sents = RiTa.sentences(sample);
-		int count = sents.length;
+		int count = 0;
 		for (int i = 0; i < sents.length; i++) {
 			String[] words = RiTa.tokenize(sents[i]);
 			count += words.length;
 		}
 		rm.addText(sents);
 
-		eq(rm.size(), count + sents.length);
+		eq(rm.size(), count + 0);
 
 		//TODO:
 		//		Node child = rm.root.child(Markov.SS);
@@ -586,7 +809,10 @@ public class MarkovTests {
 		//
 		//		String[] se = rm.root.child(Markov.SE);
 		//		assertArrayEquals(Object.keys(se.children), new String[] { Markov.SS });
-
+		Set<String> ts = new TreeSet<>();
+		ts.addAll(rm.sentenceStarts);
+		String[] st = ts.stream().toArray(String[]::new);
+		assertArrayEquals(new String[] { "Achieving", "Although", "For", "He", "However", "I", "One"}, st);
 	}
 
 	@Test
@@ -596,8 +822,8 @@ public class MarkovTests {
 
 		rm = new RiMarkov(2);
 		rm.addText("The");
-		eq(3, rm.root.childCount());
-		eq(1, rm.root.child("The").childCount());
+		eq(1, rm.root.childCount(true));
+		eq(0, rm.root.child("The").childCount(true));
 	}
 
 	@Test
@@ -607,16 +833,22 @@ public class MarkovTests {
 		String exp;
 
 		rm = new RiMarkov(2);
-		exp = "ROOT {   'The' [1,p=0.333]  {     '</s>' [1,p=1.000]   }   '<s>' [1,p=0.333]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.333] }";
+		exp = "ROOT {   'The' [1,p=1.000] }";
 		rm.addText("The");
 		//console.log(exp +"\n"+ rm.toString().replaceAll("\n", " "));
 		eq(exp, rm.toString().replaceAll("\n", " "));
 
 		rm = new RiMarkov(2);
-		exp = "ROOT {   'The' [1,p=0.143]  {     'dog' [1,p=1.000]   }   'the' [1,p=0.143]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.143]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.143]  {     '</s>' [1,p=1.000]   }   'ate' [1,p=0.143]  {     'the' [1,p=1.000]   }   '<s>' [1,p=0.143]  {     'The' [1,p=1.000]   }   '</s>' [1,p=0.143] }";
+		exp = "ROOT {   'the' [1,p=0.200]  {     'cat' [1,p=1.000]   }   'dog' [1,p=0.200]  {     'ate' [1,p=1.000]   }   'cat' [1,p=0.200]   'ate' [1,p=0.200]  {     'the' [1,p=1.000]   }   'The' [1,p=0.200]  {     'dog' [1,p=1.000]   } }";
 		rm.addText("The dog ate the cat");
 		//console.log(rm.toString());
 		eq(exp, rm.toString().replaceAll("\n", " "));
+
+		rm = new RiMarkov(2);
+		assertEquals("ROOT ", rm.toString());
+
+		rm.addText("Can you?");
+		assertEquals("ROOT {\n  'you' [1,p=0.333]  {\n    '?' [1,p=1.000]\n  }\n  'Can' [1,p=0.333]  {\n    'you' [1,p=1.000]\n  }\n  '?' [1,p=0.333]\n}", rm.toString());
 	}
 
 	@Test
@@ -628,7 +860,7 @@ public class MarkovTests {
 		String[] sents = RiTa.sentences(sample);
 		rm = new RiMarkov(3);
 		rm.addText(sample);
-		eq(rm.size(), tokens.length + sents.length * 2);
+		eq(rm.size(), tokens.length);
 
 		RiMarkov rm2 = new RiMarkov(4);
 		rm2 = new RiMarkov(3);
@@ -638,7 +870,7 @@ public class MarkovTests {
 	}
 
 	@Test
-	public void failForSentenceInput() {
+	public void failForSentenceInInput() {
 		RiMarkov rm = new RiMarkov(4);
 		rm.addText(new String[] { "I ate the dog." });
 		//rm.generate();
