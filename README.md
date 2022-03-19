@@ -142,7 +142,7 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.
 &nbsp; &nbsp; For online examples in JavaScript, see [this page](https://rednoise.org/rita/#examples)
 
 1. Create a new Java project in Eclipse (or your IDE of choice)
-2. Download [rita.jar](http://rednoise.org/rita/download/rita.jar) and add it to the build path for the project. In eclipse: 'Project' > 'Properties' > 'Java Build Path' > 'Libraries' > 'Add External JARs...'
+2. Download [rita.jar](https://github-registry-files.githubusercontent.com/216313864/bd26cf80-1cad-11ec-9175-4bd56458eebc?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAIWNJYAX4CSVEH53A%2F20220319%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20220319T092932Z&X-Amz-Expires=300&X-Amz-Signature=76f6397b84f722b45d62516d547d090047e67250ef398b4fe72b7ee2f455d9c1&X-Amz-SignedHeaders=host&actor_id=0&key_id=0&repo_id=216313864&response-content-disposition=filename%3Drita-2.4.501.jar&response-content-type=application%2Foctet-stream) and add it to the build path for the project. In eclipse: 'Project' > 'Properties' > 'Java Build Path' > 'Libraries' > 'Add External JARs...'
 3. Create and run a new class, SimpleExample.java, with the following code:
 ```Java
 import rita.*;
