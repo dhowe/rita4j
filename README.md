@@ -23,7 +23,7 @@ Note: Version 2.0 contains breaking changes! Please check the [release notes](ht
 
 ### Installation
 
-* Via [github packages](https://github.com/dhowe/rita/packages/)
+* Via [github packages](https://github.com/dhowe/rita4j/packages/)
 * Via [maven central](https://search.maven.org/artifact/org.rednoise/rita)
 * Or directly in maven:
 
