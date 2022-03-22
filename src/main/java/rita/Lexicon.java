@@ -348,11 +348,11 @@ public class Lexicon {
 	private String matchPos(String word, String[] rdata,
 			Map<String, Object> opts, boolean strict) {
 
-		String pos = (String) opts.get("pos");
-		String targetPos = (String) opts.get("targetPos");
-		int numSyllables = (int) opts.get("numSyllables");
-		boolean pluralize = (boolean) opts.get("pluralize");
-		boolean conjugate = (boolean) opts.get("conjugate");
+		String pos = Util.strOpt("pos", opts, "");
+		String targetPos = Util.strOpt("targetPos", opts, "");
+		int numSyllables = Util.intOpt("numSyllables", opts, 0);
+		boolean pluralize = Util.boolOpt("pluralize", opts, false);
+		boolean conjugate = Util.boolOpt("conjugate", opts, false);
 
 		String[] posArr = rdata[1].split(" ");
 		if (strict && !targetPos.equals(posArr[0]) ||
@@ -365,20 +365,24 @@ public class Lexicon {
 		if (pluralize) {
 			if (word.endsWith("ness") || word.endsWith("ism")) return null;
 			result = RiTa.pluralize(word);
+			if (!RiTa.isNoun(result)) return null;
 		}
 		else if (conjugate) { // inflect
 			result = reconjugate(word, pos);
 		}
 
 		// verify we haven't changed syllable count
-		if (!result.equals(word) && numSyllables > 0) {
-			boolean tmp = RiTa.SILENCE_LTS;
-			RiTa.SILENCE_LTS = true;
-			// TODO: use rdata here if possible
-			int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;
-			RiTa.SILENCE_LTS = tmp;
-			// reject if syllable count has changed
-			if (num != numSyllables) return null;
+		if (!result.equals(word)) {
+			if (numSyllables > 0) {
+				boolean tmp = RiTa.SILENCE_LTS;
+				RiTa.SILENCE_LTS = true;
+				// TODO: use rdata here if possible
+				int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;
+				RiTa.SILENCE_LTS = tmp;
+				// reject if syllable count has changed
+				if (num != numSyllables) return null;
+			}
+			if (result.length() < Util.intOpt("minLength", opts, 0) || result.length() > Util.intOpt("maxLength", opts, 2147483647)) return null;
 		}
 
 		return result;
@@ -425,9 +429,9 @@ public class Lexicon {
 
 	private boolean checkCriteria(String word, String[] rdata, Map<String, Object> opts) {
 
-		int minLength = (int) opts.get("minLength");
-		int maxLength = (int) opts.get("maxLength");
-		int numSyllables = (int) opts.get("numSyllables");
+		int minLength = Util.intOpt("minLength", opts, 0);
+		int maxLength =  Util.intOpt("maxLength", opts, 2147483647);
+		int numSyllables =  Util.intOpt("numSyllables", opts, 0);
 
 		// check word length
 		if (word.length() > maxLength) return false;
@@ -520,20 +524,17 @@ public class Lexicon {
 	public String[] similarByType(String theWord, Map<String, Object> opts) {
 		opts = this.parseArgs(opts);
 
-		String type = Util.strOpt("type", opts);
-		boolean sound = type.equals("sound");
+		String type = Util.strOpt("type", opts, "");
+		boolean matchSound = type.equals("sound");
 		int limit = Util.intOpt("limit", opts);
 		int minDist = Util.intOpt("minDistance", opts);
-		String tpos = Util.strOpt("targetPos", opts);
+		String tpos = Util.strOpt("targetPos", opts, "");
 
 		String input = theWord.toLowerCase();
-		String variations = input + "||" + input + "s||" + input + "es";
-		String[] phonesA = null, words = words();
-
-		if (sound) {
-			phonesA = this.toPhoneArray(this.rawPhones(input));
-			if (phonesA == null) return EA;
-		}
+		String[] variations = new String[] {input, input + "s", input + "es"};
+		String[] phonesA = matchSound ? this.toPhoneArray(this.rawPhones(input)) : new String[]{input};
+		if (phonesA == null || phonesA.length < 1) return EA;
+		String[] words = words();
 
 		ArrayList<String> result = new ArrayList<String>();
 		int minVal = Integer.MAX_VALUE;
@@ -546,7 +547,7 @@ public class Lexicon {
 			String word = words[i];
 			String[] rdata = dict.get(word);
 			if (!this.checkCriteria(word, rdata, opts)) continue;
-			if (variations.contains(word)) continue;
+			if (Arrays.asList(variations).contains(word)) continue;
 
 			if (tpos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
@@ -554,19 +555,15 @@ public class Lexicon {
 				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
 
-			// if new word is not in dictionary
-			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
-
-			int med = -1;
-			String[] phonesB;
-			if (sound) {
-				phonesB = phones.replaceAll("1", "").replaceAll(" ", "-").split("-");
-				med = minEditDist(phonesA, phonesB);
-			}
-			else {
-				med = minEditDist(input, word);
+			String[] phonesB = new String[]{word};
+			if (matchSound) {
+				String phones = rdata != null ? rdata[0] : this.rawPhones(word);
+				phones = phones.replaceAll("1", "");
+				phones = phones.replaceAll(" ", "-");
+				phonesB = phones.split("-");
 			}
 
+			int med = matchSound ? Lexicon.minEditDist(phonesA, phonesB) : Lexicon.minEditDist(input, word);
 			// found something even closer
 			if (med >= minDist && med < minVal) {
 				minVal = med;
@@ -672,6 +669,11 @@ public class Lexicon {
 			}
 			return Pattern.compile(regexStr);
 		} else if (regex instanceof Pattern) {
+			Pattern re = (Pattern) regex;
+			String str = re.pattern();
+			if (Pattern.compile("^\\^?[01]+\\$?$").matcher(str).matches()) {
+				return Pattern.compile(str.replaceAll("([01])(?=([01]))", "$1/"));
+			}
 			return (Pattern) regex;
 		} else {
 			return null;
@@ -878,9 +880,6 @@ public class Lexicon {
 		opts.put("shuffle", Util.boolOpt("shuffle", opts));
 		return opts;
 	}
-
-	private static final String TARGET_POS = "targetPos", STRESSES = "stresses";
-	private static final String PHONES = "phones", STRESS = "1", SPC = " ";
 
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);

@@ -463,16 +463,16 @@ public class LexiconTests {
 
 	@Test
 	public void callSearchWithPosPhonesLimit(){
-		String[] actual = RiTa.search("f-ah-n-t", opts("type", "phone", "pos", "n", "limit", 3));
+		String[] actual = RiTa.search("f-ah-n-t", opts("type", "phones", "pos", "n", "limit", 3));
 		assertArrayEquals(new String[]{"elephant", "infant", "infantry"}, actual);
-		actual = RiTa.search(Pattern.compile("f-a[eh]-n-t"), opts("type", "phone", "pos", "v", "limit", 5));
+		actual = RiTa.search(Pattern.compile("f-a[eh]-n-t"), opts("type", "phones", "pos", "v", "limit", 5));
 		assertArrayEquals(new String[] {"fantasize"}, actual);
 	}
 
 	@Test
 	public void callSearchWithSimplePosPhonesLimit(){
-		assertArrayEquals(new String[]{"elephants", "infants", "infantries"}, RiTa.search("f-ah-n-t", opts("type", "phone", "pos", "nns", "limit", 3)));
-		assertArrayEquals(new String[] {"fantasize"}, RiTa.search(Pattern.compile("f-a[eh]-n-t"), opts("type", "phone", "pos", "vb", "limit", 5)));
+		assertArrayEquals(new String[]{"elephants", "infants", "infantries"}, RiTa.search("f-ah-n-t", opts("type", "phones", "pos", "nns", "limit", 3)));
+		assertArrayEquals(new String[] {"fantasize"}, RiTa.search(Pattern.compile("f-a[eh]-n-t"), opts("type", "phones", "pos", "vb", "limit", 5)));
 	}
 
 	@Test
@@ -507,7 +507,7 @@ public class LexiconTests {
         "absorbers",
         "abstentions",
         "abstractions"
-		}, RiTa.search("010", opts("type", "stress","limit", 5, "pos", "nns", "numSyllables", 3)));
+		}, RiTa.search("010", opts("type", "stresses","limit", 5, "pos", "nns", "numSyllables", 3)));
 	}
 
 	@Test
@@ -797,14 +797,14 @@ public class LexiconTests {
 		assertTrue(Arrays.asList(RiTa.rhymes("toy", opts("pos", "n"))).contains("boy"));
 		assertFalse(Arrays.asList(RiTa.rhymes("sieve", opts("pos", "n"))).contains("give"));
 
-		assertFalse(Arrays.asList(RiTa.rhymes("tense", opts("pos", "v"))).contains("condense"));
+		assertTrue(Arrays.asList(RiTa.rhymes("tense", opts("pos", "v"))).contains("condense"));
 		assertFalse(Arrays.asList(RiTa.rhymes("crab", opts("pos", "n"))).contains("drab"));
 		assertFalse(Arrays.asList(RiTa.rhymes("shore", opts("pos", "v"))).contains("more"));
 
-		assertFalse(Arrays.asList(RiTa.rhymes("mouse", opts("pos", "nn"))).contains("house"));
+		assertTrue(Arrays.asList(RiTa.rhymes("mouse", opts("pos", "nn"))).contains("house"));
 
 		assertFalse(Arrays.asList(RiTa.rhymes("weight", opts("pos", "vb"))).contains("eight"));
-		assertFalse(Arrays.asList(RiTa.rhymes("eight", opts("pos", "nn", "limit", 1000))).contains("weight"));
+		assertTrue(Arrays.asList(RiTa.rhymes("eight", opts("pos", "nn", "limit", 1000))).contains("weight"));
 
 		assertFalse(Arrays.asList(RiTa.rhymes("apple", opts("pos", "v"))).contains("polo"));
 		assertFalse(Arrays.asList(RiTa.rhymes("this", opts("pos", "v"))).contains("these"));
@@ -819,7 +819,7 @@ public class LexiconTests {
 		String[] rhymes = RiTa.rhymes("abated", opts("pos", "vbd", "limit", 1000));
 		assertTrue(Arrays.asList(rhymes).contains("allocated"));
 		assertTrue(Arrays.asList(rhymes).contains("annihilated"));
-		assertTrue(Arrays.asList(rhymes).contains("condensed"));
+		assertFalse(Arrays.asList(rhymes).contains("condensed"));
 	}
 
 	@Test
@@ -927,7 +927,7 @@ public class LexiconTests {
 		for (String string : result) {
 			assertTrue(string.length() == 4);
 		}
-    	assertArrayEquals(result, new String[] {"axes", "beef", "deer", "dibs", "fame"});
+    	assertArrayEquals(result, new String[] {"axes", "beef", "deer", "dibs", "fish"});
 
     	// special case, where word is not in dictionary
    	 	result = RiTa.spellsLike("abated", opts( "pos", "vbd" ));
