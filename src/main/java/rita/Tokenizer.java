@@ -12,7 +12,7 @@ import java.util.regex.Pattern;
 public class Tokenizer {
 
 	public static String[] tokenize(String words) {
-		return tokenize(words, null);
+		return tokenize(words, RiTa.opts());
 	}
 
 	public static String untokenize(String[] arr) {
@@ -23,7 +23,7 @@ public class Tokenizer {
 		return tokens(text, null);
 	}
 	
-	public static String[] tokens(String text, String regex) { // SYNC:
+	public static String[] tokens(String text, String regex) {
     // opts: {includePunct, caseSensitive, sort, ignoreStopWords} ?
     String[] words = tokenize(text, regex);
     Set<String> tokens = new HashSet<String>();
@@ -161,12 +161,20 @@ public class Tokenizer {
 	}
 
 	public static String[] tokenize(String words, String regex) {
+		return tokenize(words, RiTa.opts("regex", regex));
+	}
+
+	public static String[] tokenize(String words, Map<String,Object> opts) {
 
 		if (words == null) return new String[0];
 		if (words.length() == 0) return new String[] { "" };
 
+		String regex = Util.strOpt("regex", opts, null);
 		// handle a regex argument
 		if (regex != null) return words.split(regex);
+
+		boolean spl_bc = RiTa.SPLIT_CONTRACTIONS;
+		if (Util.boolOpt("splitContractions", opts, false)) RiTa.SPLIT_CONTRACTIONS = true;
 
 		words = words.trim();
 
@@ -190,7 +198,7 @@ public class Tokenizer {
 			words = TOKPAT3[i].matcher(words)
 					.replaceAll(TOKREP3[i]);
 		}
-
+		RiTa.SPLIT_CONTRACTIONS = spl_bc;
 		words = words.trim();
 		String[] result = words.split(" +");
 		ArrayList<String> toReturn = popTags(result, htmlTags);
@@ -388,6 +396,9 @@ public class Tokenizer {
 			Pattern.compile("([CcWw])ouldn['’]t"),
 			Pattern.compile("([Ss])houldn['’]t"),
 			Pattern.compile("([Ii])t['’]s"),
+			Pattern.compile("([tT]hat)['’]s"),
+			Pattern.compile("(she|he|you|they|i)['’]d", Pattern.CASE_INSENSITIVE),
+			Pattern.compile("(she|he|you|they|i)['’]ll", Pattern.CASE_INSENSITIVE),
 			Pattern.compile("n['’]t "),
 			Pattern.compile("['’]ve "),
 			Pattern.compile("['’]re "),
@@ -490,6 +501,9 @@ public class Tokenizer {
 			"$1ould not",
 			"$1hould not",
 			" $1t is",
+			"$1 is",
+			"$1 would",
+			"$1 will",
 			" not ",
 			" have ",
 			" are ",

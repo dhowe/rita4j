@@ -276,7 +276,8 @@ public class RiScript {
 
 	public static String articlize(String s) {
 		if (s == null || s.length() < 1) return "";
-		String phones = RiTa.phones(s, RiTa.opts("silent", true));
+		String first = s.split("\\s+")[0];
+		String phones = RiTa.phones(first, RiTa.opts("silent", true));
 		//System.out.println(phones+" " + phones.substring(0,1));
 		return (phones != null && phones.length() > 0 && RE.test("[aeiou]",
 				phones.substring(0, 1)) ? "an " : "a ") + s;
@@ -284,6 +285,7 @@ public class RiScript {
 
 	private static final Pattern SYM_RE = Pattern.compile(RiTa.VSYM);
 	private static final Pattern PRS_RE = Pattern.compile("[(){}|]|" + RiTa.VSYM);
+	private static final Pattern ENT_RE = Pattern.compile("[\\u00a0\\u2000-\\u200b\\u2028-\\u2029\\u3000]+");
 
 	private static final Function<String, String> identity = s -> s;
 

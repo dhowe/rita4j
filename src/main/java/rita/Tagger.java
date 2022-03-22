@@ -598,6 +598,10 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			if (pos.contains("nn")) result.add("nns"); // ?? any case
 			if (pos.contains("vb")) result.add("vbz");
 		}
+
+		if (pos == null || pos.size() < 1 || !pos.contains("vbz")) {
+			if (_isNoLexIrregularVerb(stem)) result.add("vbz");
+		}
 	}
 
 	private boolean isLikelyPlural(String word) {
@@ -610,6 +614,10 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		return Arrays.asList(allTags(word, opts)).stream()
 				.filter(p -> Arrays.asList(tagArray).contains(p))
 				.collect(Collectors.toList()).size() > 0;
+	}
+
+	private static boolean _isNoLexIrregularVerb(String stem) {
+		return Arrays.asList(Conjugator.IRREG_VERBS_LEX).contains(stem);
 	}
 
 	public static void main(String[] args) {

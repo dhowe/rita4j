@@ -164,7 +164,7 @@ public class Inflector {
 			new RE("[bcdfghjklmnpqrstvwxyz]o$", 0, "es"),
 			new RE("[bcdfghjklmnpqrstvwxyz]y$", 1, "ies"),
 			new RE("^ox$", 0, "en"),
-			new RE("^(stimul|alumn|termin)us$", 2, "i"),
+			new RE("^(stimul|alumn|termin|emerit)us$", 2, "i"),
 			new RE("^corpus$", 2, "ora"),
 			new RE("(xis|sis)$", 2, "es"),
 			//new RE("(ness)$", 0, "es"),
