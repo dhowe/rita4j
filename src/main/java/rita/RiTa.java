@@ -421,6 +421,10 @@ public class RiTa {
 		return "Java";
 	}
 
+	public static int randi() {
+		return RandGen.randomInt();
+	}
+
 	public static float random() { // niapi
 		return RandGen.random();
 	}

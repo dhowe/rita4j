@@ -10,6 +10,7 @@ public class Lexicon {
 	private static int MAP_SIZE = 30000;
 	private static String EA[] = { };
 	private static String DELIM = ":";
+	private boolean lexWarned;
 
 	public Map<String, String[]> dict; // data
 
@@ -19,6 +20,7 @@ public class Lexicon {
 			throw new RiTaException("Problem parsing lexicon files");
 		}
 		populateDict(lines);
+		this.lexWarned = false;
 	}
 
 	public static List<String> loadJSON(String file) {
@@ -40,16 +42,43 @@ public class Lexicon {
 		}
 	}
 
+	public boolean hasWord(String word) {
+		return hasWord(word, null); 
+	}
+
+	public boolean hasWord(String word, Map<String, Object> opts) {
+		
+		if (word == null || word.length() == 0) {
+			return false;
+		}
+		String token = word.toLowerCase();
+		boolean exists = this.dict.containsKey(token);
+		boolean noDerivations = Util.boolOpt("noDerivations", opts, false);
+		
+		if (noDerivations || exists) return exists;
+		
+		String sing = RiTa.singularize(token);
+		if (this.dict.containsKey(sing)){
+			String[] tags = RiTa.tagger.allTags(sing);
+			if (Arrays.asList(tags).contains("nn")) return true;
+		} 
+		
+		String vlemma = Conjugator.unconjugate(token);
+		if (vlemma != null && this.dict.containsKey(vlemma)) {
+			String[] tags = RiTa.tagger.allTags(vlemma);
+			if (Arrays.asList(tags).contains("vb")) return true;
+		}
+
+		return false;
+	}
+
 	public String[] alliterations(String theWord, Map<String, Object> opts) {
 
-		if (theWord == null || theWord.length() < 2) return EA;
-
 		opts = this.parseArgs(opts);
-
-		int limit = Util.intOpt("limit", opts);
+		
+		if (theWord == null || theWord.length() < 2) return EA;
+		
 		boolean silent = Util.boolOpt("silent", opts);
-		String targetPos = Util.strOpt("targetPos", opts);
-
 		// only allow consonant inputs
 		if (Util.contains(RiTa.VOWELS, theWord.charAt(0))) {
 			if (!silent && !RiTa.SILENT) console.warn(
@@ -58,12 +87,14 @@ public class Lexicon {
 			return EA;
 		}
 
+		int limit = Util.intOpt("limit", opts);
+		String targetPos = Util.strOpt("targetPos", opts);
+
 		String fss = this.firstStressedSyl(theWord);
 		if (fss == null) return EA;
 
 		String phone = this.firstPhone(fss);
-		ArrayList<String> result = new ArrayList<>();
-
+		String[] words = words();
 		// make sure we parsed first phoneme
 		if (phone == null) {
 			if (!silent && !RiTa.SILENT) {
@@ -71,18 +102,20 @@ public class Lexicon {
 			}
 			return EA;
 		}
-
-		String[] words = words();
-		if ((boolean) opts.get("shuffle")) {
+		if (Util.boolOpt("shuffle", opts, false)) {
 			words = RandGen.shuffle(words);
 		}
+
+		ArrayList<String> result = new ArrayList<>();
 		for (int i = 0; i < words.length; i++) {
 			String word = words[i];
-			String[] rdata = dict.get(word);
 			// check word length and syllables 
+			String[] rdata = dict.get(word);
+
 			if (word.equals(theWord) || !this.checkCriteria(word, rdata, opts)) {
 				continue;
 			}
+
 			if (targetPos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
 				if (word == null) continue;
@@ -101,33 +134,182 @@ public class Lexicon {
 
 		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
-	
-	public boolean hasWord(String word) {
-		return hasWord(word, null); 
+
+	public String[] rhymes(String theWord) {
+		return this.rhymes(theWord, null);
 	}
 
-	public boolean hasWord(String word, Map<String, Object> opts) {
-		
-		if (word == null || word.length() == 0) {
-			return false;
+	public String[] rhymes(String theWord, Map<String, Object> opts) {
+
+		opts = this.parseArgs(opts);
+
+		if (theWord == null || theWord.length() < 2) return EA;
+
+		int limit = Util.intOpt("limit", opts);
+		String tpos = Util.strOpt("targetPos", opts);
+
+		String phone = this.lastStressedPhoneToEnd(theWord);
+		String[] words = words();
+		if (phone == null) return EA;
+
+		if ((boolean) opts.get("shuffle")) {
+			words = RandGen.shuffle(words);
 		}
 		
-		boolean exists = this.dict.containsKey(word.toLowerCase());
-		boolean noDerivations = Util.boolOpt("noDerivations", opts);
+		List<String> result = new ArrayList<>();
+		for (int i = 0; i < words.length; i++) {
+			String word = words[i];
+			String[] rdata = dict.get(word);
+
+			// check word length and syllables 
+			if (word.equals(theWord) || !this.checkCriteria(word, rdata, opts)) {
+				continue;
+			}
+
+			if (tpos.length() > 0) {
+				word = this.matchPos(word, rdata, opts, false);
+				if (word == null) continue;
+				if (!word.equals(words[i])) rdata = dict.get(word);
+			}
+
+			// if new word is not in dictionary
+			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
+
+			// check for the rhyme
+			if (phones.endsWith(phone)) result.add(word);
+			if (result.size() >= limit) break;
+		}
+
+		return result.toArray(new String[Math.min(result.size(), limit)]);
+	}
+
+	public String[] spellsLike(String word) {
+		return this.spellsLike(word, null);
+	}
+
+	public String[] spellsLike(String word, Map<String, Object> opts) {
+		if (word == null || word.length() < 1) return EA;
+		if (opts == null) opts = RiTa.opts();;
+		opts.put("type", "letter");
+		return this.similarByType(word, opts);
+	}
+
+	public String[] soundsLike(String word) {
+		return this.soundsLike(word, null);
+	}
+
+	public String[] soundsLike(String word, Map<String, Object> opts) {
+		if (word == null || word.length() < 1) return EA;
+		if (opts == null) opts = RiTa.opts();
+		opts.put("type", "sound");
+		return Util.boolOpt("matchSpelling", opts)
+		? this.similarBySoundAndLetter(word, opts)
+		: this.similarByType(word, opts);
+	}
+
+	public String randomWord() {
+		return randomWord((String) null, null);
+	}
+
+	public String randomWord(String pattern) {
+		return randomWord(pattern, null);
+	}
+
+	public String randomWord(Map<String, Object> opts) {
+
+		return this.randomWord((String) null, opts);
+	}
+
+	public String randomWord(Pattern regex) {
+		return this.randomWord(regex, null);
+	}
+
+	// takes regex or String or null
+	public String randomWord(Object regex, Map<String, Object> opts) {
+		if (regex == null && opts == null) {
+			return RiTa.random(this.dict.keySet());
+		}
+
+		if (regex == null && opts != null && opts.get("regex") != null) {
+			regex = opts.get("regex");
+		}
+
+		if (opts == null) opts = RiTa.opts("strictPos", true, "shuffle", true, "limit", 1);
+		opts.put("strictPos", true);	
+		opts.put("shuffle", true);
+		opts.put("limit", 1);
+
+		String[] result = this.search(regex, opts);
+
+		// relax our pos constraints if we got nothing
+		if (result.length < 1 && opts.get("pos") != null) {
+			opts.put("strictPos", false);
+			result = this.search(regex, opts);
+		}
 		
-		if (noDerivations || exists) return exists;
-		
-		// plural?
-		String sing = RiTa.singularize(word);
-		if (this.dict.containsKey(sing.toLowerCase()) && Arrays.asList(RiTa.tagger.allTags(sing)).contains("nn")) return true;
-		
-		// TODO: need a Conjugator.unconjugate() ?
-		String unconj = Conjugator.unconjugate(word);
-		return (this.dict.containsKey(unconj) && Arrays.asList(RiTa.tagger.allTags(unconj)).contains("vb"));
+		if (result == null || result.length < 1) {
+			String[] tem = new String[] {"strictPos", "shuffle", "targetPos"};
+			for (String s : tem) {
+				opts.remove(s);
+			}
+			throw new RiTaException("No words matching constraints:" + opts != null ? opts.toString() : "null");
+		}
+		return result[0]; // limit is 1
+	}
+
+	public String[] search() {
+		return search(null, null);
+	}
+
+	public String[] search(Map<String, Object> opts) {
+		return search(null, opts);
+	}
+
+	public String[] search(Object regex) {
+		return search(regex, null);
+	}
+
+	public String[] search(Object pattern, Map<String, Object> opts) {
+		String[] words = dict.keySet().stream().toArray(String[]::new);
+
+		// no arguments, return all words
+		if (pattern == null && opts == null) return words;
+
+		if (opts == null) opts = RiTa.opts();
+		Pattern regex = this._parseRegex(pattern, opts);
+		this.parseArgs(opts);
+
+		if (Util.boolOpt("shuffle", opts, false)) words = RandGen.shuffle(words);
+
+		String targetPos = Util.strOpt("targetPos", opts, "");
+		int limit = Util.intOpt("limit", opts);
+		List<String> result = new ArrayList<String>();
+		for (int i = 0; i < words.length; i++) {
+			String word = words[i];
+			String[] data = dict.get(word);
+			if (!this.checkCriteria(word, data, opts)) continue;
+
+			if (targetPos.length() > 0) {
+				word = this.matchPos(word, data, opts, Util.boolOpt("strictPos", opts, false));
+				if (word == null || word.length() < 1) continue;
+				if (!word.equals(words[i])) data = dict.get(word);
+			}
+
+			if (regex == null || this._regexMatch(word, data, regex, Util.strOpt("type", opts, ""))) {
+				result.add(word);
+				if (result.size() >=limit) break;
+			}
+		}
+
+		return result.stream().toArray(String[]::new);
+	}
+
+	public boolean isAlliteration(String word1, String word2) {
+		return isAlliteration(word1, word2, false);
 	}
 
 	public boolean isAlliteration(String word1, String word2, boolean noLts) {
-		if (word1 == null || word2 == null) return false;
+		if (word1 == null || word2 == null || word1.length() < 1) return false;
 		if (word1.length() == 0 || word2.length() == 0) return false;
 
 		String c1 = firstPhone(firstStressedSyl(word1, noLts));
@@ -135,6 +317,10 @@ public class Lexicon {
 
 		return c1.length() > 0 && c2.length() > 0
 				&& !RiTa.isVowel(c1.charAt(0)) && c1.equals(c2);
+	}
+
+	public boolean isRhyme(String word1, String word2) {
+		return isRhyme(word1, word2, false);
 	}
 
 	public boolean isRhyme(String word1, String word2, boolean noLts) {
@@ -153,14 +339,20 @@ public class Lexicon {
 		return p1 != null && p2 != null && p1.equals(p2);
 	}
 
+	public int size() {
+		return dict != null ? dict.size() : 0;
+	}
+
+	////////////////////////////////// end api //////////////////////////////////////////
+
 	private String matchPos(String word, String[] rdata,
 			Map<String, Object> opts, boolean strict) {
 
-		String pos = (String) opts.get("pos");
-		String targetPos = (String) opts.get("targetPos");
-		int numSyllables = (int) opts.get("numSyllables");
-		boolean pluralize = (boolean) opts.get("pluralize");
-		boolean conjugate = (boolean) opts.get("conjugate");
+		String pos = Util.strOpt("pos", opts, "");
+		String targetPos = Util.strOpt("targetPos", opts, "");
+		int numSyllables = Util.intOpt("numSyllables", opts, 0);
+		boolean pluralize = Util.boolOpt("pluralize", opts, false);
+		boolean conjugate = Util.boolOpt("conjugate", opts, false);
 
 		String[] posArr = rdata[1].split(" ");
 		if (strict && !targetPos.equals(posArr[0]) ||
@@ -173,20 +365,24 @@ public class Lexicon {
 		if (pluralize) {
 			if (word.endsWith("ness") || word.endsWith("ism")) return null;
 			result = RiTa.pluralize(word);
+			if (!RiTa.isNoun(result)) return null;
 		}
 		else if (conjugate) { // inflect
 			result = reconjugate(word, pos);
 		}
 
 		// verify we haven't changed syllable count
-		if (!result.equals(word) && numSyllables > 0) {
-			boolean tmp = RiTa.SILENCE_LTS;
-			RiTa.SILENCE_LTS = true;
-			// TODO: use rdata here if possible
-			int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;
-			RiTa.SILENCE_LTS = tmp;
-			// reject if syllable count has changed
-			if (num != numSyllables) return null;
+		if (!result.equals(word)) {
+			if (numSyllables > 0) {
+				boolean tmp = RiTa.SILENCE_LTS;
+				RiTa.SILENCE_LTS = true;
+				// TODO: use rdata here if possible
+				int num = RiTa.syllables(result).split(RiTa.SYLLABLE_BOUNDARY).length;
+				RiTa.SILENCE_LTS = tmp;
+				// reject if syllable count has changed
+				if (num != numSyllables) return null;
+			}
+			if (result.length() < Util.intOpt("minLength", opts, 0) || result.length() > Util.intOpt("maxLength", opts, 2147483647)) return null;
 		}
 
 		return result;
@@ -233,9 +429,9 @@ public class Lexicon {
 
 	private boolean checkCriteria(String word, String[] rdata, Map<String, Object> opts) {
 
-		int minLength = (int) opts.get("minLength");
-		int maxLength = (int) opts.get("maxLength");
-		int numSyllables = (int) opts.get("numSyllables");
+		int minLength = Util.intOpt("minLength", opts, 0);
+		int maxLength =  Util.intOpt("maxLength", opts, 2147483647);
+		int numSyllables =  Util.intOpt("numSyllables", opts, 0);
 
 		// check word length
 		if (word.length() > maxLength) return false;
@@ -247,145 +443,6 @@ public class Lexicon {
 			if (numSyllables != syls) return false;
 		}
 		return true;
-	}
-
-	public String randomWord() {
-		return randomWord((String) null, null);
-	}
-
-	public String randomWord(String pattern) {
-		return randomWord(pattern, null);
-	}
-
-	public String randomWord(Map<String, Object> opts) {
-
-		return this.randomWord((String) null, opts);
-	}
-
-	public String randomWord(Pattern pattern) {
-		return this.randomWord(pattern, null);
-	}
-
-	// takes Pattern or String or null
-	public String randomWord(Object pattern, Map<String, Object> opts) {
-		if (pattern == null && opts != null && opts.get("regex") != null) {
-			pattern = opts.get("regex");
-		}
-
-		if (opts == null) opts = new HashMap<String, Object>();
-		// delegate to search {limit=1, shuffle=true, strictPos=true} 
-		opts.put("limit", 1); 
-		opts.put("shuffle", true);
-		opts.put("strictPos", true);
-
-		String[] result = pattern instanceof Pattern // java is ugly
-				? this.search((Pattern) pattern, opts)
-				: this.search((String) pattern, opts);
-
-		// relax our pos constraints if we got nothing
-		if (result.length < 1 && opts.get("pos") != null) {
-			opts.put("strictPos", false);
-			result = pattern instanceof Pattern 
-			? this.search((Pattern) pattern, opts)
-			: this.search((String) pattern, opts);
-		}
-		
-		if (result == null || result.length < 1) {
-			opts.clear();
-			throw new RiTaException("No random word with options: " + opts);
-		}
-		return result[0]; // limit is 1
-	}
-
-	public String[] search() {
-		return search((String) null, null);
-	}
-
-	public String[] search(Map<String, Object> opts) {
-		return search((String) null, opts);
-	}
-
-	public String[] search(String pattern) {
-		return search(pattern, null);
-	}
-
-	public String[] search(String pattern, Map<String, Object> opts) {
-
-		Pattern re = null;
-		if (pattern == null) {
-			pattern = Util.strOpt("regex", opts);
-		}
-		if ("stresses".equals(Util.strOpt("type", opts)) && RE.test("^\\^?[01]+\\$?$", pattern)) {
-			pattern = pattern.replaceAll("([01])(?=([01]))", "$1/");
-		}
-		if (pattern != null) re = Pattern.compile(pattern);
-		return search(re, opts);
-	}
-
-	public String[] search(Pattern regex, Map<String, Object> opts) {
-
-		String[] words = words();
-		if (regex == null && (opts == null || opts.size() < 1)) return words;
-
-		String type = Util.strOpt("type", opts, "");
-
-		boolean tmp = RiTa.SILENCE_LTS;
-		RiTa.SILENCE_LTS = true;
-
-		opts = this.parseArgs(opts);
-
-		int limit = (int) opts.get("limit");
-		String tpos = (String) opts.get(TARGET_POS);
-		List<String> result = new ArrayList<String>();
-
-		int len = words.length;
-		int start = 0;
-		if ((boolean) opts.get("shuffle")) {
-			start = (int) (Math.floor(RiTa.random(len)));
-			words = RandGen.shuffle(words);
-		}
-
-		for (int i = 0; i < len; i++) {
-			int idx = (start + i) % len;
-			String word = words[idx], data[] = dict.get(word);
-
-			if (!this.checkCriteria(word, data, opts)) continue;
-
-			if (tpos.length() > 0) {
-				word = matchPos(word, data, opts, limit == 1);
-				// word = matchPos(word, data, opts, limit == 1 || (boolean) opts.get("strictPos"));
-				if (word == null) continue;
-				// Note: we may have changed the word here (e.g. via conjugation)
-				// and it is also may no longer be in the dictionary
-				if (!word.equals(words[idx])) data = dict.get(word);
-			}
-
-			if (regex != null) {
-				if (type.equals(STRESSES)) {
-					//String stresses = RiTa.analyzer.analyzeWord(word)[1];
-					String phones = data != null ? data[0] : this.rawPhones(word);
-					String stresses = RiTa.analyzer.phonesToStress(phones);
-					if (RE.test(regex, stresses)) result.add(word);
-				}
-				else if (type.equals(PHONES)) {
-					String phones = data != null ? data[0] : this.rawPhones(word);
-					phones = phones.replaceAll(STRESS, "").replaceAll(SPC, Analyzer.DELIM);
-					if (RE.test(regex, phones)) result.add(word);
-				}
-				else {
-					if (RE.test(regex, word)) result.add(word); // match letters
-				}
-			}
-			else {
-				result.add(word); // no regex
-			}
-
-			if (result.size() >= limit) break;
-		}
-
-		RiTa.SILENCE_LTS = tmp;
-
-		return result.toArray(new String[result.size()]);
 	}
 
 	public String[] searchOld(String regex, Map<String, Object> opts) {
@@ -449,36 +506,6 @@ public class Lexicon {
 		return result.toArray(new String[Math.min(result.size(), limit)]);
 	}
 
-	public String[] soundsLike(String word) {
-		return this.soundsLike(word, null);
-	}
-
-	public String[] spellsLike(String word) {
-		return this.spellsLike(word, null);
-	}
-
-	public String[] soundsLike(String word, Map<String, Object> opts) {
-		String[] result = EA;
-		if (word != null && word.length() > 0) {
-			if (opts == null) opts = new HashMap<>();
-			opts.put("type", "sound");
-			result = Util.boolOpt("matchSpelling", opts)
-					? this.similarBySoundAndLetter(word, opts)
-					: this.similarByType(word, opts);
-		}
-		return result;
-	}
-
-	public String[] spellsLike(String word, Map<String, Object> opts) {
-		String[] result = EA;
-		if (word != null && word.length() > 0) {
-			if (opts == null) opts = new HashMap<>();
-			opts.put("type", "letter");
-			result = this.similarByType(word, opts);
-		}
-		return result;
-	}
-
 	public String[] similarBySoundAndLetter(String word, Map<String, Object> opts) {
 
 		opts.put("type", "letter");
@@ -494,70 +521,20 @@ public class Lexicon {
 				Math.min(result.length, Util.intOpt("limit", opts)));
 	}
 
-	public String[] rhymes(String theWord) {
-		return this.rhymes(theWord, null);
-	}
-
-	public String[] rhymes(String theWord, Map<String, Object> opts) {
-
-		opts = this.parseArgs(opts);
-
-		int limit = Util.intOpt("limit", opts);
-		String tpos = Util.strOpt("targetPos", opts);
-
-		if (theWord == null || theWord.length() < 2) return EA;
-
-		String phone = this.lastStressedPhoneToEnd(theWord);
-		if (phone == null) return EA;
-
-		String[] words = words();
-		if ((boolean) opts.get("shuffle")) {
-			words = RandGen.shuffle(words);
-		}
-		List<String> result = new ArrayList<>();
-		for (int i = 0; i < words.length; i++) {
-			String word = words[i];
-			String[] rdata = dict.get(word);
-
-			// check word length and syllables 
-			if (word.equals(theWord) || !this.checkCriteria(word, rdata, opts)) {
-				continue;
-			}
-
-			if (tpos.length() > 0) {
-				word = this.matchPos(word, rdata, opts, false);
-				if (word == null) continue;
-				if (!word.equals(words[i])) rdata = dict.get(word);
-			}
-
-			// if new word is not in dictionary
-			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
-
-			// check for the rhyme
-			if (phones.endsWith(phone)) result.add(word);
-			if (result.size() >= limit) break;
-		}
-
-		return result.toArray(new String[Math.min(result.size(), limit)]);
-	}
-
 	public String[] similarByType(String theWord, Map<String, Object> opts) {
 		opts = this.parseArgs(opts);
 
-		String type = Util.strOpt("type", opts);
-		boolean sound = type.equals("sound");
+		String type = Util.strOpt("type", opts, "");
+		boolean matchSound = type.equals("sound");
 		int limit = Util.intOpt("limit", opts);
 		int minDist = Util.intOpt("minDistance", opts);
-		String tpos = Util.strOpt("targetPos", opts);
+		String tpos = Util.strOpt("targetPos", opts, "");
 
 		String input = theWord.toLowerCase();
-		String variations = input + "||" + input + "s||" + input + "es";
-		String[] phonesA = null, words = words();
-
-		if (sound) {
-			phonesA = this.toPhoneArray(this.rawPhones(input));
-			if (phonesA == null) return EA;
-		}
+		String[] variations = new String[] {input, input + "s", input + "es"};
+		String[] phonesA = matchSound ? this.toPhoneArray(this.rawPhones(input)) : new String[]{input};
+		if (phonesA == null || phonesA.length < 1) return EA;
+		String[] words = words();
 
 		ArrayList<String> result = new ArrayList<String>();
 		int minVal = Integer.MAX_VALUE;
@@ -570,7 +547,7 @@ public class Lexicon {
 			String word = words[i];
 			String[] rdata = dict.get(word);
 			if (!this.checkCriteria(word, rdata, opts)) continue;
-			if (variations.contains(word)) continue;
+			if (Arrays.asList(variations).contains(word)) continue;
 
 			if (tpos.length() > 0) {
 				word = this.matchPos(word, rdata, opts, false);
@@ -578,19 +555,15 @@ public class Lexicon {
 				if (!word.equals(words[i])) rdata = dict.get(word);
 			}
 
-			// if new word is not in dictionary
-			String phones = rdata != null ? rdata[0] : this.rawPhones(word);
-
-			int med = -1;
-			String[] phonesB;
-			if (sound) {
-				phonesB = phones.replaceAll("1", "").replaceAll(" ", "-").split("-");
-				med = minEditDist(phonesA, phonesB);
-			}
-			else {
-				med = minEditDist(input, word);
+			String[] phonesB = new String[]{word};
+			if (matchSound) {
+				String phones = rdata != null ? rdata[0] : this.rawPhones(word);
+				phones = phones.replaceAll("1", "");
+				phones = phones.replaceAll(" ", "-");
+				phonesB = phones.split("-");
 			}
 
+			int med = matchSound ? Lexicon.minEditDist(phonesA, phonesB) : Lexicon.minEditDist(input, word);
 			// found something even closer
 			if (med >= minDist && med < minVal) {
 				minVal = med;
@@ -678,6 +651,49 @@ public class Lexicon {
 	String[] posArr(String word) {
 		String pl = posData(word);
 		return (pl != null) ? pl.split(" ") : new String[0];
+	}
+
+	private Pattern _parseRegex(Object regex, Map<String, Object> opts){
+		if(regex == null) {
+			if (opts == null || !opts.containsKey("regex")) {
+				return null;
+			}
+			regex = opts.get("regex");
+		}
+		if (regex instanceof String) {
+			String regexStr = (String) regex;
+			if (opts != null && Util.strOpt("type", opts, "").equals("stresses")) {
+				if (Pattern.compile("^\\^?[01]+\\$?$").matcher(regexStr).matches()) {
+					regexStr = regexStr.replaceAll("([01])(?=([01]))", "$1/");
+				}
+			}
+			return Pattern.compile(regexStr);
+		} else if (regex instanceof Pattern) {
+			Pattern re = (Pattern) regex;
+			String str = re.pattern();
+			if (Pattern.compile("^\\^?[01]+\\$?$").matcher(str).matches()) {
+				return Pattern.compile(str.replaceAll("([01])(?=([01]))", "$1/"));
+			}
+			return (Pattern) regex;
+		} else {
+			return null;
+		}
+	}
+
+	private boolean _regexMatch(String word, String[]data, Pattern regex, String type){
+		if (type.equals("stresses")) {
+			String phones = data != null && data[0] != null ? data[0] : this.rawPhones(word);
+			String stresses = RiTa.analyzer.phonesToStress(phones);
+			if (RE.test(regex, stresses)) return true;
+		} else if (type.equals("phones")) {
+			String phones = data != null && data[0] != null ? data[0] : this.rawPhones(word);
+			phones = phones.replaceAll("1", "");
+			phones = phones.replaceAll(" ", "-");
+			if (RE.test(regex, phones)) return true;
+		} else {
+			if (RE.test(regex, word)) return true;
+		}
+		return false;
 	}
 
 	private String[] lookupRaw(String word) {
@@ -850,9 +866,10 @@ public class Lexicon {
 
 		// if limit==1 (eg, for randomWord) then default minLength = 4;
 		int limit = Util.intOpt("limit", opts, 10);
+		if (limit < 1)	opts.remove("limit");
 		int defMinLen = limit > 1 ? 3 : 4;
 
-		opts.put("limit", limit);
+		if (limit >=1 ) opts.put("limit", limit);
 		opts.put("pluralize", pluralize);
 		opts.put("conjugate", conjugate);
 		opts.put("targetPos", tpos);
@@ -863,9 +880,6 @@ public class Lexicon {
 		opts.put("shuffle", Util.boolOpt("shuffle", opts));
 		return opts;
 	}
-
-	private static final String TARGET_POS = "targetPos", STRESSES = "stresses";
-	private static final String PHONES = "phones", STRESS = "1", SPC = " ";
 
 	public static void main(String[] args) throws Exception {
 		//Lexicon lex = new Lexicon(RiTa.DICT_PATH);

@@ -5,6 +5,8 @@ import java.util.*;
 
 import com.google.gson.Gson;
 
+import org.antlr.v4.parse.ANTLRParser.finallyClause_return;
+
 public class Util {
 
 	public static final Map<String, Object> deepMerge(Map<String, Object> m1, Map<String, Object> m2) {
@@ -524,11 +526,11 @@ public class Util {
 				else if (arpaPhone.equals("ao")) isUWStressed = true;
 				else if (arpaPhone.equals("uw")) isUWStressed = true;
 				else if (arpaPhone.equals("ah")) isAHStressed = true;
-				else if (arpaPhone.equals("ae") && arpaPhones.length > 2 // 'at'
-						&& !arpaPhones[i > 0 ? i - 1 : i].equals("th") // e.g. for 'thank', 'ae1' is always 'æ'
-						&& !arpaPhones[i > 0 ? i - 1 : i].equals("dh") // 'that'
-						&& !arpaPhones[i > 0 ? i - 1 : i].equals("m") // 'man'
-						&& !arpaPhones[i > 0 ? i - 1 : i].equals("k")) {// 'catnip'
+				else if (arpaPhone.equals("ae") && arpaPhones.length > 2 // "at"
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("th") // e.g. for "thank", "ae1" is always 'æ'
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("dh") // "that"
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("m") // "man"
+						&& !arpaPhones[i > 0 ? i - 1 : i].equals("k")) {// "catnip"
 					isAEStressed = true;
 				}
 			}
@@ -616,6 +618,95 @@ public class Util {
 		arpaMap.put("z", "z");
 		arpaMap.put("zh", "ʒ");
 	}
+
+	public static class Number{
+		public static final Map<String, Integer> fromWords;
+		public static final Map<Integer, String> toWords;
+		static {
+			Map<String, Integer> aMap = new HashMap<String,Integer>();
+			aMap.put("one", 1);
+			aMap.put("two", 2);
+			aMap.put("three", 3);
+			aMap.put("four", 4);
+			aMap.put("five", 5);
+			aMap.put("six", 6);
+			aMap.put("seven", 7);
+			aMap.put("eight", 8);
+			aMap.put("nine", 9);
+			aMap.put("ten", 10);
+			aMap.put("eleven", 11);
+			aMap.put("twelve", 12);
+			aMap.put("zoro", 0);
+			aMap.put("thirteen", 13);
+			aMap.put("fourteen", 14);
+			aMap.put("fifteen", 15);
+			aMap.put("sixteen", 16);
+			aMap.put("seventeen", 17);
+			aMap.put("eighteen", 18);
+			aMap.put("nineteen", 19);
+			aMap.put("twenty", 20);
+			aMap.put("thirty", 30);
+			aMap.put("forty", 40);
+			aMap.put("fifty", 50);
+			aMap.put("sixty", 60);
+			aMap.put("seventy", 70);
+			aMap.put("eighty", 80);
+			aMap.put("ninety", 90);
+			fromWords = Collections.unmodifiableMap(aMap);
+			Map<Integer, String> bMap = new HashMap<Integer,String>();
+			bMap.put(0, "zero");
+			bMap.put(1, "one");
+			bMap.put(2, "two");
+			bMap.put(3, "three");
+			bMap.put(4, "four");
+			bMap.put(5, "five");
+			bMap.put(6, "six");
+			bMap.put(7, "seven");
+			bMap.put(8, "eight");
+			bMap.put(9, "nine");
+			bMap.put(10, "ten");
+			bMap.put(11, "eleven");
+			bMap.put(12, "twelve");
+			bMap.put(13, "thirteen");
+			bMap.put(14, "fourteen");
+			bMap.put(15, "fifteen");
+			bMap.put(16, "sixteen");
+			bMap.put(17, "seventeen");
+			bMap.put(18, "eighteen");
+			bMap.put(19, "nineteen");
+			bMap.put(20, "twenty");
+			bMap.put(30, "thirty");
+			bMap.put(40, "forty");
+			bMap.put(50, "fifty");
+			bMap.put(60, "sixty");
+			bMap.put(70, "seventy");
+			bMap.put(80, "eighty");
+			bMap.put(90, "ninety");
+			toWords = Collections.unmodifiableMap(bMap);
+		}
+	}
+
+	public static class Phones{
+		public static final String[] consonants = new String[] { "b", "ch", "d", "dh", "f", "g", "hh", "jh", "k", "l",
+				"m",
+				"n", "ng", "p", "r", "s", "sh", "t", "th", "v", "w", "y", "z", "zh" };
+
+		public static final String[] vowels = new String[] {
+				"aa", "ae", "ah", "ao", "aw", "ax", "ay", "eh", "er", "ey", "ih",
+				"iy", "ow", "oy", "uh", "uw" };
+
+		public static final String[] onsets = new String[] {
+				"p", "t", "k", "b", "d", "g", "f", "v", "th", "dh", "s", "z",
+				"sh", "ch", "jh", "m", "n", "r", "l", "hh", "w", "y", "p r", "t r",
+				"k r", "b r", "d r", "g r", "f r", "th r", "sh r", "p l", "k l", "b l",
+				"g l", "f l", "s l", "t w", "k w", "d w", "s w", "s p", "s t", "s k",
+				"s f", "s m", "s n", "g w", "sh w", "s p r", "s p l", "s t r", "s k r",
+				"s k w", "s k l", "th w", "zh", "p y", "k y", "b y", "f y", "hh y",
+				"v y", "th y", "m y", "s p y", "s k y", "g y", "hh w", ""
+		};
+	}
+
+	public static final String[] MODAL_EXCEPTIONS = new String[]{"hardness", "shortness"};
 
 	public static void main(String[] args) {
 		System.out.println(Util.arpaToIPA("dog"));
