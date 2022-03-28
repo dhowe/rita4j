@@ -2,6 +2,8 @@ package rita;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
@@ -33,7 +35,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	public String tagInline(String words, boolean useSimpleTags) {
 		if (words == null || words.length() < 1) return "";
-		return tagInline(Tokenizer.tokenize(words), useSimpleTags);
+		return tagInline(Tokenizer.tokenize(words,RiTa.opts("keepHyphen", true)), useSimpleTags);
 	}
 
 	public String tagInline(String[] words, boolean useSimpleTags) {
@@ -81,7 +83,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		if (words == null || words.trim().length() < 1) {
 			return new String[0];
 		}
-		return tag(Tokenizer.tokenize(words), useSimpleTags);
+		return tag(Tokenizer.tokenize(words, RiTa.opts("keepHyphen", true)), useSimpleTags);
 	}
 
 	public String[] tag(String[] wordsArr, boolean useSimpleTags) {
@@ -205,9 +207,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			if (word == null || word.length() < 1) continue;
 
 			String tag = result[i];
-			String[] results = result;
+			// String[] results = result;
 			// transform 1a: DT, {VBD | VBP | VB} --> DT, NN
-			if (i > 0 && (results[i - 1].equals("dt"))) {
+			if (i > 0 && (result[i - 1].equals("dt"))) {
 
 				if (tag.startsWith("vb")) {
 					tag = "nn";
@@ -245,7 +247,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			// transform 3: convert a noun to a past participle if
 			// word ends with "ed" and (following any nn or prp?)
 			if (i > 0 && tag.startsWith("n") && word.endsWith("ed") && !word.endsWith("eed")
-					&& results[i - 1].matches("^(nn|prp)$")) {
+					&& result[i - 1].matches("^(nn|prp)$")) {
 				tag = "vbn";
 			}
 
@@ -262,7 +264,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 			// transform 6: convert a noun to a verb if the
 			// preceeding word is modal
-			if (i > 0 && tag.startsWith("nn") && results[i - 1].startsWith("md")) {
+			if (i > 0 && tag.startsWith("nn") && result[i - 1].startsWith("md")) {
 				tag = "vb";
 			}
 
@@ -286,7 +288,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			// transform 9(dch): convert plural nouns (which are also 3sg-verbs) to
 			// 3sg-verbs when following a singular noun (the dog dances, Dave dances, he
 			// dances)
-			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && results[i - 1].matches("^(nn|prp|nnp)$")) {
+			if (i > 0 && tag.equals("nns") && hasTag(choices2d[i], "vbz") && result[i - 1].matches("^(nn|prp|nnp)$")) {
 				tag = "vbz";
 				if (dbug) logCustom("9", word, tag);
 			}
@@ -305,7 +307,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 			// transform 11(dch): convert plural nouns (which are
 			// also 3sg-verbs) to 3sg-verbs when followed by adverb
-			if (i < result.length - 1 && tag.equals("nns") && results[i + 1].startsWith("rb") &&
+			if (i < result.length - 1 && tag.equals("nns") && result[i + 1].startsWith("rb") &&
 					hasTag(choices2d[i], "vbz")) {
 				tag = "vbz";
 				if (dbug) logCustom("11", word, tag);
@@ -318,7 +320,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				// is preceded by one of the following
 				String[] options = new String[] { "nn", "prp", "cc", "nnp" };
 				List<String> list = Arrays.asList(options);
-				if (i > 0 && list.contains(results[i - 1])) {
+				if (i > 0 && list.contains(result[i - 1])) {
 					// if word is ends with s or es and is "nns" and has a vb
 					if (lexHas("vb", RiTa.singularize(word))) {
 						tag = "vbz";
@@ -339,7 +341,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			// transform 13(cqx): convert a vb/ potential vb to vbp when following nns
 			// (Elephants dance, they dance)
 			if (tag.equals("vb") || (tag.equals("nn") && hasTag(choices2d[i], "vb"))) {
-				if (i > 0 && results[i - 1].matches("^(nns|nnps|prp)$")) {
+				if (i > 0 && result[i - 1].matches("^(nns|nnps|prp)$")) {
 					tag = "vbp";
 					if (dbug) logCustom("13", word, tag);
 				}
@@ -347,7 +349,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			
 			// issue#83 sequential adjectives(jc): (?:dt)? (?:jj)* (nn) (?:jj)* nn 
       		// && $1 can be tagged as jj-> $1 convert to jj (e.g a light blue sky)
-			if (tag.equals("nn") && i < results.length - 1
+			if (tag.equals("nn") && i < result.length - 1
 					&& Arrays.asList(Arrays.copyOfRange(result, 0, i + 1)).contains("nn")) {
 				int idx = Arrays.asList(Arrays.copyOfRange(result, 0, i + 1)).indexOf("nn");
 				boolean allJJ = true;
@@ -369,12 +371,34 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 				if (i < words.length - 1 && words[i + 1].length() > 0 && Arrays.asList(EX_BE).contains(words[i + 1])) {
 					tag = "ex";
 				}
-				if (i > 0 && results[i - 1].equals("in")) {
+				if (i > 0 && result[i - 1].equals("in")) {
 					tag = "nn";
 				}
 			}
 
-			results[i] = tag;
+			// https://github.com/dhowe/rita/issues/65
+      		// handle hyphenated words -JC
+			if (word.contains("-")) {
+				String[] arr = word.split("-");
+				if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("n")){
+					tag = "jj";
+				} else if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("v")
+					&& this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vrj]\\w+") > -1){
+					tag = "rb";
+				} else {
+					if (this.allTags(arr[0])!= null && findIndexWithRegex(this.allTags(arr[0]), "^n\\w+") > -1) {
+						if (this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vj]\\w+") > -1) {
+							tag = "jj";
+						} else {
+							tag = Inflector.isPlural(arr[0]) ? "nns" : "nn";
+						}
+					} else {
+						tag = "jj";
+					}
+				}
+			}
+
+			result[i] = tag;
 		}
 
 		return result;
@@ -618,6 +642,13 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	private static boolean _isNoLexIrregularVerb(String stem) {
 		return Arrays.asList(Conjugator.IRREG_VERBS_LEX).contains(stem);
+	}
+
+	private static int findIndexWithRegex(String[]arr, String regex){
+		for (int i = 0; i < arr.length; i++) {
+			if (arr[i].matches(regex)) return i;
+		}
+		return - 1;
 	}
 
 	public static void main(String[] args) {
