@@ -510,6 +510,48 @@ public class AnalyzerTests {
 		}
 	}
 
+	@Test
+	public void handleHyphenatedWords(){
+		//pos
+		assertArrayEquals(new String[] {"prp", "vbz", "jj", "."}, RiTa.pos("It is factory-made."));
+		assertArrayEquals(new String[] {"prp$", "nn", "vbz", "nn", "."}, RiTa.pos("My father-in-law likes cat."));
+		assertArrayEquals(new String[] {"prp", "vbz", "prp$", "nn", "."}, RiTa.pos("She is my mother-in-law."));
+		assertArrayEquals(new String[] {"dt", "jj", "nn", "."}, RiTa.pos("This oft-cited document."));
+		assertArrayEquals(new String[]{"nn"}, RiTa.pos("sister-in-law"));
+		assertArrayEquals(new String[]{"nns"}, RiTa.pos("brothers-in-law"));
+		assertArrayEquals(new String[]{"jj"}, RiTa.pos("ready-made"));
+		assertArrayEquals(new String[]{"nn"}, RiTa.pos("off-site"));
+		assertArrayEquals(new String[]{"jj"}, RiTa.pos("oft-cited"));
+		assertArrayEquals(new String[]{"jj"}, RiTa.pos("deeply-nested"));
+
+		//token
+		assertArrayEquals(new String[]{"deeply", "-", "nested"}, RiTa.tokenize("deeply-nested"));
+		assertArrayEquals(new String[]{"oft", "-", "cited"}, RiTa.tokenize("oft-cited"));
+		assertArrayEquals(new String[]{"off", "-", "site"}, RiTa.tokenize("off-site"));
+		assertEquals("deeply-nest", RiTa.untokenize(RiTa.tokenize("deeply-nest")));
+		assertEquals("oft-cited", RiTa.untokenize(RiTa.tokenize("oft-cited")));
+		assertEquals("off-site", RiTa.untokenize(RiTa.tokenize("off-site")));
+
+		//analyze
+		Map<String,String> feats = RiTa.analyze("off-site");
+		assertEquals("nn", feats.get("pos"));
+		assertEquals("ao-f - s-ay-t", feats.get("phones"));
+		assertEquals("1 - 1", feats.get("stresses"));
+		assertEquals("ao-f - s-ay-t", feats.get("syllables"));
+
+		feats = RiTa.analyze("oft-cited");
+		assertEquals("jj", feats.get("pos"));
+		assertEquals("ao-f-t - s-ih-t-ah-d", feats.get("phones"));
+		assertEquals("1 - 1/0", feats.get("stresses"));
+		assertEquals("ao-f-t - s-ih/t-ah-d", feats.get("syllables"));
+
+		feats = RiTa.analyze("deeply-nested");
+		assertEquals("jj", feats.get("pos"));
+		assertEquals("d-iy-p-l-iy - n-eh-s-t-ah-d", feats.get("phones"));
+		assertEquals("1/0 - 1/0", feats.get("stresses"));
+		assertEquals("d-iy-p/l-iy - n-eh/s-t-ah-d", feats.get("syllables"));
+	}
+
 	static void eq(String a, String b) {
 		eq(a, b, "");
 	}

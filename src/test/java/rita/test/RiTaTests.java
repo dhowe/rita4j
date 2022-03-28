@@ -411,7 +411,7 @@ public class RiTaTests {
 				new String[] { "that's", "why", "this", "is", "our", "place", ")", "." },
 				new String[] { "most", ",", "punctuation", ";", "is", ".", "split", ":", "from", "!", "adjoining", "words", "?" },
 				new String[] { "double", "quotes", "\"", "OK", "\"" },
-				new String[] { "face-to-face", "class" },
+				new String[] { "face","-","to","-","face", "class" },
 				new String[] { "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".",
 						"\"" },
 				new String[] { "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },

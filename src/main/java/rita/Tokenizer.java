@@ -187,6 +187,10 @@ public class Tokenizer {
 					.replaceAll(TOKREP1[i]);
 		}
 
+		if (!Util.boolOpt("keepHyphen", opts,false)) {
+			words = HYPHEN_RE.matcher(words).replaceAll("$1 - ");
+		}
+
 		if (RiTa.SPLIT_CONTRACTIONS) {
 			for (int i = 0; i < TOKPAT2.length; i++) {
 				words = TOKPAT2[i].matcher(words)
@@ -569,6 +573,7 @@ public class Tokenizer {
 	private static final Pattern GT_RE = Pattern.compile("^ *> *$");
 	private static final Pattern TAGSTART_RE = Pattern.compile("^ *[!\\-\\/] *$");
 	private static final Pattern TAGEND_RE = Pattern.compile("^ *[\\-\\/] *$");
+	private static final Pattern HYPHEN_RE = Pattern.compile("(\\w+)-(?=(\\w+))");
 
 	static {
 		if (TOKPAT1.length != TOKREP1.length
