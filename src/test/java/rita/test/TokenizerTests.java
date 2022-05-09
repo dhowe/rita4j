@@ -1,6 +1,10 @@
 package rita.test;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.Map;
+import java.util.HashMap;
+
 import org.junit.jupiter.api.Test;
 
 import rita.RiTa;
@@ -279,10 +283,29 @@ public class TokenizerTests {
 	}
 
 	@Test
+	public void splitContractions() {
+		String input1 = "That's why this is our place.";
+		String input2 = "that's why he'll win.";
+		String input3=  "that's why I'd lose.";
+		
+		String[] output1 = new String[]{"That", "is", "why", "this", "is", "our", "place", "."};
+		String[] output2 = new String[]{"that", "is", "why", "he", "will", "win", "."};
+		String[] output3 = new String[]{"that", "is", "why", "I", "would", "lose", "."};
+		
+	  	arrayEq(RiTa.tokenize(input1, RiTa.opts("splitContractions", true)), output1);
+	  	arrayEq(RiTa.tokenize(input2, RiTa.opts("splitContractions", true)), output2);
+	  	arrayEq(RiTa.tokenize(input3, RiTa.opts("splitContractions", true)), output3);
+	}
+	
+	
+	@Test
 	public void tokenizeTags() {
 		//html tags
 		String[] inputs = new String[] {
-			"<!DOCTYPE html>",
+			"<br>",
+		    "<br/>",
+		    "</br>",
+		    "<!DOCTYPE html>",
 			"<a>link</a>",
 			"<span>inline</span>",
 			"<h1>header</h1>",
@@ -294,6 +317,9 @@ public class TokenizerTests {
   		};
 
   		String[][] outputs = new String[][] {
+  			new String[] { "<br>" },
+  			new String[] { "<br/>" },
+  			new String[] { "</br>" },
 			new String[] { "<!DOCTYPE html>" },
 			new String[] { "<a>", "link", "</a>" },
 			new String[] { "<span>", "inline", "</span>" },

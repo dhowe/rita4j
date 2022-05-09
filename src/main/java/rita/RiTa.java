@@ -401,6 +401,10 @@ public class RiTa {
 	public static String[] tokenize(String text, String regex) {
 		return Tokenizer.tokenize(text, regex);
 	}
+	
+	public static String[] tokenize(String text, Map<String,Object> opts) {
+		return Tokenizer.tokenize(text,opts);
+	}
 
 	public static String untokenize(String[] words) {
 		return Tokenizer.untokenize(words);
