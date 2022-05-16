@@ -118,7 +118,7 @@ RiScript is a simple, writer-focused scripting language included in RiTa. It ena
 
 <br>
 
-<hr>
+--------------------
 
 <br>
 
@@ -138,7 +138,8 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.<br>
 <br/>
 
 Please make contributions via the [fork-and-pull model](https://reflectoring.io/github-fork-and-pull/) - thanks!
-<br/>
+
+--------------------
 
 ## A Simple Example (Java)
 
