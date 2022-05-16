@@ -137,7 +137,10 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.<br>
 
 <br/>
 
-Please make contributions via the [fork-and-pull model](https://reflectoring.io/github-fork-and-pull/) - thanks!
+Please make contributions via [fork-and-pull](https://reflectoring.io/github-fork-and-pull/) - thanks!
+
+<br/>
+
 
 --------------------
 
