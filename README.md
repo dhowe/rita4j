@@ -128,7 +128,7 @@ $ git clone https://github.com/dhowe/rita4j.git
 $ cd rita4j
 $ mvn install      # when done, you should see "BUILD SUCCESS"
 ```
-The project requires a minimum version of Java 8 and Maven 3.6 to build.
+The project requires a minimum version of Java 8 and Maven 3.6 to build.<br>
 
 ### Eclipse
 1. Do steps above under **Developing**
@@ -136,6 +136,9 @@ The project requires a minimum version of Java 8 and Maven 3.6 to build.
 3. Right-click on project, and select 'Run-as' -> 'Maven install' or 'JUnit tests'
 
 <br/>
+
+Please make contributions via the [fork-and-pull model](https://reflectoring.io/github-fork-and-pull/)
+
 
 ## A Simple Example (Java)
 
