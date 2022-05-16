@@ -548,6 +548,13 @@ public class TokenizerTests {
 		assertEquals("He owed 200,000.", RiTa.untokenize( new String[] { "He", "owed", "200,000", "." }));
 		assertEquals("He owed 200,000.50.",RiTa.untokenize( new String[] { "He", "owed", "200,000.50", "." }));
 	}
+	
+	@Test
+	public void tokenizeNumberWithComma() {
+		String input =  "It was 19,700 square inches, the equivalent of 409 A5 pages.";
+		String[] output = new String[] { "It", "was", "19,700", "square","inches", ",", "the", "equivalent", "of", "409","A5", "pages", "."};
+		arrayEq(RiTa.tokenize(input), output);
+	}
 
 	@Test
 	public void handleLineBreaks(){
