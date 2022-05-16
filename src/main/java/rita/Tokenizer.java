@@ -373,7 +373,7 @@ public class Tokenizer {
 			Pattern.compile("(Prof|PROF|prof)[\\.]"), //Prof.
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)"), //(-)27.3
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)e([\\-]?[0-9]+)"), //(-)1.2e10
-			Pattern.compile("([0-9]{3}),([0-9]{3})"), // large numbers like 200,200
+			Pattern.compile("([0-9]{1,3}),([0-9]{3})"), // large numbers like 19,700 or 200,200
 			Pattern.compile("\r\n"), // CR LF
 			Pattern.compile("\n\r"), // LF CR
 			Pattern.compile("\n"), // LF
