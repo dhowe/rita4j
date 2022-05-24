@@ -1,6 +1,8 @@
 package rita;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class LetterToSound { // in-progress
 
@@ -24,7 +26,9 @@ public class LetterToSound { // in-progress
 			parseAndAdd(RULES[i]);
 		}
 	}
-
+	
+	private static final Pattern NUM = Pattern.compile("^[0-9]+$");
+	
 	public String[] buildPhones(String word) {
 
 		if (word == null || word.length() < 1 || RiTa.isPunct(word)) {
@@ -42,6 +46,26 @@ public class LetterToSound { // in-progress
 		Integer startIndex;
 		int stateIndex;
 		
+		String[] words;
+		if (Util.isNum(word)) {
+			Matcher m = NUM.matcher(word);
+			if (m.find()) {
+				if (word.length() > 1) {
+					words = word.split("");
+				} else {
+					words = new String[] {word};
+				}
+				for (int k = 0; k < words.length; k++) {
+		          String asWord = Util.Number.toWords.get(Integer.parseInt(words[k]));
+		          String phs = RiTa.lexicon().rawPhones(asWord, true);
+		          phs = phs.replaceAll("1", "");
+		          phs = phs.replaceAll(" ", "-");
+		          phoneList.addAll(Arrays.asList(phs.split("-")));
+				}
+		          return phoneList.toArray(new String[phoneList.size()]);
+			}
+		}
+	    
 		// Create "000#word#000"
 		char c, full_buff[] = getFullBuff(word);
 
