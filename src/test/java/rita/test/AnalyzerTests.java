@@ -291,6 +291,19 @@ public class AnalyzerTests {
 		eq(feats.get("tokens"), "abandon");
 		eq(feats.get("stresses"), "0/1/0");
 		eq(feats.get("syllables"), "ah/b-ae-n/d-ah-n");
+		
+		feats = RiTa.analyze("yoyo");
+		eq(feats.get("pos"), "nn");
+		eq(feats.get("tokens"), "yoyo");
+		eq(feats.get("syllables"), "y-ow/y-ow");
+		
+	    feats = RiTa.analyze("1903");
+		eq(feats.get("pos"), "cd");
+		eq(feats.get("phones"), "w-ah-n-n-ih-n-z-ih-r-ow-th-r-iy");
+		eq(feats.get("tokens"), "1903");
+		eq(feats.get("stresses"), "0/0/0/0/0");
+		eq(feats.get("syllables"), "w-ah-n/n-ih-n/z-ih/r-ow/th-r-iy");
+	  		
 	}
 
 	//@Test
@@ -324,6 +337,22 @@ public class AnalyzerTests {
 		eq(phones, "ah-b-ae-n-d-ah-n ");
 		eq(stresses,"0/1/0 ");
 		eq(syllables, "ah/b-ae-n/d-ah-n ");
+		
+	    data = RiTa.analyzer.analyzeWord("z");
+	    phones = data[0];
+	    stresses = data[1];
+	    syllables = data[2];
+	    eq(phones, "z ");
+	    eq(stresses, "0 ");
+	    eq(syllables, "z ");
+	    
+	    data = RiTa.analyzer.analyzeWord("cloze");
+	    phones = data[0];
+	    stresses = data[1];
+	    syllables = data[2];
+	    eq(phones, "k-l-ow-z ");
+	    eq(stresses, "1 ");
+	    eq(syllables, "k-l-ow-z ");
 	}
 		
 	@Test
