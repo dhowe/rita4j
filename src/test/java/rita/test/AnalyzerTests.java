@@ -540,45 +540,58 @@ public class AnalyzerTests {
 	}
 
 	@Test
+	// https://github.com/dhowe/rita/issues/65
 	public void handleHyphenatedWords(){
-		//pos
-		assertArrayEquals(new String[] {"prp", "vbz", "jj", "."}, RiTa.pos("It is factory-made."));
-		assertArrayEquals(new String[] {"prp$", "nn", "vbz", "nn", "."}, RiTa.pos("My father-in-law likes cat."));
-		assertArrayEquals(new String[] {"prp", "vbz", "prp$", "nn", "."}, RiTa.pos("She is my mother-in-law."));
-		assertArrayEquals(new String[] {"dt", "jj", "nn", "."}, RiTa.pos("This oft-cited document."));
-		assertArrayEquals(new String[]{"nn"}, RiTa.pos("sister-in-law"));
-		assertArrayEquals(new String[]{"nns"}, RiTa.pos("brothers-in-law"));
-		assertArrayEquals(new String[]{"jj"}, RiTa.pos("ready-made"));
-		assertArrayEquals(new String[]{"nn"}, RiTa.pos("off-site"));
-		assertArrayEquals(new String[]{"jj"}, RiTa.pos("oft-cited"));
-		assertArrayEquals(new String[]{"jj"}, RiTa.pos("deeply-nested"));
-
-		//token
-		assertArrayEquals(new String[]{"deeply", "-", "nested"}, RiTa.tokenize("deeply-nested"));
-		assertArrayEquals(new String[]{"oft", "-", "cited"}, RiTa.tokenize("oft-cited"));
-		assertArrayEquals(new String[]{"off", "-", "site"}, RiTa.tokenize("off-site"));
-		assertEquals("deeply-nest", RiTa.untokenize(RiTa.tokenize("deeply-nest")));
-		assertEquals("oft-cited", RiTa.untokenize(RiTa.tokenize("oft-cited")));
-		assertEquals("off-site", RiTa.untokenize(RiTa.tokenize("off-site")));
-
-		//analyze
 		Map<String,String> feats = RiTa.analyze("off-site");
-		assertEquals("nn", feats.get("pos"));
+		assertEquals("in - nn", feats.get("pos"));
 		assertEquals("ao-f - s-ay-t", feats.get("phones"));
+		assertEquals("off - site", feats.get("tokens"));
 		assertEquals("1 - 1", feats.get("stresses"));
 		assertEquals("ao-f - s-ay-t", feats.get("syllables"));
-
+		assertEquals("off-site", RiTa.untokenize(RiTa.tokenize("off-site")));
+		assertArrayEquals(new String[]{"off", "-", "site"}, RiTa.tokenize("off-site"));
+		
 		feats = RiTa.analyze("oft-cited");
-		assertEquals("jj", feats.get("pos"));
+		assertEquals("rb - vbd", feats.get("pos"));
 		assertEquals("ao-f-t - s-ih-t-ah-d", feats.get("phones"));
 		assertEquals("1 - 1/0", feats.get("stresses"));
 		assertEquals("ao-f-t - s-ih/t-ah-d", feats.get("syllables"));
-
+		assertArrayEquals(new String[]{"oft", "-", "cited"}, RiTa.tokenize("oft-cited"));
+		
 		feats = RiTa.analyze("deeply-nested");
-		assertEquals("jj", feats.get("pos"));
+		assertEquals("rb - vbd", feats.get("pos"));
 		assertEquals("d-iy-p-l-iy - n-eh-s-t-ah-d", feats.get("phones"));
 		assertEquals("1/0 - 1/0", feats.get("stresses"));
 		assertEquals("d-iy-p/l-iy - n-eh/s-t-ah-d", feats.get("syllables"));
+		assertArrayEquals(new String[]{"deeply", "-", "nested"}, RiTa.tokenize("deeply-nested"));
+		
+		feats = RiTa.analyze("father-in-law");
+		assertEquals("nn - in - nn", feats.get("pos"));
+		assertEquals("f-aa-dh-er - ih-n - l-ao", feats.get("phones"));
+		assertEquals("father - in - law", feats.get("tokens"));
+		assertEquals("1/0 - 0 - 1", feats.get("stresses"));
+		assertEquals("f-aa/dh-er - ih-n - l-ao", feats.get("syllables"));
+		assertEquals("father-in-law", RiTa.untokenize(RiTa.tokenize("father-in-law")));
+		assertArrayEquals(new String[]{"father", "-", "in", "-", "law"}, RiTa.tokenize("father-in-law"));
+		
+		feats = RiTa.analyze("up-to-date");
+		assertEquals("in - to - nn", feats.get("pos"));
+		assertEquals("ah-p - t-uw - d-ey-t", feats.get("phones"));
+		assertEquals("up - to - date", feats.get("tokens"));
+		assertEquals("1 - 1 - 1", feats.get("stresses"));
+		assertEquals("ah-p - t-uw - d-ey-t", feats.get("syllables"));
+		assertEquals("up-to-date", RiTa.untokenize(RiTa.tokenize("up-to-date")));
+		assertArrayEquals(new String[]{"up", "-", "to", "-", "date"}, RiTa.tokenize("up-to-date"));
+		
+		feats = RiTa.analyze("state-of-the-art");
+		assertEquals("jj - in - dt - nn", feats.get("pos"));
+		assertEquals("s-t-ey-t - ah-v - dh-ah - aa-r-t", feats.get("phones"));
+		assertEquals("state - of - the - art", feats.get("tokens"));
+		assertEquals("1 - 1 - 0 - 1", feats.get("stresses"));
+		assertEquals("s-t-ey-t - ah-v - dh-ah - aa-r-t", feats.get("syllables"));
+		assertEquals("state-of-the-art", RiTa.untokenize(RiTa.tokenize("state-of-the-art")));
+		assertArrayEquals(new String[]{"state", "-", "of", "-", "the", "-", "art"}, RiTa.tokenize("state-of-the-art"));
+		
 	}
 
 	static void eq(String a, String b) {
