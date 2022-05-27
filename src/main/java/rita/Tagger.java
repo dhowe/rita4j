@@ -83,7 +83,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		if (words == null || words.trim().length() < 1) {
 			return new String[0];
 		}
-		return tag(Tokenizer.tokenize(words, RiTa.opts("keepHyphen", true)), useSimpleTags);
+		return tag(Tokenizer.tokenize(words), useSimpleTags);
 	}
 
 	public String[] tag(String[] wordsArr, boolean useSimpleTags) {
@@ -378,25 +378,25 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 			// https://github.com/dhowe/rita/issues/65
       		// handle hyphenated words -JC
-			if (word.contains("-")) {
-				String[] arr = word.split("-");
-				if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("n")){
-					tag = "jj";
-				} else if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("v")
-					&& this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vrj]\\w+") > -1){
-					tag = "rb";
-				} else {
-					if (this.allTags(arr[0])!= null && findIndexWithRegex(this.allTags(arr[0]), "^n\\w+") > -1) {
-						if (this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vj]\\w+") > -1) {
-							tag = "jj";
-						} else {
-							tag = Inflector.isPlural(arr[0]) ? "nns" : "nn";
-						}
-					} else {
-						tag = "jj";
-					}
-				}
-			}
+//			if (word.contains("-")) {
+//				String[] arr = word.split("-");
+//				if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("n")){
+//					tag = "jj";
+//				} else if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("v")
+//					&& this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vrj]\\w+") > -1){
+//					tag = "rb";
+//				} else {
+//					if (this.allTags(arr[0])!= null && findIndexWithRegex(this.allTags(arr[0]), "^n\\w+") > -1) {
+//						if (this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vj]\\w+") > -1) {
+//							tag = "jj";
+//						} else {
+//							tag = Inflector.isPlural(arr[0]) ? "nns" : "nn";
+//						}
+//					} else {
+//						tag = "jj";
+//					}
+//				}
+//			}
 
 			result[i] = tag;
 		}
