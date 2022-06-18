@@ -11,7 +11,7 @@ import rita.RiTa;
 
 public class LexLoaderTests {
 
-	@Test
+	//@Test
 	public void testLoading() {
 		Instant now = Instant.now();
 		int numWords = RiTa.search().length;
