@@ -93,6 +93,9 @@ public class ConjugatorTests {
 		eq(RiTa.presentPart("speak"), "speaking");
 
 		eq(RiTa.presentPart(""), "");
+		
+	    eq(RiTa.presentPart("hoe"), "hoeing");
+	    eq(RiTa.presentPart("shoe"), "shoeing");
 	}
 
 	@Test
