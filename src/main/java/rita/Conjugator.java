@@ -256,7 +256,7 @@ public class Conjugator {
 
 	private static final RE[] ING_FORM_RULES = {
 			new RE(CONS + "ie$", 2, "ying", 1),
-			new RE("[^ie]e$", 1, "ing", 1),
+			new RE("[^oie]e$", 1, "ing", 1),
 			new RE("^bog-down$", 5, "ging-down", 0),
 			new RE("^chivy$", 1, "vying", 0),
 			new RE("^trek$", 1, "cking", 0),
