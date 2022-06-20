@@ -538,6 +538,28 @@ public class AnalyzerTests {
 			assertTrue(Arrays.asList(tags).contains("nn"));
 		}
 	}
+	
+	@Test
+	public void handleUncountables() {
+		String[] tests = new String[] { "accommodation", "advertising", "aid", "art", "bread", "business", "butter",
+				"calm", "cash", "cheese", "childhood", "clothing ", "coffee", "content", "corruption", "courage",
+				"currency", "damage", "danger", "determination", "electricity", "employment", "energy",
+				"entertainment", "failure", "fire", "flour", "food", "freedom", "friendship", "fuel",
+				"genetics", "hair", "harm", "hospitality ", "housework", "humour", "imagination", "importance",
+				"innocence", "intelligence", "juice", "kindness", "labour", "lack", "laughter", "leisure", "literature",
+				"litter", "love", "magic", "metal", "motherhood", "motivation", "nature", "nutrition", "obesity", "oil",
+				"old age", "paper", "patience", "permission", "pollution", "poverty", "power", "production", "progress",
+				"pronunciation", "publicity", "quality", "quantity", "racism", "rain", "relaxation", "research",
+				"respect", "room", "rubbish", "safety", "salt", "sand", "seafood", "shopping", "silence",
+				"smoke", "snow", "soup", "speed", "spelling", "stress ", "sugar", "sunshine", "tea", "time",
+				"tolerance", "trade", "transportation", "travel", "trust", "understanding", "unemployment", "usage",
+				"vision", "water", "wealth", "weight", "welfare", "width", "wood", "yoga", "youth", "homecare",
+				"childcare", "fanfare", "healthcare", "medicare", "honey", "pasta"};
+		for (int i = 0; i < tests.length; i++) {
+			assertEquals(tests[i], RiTa.pluralize(tests[i]));
+			assertTrue(Inflector.isPlural(tests[i]));
+		}
+	}
 
 	@Test
 	// https://github.com/dhowe/rita/issues/65

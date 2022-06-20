@@ -417,7 +417,19 @@ public class Util {
 			"rice", "rust", "satisfaction", "schnapps", "shame", "sheep", "slang", "software", "spaghetti", "stamina",
 			"starvation", "steam", "steel", "stuff", "support", "sweat", "thunder", "timber", "toil", "traffic",
 			"tongs", "training", "trash", "valor", "vehemence", "violence", "warmth", "waste", "weather", "wheat",
-			"wisdom", "work" };
+			"wisdom", "work", "accommodation", "advertising", "aid", "art", "bread", "business", "butter", "calm",
+			"cash", "cheese", "childhood", "clothing ", "coffee", "content", "corruption", "courage", "currency",
+			"damage", "danger", "determination", "electricity", "employment", "energy", "entertainment", "failure",
+			"fire", "flour", "food", "freedom", "friendship", "fuel", "genetics", "hair", "harm", "hospitality ",
+			"housework", "humour", "imagination", "importance", "innocence", "intelligence", "juice", "kindness",
+			"labour", "lack", "laughter", "leisure", "literature", "litter", "love", "magic", "metal", "motherhood",
+			"motivation", "nature", "nutrition", "obesity", "oil", "old age", "paper", "patience", "permission",
+			"pollution", "poverty", "power", "production", "progress", "pronunciation", "publicity", "quality",
+			"quantity", "racism", "rain", "relaxation", "research", "respect", "room", "rubbish", "safety",
+			"salt", "sand", "seafood", "shopping", "silence", "smoke", "snow", "soup", "speed", "spelling", "stress ",
+			"sugar", "sunshine", "tea", "time", "tolerance", "trade", "transportation", "travel", "trust",
+			"understanding", "unemployment", "usage", "vision", "water", "wealth", "weight", "welfare", "width", "wood",
+			"yoga", "youth", "homecare", "childcare", "fanfare", "healthcare", "medicare", "honey", "pasta" };
 	
 
 
