@@ -106,7 +106,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			//				continue;
 			//			}
 
-			if (word.length() == 1) {
+			if (word.length() == 1 || word.equals( "--" )) {
 				result[i] = handleSingleLetter(word);
 				continue;
 			}

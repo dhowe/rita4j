@@ -583,6 +583,54 @@ public class AnalyzerTests {
 			assertTrue(Inflector.isPlural(tests[i]));
 		}
 	}
+	
+	@Test
+	public void handleDashes() {
+		Map<String, String> feats;
+		String sentence;
+
+		// U+2012
+		sentence = "Teaching‒the profession has always appealed to me.";
+		feats = RiTa.analyze(sentence);
+		eq(feats.get("pos"), "vbg ‒ dt nn vbz rb vbd to prp .");
+		eq(feats.get("tokens"), "Teaching \u2012 the profession has always appealed to me .");
+		assertEquals(sentence, RiTa.untokenize(RiTa.tokenize(sentence)));
+		assertArrayEquals(feats.get("tokens").split(" "), RiTa.tokenize(sentence));
+
+		// U+2013
+		sentence = "The teacher assigned pages 101–181 for tonight's reading material.";
+		feats = RiTa.analyze(sentence);
+		eq(feats.get("pos"), "dt nn vbn nns cd \u2013 cd in nns vbg jj .");
+		eq(feats.get("tokens"), "The teacher assigned pages 101 – 181 for tonight's reading material .");
+		assertEquals(sentence, RiTa.untokenize(RiTa.tokenize(sentence)));
+		assertArrayEquals(feats.get("tokens").split(" "), RiTa.tokenize(sentence));
+
+		// U+2014
+		sentence = "Type two hyphens—without a space before, after, or between them.";
+		feats = RiTa.analyze(sentence);
+		eq(feats.get("pos"), "nn cd nns \u2014 in dt nn in , in , cc in prp .");
+		eq(feats.get("tokens"), "Type two hyphens — without a space before , after , or between them .");
+		assertEquals(sentence, RiTa.untokenize(RiTa.tokenize(sentence)));
+		assertArrayEquals(feats.get("tokens").split(" "), RiTa.tokenize(sentence));
+
+		// U+2014
+		sentence = "Phones, hand-held computers, and built-in TVs—each a possible distraction—can lead to a dangerous situation if used while driving.";
+		feats = RiTa.analyze(sentence);
+		eq(feats.get("pos"),
+				"nns , nn - vbn nns , cc vbn - in nnps \u2014 dt dt jj nn \u2014 md vb to dt jj nn in vbn in vbg .");
+		eq(feats.get("tokens"),
+				"Phones , hand - held computers , and built - in TVs — each a possible distraction — can lead to a dangerous situation if used while driving .");
+		assertEquals(sentence, RiTa.untokenize(RiTa.tokenize(sentence)));
+		assertArrayEquals(feats.get("tokens").split(" "), RiTa.tokenize(sentence));
+
+		// "--"
+		sentence = "He is afraid of two things--spiders and senior prom.";
+		feats = RiTa.analyze(sentence);
+		eq(feats.get("pos"), "prp vbz jj in cd nns -- nns cc jj nn .");
+		eq(feats.get("tokens"), "He is afraid of two things -- spiders and senior prom .");
+		assertEquals(sentence, RiTa.untokenize(RiTa.tokenize(sentence)));
+		assertArrayEquals(feats.get("tokens").split(" "), RiTa.tokenize(sentence));
+	}
 
 	@Test
 	// https://github.com/dhowe/rita/issues/65

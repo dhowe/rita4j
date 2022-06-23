@@ -495,6 +495,50 @@ public class TokenizerTests {
 			eq(RiTa.untokenize(inputs[i], "-"), outputs[i]);
 		}
 	}
+	
+	@Test
+	public void handleDashes() {
+		String input;
+		String[] output, expected;
+
+		// sentences
+		input = "Type two hyphens—without a space before, after, or between them.";
+		output = RiTa.sentences(input);
+		expected = new String[] { "Type two hyphens—without a space before, after, or between them." };
+		arrayEq(output, expected);
+
+		input = "After a split second of hesitation, the second baseman leaped for the ball—or, rather, limped for it.";
+		output = RiTa.sentences(input);
+		expected = new String[] {
+				"After a split second of hesitation, the second baseman leaped for the ball—or, rather, limped for it." };
+		arrayEq(output, expected);
+
+		// tokenize and untokenize
+		input = "Type two hyphens--without a space—before, after, or between them.";
+		output = new String[] { "Type", "two", "hyphens", "--", "without", "a", "space", "—", "before", ",", "after",
+				",", "or", "between", "them", "." };
+		arrayEq(RiTa.tokenize(input), output);
+		eq(RiTa.untokenize(output), input);
+
+		input = "Phones, hand-held computers, and built-in TVs—each a possible distraction—can lead to a dangerous situation if used while driving.";
+		output = new String[] { "Phones", ",", "hand", "-", "held", "computers", ",", "and", "built", "-", "in", "TVs",
+				"—", "each", "a", "possible", "distraction", "—", "can", "lead", "to", "a", "dangerous", "situation",
+				"if", "used", "while", "driving", "." };
+		arrayEq(RiTa.tokenize(input), output);
+		eq(RiTa.untokenize(output), input);
+
+		input = "He is afraid of two things--spiders and senior prom.";
+		output = new String[] { "He", "is", "afraid", "of", "two", "things", "--", "spiders", "and", "senior", "prom",
+				"." };
+		arrayEq(RiTa.tokenize(input), output);
+		eq(RiTa.untokenize(output), input);
+
+		input = "The teacher assigned pages 101–181 for tonight's reading material.";
+		output = new String[] { "The", "teacher", "assigned", "pages", "101", "–", "181", "for", "tonight's", "reading",
+				"material", "." };
+		arrayEq(RiTa.tokenize(input), output);
+		eq(RiTa.untokenize(output), input);
+	}
 
 	@Test
 	public void untokenizeTags() {
