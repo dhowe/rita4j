@@ -303,7 +303,30 @@ public class AnalyzerTests {
 		eq(feats.get("tokens"), "1903");
 		eq(feats.get("stresses"), "0/0/0/0/0");
 		eq(feats.get("syllables"), "w-ah-n/n-ih-n/z-ih/r-ow/th-r-iy");
-	  		
+
+		feats = RiTa.analyze("bit");
+		eq(feats.get("pos"), "vbd");
+
+		// 'bit': as a vbd
+		feats = RiTa.analyze("It bit me.");
+		eq(feats.get("pos"), "prp vbd prp .");
+		// 'bit': as an nn
+		feats = RiTa.analyze("Give the duck a bit of bread.");
+		eq(feats.get("pos"), "vb dt nn dt nn in nn .");
+		
+		feats = RiTa.analyze("broke");
+		eq(feats.get("pos"), "vbd");
+		feats = RiTa.analyze("I broke my leg.");
+		eq(feats.get("pos"), "prp vbd prp$ nn .");
+
+		feats = RiTa.analyze("The show has ended.");
+		eq(feats.get("pos"), "dt nn vbz vbn .");
+
+		feats = RiTa.analyze("She oversaw it.");
+		eq(feats.get("pos"), "prp vbd prp .");
+
+		feats = RiTa.analyze("She remade this video.");
+		eq(feats.get("pos"), "prp vbd dt nn .");
 	}
 
 	//@Test

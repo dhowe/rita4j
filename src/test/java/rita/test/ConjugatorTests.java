@@ -65,6 +65,58 @@ public class ConjugatorTests {
 		eq(RiTa.pastPart("grown"), "grown");
 		eq(RiTa.pastPart("done"), "done");
 		eq(RiTa.pastPart("gone"), "gone");
+	    eq(RiTa.pastPart("oversold"), "oversold");
+	    eq(RiTa.pastPart("resold"), "resold");
+	    eq(RiTa.pastPart("overseen"), "overseen");
+	    eq(RiTa.pastPart("called"), "called");
+	    eq(RiTa.pastPart("committed"), "committed");
+	    eq(RiTa.pastPart("computerized"), "computerized");
+	    eq(RiTa.pastPart("concerned"), "concerned");
+	    eq(RiTa.pastPart("discriminated"), "discriminated");
+	    eq(RiTa.pastPart("ended"), "ended");
+	    eq(RiTa.pastPart("expected"), "expected");
+	    eq(RiTa.pastPart("finished"), "finished");
+	    eq(RiTa.pastPart("gained"), "gained");
+	   	
+		//verbs with incorrect 'vb' pos
+	    eq(RiTa.pastPart("undersell"), "undersold");
+	    eq(RiTa.pastPart("oversell"), "oversold");
+	    eq(RiTa.pastPart("resell"), "resold");
+	    eq(RiTa.pastPart("oversee"), "overseen");
+	    eq(RiTa.pastPart("call"), "called");
+	    eq(RiTa.pastPart("commit"), "committed");
+	    eq(RiTa.pastPart("computerize"), "computerized");
+	    eq(RiTa.pastPart("concern"), "concerned");
+	    eq(RiTa.pastPart("discriminate"), "discriminated");
+	    eq(RiTa.pastPart("end"), "ended");
+	    eq(RiTa.pastPart("expect"), "expected");
+	    eq(RiTa.pastPart("finish"), "finished");
+	    eq(RiTa.pastPart("gain"), "gained");
+	    eq(RiTa.pastPart("get"), "gotten");
+	    eq(RiTa.pastPart("increase"), "increased");
+	    eq(RiTa.pastPart("involve"), "involved");
+	    eq(RiTa.pastPart("launch"), "launched");
+	    eq(RiTa.pastPart("lead"), "led");
+	    eq(RiTa.pastPart("live"), "lived");
+	    eq(RiTa.pastPart("outpace"), "outpaced");
+	    eq(RiTa.pastPart("oversee"), "overseen");
+	    eq(RiTa.pastPart("oversell"), "oversold");
+	    eq(RiTa.pastPart("pale"), "paled");
+	    eq(RiTa.pastPart("prepay"), "prepaid");
+	    eq(RiTa.pastPart("pressure"), "pressured");
+	    eq(RiTa.pastPart("proliferate"), "proliferated");
+	    eq(RiTa.pastPart("remake"), "remade");
+	    eq(RiTa.pastPart("reopen"), "reopened");
+	    eq(RiTa.pastPart("report"), "reported");
+	    eq(RiTa.pastPart("resell"), "resold");
+	    eq(RiTa.pastPart("settle"), "settled");
+	    eq(RiTa.pastPart("build"), "built");
+	    eq(RiTa.pastPart("enter"), "entered");
+	    eq(RiTa.pastPart("own"), "owned");
+	    eq(RiTa.pastPart("plan"), "planned");
+	    eq(RiTa.pastPart("rent"), "rented");
+	    eq(RiTa.pastPart("repurchase"), "repurchased");
+	    eq(RiTa.pastPart("roast"), "roasted");
 	}
 
 	@Test
@@ -96,6 +148,7 @@ public class ConjugatorTests {
 		
 	    eq(RiTa.presentPart("hoe"), "hoeing");
 	    eq(RiTa.presentPart("shoe"), "shoeing");
+
 	}
 
 	@Test
@@ -115,6 +168,37 @@ public class ConjugatorTests {
 
 		String s = RiTa.conjugate("run", args);
 		eq(s, "ran");
+		
+		eq(RiTa.conjugate("bite", args), "bit");
+		eq(RiTa.conjugate("break", args), "broke");
+		eq(RiTa.conjugate("call", args), "called");
+		eq(RiTa.conjugate("commit", args), "committed");
+		eq(RiTa.conjugate("computerize", args), "computerized");
+		eq(RiTa.conjugate("concern", args), "concerned");
+		eq(RiTa.conjugate("discriminate", args), "discriminated");
+		eq(RiTa.conjugate("end", args), "ended");
+		eq(RiTa.conjugate("eq", args), "eqed");
+		eq(RiTa.conjugate("finish", args), "finished");
+		eq(RiTa.conjugate("gain", args), "gained");
+		eq(RiTa.conjugate("get", args), "got");
+		eq(RiTa.conjugate("increase", args), "increased");
+		eq(RiTa.conjugate("involve", args), "involved");
+		eq(RiTa.conjugate("launch", args), "launched");
+		eq(RiTa.conjugate("lead", args), "led");
+		eq(RiTa.conjugate("live", args), "lived");
+		eq(RiTa.conjugate("concern", args), "concerned");
+		eq(RiTa.conjugate("oversee", args), "oversaw");
+		eq(RiTa.conjugate("pale", args), "paled");
+		eq(RiTa.conjugate("prepay", args), "prepaid");
+		eq(RiTa.conjugate("pressure", args), "pressured");
+		eq(RiTa.conjugate("proliferate", args), "proliferated");
+		eq(RiTa.conjugate("remake", args), "remade");
+		eq(RiTa.conjugate("reopen", args), "reopened");
+		eq(RiTa.conjugate("report", args), "reported");
+		eq(RiTa.conjugate("resell", args), "resold");
+		eq(RiTa.conjugate("settle", args), "settled");
+		eq(RiTa.conjugate("start", args), "started");
+		
 	}
 
 	@Test
@@ -528,6 +612,45 @@ public class ConjugatorTests {
 	assertEquals(rita.Conjugator.unconjugate("spooning"), "spoon");
 	assertEquals(rita.Conjugator.unconjugate("mepanning"), "mepan");
 	assertEquals(rita.Conjugator.unconjugate("muddling"), "muddle");
+	
+	//verbs with incorrect 'vb' pos
+	assertEquals(rita.Conjugator.unconjugate("bitten"), "bite");
+	assertEquals(rita.Conjugator.unconjugate("broken"), "break");
+	assertEquals(rita.Conjugator.unconjugate("committed"), "commit");
+	assertEquals(rita.Conjugator.unconjugate("computerized"), "computerize");
+	assertEquals(rita.Conjugator.unconjugate("concerned"), "concern");
+	assertEquals(rita.Conjugator.unconjugate("discriminated"), "discriminate");
+	assertEquals(rita.Conjugator.unconjugate("ended"), "end");
+	assertEquals(rita.Conjugator.unconjugate("expected"), "expect");
+	assertEquals(rita.Conjugator.unconjugate("finished"), "finish");
+	assertEquals(rita.Conjugator.unconjugate("gained"), "gain");
+	assertEquals(rita.Conjugator.unconjugate("gotten"), "get");
+	assertEquals(rita.Conjugator.unconjugate("increased"), "increase");
+	assertEquals(rita.Conjugator.unconjugate("involved"), "involve");
+	assertEquals(rita.Conjugator.unconjugate("launched"), "launch");
+	assertEquals(rita.Conjugator.unconjugate("led"), "lead");
+	assertEquals(rita.Conjugator.unconjugate("lived"), "live");
+	assertEquals(rita.Conjugator.unconjugate("outpaced"), "outpace");
+	assertEquals(rita.Conjugator.unconjugate("overseen"), "oversee");
+	
+	assertEquals(rita.Conjugator.unconjugate("paled"), "pale");
+	assertEquals(rita.Conjugator.unconjugate("prepaid"), "prepay");
+	assertEquals(rita.Conjugator.unconjugate("pressured"), "pressure");
+	assertEquals(rita.Conjugator.unconjugate("proliferated"), "proliferate");
+	assertEquals(rita.Conjugator.unconjugate("reopened"), "reopen");
+	assertEquals(rita.Conjugator.unconjugate("reported"), "report");
+	assertEquals(rita.Conjugator.unconjugate("sold"), "sell");
+	assertEquals(rita.Conjugator.unconjugate("resold"), "resell");
+	assertEquals(rita.Conjugator.unconjugate("oversold"), "oversell");
+	assertEquals(rita.Conjugator.unconjugate("settled"), "settle");
+	assertEquals(rita.Conjugator.unconjugate("started"), "start");
+	assertEquals(rita.Conjugator.unconjugate("were"), "be");
+	assertEquals(rita.Conjugator.unconjugate("owned"), "own");
+	assertEquals(rita.Conjugator.unconjugate("planned"), "plan");
+	assertEquals(rita.Conjugator.unconjugate("rented"), "rent");
+	assertEquals(rita.Conjugator.unconjugate("repurchased"), "repurchase");
+	assertEquals(rita.Conjugator.unconjugate("roasted"), "roast");	
+	
 	}
 
 	static void eq(String a, String b) {
