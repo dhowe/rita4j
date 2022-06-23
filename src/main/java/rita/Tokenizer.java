@@ -334,10 +334,10 @@ public class Tokenizer {
 	private static final Pattern RBRACKS = Pattern.compile("^[\\)\\]\\}⟩]+$");
 
 	// no space before the punctuation
-	private static final Pattern NB_PUNCT = Pattern.compile("^[,\\.;:\\?!)\"\"“”\u2019‘`'%…\u2103\\^\\*°/⁄\\-@]+$");
+	private static final Pattern NB_PUNCT = Pattern.compile("^[,\\.;:\\?!)\"\"“”\u2019\u2012\u2013\u2014‘`'%…\u2103\\^\\*°/⁄\\-@]+$");
 
 	// no space after the punctuation
-	private static final Pattern NA_PUNCT = Pattern.compile("^[\\^\\*\\$/⁄#\\-@°]+$");
+	private static final Pattern NA_PUNCT = Pattern.compile("^[\\^\\*\\$/⁄#\\-@°\u2012\u2013\u2014]+$");
 	private static final Pattern QUOTES = Pattern.compile("^[(\"\"“”\u2019‘`''«»‘’]+$");
 	private static final Pattern SQUOTES = Pattern.compile("^[\u2019‘`']+$");
 	private static final Pattern APOS = Pattern.compile("^[\u2019'’]+$");
@@ -391,6 +391,9 @@ public class Tokenizer {
 			Pattern.compile("^"),
 			Pattern.compile("([^'])' | '"),
 			Pattern.compile(" \u2018"),
+			Pattern.compile("\u2012"), //" ‒ "
+			Pattern.compile("\u2013"), // " — "
+			Pattern.compile("\u2014"), //" – "
 			Pattern.compile("'([SMD]) "),
 	};
 
@@ -496,6 +499,9 @@ public class Tokenizer {
 			" ",
 			"$1 \' ",
 			" \u2018 ",
+			" \u2012 ",
+			" \u2013 ",
+			" \u2014 ",
 			" \'$1 ",
 	};
 
