@@ -187,6 +187,18 @@ public class TaggerTests {
 		arrayEq(RiTa.pos("is"), new String[] { "vbz" });
 		arrayEq(RiTa.pos("am"), new String[] { "vbp" });
 		arrayEq(RiTa.pos("be"), new String[] { "vb" });
+		
+		arrayEq(RiTa.pos("broke"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("committed"), new String[] { "vbn" });
+		arrayEq(RiTa.pos("outpaced"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("concerned"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("broke"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("committed"), new String[] { "vbn" });
+		arrayEq(RiTa.pos("outpaced"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("concerned"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("remade"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("resold"), new String[] { "vbd" });
+		arrayEq(RiTa.pos("involved"), new String[] { "vbn" });
 
 		result = RiTa.pos("There is a cat.");
 		answer = new String[] { "ex", "vbz", "dt", "nn", "." };
@@ -315,6 +327,34 @@ public class TaggerTests {
 		result = RiTa.posInline(txt);
 		answer = "The/dt dog/nn ran/vbd faster/rbr than/in the/dt other/jj dog/nn . But/cc the/dt other/jj dog/nn was/vbd prettier/jjr .";
 		eq(result, answer);
+		
+		 //'bit': as a vbd 
+	    txt = "The mosquito bit me.";
+	    result = RiTa.posInline(txt);
+	    answer = "The/dt mosquito/nn bit/vbd me/prp .";
+	    eq(result, answer);
+	    //'bit': as an nn
+	    txt = "Give the duck a bit of bread.";
+	    result = RiTa.posInline(txt);
+	    answer = "Give/vb the/dt duck/nn a/dt bit/nn of/in bread/nn .";
+	    eq(result, answer);
+
+	    //end
+	    txt = "The show has ended.";
+	    result = RiTa.posInline(txt);
+	    answer = "The/dt show/nn has/vbz ended/vbn .";
+	    eq(result, answer);
+
+	    //'led': as a vbd
+	    txt = "He led a team of crows into battle.";
+	    result = RiTa.posInline(txt);
+	    answer = "He/prp led/vbd a/dt team/nn of/in crows/nns into/in battle/nn .";
+	    eq(result, answer);
+	    //'led': as a vbn
+	    txt = "He led a team of crows into battle.";
+	    result = RiTa.posInline(txt);
+	    answer = "He/prp led/vbd a/dt team/nn of/in crows/nns into/in battle/nn .";
+	    eq(result, answer);
 	}
 
 	@Test 

@@ -51,6 +51,32 @@ public class LexiconTests {
 		assertTrue(!RiTa.hasWord("barkness")); 
 		assertTrue(!RiTa.hasWord("horne")); 
 		assertTrue(!RiTa.hasWord("haye")); 
+
+		assertTrue(!RiTa.hasWord("bitted")); 
+		assertTrue(!RiTa.hasWord("brokes")); 
+		assertTrue(!RiTa.hasWord("broked")); 
+		assertTrue(!RiTa.hasWord("concerneded")); 
+		assertTrue(!RiTa.hasWord("concerneds")); 
+		assertTrue(!RiTa.hasWord("outpaceded")); 
+		assertTrue(!RiTa.hasWord("outpaceds")); 
+		assertTrue(!RiTa.hasWord("reporteds")); 
+		assertTrue(!RiTa.hasWord("reporteded")); 
+		assertTrue(!RiTa.hasWord("calleds")); 
+		assertTrue(!RiTa.hasWord("calleded")); 
+		assertTrue(!RiTa.hasWord("committeds")); 
+		assertTrue(!RiTa.hasWord("committeded")); 
+		assertTrue(!RiTa.hasWord("computerizeds")); 
+		assertTrue(!RiTa.hasWord("computerizeded")); 
+		assertTrue(!RiTa.hasWord("leds")); 
+		assertTrue(!RiTa.hasWord("oversaws")); 
+		assertTrue(!RiTa.hasWord("oversawed"));
+		assertTrue(!RiTa.hasWord("overseened")); 
+		assertTrue(!RiTa.hasWord("remaded")); 
+		assertTrue(!RiTa.hasWord("remades")); 
+		assertTrue(!RiTa.hasWord("discriminateds")); 
+		assertTrue(!RiTa.hasWord("launcheds")); 
+		assertTrue(!RiTa.hasWord("launcheded")); 
+		assertTrue(!RiTa.hasWord("starteds")); 
 	}
 
 	@Test
@@ -812,6 +838,23 @@ public class LexiconTests {
 		assertFalse(Arrays.asList(RiTa.rhymes("hose", opts("pos", "v"))).contains("house"));
 		assertFalse(Arrays.asList(RiTa.rhymes("sieve", opts("pos", "v"))).contains("mellow"));
 		assertFalse(Arrays.asList(RiTa.rhymes("swag", opts("pos", "v"))).contains("grab"));
+
+		String[] rhymes = RiTa.rhymes("spreads", opts("pos", "vbz", "limit", 1000));
+		assertFalse(Arrays.asList(rhymes).contains("discriminateds"));
+		assertFalse(Arrays.asList(rhymes).contains("endeds"));
+		assertFalse(Arrays.asList(rhymes).contains("finisheds"));
+		assertFalse(Arrays.asList(rhymes).contains("endeds"));
+		assertFalse(Arrays.asList(rhymes).contains("reporteds"));
+		assertFalse(Arrays.asList(rhymes).contains("proliferateds"));
+		assertFalse(Arrays.asList(rhymes).contains("outpaceds"));
+		assertFalse(Arrays.asList(rhymes).contains("lives"));
+
+		assertFalse(Arrays.asList(RiTa.rhymes("hit", opts("pos", "vb"))).contains("bit"));
+		assertTrue(Arrays.asList(RiTa.rhymes("hit", opts("pos", "vbd"))).contains("bit"));
+		assertFalse(Arrays.asList(RiTa.rhymes("stroke", opts("pos", "vb"))).contains("broke"));
+		assertTrue(Arrays.asList(RiTa.rhymes("stroke", opts("pos", "vbd"))).contains("broke"));
+		assertFalse(Arrays.asList(RiTa.rhymes("evolved", opts("pos", "vb"))).contains("involved"));
+		assertTrue(Arrays.asList(RiTa.rhymes("evolved", opts("pos", "vbd"))).contains("involved"));
 	}
 
 	@Test
@@ -989,6 +1032,26 @@ public class LexiconTests {
 		assertTrue(Arrays.asList(result).contains("abetted"));
 		assertTrue(Arrays.asList(result).contains("debated"));
 		assertFalse(Arrays.asList(result).contains("condensed"));
+		
+		result = RiTa.soundsLike("build", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("built"));
+		result = RiTa.soundsLike("computerize", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("computerized"));
+		result = RiTa.soundsLike("concern", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("concerned"));
+		result = RiTa.soundsLike("commit", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("committed"));
+		result = RiTa.soundsLike("involve", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("involved"));
+		result = RiTa.soundsLike("grained", opts("pos", "vb", "limit", 1000));
+		assertFalse(Arrays.asList(result).contains("grained"));
+
+		result = RiTa.soundsLike("premade", opts("pos", "vbd"));
+		assertTrue(Arrays.asList(result).contains("remade"));
+		result = RiTa.soundsLike("incriminate", opts("pos", "vbd"));
+		assertTrue(Arrays.asList(result).contains("discriminated"));
+		result = RiTa.soundsLike("paunched", opts("pos", "vbd"));
+		assertTrue(Arrays.asList(result).contains("launched"));
 	}
 
 	@Test
