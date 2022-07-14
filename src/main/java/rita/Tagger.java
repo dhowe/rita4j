@@ -12,7 +12,18 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	public static final String[] NOUNS = { "nn", "nns", "nnp", "nnps" };
 	public static final String[] VERBS = { "vb", "vbd", "vbg", "vbn", "vbp", "vbz" };
 	public static final String[] EX_BE = { "is", "are", "was", "were", "isn't", "aren't", "wasn't", "weren't" };
-
+	private static final String[] VERB_PREFIX = { "de", "over", "re", "dis", "un", "mis", "out", "pre", "post", "co", "fore", "inter", "sub", "trans", "under" };
+	private static final String[] NOUN_PREFIX = { "anti", "auto", "de", "dis", "un", "non", "co", "over", "under", "up", "down", "hyper", "mono", "bi", "uni", "di", "semi", "omni", "mega", "mini", "macro", "micro", "counter", "ex", "mal", "neo", "out", "poly", "pseudo", "super", "sub", "sur", "tele", "tri", "ultra", "vice" };
+	private static final String[] ARTICLES = { "the", "a", "an", "some" };
+	private static final Map<String, String> HYPHENATEDS = new HashMap<String, String>(){{
+			put("well-being", "nn");
+			put("knee-length", "jj");
+			put("king-size", "jj");
+			put("ho-hum", "uh");
+			put("roly-poly", "jj");
+			put("nitty-gritty", "nn");
+			put("topsy-turvy", "jj");
+	}};
 	////////////////////////////////////////////////////////////////////////
 
 	public String tagInline(String words) {
@@ -105,15 +116,15 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			//				result[i] = "";
 			//				continue;
 			//			}
-
-			if (word.length() == 1 || word.equals( "--" )) {
+			if (RiTa.isPunct(word)) {
+				result[i] = word;
+			} else if (word.length() == 1) {
 				result[i] = handleSingleLetter(word);
-				continue;
 			}
 			else {
-				choices2d[i] = allTags(word); // all options
+				choices2d[i] = allTags(word, RiTa.opts("noGuessingOnHyphenated", true)); // all options
 				if (dbug) System.out.println(word + " " + choices2d[i].length);
-				result[i] = choices2d[i][0]; // first option
+				result[i] = choices2d[i].length > 0 ? choices2d[i][0] : "__HYPH__"; // first option
 			}
 		}
 
@@ -377,26 +388,16 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			}
 
 			// https://github.com/dhowe/rita/issues/65
-      		// handle hyphenated words -JC
-//			if (word.contains("-")) {
-//				String[] arr = word.split("-");
-//				if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("n")){
-//					tag = "jj";
-//				} else if ((i+1) < result.length && result[i+1] != null && result[i+1].startsWith("v")
-//					&& this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vrj]\\w+") > -1){
-//					tag = "rb";
-//				} else {
-//					if (this.allTags(arr[0])!= null && findIndexWithRegex(this.allTags(arr[0]), "^n\\w+") > -1) {
-//						if (this.allTags(arr[arr.length - 1]) != null && findIndexWithRegex(this.allTags(arr[arr.length - 1]), "^[vj]\\w+") > -1) {
-//							tag = "jj";
-//						} else {
-//							tag = Inflector.isPlural(arr[0]) ? "nns" : "nn";
-//						}
-//					} else {
-//						tag = "jj";
-//					}
-//				}
-//			}
+			if (word.contains("-")) {
+				if (!result[i].equals("__HYPH__")) continue;
+				if (word.equals("--")) continue;
+				if (HYPHENATEDS.containsKey(word)) {
+					result[i] = HYPHENATEDS.get(word);
+					if (dbug) System.out.println(word + ": " + HYPHENATEDS.get(word) + " ACC: special");
+					continue;
+				}
+				tag = this._tagCompoundWord(word, tag, result, words, i, dbug);
+			}
 
 			result[i] = tag;
 		}
@@ -424,10 +425,13 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 	public String[] allTags(String word, Map<String, Object> opts) {
 		boolean noGuessing = Util.boolOpt("noGuessing", opts); 
 		boolean noDerivations = Util.boolOpt("noDerivations", opts); 
+		boolean noGuessingOnHyphenated = Util.boolOpt("noGuessingOnHyphenated", opts);
 		String[] posdata = RiTa.lexicon().posArr(word);
-		if (posdata.length == 0 && !noDerivations) posdata = derivePosData(word, noGuessing);
+		if (posdata != null && posdata.length > 0) return posdata;
+		if (word.contains("-") && noGuessingOnHyphenated) return new String[]{};
 		//if (posdata.length == 0) throw new RuntimeException("Unable to derive pos data for: " + word);
-		return posdata;
+		if (!noDerivations) return this.derivePosData(word, noGuessing);
+		return new String[]{};
 	}
 	
 	String[] derivePosData(String word) {
@@ -649,6 +653,123 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			if (arr[i].matches(regex)) return i;
 		}
 		return - 1;
+	}
+
+	//#HWF
+	private String _tagCompoundWord(String word, String tag, String[] result, String[] context, int i, boolean dbug) {
+		dbug = true;
+		String[] words = word.split("-");
+		String firstPart = words[0];
+		String lastPart = words[words.length - 1];
+		String[] firstPartAllTags = this.allTags(firstPart);
+		String[] lastPartAllTags = this.allTags(lastPart);
+		if (words.length == 2 && Arrays.asList(VERB_PREFIX).contains(firstPart)
+				&& Arrays.asList(lastPartAllTags).stream().anyMatch(t -> Pattern.compile("^vb").matcher(t).find())) {
+			tag = Arrays.asList(lastPartAllTags).stream().filter(t -> Pattern.compile("^vb").matcher(t).find())
+					.findAny().map(Object::toString).orElse("");
+			if (dbug) System.out.println(word + ": " + tag + " ACC: prefix-vb");
+		}
+		else if (words.length == 2 && Arrays.asList(NOUN_PREFIX).contains(firstPart)
+				&& Arrays.asList(lastPartAllTags).stream().anyMatch(t -> Pattern.compile("^nn").matcher(t).find())) {
+			tag = Arrays.asList(lastPartAllTags).stream().filter(t -> Pattern.compile("^nn").matcher(t).find())
+					.findAny().map(Object::toString).orElse("");
+			if (dbug) System.out.println(word + ": " + tag + " ACC: prefix-nn");
+		}
+		else if (Arrays.asList(firstPartAllTags).stream().anyMatch(t -> Pattern.compile("^cd").matcher(t).find())) {
+			boolean allCD = true;
+			for (int z = 1; z < words.length; z++) {
+				String part = words[z];
+				if (!(Arrays.asList(this.allTags(part)).stream()
+						.anyMatch(t -> Pattern.compile("^cd").matcher(t).find()))) {
+					allCD = false;
+					break;
+				}
+			}
+			if (allCD) {
+				tag = "cd";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: cd(-cd)+ ");
+			} else {
+				tag = "jj";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: cd(-jj/nn)+ ");
+			}
+		}
+		else if (Arrays.asList(firstPartAllTags).stream().anyMatch(t -> t.startsWith("jj")) && words.length == 2
+				&& Arrays.asList(lastPartAllTags).stream().anyMatch(t -> t.startsWith("nn"))) {
+
+			tag = "jj";
+			if (dbug) System.out.println(word + ": " + tag + " ACC: jj-nn");
+		}
+		else if (Arrays.asList(firstPartAllTags).stream().anyMatch(t -> t.equals("vb"))
+				&& !Arrays.asList(firstPartAllTags).stream().anyMatch(t -> t.startsWith("jj"))) {
+			if (words.length == 2 && Arrays.asList(lastPartAllTags).stream().anyMatch(t -> t.equals("in"))) {
+				tag = "nn";
+				if (dbug)
+					System.out.println(word + ": " + tag + " ACC: vb-in");
+			} else if (words.length == 2 && Arrays.asList(lastPartAllTags).stream()
+					.anyMatch(t -> Pattern.compile("^vb[gdp]").matcher(t).find())
+					&& !Arrays.asList(lastPartAllTags).stream()
+							.anyMatch(t -> Pattern.compile("^vb$").matcher(t).find())) {
+				tag = "jj";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: vb-vbg/vbd/vbp");
+			} else {
+				tag = "nn";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: vb(-.)+ general");
+			}
+		}
+		else if ((Arrays.asList(lastPartAllTags).stream().anyMatch(t -> Pattern.compile("^(jj[rs]?)").matcher(t).find())
+				&& !Arrays.asList(lastPartAllTags).stream().anyMatch(t -> t.startsWith("nn")))
+				|| Arrays.asList(lastPartAllTags).stream().anyMatch(t -> Pattern.compile("^vb[dgn]").matcher(t).find())) {
+			tag = "jj";
+			if (dbug) System.out.println(word + ": " + tag + " ACC: last part jj or vbd/vbn/vbg");
+		}
+		else if (Arrays.asList(lastPartAllTags).stream().anyMatch(t -> Pattern.compile("^[n]").matcher(t).find())) {
+			if (Arrays.asList(firstPartAllTags).stream().anyMatch(t -> Pattern.compile("^(in|rb)").matcher(t).find())) {
+				tag = "jj";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: in/rb(-.)*-nn");
+			} else {
+				boolean lastNounIsMajor = true;
+				for (int z = 0; z < words.length - 1; z++) {
+					String part = words[z];
+					if (!Arrays.asList(this.allTags(part)).stream()
+							.anyMatch(t -> Pattern.compile("^([jn]|dt|in)").matcher(t).find())) {
+						lastNounIsMajor = false;
+						break;
+					}
+				}
+				if (lastNounIsMajor) {
+					tag = "nn";
+					if (dbug) System.out.println(word + ": " + tag + " ACC: all nn");
+				} else {
+					tag = "jj";
+					if (dbug) System.out.println(word + ": " + tag + " ACC: (.-)+nn");
+				}
+			}
+		}
+		else if (Arrays.asList(firstPartAllTags).stream().anyMatch(t -> t.startsWith("n"))) {
+			tag = Inflector.isPlural(words[0]) ? "nns" : "nn";
+			if (dbug) System.out.println(word + ": " + tag + " ACC: nn(-.)+");
+		}
+		else {
+			tag = "nn";
+			if (dbug) System.out.println(word + ": " + tag + " ACC: no rule hit");
+		}
+		
+		if (i < result.length - 1 && result[i + 1] != null && result[i + 1].startsWith("n") && tag.startsWith("n")) {
+			tag = "jj";
+		}
+		else if (tag.equals("jj") && i < result.length - 1 && result[i + 1] != null && result[i + 1].startsWith("v")) {
+			tag = "rb";
+		}
+		else if (tag.equals("jj") && i > 1 && context[i - 1] != null
+				&& Arrays.asList(ARTICLES).contains(context[i - 1].toLowerCase().trim())) {
+			if ((i > context.length - 2 || context[i + 1] == null)
+					|| (i < result.length - 1 && result[i + 1] != null
+							&& Pattern.compile("^(v|cc|in|md|w)").matcher(result[i + 1]).find())
+					|| (i < context.length - 2 && context[i + 1] != null && RiTa.isPunct(context[i + 1]))) {
+				tag = "nn";
+			} 
+		}
+		return tag;
 	}
 
 	public static void main(String[] args) {

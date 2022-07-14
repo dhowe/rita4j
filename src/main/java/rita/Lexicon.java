@@ -489,11 +489,11 @@ public class Lexicon {
 			//String phones = rdata != null ? rdata[0] : this.rawPhones(word);
 
 			if (type.equals("stresses")) {
-				String stresses = RiTa.analyzer.analyzeWord(word)[1];
+				String stresses = RiTa.analyzer.analyzeWord(word).get("stresses");
 				if (RE.test(re, stresses)) result.add(word);
 			}
 			if (type.equals("phones")) {
-				String phones = RiTa.analyzer.analyzeWord(word)[0];
+				String phones = RiTa.analyzer.analyzeWord(word).get("phones");
 				if (RE.test(re, phones)) result.add(word);
 			}
 			else {
