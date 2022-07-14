@@ -307,7 +307,7 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 			// transform 10(dch): convert common nouns to proper
 			// nouns when they start w' a capital
 
-			if (tag.startsWith("nn") && (word.charAt(0) == Character.toUpperCase(word.charAt(0)))) {
+			if (tag.startsWith("nn") && (Pattern.compile("^[A-Z]").matcher(word).find())) {
 				// if it is not at the start of a sentence or it is the only word
 				// or when it is at the start of a sentence but can't be found in the dictionary
 				if (i != 0 || words.length == 1 || (i == 0 && !lexHas("nn", RiTa.singularize(word).toLowerCase()))) {
@@ -657,7 +657,6 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 
 	//#HWF
 	private String _tagCompoundWord(String word, String tag, String[] result, String[] context, int i, boolean dbug) {
-		dbug = true;
 		String[] words = word.split("-");
 		String firstPart = words[0];
 		String lastPart = words[words.length - 1];
@@ -711,6 +710,9 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 							.anyMatch(t -> Pattern.compile("^vb$").matcher(t).find())) {
 				tag = "jj";
 				if (dbug) System.out.println(word + ": " + tag + " ACC: vb-vbg/vbd/vbp");
+			} else if (words.length == 2 && Arrays.asList(lastPartAllTags).stream().anyMatch(t -> t.startsWith("jj"))) {
+				tag = "jj";
+				if (dbug) System.out.println(word + ": " + tag + " ACC: vb-jj");
 			} else {
 				tag = "nn";
 				if (dbug) System.out.println(word + ": " + tag + " ACC: vb(-.)+ general");
@@ -762,10 +764,10 @@ public class Tagger { // TODO: make non-static to match JS, RiTa.tagger
 		}
 		else if (tag.equals("jj") && i > 1 && context[i - 1] != null
 				&& Arrays.asList(ARTICLES).contains(context[i - 1].toLowerCase().trim())) {
-			if ((i > context.length - 2 || context[i + 1] == null)
-					|| (i < result.length - 1 && result[i + 1] != null
+			if ((i > context.length - 2 || context[i + 1] == null || result[i + 1] == null)
+					|| (result[i + 1] != null
 							&& Pattern.compile("^(v|cc|in|md|w)").matcher(result[i + 1]).find())
-					|| (i < context.length - 2 && context[i + 1] != null && RiTa.isPunct(context[i + 1]))) {
+					|| (context[i + 1] != null && RiTa.isPunct(context[i + 1]))) {
 				tag = "nn";
 			} 
 		}

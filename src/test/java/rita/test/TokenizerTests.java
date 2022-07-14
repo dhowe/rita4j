@@ -224,7 +224,7 @@ public class TokenizerTests {
 				{ "that's", "why", "this", "is", "our", "place", ")", "." },
 				{ "most", ",", "punctuation", ";", "is", ".", "split", ":", "from", "!", "adjoining", "words", "?" },
 				{ "double", "quotes", "\"", "OK", "\"" },
-				{ "face","-","to","-","face", "class" },
+				{ "face-to-face", "class" },
 				{ "\"", "it", "is", "strange", "\"", ",", "said", "John", ",", "\"", "Katherine", "does", "not", "drink", "alchol", ".", "\"" },
 				{ "\"", "What", "?", "!", "\"", ",", "John", "yelled", "." },
 				{ "more", "abbreviations", ":", "a.m.", "p.m.", "Cap.", "c.", "et al.", "etc.", "P.S.", "Ph.D", "R.I.P", "vs.", "v.", "Mr.",
@@ -521,7 +521,7 @@ public class TokenizerTests {
 		eq(RiTa.untokenize(output), input);
 
 		input = "Phones, hand-held computers, and built-in TVs—each a possible distraction—can lead to a dangerous situation if used while driving.";
-		output = new String[] { "Phones", ",", "hand", "-", "held", "computers", ",", "and", "built", "-", "in", "TVs",
+		output = new String[] { "Phones", ",", "hand-held", "computers", ",", "and", "built-in", "TVs",
 				"—", "each", "a", "possible", "distraction", "—", "can", "lead", "to", "a", "dangerous", "situation",
 				"if", "used", "while", "driving", "." };
 		arrayEq(RiTa.tokenize(input), output);
