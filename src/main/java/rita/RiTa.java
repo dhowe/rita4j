@@ -36,6 +36,10 @@ public class RiTa {
 		return analyzer.analyze(word);
 	}
 
+	public static Map<String, String> analyze(String word, Map<String, Object> opts) {
+		return analyzer.analyze(word, opts);
+	}
+
 	public static String articlize(String s) {
 		return RiScript.articlize(s);
 	}
@@ -489,6 +493,7 @@ public class RiTa {
 	public static boolean SILENT = false;
 	public static boolean SILENCE_LTS = true;
 	public static boolean SPLIT_CONTRACTIONS = false;
+	public static boolean CACHING = true;
 
 	public static String PHONEME_BOUNDARY = "-";
 	public static String SYLLABLE_BOUNDARY = "/";

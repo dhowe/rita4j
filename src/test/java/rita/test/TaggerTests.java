@@ -669,6 +669,71 @@ public class TaggerTests {
 		assertTrue(!RiTa.isAdjective("energetically"));
 	}
 
+	@Test
+	public void handleHyphenatedWordsInSentence() {
+		String[] pool = new String[] {
+			"He is my father-in-law.",
+			"We have a off-site meeting yesterday.",
+			"I know a great place for an off-site.",
+			"a state-of-the-art computer",
+			"The girls wanted the merry-go-round to go faster.",
+			"He ate twenty-one burgers today.",
+			"The politician arrived by high-speed railway.",
+			"People doing yoga benefit from an increased feeling of well-being.",
+			"There is a life-size statue of the dragon in the park.",
+			"He has a king-size bed in his room.",
+			"I am taking a full-time job now",
+			"The cost for the round-trip ticket is 2000 dollars.",
+			"The cost is 2000 dollars for the round-trip.",
+			"He come back empty-handed",
+			"She is left-handed",
+			"I like the dress of the long-haired girl in the photo.",
+			"His move was breath-taking.",
+			"Snakes are cold-blooded.",
+			"People liked to wear bell-bottoms in the 80s.",
+			"This shop mainly sells corn-fed meat.",
+			"I withdraw the application and re-apply for another position.",
+			"Our co-manager believe in neo-liberalism.",
+			"He did a u-turn.",
+			"We are not going to get down to the nitty-gritty analysis of value for money.",
+			"The game require co-op with your teammates.",
+			"He was a roly-poly little man."
+		};
+
+		String[][] answers = new String[][] {
+			{"prp", "vbz", "prp$", "nn", "."},
+			{"prp", "vbp", "dt", "jj", "vbg", "nn", "."},
+			{"prp", "vbp", "dt", "jj", "nn", "in", "dt", "nn", "."},
+			{"dt", "jj", "nn"},
+			{"dt", "nns", "vbd", "dt", "nn", "to", "vb", "rbr", "."},
+			{"prp", "vbd", "cd", "nns", "nn", "."},
+			{"dt", "nn", "vbd", "in", "jj", "nn", "."},
+			{"nn", "vbg", "nn", "nn", "in", "dt", "jj", "vbg", "in", "nn", "."},
+			{"ex", "vbz", "dt", "jj", "nn", "in", "dt", "nn", "in", "dt", "nn", "."},
+			{"prp", "vbz", "dt", "jj", "nn", "in", "prp$", "nn", "."},
+			{"prp", "vbp", "vbg", "dt", "jj", "nn", "rb"},
+			{"dt", "nn", "in", "dt", "jj", "nn", "vbz", "cd", "nns", "."},
+			{"dt", "nn", "vbz", "cd", "nns", "in", "dt", "nn", "."},
+			{"prp", "vbp", "rb", "jj"},
+			{"prp", "vbz", "jj"},
+			{"prp", "vbp", "dt", "nn", "in", "dt", "jj", "nn", "in", "dt", "nn", "."},
+			{"prp$", "nn", "vbd", "jj", "."},
+			{"nns", "vbp", "jj", "."},
+			{"nn", "vbd", "to", "vb", "nn", "in", "dt", "nns", "."},
+			{"dt", "nn", "rb", "nns", "jj", "nn", "."},
+			{"prp", "vbp", "dt", "nn", "cc", "vb", "in", "dt", "nn", "."},
+			{"prp$", "nn", "vbp", "in", "nn", "."},
+			{"prp", "vbd", "dt", "nn", "."},
+			{"prp", "vbp", "rb", "vbg", "to", "vb", "rb", "to", "dt", "nn", "nn", "in", "nn", "in", "nn", "."},
+			{"dt", "nn", "vb", "nn", "in", "prp$", "nns", "."},
+			{"prp", "vbd", "dt", "jj", "jj", "nn", "."}
+		};
+
+		for (int i = 0; i < answers.length; i++) {
+			assertArrayEquals(answers[i], RiTa.pos(pool[i]), "fail at: " + pool[i]);
+		}
+	}
+
 	static void arrayEq(String[] a,String[] b) {
 		assertArrayEquals(b, a);
 	}
