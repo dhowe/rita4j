@@ -232,8 +232,8 @@ public class TokenizerTests {
 				{ "(", "testing", ")", "[", "brackets", "]", "{", "all", "}", "⟨", "kinds", "⟩" },//this might not need to be fix coz ⟨⟩ is rarely seen
 				{ "elipsis", "dots", "...", "another", "elipsis", "dots", "…" },
 				{ "this", "line", "is", "'", "for", "'", "single", "‘", "quotation", "’", "mark" },
-				{ "that", "is", "www", ".", "google", ".", "com" },
-				{ "this", "is", "www6", ".", "cityu", ".", "edu", ".", "hk" }
+				{ "that", "is", "www.google.com" },
+				{ "this", "is", "www6.cityu.edu.hk" }
 		};
 
 		eq(inputs.length, outputs.length);
@@ -715,6 +715,72 @@ public class TokenizerTests {
 		input = "I have a pen. I have an apple.";
 		output = RiTa.sentences(input, "[A-Z0-9][\\w\\s]*[\\.]");
 		expected = new String[] { "I have a pen.", "I have an apple." };
+		arrayEq(output, expected);
+	}
+
+	@Test
+	public void tokenizeUnderscores() {
+		String[] expected = new String[] {"a là"};
+		arrayEq(RiTa.tokenize("a_là"),expected);
+		
+		expected = new String[] {"a la"};
+		arrayEq(RiTa.tokenize("a_la"),expected);
+		
+		expected = new String[] {"à la"};
+		arrayEq(RiTa.tokenize("à_la"),expected);
+
+		expected = new String[] {"lá bas"};
+		arrayEq(RiTa.tokenize("lá_bas"),expected);
+		
+		expected = new String[] {"la bas"};
+		arrayEq(RiTa.tokenize("la_bas"),expected);
+
+		expected = new String[] {"comment ça-va"};
+		arrayEq(RiTa.tokenize("comment_ça-va"),expected);
+
+		expected = new String[] {"el águila"};
+		arrayEq(RiTa.tokenize("el_águila"),expected);
+
+		expected = new String[] {"9 inches"};
+		arrayEq(RiTa.tokenize("9_inches"),expected);
+	}
+
+	@Test
+	public void identifyUrls() {
+		String[] output = RiTa.tokenize("example.example@gmail.com");
+		String[] expected = new String[] {"example.example@gmail.com"};
+		arrayEq(output, expected);
+
+		output = RiTa.tokenize("an.example-email_address@gmail.com");
+		expected = new String[] { "an.example-email_address@gmail.com" };
+		arrayEq(output, expected);
+
+		output = RiTa.tokenize("an.email.address@yahoo.com");
+		expected = new String[] { "an.email.address@yahoo.com" };
+		arrayEq(output, expected);
+
+		output = RiTa.tokenize("MY.EMAIL.ADDRESS@YAHOO.COM");
+		expected = new String[] { "MY.EMAIL.ADDRESS@YAHOO.COM" };
+		arrayEq(output, expected);
+		eq(RiTa.untokenize(output), "MY.EMAIL.ADDRESS@YAHOO.COM");
+		
+		output = RiTa.tokenize("This is my email address: email-address@gmail.com.");
+		expected = new String[] { "This", "is", "my", "email", "address", ":", "email-address@gmail.com", "." };
+		arrayEq(output, expected);
+		eq(RiTa.untokenize(output), "This is my email address: email-address@gmail.com.");
+		
+		// urls
+		// with underscores
+		output = RiTa.tokenize("https://example.com/an_example_page");
+		expected = new String[] { "https://example.com/an_example_page" };
+		arrayEq(output, expected);
+		// with suffix
+		output = RiTa.tokenize("https://example.org/index.html");
+		expected = new String[] { "https://example.org/index.html" };
+		arrayEq(output, expected);
+		// with capital letters
+		output = RiTa.tokenize("http://example.com/An_Example_Page");
+		expected = new String[] { "http://example.com/An_Example_Page" };
 		arrayEq(output, expected);
 	}
 

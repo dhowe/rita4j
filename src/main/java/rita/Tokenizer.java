@@ -232,8 +232,10 @@ public class Tokenizer {
 				htmlTags.remove(0);
 				continue;
 			}
-
-			if (token.contains("_")) {
+			
+			Matcher emailMatcher = EMAIL.matcher(token);
+			Matcher urlMatcher = URL.matcher(token);
+			if (token.contains("_") && !emailMatcher.matches() && !urlMatcher.matches()) {
 				toReturn.add(UNDERSCORE.matcher(token).replaceAll("$1 $2"));
 				continue;
 			}
@@ -328,11 +330,12 @@ public class Tokenizer {
 		return text;
 	}
 
-	private static final Pattern UNDERSCORE = Pattern.compile("([a-zA-Z]|[\\\\,\\\\.])_([a-zA-Z])");
+	private static final Pattern UNDERSCORE = Pattern.compile("([0-9a-zA-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF]|[\\\\,\\\\.])_([0-9a-zA-z\u00C0-\u00D6\u00D8-\u00F6\u00F8-\u00FF])");
 	private static final Pattern SPLITTER = Pattern.compile("(\\S.+?[.!?][\"”\u201D]?)(?=\\s+|$)");
 	private static final Pattern LBRACKS = Pattern.compile("^[\\[\\(\\{⟨]+$");
 	private static final Pattern RBRACKS = Pattern.compile("^[\\)\\]\\}⟩]+$");
-
+	private static final Pattern EMAIL = Pattern.compile("^\\w+([\\.-]?\\w+)*@\\w+([\\.-]?\\w+)*(\\.\\w{2,3})+$");
+	private static final Pattern URL = Pattern.compile("((http[s]?):(\\/\\/))?([-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b)([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)");
 	// no space before the punctuation
 	private static final Pattern NB_PUNCT = Pattern.compile("^[,\\.;:\\?!)\"\"“”\u2019\u2012\u2013\u2014‘`'%…\u2103\\^\\*°/⁄\\-@]+$");
 
@@ -371,9 +374,14 @@ public class Tokenizer {
 			Pattern.compile("([Cc])([Oo])([Rr]?)([Pp]?)[\\.]"),//co. and Corp.
 			Pattern.compile("([Ll])([Tt])([Dd])[\\.]"), //ltd.
 			Pattern.compile("(Prof|PROF|prof)[\\.]"), //Prof.
+			Pattern.compile("(\\w+([\\.-_]?\\w+)*)@(\\w+([\\.-_]?\\w+)*)\\.(\\w{2,3})"), //email addresses
+			Pattern.compile("((http[s]?):(\\/\\/))([-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b)([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)"), //urls with http(s)
+			
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)"), //(-)27.3
 			Pattern.compile("([\\-]?[0-9]+)\\.([0-9]+)e([\\-]?[0-9]+)"), //(-)1.2e10
 			Pattern.compile("([0-9]{1,3}),([0-9]{3})"), // large numbers like 19,700 or 200,200
+			Pattern.compile("([A-Za-z0-9])\\.([A-Za-z0-9])"),  //www.example.com
+			
 			Pattern.compile("\r\n"), // CR LF
 			Pattern.compile("\n\r"), // LF CR
 			Pattern.compile("\n"), // LF
@@ -448,6 +456,9 @@ public class Tokenizer {
 			Pattern.compile("([\\-]?[0-9]+)DECIMALDOT([0-9]+)_"), //(-)27.3
 			Pattern.compile("_([\\-][0-9]+)DECIMALDOT([0-9]+)POWERE([\\-]?[0-9]+)_"), //(-)1.2e10
 			Pattern.compile("_DECIMALCOMMA_"), // large numbers like 200,000
+			Pattern.compile("_DECIMALDOT_"),
+			Pattern.compile("(\\w+([\\.-]?\\w+)*)AT(\\w+([\\.-]?\\w+)*)\\.(\\w{2,3})"),
+			Pattern.compile("((http[s]?)COLON(\\/\\/))([-a-zA-Z0-9@:%._\\+~#=]{1,256}\\.[a-zA-Z0-9()]{1,6}\\b)([-a-zA-Z0-9()@:%_\\+.~#?&\\/\\/=]*)"),
 			Pattern.compile("_LINEFEED_"), // LF
 			Pattern.compile("_CARRIAGERETURN_"), // CR
 			Pattern.compile("_CARRIAGERETURNLINEFEED_"), // CR LF
@@ -480,9 +491,12 @@ public class Tokenizer {
 			"_$1$2$3$4_",
 			"_$1$2$3_",
 			"_$1_",
+			"$1AT$3.$5",
+			"$2COLON$3$4$5", 
 			"$1DECIMALDOT$2_",
 			"_$1DECIMALDOT$2POWERE$3_",
 			"$1_DECIMALCOMMA_$2",
+			"$1_DECIMALDOT_$2", 
 			" _CARRIAGERETURNLINEFEED_ ",
 			" _LINEFEEDCARRIAGERETURN_ ",
 			" _LINEFEED_ ",
@@ -555,6 +569,9 @@ public class Tokenizer {
 			"$1.$2", // (-)27.3
 			"$1.$2e$3", // (-)1.2e10
 			",", // 200,000
+			".",
+			"$1@$3.$5",
+			"$2:$3$4$5",
 			"\n",
 			"\r",
 			"\r\n",
