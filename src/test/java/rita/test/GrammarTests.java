@@ -303,14 +303,13 @@ public class GrammarTests {
 				"determiner", "a | the",
 				"noun", "woman | man");
 		sentence3Map.put("verb", "shoots");
-		
+
 		@SuppressWarnings("unchecked")
-		Map<String, Object>[] grammarMaps = (Map<String, Object>[]) new Map[] 
-				{ sentence1Map, sentence2Map, sentence3Map };
+		Map<String, Object>[] grammarMaps = (Map<String, Object>[]) new Map[] { sentence1Map, sentence2Map, sentence3Map };
 
 		//as Maps
 		for (int i = 0; i < grammarMaps.length; i++) {
-			
+
 			rg.addRules(grammarMaps[i]);
 			//System.out.println(i+") "+ rg.rules);
 			assertTrue(rg.rules != null);
@@ -426,26 +425,26 @@ public class GrammarTests {
 		rg.addRule("start", "pet");
 		String str = rg.toString();
 		eq(str, "{\n  \"$$start\": \"pet\"\n}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet");
 		rg.addRule("pet", "dog");
 		str = rg.toString();
 		eq(str, "{\n  \"$$pet\": \"dog\",\n  \"$$start\": \"$pet\"\n}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "pet | iphone");
 		rg.addRule("iphone", "iphoneSE | iphone12");
 		rg.addRule("pet", "dog | cat");
 		str = rg.toString();
 		eq(str, "{\n  \"$$pet\": \"(dog | cat)\",\n  \"$$iphone\": \"(iphoneSE | iphone12)\",\n  \"$$start\": \"(pet | iphone)\"\n}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet.articlize()");
 		rg.addRule("pet", "dog | cat");
 		str = rg.toString();
 		eq(str, "{\n  \"$$pet\": \"(dog | cat)\",\n  \"$$start\": \"$pet.articlize()\"\n}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet.articlize()");
 		rg.addRule("$pet", "dog | cat");
@@ -462,26 +461,26 @@ public class GrammarTests {
 		rg.addRule("start", "pet");
 		String str = rg.toString(lb);
 		eq(str, "{<br/>  \"$$start\": \"pet\"<br/>}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet");
 		rg.addRule("pet", "dog");
 		str = rg.toString(lb);
 		eq(str, "{<br/>  \"$$pet\": \"dog\",<br/>  \"$$start\": \"$pet\"<br/>}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "pet | iphone");
 		rg.addRule("iphone", "iphoneSE | iphone12");
 		rg.addRule("pet", "dog | cat");
 		str = rg.toString(lb);
 		eq(str, "{<br/>  \"$$pet\": \"(dog | cat)\",<br/>  \"$$iphone\": \"(iphoneSE | iphone12)\",<br/>  \"$$start\": \"(pet | iphone)\"<br/>}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet.articlize()");
 		rg.addRule("pet", "dog | cat");
 		str = rg.toString(lb);
 		eq(str, "{<br/>  \"$$pet\": \"(dog | cat)\",<br/>  \"$$start\": \"$pet.articlize()\"<br/>}");
-		
+
 		rg = new RiGrammar();
 		rg.addRule("start", "$pet.articlize()");
 		rg.addRule("$pet", "dog | cat");
@@ -705,13 +704,64 @@ public class GrammarTests {
 	}
 
 	@Test
-	public void handleCustomTransformOnStatics() {
+	public void handleCustomTransforms() {
 		Supplier<String> randomPosition = () -> {
 			return "job type";
 		};
 		Map<String, Object> ctx = opts("randomPosition", randomPosition);
 		RiGrammar rg = RiTa.grammar(opts("start", "My .randomPosition()"), ctx);
 		assertEquals("My job type", rg.expand());
+	}
+
+	@Test
+	public void handlePhrasesStartingWithCustomTransforms() {
+		Supplier<String> randomPosition = () -> {
+			return "job type";
+		};
+		Map<String, Object> ctx = opts("randomPosition", randomPosition);
+		RiGrammar rg = RiTa.grammar(opts("start", ".randomPosition()"), ctx);
+		assertEquals("job type", rg.expand());
+	}
+
+	@Test
+	public void handleCustomTransformsWithTarget() {
+		Function<String, String> randomPosition = (z) -> {
+			return z + " job type";
+		};
+		Map<String, Object> ctx = opts("randomPosition", randomPosition);
+		RiGrammar rg = RiTa.grammar(opts("start", "My new.randomPosition()"), ctx);
+		assertEquals("My new job type", rg.expand());
+
+		ctx = opts("randomPosition", randomPosition);
+		rg = RiTa.grammar(opts("start", "My (new).randomPosition()"), ctx);
+		assertEquals("My new job type", rg.expand());
+	}
+
+	@Test
+	public void handlePairedAssignmentsViaTransforms() {
+		Supplier<String> quiet = () -> "";
+		Map<String, Object> rules = opts(
+				"start", "$name was our hero and $pronoun was fantastic.",
+				"name", "$boys ($pronoun=he).quiet | $girls ($pronoun=she).quiet",
+				"boys", "Jack | Jack",
+				"girls", "Jill | Jill");
+		Map<String, Object> ctx = opts("quiet", quiet);
+		RiGrammar rg = RiTa.grammar(rules, ctx);
+		String res = rg.expand();
+		System.out.println(res);
+		assertTrue(res.equals("Jill was our hero and she was fantastic.")
+				|| res.equals("Jack was our hero and he was fantastic."));
+		
+		rules = opts(
+				"start", "$name was our hero and $pronoun was very $adj.",
+				"name", "$boys ($pronoun=he).silent ($adj=manly)._ | $girls ($pronoun=she).silent ($adj=womanly)._",
+				"boys", "Jack | Jack",
+				"girls", "Jill | Jill");
+		rg = RiTa.grammar(rules,  opts());
+		res = rg.expand();
+		System.out.println(res);
+		assertTrue(res.equals("Jill was our hero and she was very womanly.")
+				|| res.equals("Jack was our hero and he was very manly."));
 	}
 
 	@Test
@@ -944,4 +994,7 @@ public class GrammarTests {
 		assertEquals(b, a, msg);
 	}
 
+	public static void main(String[] args) {
+		new GrammarTests().handlePairedAssignmentsViaTransforms();
+	}
 }

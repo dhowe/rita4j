@@ -287,7 +287,12 @@ public class RiScript {
 	private static final Pattern PRS_RE = Pattern.compile("[(){}|]|" + RiTa.VSYM);
 	private static final Pattern ENT_RE = Pattern.compile("[\\u00a0\\u2000-\\u200b\\u2028-\\u2029\\u3000]+");
 
+  // a no-op transform for sequences
 	private static final Function<String, String> identity = s -> s;
+	
+  // returns an empty string
+	private static final Function<String, String> empty = s -> "";
+
 
 	private static final Function<String, String> uc = s -> {
 		return s != null ? s.toUpperCase() : "";
@@ -315,16 +320,18 @@ public class RiScript {
 			new AbstractMap.SimpleEntry<String, Object>("capitalize", capitalize),
 			new AbstractMap.SimpleEntry<String, Object>("quotify", quotify),
 			new AbstractMap.SimpleEntry<String, Object>("ucf", capitalize),
-			new AbstractMap.SimpleEntry<String, Object>("cap", capitalize), // according to documentation
-			new AbstractMap.SimpleEntry<String, Object>("qq", quotify), // according to documentation
+			new AbstractMap.SimpleEntry<String, Object>("cap", capitalize),
+			new AbstractMap.SimpleEntry<String, Object>("qq", quotify),
 			new AbstractMap.SimpleEntry<String, Object>("art", articlize),
 			//			new AbstractMap.SimpleEntry<String, Object>("seq", identity),
 			//			new AbstractMap.SimpleEntry<String, Object>("rseq", identity),
 			new AbstractMap.SimpleEntry<String, Object>("norepeat", identity),
+			new AbstractMap.SimpleEntry<String, Object>("silent", empty),
 			new AbstractMap.SimpleEntry<String, Object>("uppercase", uc),
 			new AbstractMap.SimpleEntry<String, Object>("uc", uc),
 			new AbstractMap.SimpleEntry<String, Object>("nr", identity),
-			new AbstractMap.SimpleEntry<String, Object>("s", pluralize)
+			new AbstractMap.SimpleEntry<String, Object>("s", pluralize),
+			new AbstractMap.SimpleEntry<String, Object>("_", empty),
 	};
 
 	public static Map<String, Function<String, String>> transforms;
